@@ -1,0 +1,15 @@
+{
+  "name": "virtual-modular-environment",
+  "version": "2.0.0",
+  "description": "environment for the improvisation of electronic music using discrete events",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "autotel",
+  "license": "ISC",
+  "dependencies": {
+    "onhandlers": "^1.0.3",
+    "serialport": "^5.0.0"
+  }
+}
