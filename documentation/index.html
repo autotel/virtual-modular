@@ -1,0 +1,946 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title>virtual-modular-environment 2.0.0 | Documentation</title>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <link href='assets/bass.css' type='text/css' rel='stylesheet' />
+  <link href='assets/style.css' type='text/css' rel='stylesheet' />
+  <link href='assets/github.css' type='text/css' rel='stylesheet' />
+  <link href='assets/split.css' type='text/css' rel='stylesheet' />
+</head>
+<body class='documentation m0'>
+    <div class='flex'>
+      <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
+        <div class='py1 px2'>
+          <h3 class='mb0 no-anchor'>virtual-modular-environment</h3>
+          <div class='mb1'><code>2.0.0</code></div>
+          <input
+            placeholder='Filter'
+            id='filter-input'
+            class='col12 block input'
+            type='text' />
+          <div id='toc'>
+            <ul class='list-reset h5 py1-ul'>
+              
+                
+                <li><a
+                  href='#environment'
+                  class=" toggle-sibling">
+                  environment
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#environmenthardwareman'
+                        class='regular pre-open'>
+                        .hardwareMan
+                      </a></li>
+                    
+                      <li><a
+                        href='#environmentinteractionman'
+                        class='regular pre-open'>
+                        .interactionMan
+                      </a></li>
+                    
+                      <li><a
+                        href='#environmentmodulesman'
+                        class='regular pre-open'>
+                        .modulesMan
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                  
+                </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#hardwaremanager'
+                  class="">
+                  hardwareManager
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#createhardwarecontroller'
+                  class="">
+                  createHardwareController
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#driverx16v0'
+                  class="">
+                  DriverX16v0
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#hardwaredriver'
+                  class="">
+                  HardwareDriver
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#interactionmanager'
+                  class="">
+                  interactionManager
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#superinteractor'
+                  class=" toggle-sibling">
+                  superInteractor
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#superinteractorcreate'
+                        class='regular pre-open'>
+                        .create
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                  
+                </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#interactorbase'
+                  class="">
+                  interactorBase
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#interactor'
+                  class="">
+                  Interactor
+                  
+                </a>
+                
+                </li>
+              
+            </ul>
+          </div>
+          <div class='mt1 h6 quiet'>
+            <a href='http://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
+          </div>
+        </div>
+      </div>
+      <div id='split-right' class='relative overflow-auto height-viewport-100'>
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='environment'>
+      environment
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others</p>
+
+
+  <div class='pre p1 fill-light mt0'>environment</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='environmenthardwareman'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>hardwareMan</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>hardwareMan is responsible for the connected user-interaction hardware</p>
+
+
+  <div class='pre p1 fill-light mt0'>hardwareMan</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='environmentinteractionman'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>interactionMan</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>interactionMan is responsible for relating hardware events to actions in the modular environment</p>
+
+
+  <div class='pre p1 fill-light mt0'>interactionMan</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='environmentmodulesman'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>modulesMan</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>modulesMan is responsible for the modular environment</p>
+
+
+  <div class='pre p1 fill-light mt0'>modulesMan</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='hardwaremanager'>
+      hardwareManager
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Hardware manager</p>
+
+
+  <div class='pre p1 fill-light mt0'>hardwareManager(environment: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='createhardwarecontroller'>
+      createHardwareController
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Pendant: detect the hardware type</p>
+
+
+  <div class='pre p1 fill-light mt0'>createHardwareController(portName: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>portName</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='driverx16v0'>
+      DriverX16v0
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>DriverX16v0(environment: any, properties: any, input: <a href="#environment">environment</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>properties</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>input</span> <code class='quiet'>(<a href="#environment">environment</a>)</code>
+	    needed to create it's own interactor instance
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>:
+        that number, plus one.
+
+      
+    
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createHardwareController</span>(<span class="hljs-params">portName</span>)</span>{
+<span class="hljs-keyword">var</span> err=<span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> newPort = <span class="hljs-keyword">new</span> SerialPort(portName, {
+<span class="hljs-attr">baudRate</span>: baudRate
+});
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"newPort"</span>,newPort);
+<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'creating hardware controller'</span>);
+environment.hardwares.push(<span class="hljs-keyword">new</span> hardware_prototypes.x16v0(environment,{<span class="hljs-attr">serial</span>:newPort}));
+
+}</pre>
+    
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='hardwaredriver'>
+      HardwareDriver
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>HardwareDriver base.</p>
+
+
+  <div class='pre p1 fill-light mt0'>HardwareDriver()</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='interactionmanager'>
+      interactionManager
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>InteractionManager contains a list of all the running instances of <a href="#hardwaredriver">HardwareDriver</a>s and links them to instances of <a href="superInteractorPrototypes">superInteractorPrototypes</a> and <a href="#interactor">Interactor</a>s</p>
+
+
+  <div class='pre p1 fill-light mt0'>interactionManager(environment: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='superinteractor'>
+      superInteractor
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Definition of hardware specific translations of hardware events into internal events
+things such as "when the user press a button" become "view the sequencer user interface"</p>
+
+
+  <div class='pre p1 fill-light mt0'>superInteractor</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='superinteractorcreate'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>create(environment, myHardware, input)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>create(environment: any, myHardware: x16Hardware, input: <a href="#environment">environment</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>myHardware</span> <code class='quiet'>(x16Hardware)</code>
+	    hardware that is going to be assigned to that certain interactor. There will be an instance of an interactor for each module that is connected
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>input</span> <code class='quiet'>(<a href="#environment">environment</a>)</code>
+	    to pass the environment. Needed to access the modulesMan, for things such as adding modules, jumping to modules, etc.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></code>:
+        no return
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='interactorbase'>
+      interactorBase
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>base template for interactors when they are x16basic compatible</p>
+
+
+  <div class='pre p1 fill-light mt0'>interactorBase(controlledModule: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>controlledModule</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='interactor'>
+      Interactor
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>Interactor</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+      </div>
+    </div>
+  <script src='assets/anchor.js'></script>
+  <script src='assets/split.js'></script>
+  <script src='assets/site.js'></script>
+</body>
+</html>

@@ -1,10 +1,7 @@
 'use strict';
+var HardwareDriver=require('./hardwareDriver.js');
+console.log("x16v0 serial based, on ",process.platform);
 
-console.log("x16v0 on ",process.platform);
-  //
-  // const raspi = require('raspi');
-  // const Serial = require('raspi-serial').Serial;
-// const listens=require('onhandlers');
 const comConsts={
     "tHeaders": {
         "null": 0,
@@ -125,10 +122,29 @@ var dataChopper=new(function(){
   return this;
 })();
 
-module.exports=function(environment,properties){
-  console.log(environment.interactionMan.patterns.x16basic);
-  var myInteractionPattern=new environment.interactionMan.patterns.x16basic(environment,this);
+/**
+ * @type {HardwareDriver};
+ * Prototype of a DriverX16v0. Instanced for every hardware of this type that is connected. It handles communication with the hardware. It creates events for every hardware event. These events are forwarded to the corresponding  hardwareInteractor
+ * @param {environment} input needed to create it's own interactor instance
+ * @param {properties} properties.serial required
+ * @returns {number} that number, plus one.
+ * @example function createHardwareController(portName){
+   var err=0;
+   let newPort = new SerialPort(portName, {
+     baudRate: baudRate
+   });
 
+   //console.log("newPort",newPort);
+     console.log('creating hardware controller');
+     environment.hardwares.push(new hardware_prototypes.x16v0(environment,{serial:newPort}));
+
+ }
+
+ */
+var DriverX16v0=function(environment,properties){
+  HardwareDriver.call(this);
+  // console.log(environment.interactionMan.entryInteractors.x16basic);
+  var myInteractionPattern=environment.interactionMan.newSuperInteractor("x16basic",this);
   var serial=properties.serial;
   var tHardware=this;
   // var serial = new Serial({baudRate:baudRate,portId:serialPort});
@@ -197,7 +213,7 @@ module.exports=function(environment,properties){
   this.sendScreenA=sendScreenA;
   this.sendScreenB=sendScreenB;
   var updateLeds=function(bitmaps){
-    if(!bitmaps[2]){
+    if(!Array.isArray(bitmaps)){
       throw "when updating the LED's, I need an array of three 32 bit ints";
     }
     // tHardware.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
@@ -221,8 +237,11 @@ module.exports=function(environment,properties){
   myInteractionPattern.handle('serialopened');
 
   serial.on('data', (data) => {
-    // console.log("       data:",data);
-    dataChopper.incom(data);
+    try{
+      dataChopper.incom(data);
+    }catch(e){
+      console.error(e);
+    }
   });
 
   dataChopper.wholePacketReady=function(chd){
@@ -233,7 +252,8 @@ module.exports=function(environment,properties){
       var event={
         type:rHNames[chd[0]],
         data:chd.slice(1),
-        originalMessage:chd
+        originalMessage:chd,
+        hardware:tHardware
       }
       // console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
@@ -247,3 +267,4 @@ module.exports=function(environment,properties){
 
   return this;
 };
+module.exports = DriverX16v0;
