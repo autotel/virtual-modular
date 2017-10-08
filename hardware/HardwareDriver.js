@@ -1,7 +1,8 @@
+"use strict";
 /**
 HardwareDriver base.
 */
-HardwareDriver=function(){
+var HardwareDriver=function(){
 
 }
 module.exports=HardwareDriver;

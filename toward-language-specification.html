@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>towards a language specification</title>
+  </head>
+  <body>
+
+<pre>
+
+```
+              Function header (NI.! currently shares byte with submode)
+              │ <data0> submode/ voice specification (channel)
+              │ | <data1> (note?)
+              | | | <data2> (velocity?)
+              | | | | <data3>...
+              | | | | | <data4>...
+              | | | | | |
+general       ├────────────────── Function
+              | ├──────────────── data. If the operation's output is midi, second nibble is mapped into a channel (while the voice specification is mapped to channel) *1
+              | | ├────────────── If the operation's output is midi, this is mapped into a note / cc number
+              | | | ├──────────── If the operation's output is midi, this is mapped into velocity / value
+              | | | | ├────────── If the operation's output is midi, data from this point on is ignored.
+presetKit     ├────────────────── x00: clock tick
+              | | | | | |         x01: trigger one preset given by the data 1 number, until note off (NI.! all headers give this result) *3
+              | | | | | |         x02: send note off from one preset given by the data 1 number *2
+              | | | | | |         x04: trigger one preset given by the data 1 number, and hold that note on until the amount of clocks indicated in the data 3 (NI.!)
+              | | | | | |         x70: request of stored data, it will trigger a data response
+              | | | | | |         x71: data response
+              | ├──────────────── (if header 01-04) Not used. ? Maybe in the future I use it for multi-page or 2d presetKits, or multivoice in single note presetkits
+              | | | | | |         (if header 00) The tick base number
+              | | | | | |         Perhaps the presetkit can be transparent in this, forwardin the channel of the original event if not defined
+              | | | | | |         (if header 70-71) Contains a request number, this allows matching the message with a promise callback function
+              | | ├────────────── (if header 01-04) Preset number to trigger
+              | | | | | |         (if header 00) indicates the tick number
+              | | | ├──────────── (if header 01-04) Preset velocity. Can be overriden
+              | | | | ├────────── (if header 04) Lifespan of the note, in ticks. (the presetkit may have a different clock input)
+              | | | | | ├──────── (if header 01-04) advanced sound parameters, if applicable
+              | | | | | |
+              Function header (NI.! currently shares byte with submode)
+              │ submode/ voice specification (channel)
+              │ | data 1 (note?)
+              | | | data 2 (velocity?)
+              | | | | data 3
+              | | | | | (...)
+              | | | | | |
+sequencer     ├────────────────── x00: clock tick
+              | | | | | |         x01: set the playhead to a position indicated by data 1, set the state to play (and play it?) (NI.!)
+              | | | | | |         x02: set the state to stop (NI.!)
+              | | | | | |         x04: jump playhead to position indicated by data 1, but don't change the playing state (NI.!)
+              | | | | | |         x70: request of stored data, it will trigger a data response
+              | | | | | |         x71: data response
+              | ├──────────────── (if header 70-71) Contains a request number, this allows matching the message with a promise callback function
+              | | | | | |         (if header 00) indicates the clocks per step of the clock. If 0, it defaults to 12. Sequencer may have a step divider on top*4
+              | | ├────────────── (if header 01 or 04) indicates the step where to jump. If larger than sequence length, it %'s the number
+              | | | | | |         (if header 00) indicates the tick number
+              | | | ├────────────
+              | | | | ├──────────
+Harmonic map. ├────────────────── x00: clock tick
+              | | | | | |         x01: send a note on with a harmonic mapping function, of the <data1>. *5
+              | | | | | |         x02: stop all the noteons that could have been generated under the same <data1>
+              | | | | | |         x03: change the current user-defined harmonic mapping function to the one indicated in <data1>
+              | | | | | |         x04: trigger (...) &lt;data1&gt;, and hold (...) amount of clocks indicated in <data 3> (NI.!)
+              | ├──────────────── this data is set to a fixed value, or transparent -forwarded as it came in- (allowing harmonic mapping of many different voices)
+              | | | | | |         (if header 00) indicates the tick base number
+              | | ├────────────── (if &lt;header&gt; is 01-02 or 04) indicates the note which will be harmonically remapped
+              | | | | | |         (if &lt;header&gt; 00) indicates the tick number
+              | | | ├──────────── fixed value or transparent
+              | | | | ├────────── fixed value or transparent
+router        | | | | | |  (routes incoming signals to different outputs according to <data0>)
+
+```
+
+## Reference symbols:
+
+\*1 if an operator maps to midi and over this, it needs to have different operation channels, there would be a conflict: the source channel outputs will have no voice mapping on the output. This is why a mapper to midi is not the same as a event operator... Also, if the operator's output is an analog signal, the mapping of parameters should make sense in the sense of midi. If more parameters are needed, the slots 3+ can be used for this extra information.
+
+\*2 if the preset of that note has been triggered once the noteoff is requested, it will send a noteoff of the event that was triggered and not necessarily of the current event. (the preset may have been modified between the noteon and the noteoff)
+NI.! Indicates that this function has not been implemented yet
+
+\*3 Note that if a clock is sending absolute step, and it happens to be connected to a presetkit, the presetkit will become a rudimentary sequencer.
+
+\*4 the effective step per clock pulse will be the result of clock timebase * step division
+
+\*5 If it is converting to midi, it also transforms the header into a noteon/ note off accordingly
+</pre>
+
+</body>
+</html>

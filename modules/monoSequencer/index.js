@@ -1,21 +1,30 @@
 'use strict';
-var moduleBase=require('../moduleBase');
+var EventMessage=require('../../datatypes/eventMessage.js');
+var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+/**
+@constructor ModuleSingleton
+singleton, only one per run of the program
+every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
+*/
 
-module.exports=(function(environment){
-  //register the sequencer and it's compatible controllers
-
-  environment.interactionMan.registerInteractor(uix16Control);
-
-  this.create=function(){
-    moduleBase.call(this);
+module.exports=function(environment){return new (function(){
+  var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
+  // environment.interactionMan.registerModuleInteractor(uix16Control);
+  /**
+  @constructor
+  the instance of the of the module, ment to be instantiated multiple times.
+  require to moduleBase.call
+  */
+  this.Instance=function(){
+    moduleInstanceBase.call(this);
     this.baseName="monosequencer";
-
-    var myInteractor=new uix16Control.Instance(this);
-
+    var myInteractor=new interactorSingleton.Instance(this);
+    this.interactor=myInteractor;
     var patMem={};
     this.addEvent=function(step,event){
       patMem[step]=event;
+      // console.log(patMem);
     }
     this.clearStep=function(step){
       delete patMem[step];
@@ -31,4 +40,4 @@ module.exports=(function(environment){
     }
     // console.log(".",myInteractor);
   }
-});
+})};

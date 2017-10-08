@@ -1,8 +1,9 @@
 'use strict';
-// const onHandlers=require('onhandlers');
+console.log("-----------start-------------");
+const onHandlers=require('onhandlers');
 /** Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others */
 var environment={};
-// onHandlers.call(environment);
+onHandlers.call(environment);
 /** hardwareMan is responsible for the connected user-interaction hardware  */
 environment.hardwareMan=require("./hardware/hardwareManager.js")(environment);
 /** interactionMan is responsible for relating hardware events to actions in the modular environment */

@@ -106,34 +106,64 @@
                 
                 <li><a
                   href='#interactionmanager'
-                  class="">
-                  interactionManager
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#superinteractor'
                   class=" toggle-sibling">
-                  superInteractor
+                  interactionManager
                   <span class='icon'>▸</span>
                 </a>
                 
                 <div class='toggle-target display-none'>
                   
-                  <ul class='list-reset py1-ul pl1'>
-                    <li class='h5'><span>Static members</span></li>
-                    
+                  
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'><span>Instance members</span></li>
+                      
                       <li><a
-                        href='#superinteractorcreate'
+                        href='#interactionmanagernewsuperinteractor'
                         class='regular pre-open'>
-                        .create
+                        #newSuperInteractor
                       </a></li>
-                    
+                      
+                      <li><a
+                        href='#interactionmanagerappendinteractorsingleton'
+                        class='regular pre-open'>
+                        #appendInteractorSingleton
+                      </a></li>
+                      
                     </ul>
                   
+                  
+                  
+                </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#index'
+                  class=" toggle-sibling">
+                  index
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'><span>Instance members</span></li>
+                      
+                      <li><a
+                        href='#indexinteractorbase'
+                        class='regular pre-open'>
+                        #interactorBase
+                      </a></li>
+                      
+                      <li><a
+                        href='#indexsuperinteractorsingleton'
+                        class='regular pre-open'>
+                        #superInteractorSingleton
+                      </a></li>
+                      
+                    </ul>
                   
                   
                   
@@ -158,6 +188,84 @@
                   Interactor
                   
                 </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#superinteractor'
+                  class="">
+                  superInteractor
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#singleton'
+                  class="">
+                  singleton
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#compatibilitytags'
+                  class="">
+                  compatibilityTags
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#appendmoduleinteractor'
+                  class="">
+                  appendModuleInteractor
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#superinteractor'
+                  class="">
+                  SuperInteractor
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#modulesmanager'
+                  class=" toggle-sibling">
+                  modulesManager
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'><span>Instance members</span></li>
+                      
+                      <li><a
+                        href='#modulesmanageraddmodule'
+                        class='regular pre-open'>
+                        #addModule
+                      </a></li>
+                      
+                    </ul>
+                  
+                  
+                  
+                </div>
                 
                 </li>
               
@@ -564,7 +672,7 @@
 <span class="hljs-attr">baudRate</span>: baudRate
 });
 
-<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"newPort"</span>,newPort);
+<span class="hljs-comment">//console.log("newPort",newPort);</span>
 <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'creating hardware controller'</span>);
 environment.hardwares.push(<span class="hljs-keyword">new</span> hardware_prototypes.x16v0(environment,{<span class="hljs-attr">serial</span>:newPort}));
 
@@ -682,6 +790,147 @@ environment.hardwares.push(<span class="hljs-keyword">new</span> hardware_protot
   
 
   
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='interactionmanagernewsuperinteractor'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>newSuperInteractor(type, hardware, HardwareDriver)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>newSuperInteractor(type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, hardware: any, HardwareDriver: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>type</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    specifies the SuperInteractor constructor to call
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>hardware</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>HardwareDriver</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+	    instance. The hardware to which to assign this SuperInteractor
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='interactionmanagerappendinteractorsingleton'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>appendInteractorSingleton(interactorSingleton)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>appendInteractorSingleton(interactorSingleton: prototype)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>interactorSingleton</span> <code class='quiet'>(prototype)</code>
+	    the constructor for the interactor's singleton. Every interactor needs a parent singleton, that is called by the interactionManager. It is called passing the environment as parameter, allowing all the interactors to share the environment. Some other initialization functions could be called in this construction according to the interactor needs.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
 
   
 </section>
@@ -694,58 +943,18 @@ environment.hardwares.push(<span class="hljs-keyword">new</span> hardware_protot
   
   <div class='clearfix'>
     
-    <h3 class='fl m0' id='superinteractor'>
-      superInteractor
+    <h3 class='fl m0' id='index'>
+      index
     </h3>
     
     
   </div>
   
 
-  <p>Definition of hardware specific translations of hardware events into internal events
-things such as "when the user press a button" become "view the sequencer user interface"</p>
+  <p>each hardware needs a interface definition. The interface definition is instanced only once per run, and there is one different interface per each hardware. The interface instances the SuperInteractorSingleton, and provides the SuperInteractor constructor to the <a href="#interactionmanager">interactionManager</a>. This avoids having to load one interactorBase, and one SuperInteractor for each different hardware that could exist.</p>
 
 
-  <div class='pre p1 fill-light mt0'>superInteractor</div>
-  
-  
-
-  
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    <div class='py1 quiet mt1 prose-big'>Static Members</div>
-    <div class="clearfix">
-  
-    <div class='border-bottom' id='superinteractorcreate'>
-      <div class="clearfix small pointer toggle-sibling">
-        <div class="py1 contain">
-            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>create(environment, myHardware, input)</span>
-        </div>
-      </div>
-      <div class="clearfix display-none toggle-target">
-        <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-
-  
-
-  <div class='pre p1 fill-light mt0'>create(environment: any, myHardware: x16Hardware, input: <a href="#environment">environment</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></div>
+  <div class='pre p1 fill-light mt0'>index(environment: any)</div>
   
   
 
@@ -768,37 +977,99 @@ things such as "when the user press a button" become "view the sequencer user in
           
         </div>
       
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>myHardware</span> <code class='quiet'>(x16Hardware)</code>
-	    hardware that is going to be assigned to that certain interactor. There will be an instance of an interactor for each module that is connected
-
-          </div>
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>input</span> <code class='quiet'>(<a href="#environment">environment</a>)</code>
-	    to pass the environment. Needed to access the modulesMan, for things such as adding modules, jumping to modules, etc.
-
-          </div>
-          
-        </div>
-      
     </div>
   
 
   
 
   
-    
-      <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></code>:
-        no return
 
-      
-    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='indexinteractorbase'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>interactorBase</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>definition of the base for interactors to be .called(this) on every interactor</p>
+
+
+  <div class='pre p1 fill-light mt0'>interactorBase</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='indexsuperinteractorsingleton'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>superInteractorSingleton</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>my SuperInteractor singleton</p>
+
+
+  <div class='pre p1 fill-light mt0'>superInteractorSingleton</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
   
 
   
@@ -816,8 +1087,6 @@ things such as "when the user press a button" become "view the sequencer user in
     </div>
   
 </div>
-
-  
 
   
 
@@ -929,6 +1198,406 @@ things such as "when the user press a button" become "view the sequencer user in
   
 
   
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='superinteractor'>
+      superInteractor
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Definition of hardware specific translations of hardware events into internal events
+things such as "when the user press a button" become "view the sequencer user interface"</p>
+
+
+  <div class='pre p1 fill-light mt0'>superInteractor</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='singleton'>
+      singleton
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>new singleton(input: <a href="#environment">environment</a>)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>input</span> <code class='quiet'>(<a href="#environment">environment</a>)</code>
+	    to pass the environment. Needed to access the modulesMan, for things such as adding modules, jumping to modules, etc.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='compatibilitytags'>
+      compatibilityTags
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>check compatibility of a certain interactor</p>
+
+
+  <div class='pre p1 fill-light mt0'>compatibilityTags</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='appendmoduleinteractor'>
+      appendModuleInteractor
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>affects all the X16SuperInteractor. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.</p>
+
+
+  <div class='pre p1 fill-light mt0'>appendModuleInteractor(what: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>what</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='superinteractor'>
+      SuperInteractor
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>SuperInteractor(myHardware: any, x16Hardware: any): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>myHardware</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>x16Hardware</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a></code>:
+        no return
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='modulesmanager'>
+      modulesManager
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>modulesManager(environment: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='modulesmanageraddmodule'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>addModule()</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>addModule()</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 
