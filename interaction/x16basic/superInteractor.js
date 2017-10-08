@@ -30,7 +30,7 @@ var X16SuperInteractorsSingleton=function(environment){
   this.appendModuleInteractor=function(what){
     if(what.type=="interactor"){
       if(compatible(what.compatibilityTags)){
-        console.log(".",what);
+        // console.log(".",what);
         moduleInterfaces.push(what);
       }else{
           console.warn("x16v0 Superinteractor is incompatible with interface"+what);
@@ -42,23 +42,31 @@ var X16SuperInteractorsSingleton=function(environment){
 
   /**
   * @constructor
-  * one per connected ui. hardware
+  * Super interactor instance: one per connected ui. hardware
   * X16SuperInteractor a {@link superInteractor} prototype for x16basic {@link HardwareDriver}.
   * @param {x16Hardware}
   * @returns {undefined} no return
   */
   this.SuperInteractor=function(myHardware){
+      /** @private @var engagedModule stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
      var engagedModule=false;
-     var preselectedInterface=false;
+     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
+     selectedInterface is also subject to patching
+      */
+     var selectedInterface=false;
      var thisInteractor=this;
-     /* store what are the modules over which a button was pressed
+     /** store what are the modules over which a button was pressed
      this allows to switch to another module and still detect the
      release in the module where the button was pressed. Furthermore,
      if we are using some sort of expression out of the pressure sensing,
      we can assign it to the module where it was pressed
+     @private @var matrixButtonOwners={};
+     @private @var selectorButtonOwners={};
    */
      var matrixButtonOwners={};
      var selectorButtonOwners={};
+     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
+     var firstPressedMatrixButton=false;
      onHandlers.call(this);
      // this.on('interaction',console.log);
 
@@ -66,15 +74,25 @@ var X16SuperInteractorsSingleton=function(environment){
        event.button=event.data[0];
        // console.log(event);
        if(!engagedModule){
-         preselectedInterface=moduleInterfaces[event.data[0]];
-         //console.log(moduleInterfaces[event.data[0]]);
-         if(!preselectedInterface){
-           preselectedInterface=false;
-           //console.log(environment);
-           console.log("addModule");
-           environment.modulesMan.addModule();
+         if(firstPressedMatrixButton===false){
+           selectedInterface=moduleInterfaces[event.data[0]];
+           firstPressedMatrixButton=event.data[0];
            updateHardware();
-           console.log();
+         }else{
+           if(selectedInterface&&moduleInterfaces[event.data[0]])try{
+             var connected=selectedInterface.controlledModule.toggleOutput(moduleInterfaces[event.data[0]].controlledModule);
+             myHardware.sendScreenB((connected?">":"X")+moduleInterfaces[event.data[0]].controlledModule.name);
+           }catch(e){
+             console.error(e);
+             myHardware.sendScreenB("X");
+           }
+           updateLeds();
+         }
+         if(!selectedInterface){
+           selectedInterface=false;
+           environment.modulesMan.addModule();
+           selectedInterface=moduleInterfaces[moduleInterfaces.length-1];
+          //  console.log();
          }
        }else{
          engagedModule.matrixButtonPressed(event);
@@ -82,6 +100,9 @@ var X16SuperInteractorsSingleton=function(environment){
        }
      });
      this.on('matrixButtonReleased',function(event){
+       if(firstPressedMatrixButton===event.data[0]){
+         firstPressedMatrixButton=false;
+       }
        event.button=event.data[0];
        if(matrixButtonOwners[event.data[0]]){
          matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
@@ -119,10 +140,10 @@ var X16SuperInteractorsSingleton=function(environment){
          selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
          delete selectorButtonOwners[event.data[0]];
        }else{
-         if(preselectedInterface){
-           engagedModule=preselectedInterface;
+         if(selectedInterface){
+           engagedModule=selectedInterface;
            // console.log("engaged",engagedModule);
-           preselectedInterface.engage(event);
+           selectedInterface.engage(event);
          }else{
            updateHardware();
          }
@@ -143,23 +164,33 @@ var X16SuperInteractorsSingleton=function(environment){
 
        }
      });
-     // this.on('serialopened',function(event){
-     //   if(engaged){}else{
-     //     moduleInterfaces.forEach(function(interactor){
-     //       interactor.serialopened(event);
-     //     });
-     //   }
-     // });
      this.engage=function(evt){
        updateHardware();
        engagedModule=false;
      }
      function updateHardware(){
        myHardware.sendScreenA("select module");
-       var b=~(0xffff<<moduleInterfaces.length);
-       myHardware.draw([b,b,b]);
+       myHardware.sendScreenB((selectedInterface?selectedInterface.name:"none")+"");
+       updateLeds();
      }
-
+     function updateLeds(){
+        var outputs=0;
+        if(selectedInterface){
+        //displaying the selected module output is rather awkward:
+        //for each output of the module that the interface controls
+        // console.log(selectedInterface.controlledModule.outputs)
+        for(var siOpts of selectedInterface.controlledModule.outputs){
+          //we add a bit to the array position of the interactor that iterated output module has
+          outputs|=1 << moduleInterfaces.indexOf(siOpts.interactor);
+        }}
+        var selectable=~(0xffff<<moduleInterfaces.length);
+        var selected=1<<moduleInterfaces.indexOf(selectedInterface);
+        //selected module is white
+        //outputs of selected modules are red
+        //selectable modules are blue
+        //perhaps I could make inputs green?
+        myHardware.draw([selected|outputs,selected,selected|(selectable^outputs)]);
+     }
      this.disengage=function(){
        throw "oops";
        engagedModule=0;

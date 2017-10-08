@@ -12,6 +12,7 @@ module.exports=function(environment){
   }
   //instance section
   this.Instance=function(controlledModule){
+    myInteractorBase.call(this,controlledModule);
     var stepsBmp=0x0000;
     var playHeadBmp=0x0000;
     function hasEvent(button){
@@ -24,7 +25,6 @@ module.exports=function(environment){
         updateLeds(hardware);
       }
     });
-    myInteractorBase.call(this,controlledModule);
     this.compatibilityTags=["x16v0"];
     this.matrixButtonPressed=function(event){
       if(hasEvent(event.button)){

@@ -6,9 +6,30 @@ module.exports=function(){
   var thisModule=this;
   var outputs=this.outputs=new Set();
   this.baseName="base";
+  this.name="base";
+  this.isModuleInstance=true;
+
+  this.toggleOutput=function(what){
+    var ret=outputs.has(what);
+    if(ret){
+      thisModule.removeOutput(what);
+    }else{
+      thisModule.addOutput(what);
+    }
+    return outputs.has(what);
+  }
   this.addOutput=function(what){
-    //TODO: check that output is actually a module
-    outputs.add(what);
+    if(what){
+      if(what.isModuleInstance){
+        console.log(thisModule.name+"--->"+what.name);
+        outputs.add(what);
+      }else{
+        // console.error(what);
+        throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
+      }
+    }else{
+      throw "Forbidden output: Attempted to connect "+thisModule.name+" to "+what;
+    }
   }
   this.addInput=function(what){
     try{
@@ -19,7 +40,8 @@ module.exports=function(){
     }
   }
   this.removeOutput=function(what){
-    outputs.delete(what);
+    var rpt=outputs.delete(what);
+    console.log(thisModule.name+"-"+(rpt?"X":" ")+"->"+what.name);
   }
   this.removeInput=function(what){
     what.removeOutput(thisModule)

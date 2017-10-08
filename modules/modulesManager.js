@@ -9,6 +9,7 @@ ModulesManager is a singleton that manages the pattern modifying modules.
 */
 var modulesManager=function(environment){ return new(function(){
   console.log("-modulesManager");
+
   for(var a in modulesList){
     try{
       console.log(" -"+a+" module available");

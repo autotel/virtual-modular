@@ -3,8 +3,8 @@ var InteractorBase=require('../Interactor.js');
 /**
  base template for interactors when they are x16basic compatible
 */
-module.exports=function(controlledModule){
-  InteractorBase.call(this);
+var x16InteractorBase=function(controlledModule){
+  InteractorBase.call(this,controlledModule);
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};
   this.matrixButtonHold=function(event){};
@@ -16,3 +16,4 @@ module.exports=function(controlledModule){
   this.engage=function(event){};
   this.disengage=function(event){}
 }
+module.exports=x16InteractorBase;

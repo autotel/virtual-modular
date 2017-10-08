@@ -11,6 +11,11 @@ every module needs to run at the beginning of the runtime to register it's inter
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   // environment.interactionMan.registerModuleInteractor(uix16Control);
+  var testcount=0;
+  var testGetName=function(){
+    this.name=this.baseName+" "+testcount;
+    testcount++;
+  }
   /**
   @constructor
   the instance of the of the module, ment to be instantiated multiple times.
@@ -18,9 +23,13 @@ module.exports=function(environment){return new (function(){
   */
   this.Instance=function(){
     moduleInstanceBase.call(this);
+    this.baseName="monoSequencer";
+    testGetName.call(this);
+
     this.baseName="monosequencer";
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
+    this.interactor.name=this.name;
     var patMem={};
     this.addEvent=function(step,event){
       patMem[step]=event;
