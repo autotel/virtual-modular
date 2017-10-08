@@ -51,7 +51,7 @@ byte pressedSelectorButtonsBitmap = 0x00;
 LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
 
 //long lastchange;
-
+//not in RGB order, they are in GBR order
 unsigned int layers [] = {0xffff, 0xffff, 0xffff};
 
 

@@ -124,13 +124,13 @@ void messageReceived(unsigned char datarray [], int len) {
   a++;
   switch (header) {
     while (a < len) {
-      
+
       case RH_ledMatrix: {
         // lcdPrintA("rcv ledmatrix");
           //layers[0]=layers[1]=layers[2]=datarray[a];
-          layers[0] = datarray[a + 0] | (datarray[a + 1] << 8);
-          layers[1] = datarray[a + 2] | (datarray[a + 3] << 8);
-          layers[2] = datarray[a + 4] | (datarray[a + 5] << 8);
+          layers[2] = datarray[a + 0] | (datarray[a + 1] << 8);
+          layers[0] = datarray[a + 2] | (datarray[a + 3] << 8);
+          layers[1] = datarray[a + 4] | (datarray[a + 5] << 8);
           a += RH_ledMatrix_len;
           //lcdPrintB("B"+String(layers[0],HEX)+"C"+(char)layers[0]);
           break;
