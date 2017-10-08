@@ -21,7 +21,7 @@ module.exports=function(environment){return new (function(){
   the instance of the of the module, ment to be instantiated multiple times.
   require to moduleBase.call
   */
-  this.Instance=function(){
+  this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="monoSequencer";
     testGetName.call(this);

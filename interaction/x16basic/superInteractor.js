@@ -30,13 +30,13 @@ var X16SuperInteractorsSingleton=function(environment){
   this.appendModuleInteractor=function(what){
     if(what.type=="interactor"){
       if(compatible(what.compatibilityTags)){
-        // console.log(".",what);
         moduleInterfaces.push(what);
       }else{
-          console.warn("x16v0 Superinteractor is incompatible with interface"+what);
+        console.log(what);
+          throw "x16v0 Superinteractor is incompatible with interface",what;
       }
     }else{
-      console.warn("tried to add an object to a SuperInteractor that is not an interactor");
+      throw "tried to add an object to a SuperInteractor that is not an interactor";
     }
   }
 
@@ -135,6 +135,11 @@ var X16SuperInteractorsSingleton=function(environment){
        }
      });
      this.on('selectorButtonReleased',function(event){
+       /**
+       TODO: on button release, if the currently selected button doesn't have a module, it prompts what module to create
+       */
+       myHardware.sendScreenA("TO DO");
+
        event.button=event.data[0];
        if(selectorButtonOwners[event.data[0]]){
          selectorButtonOwners[event.data[0]].selectorButtonReleased(event);

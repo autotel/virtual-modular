@@ -5,6 +5,8 @@ var InteractorBase=require('../Interactor.js');
 */
 var x16InteractorBase=function(controlledModule){
   InteractorBase.call(this,controlledModule);
+  this.compatibilityTags=["x16v0"];
+  // console.log(".....",this.compatibilityTags);
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};
   this.matrixButtonHold=function(event){};

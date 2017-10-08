@@ -49,4 +49,7 @@ module.exports=function(){
   this.output=function(eventMessage){
     outputs.forEach(callbackFn,thisModule);
   }
+  this.remove=function(){
+    
+  }
 }

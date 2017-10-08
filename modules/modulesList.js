@@ -1,6 +1,8 @@
 "use strict";
 module.exports={
   monoSequencer:"./monoSequencer",
+  midiIO:"./midiIO-windows",
+  clockGenerator:"./clockGenerator",
 }
 /*
 optional automatic:
