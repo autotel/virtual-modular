@@ -7,6 +7,10 @@ var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 var midiInstance=require('./instance');
 
+var fs=require('fs');
+var path=require('path');
+var midiOptions = require('./midi-options.json');
+
 var jazz = require('jazz-midi');
 
 /**
@@ -26,13 +30,30 @@ module.exports=function(environment){return new (function(){
   var midiOpenFail=false;
   var currentPortNumber=0;
   var openedMidiPorts=[];
+
+  if(midiOptions.outputs===undefined){
+    midiOptions.outputs={};
+  }
+  if(midiOptions.inputs===undefined){
+    midiOptions.inputs={}
+  }
+
   while(!midiOpenFail){
     var midi = new jazz.MIDI();
     var name = midi.MidiOutOpen(currentPortNumber);
     if(name){
-      openedMidiPorts[name]={output:midi};
-      console.log('   -openedMidiPorts ['+name+'].output = opened Midi port');
-
+      if(midiOptions.outputs[name]===undefined){
+        midiOptions.outputs[name]=true;
+        console.log("     -"+name +" has no config. Setting to true");
+      }
+      if(midiOptions.outputs[name]===true){
+        if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
+        openedMidiPorts[name].output=midi;
+        console.log('   -openedMidiPorts ['+name+'].output = opened Midi port');
+      }else{
+        console.log('   -openedMidiPorts ['+name+'].output disabled in midi-options.json');
+        if(midi) midi.MidiOutClose();
+      }
     } else {
       console.log('   -No out port '+currentPortNumber);
       midiOpenFail=true;
@@ -40,23 +61,36 @@ module.exports=function(environment){return new (function(){
 
     var name = midi.MidiInOpen(currentPortNumber);
     if(name){
-      if(!openedMidiPorts[name]) openedMidiPorts[name]={};
-      openedMidiPorts[name].input=midi;
-      console.log('   -openedMidiPorts ['+name+'].input = opened Midi port');
-      midiOpenFail=false;
+      if(midiOptions.inputs[name]===undefined){
+        midiOptions.inputs[name]=true;
+        console.log("   -"+name +" has no config. Setting to true");
+      }
+      if(midiOptions.inputs[name]===true){
+        if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
+        openedMidiPorts[name].input=midi;
+        console.log('   -openedMidiPorts ['+name+'].input = opened Midi port');
+        midiOpenFail=false;
+      }else{
+        console.log('   -openedMidiPorts ['+name+'].input disabled in midi-options.json');
+        if(midi) midi.MidiInClose();
+      }
     } else {
       console.log('   -No in port '+currentPortNumber);
       if(midiOpenFail) midiOpenFail=true;
     }
     currentPortNumber++;
   }
+  fs.writeFile(path.join(__dirname,'./midi-options.json'), JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
 
   environment.on('created',function(){
     for(var midiItem in openedMidiPorts){
       console.log("instancing midi");
+      var ioString="";
+      if(openedMidiPorts[midiItem].input!==undefined) ioString+="I";
+      if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";
       environment.modulesMan.addModule("midiIO",{
         midiPort:openedMidiPorts[midiItem],
-        name:midiItem
+        name:ioString+"-"+midiItem
       });
     }
   });
@@ -74,7 +108,11 @@ module.exports=function(environment){return new (function(){
     this.interactor.name=this.name;
     var midi=properties.midiPort;
 
-    midi.out=function(a,b,c){console.log(a,b,c);midi.output.MidiOut(a,b,c)};
+    midi.out=function(a,b,c){
+      if(midi.output){
+        midi.output.MidiOut(a,b,c);
+      }
+    };
     //todo: rename midi input listener to midi.in();
     //console.log(midi);
 

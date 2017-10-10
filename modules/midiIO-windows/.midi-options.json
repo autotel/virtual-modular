@@ -1,0 +1,19 @@
+{
+	"outputs": {
+		"Microsoft GS Wavetable Synth": false,
+		"daw in": false,
+		"daw out": false,
+		"daw in 1": false,
+		"dow out 2": false,
+		"maschine in": false,
+		"maschine out": false
+	},
+	"inputs": {
+		"daw in": false,
+		"daw out": false,
+		"daw in 1": false,
+		"dow out 2": false,
+		"maschine in": false,
+		"maschine out": false
+	}
+}
