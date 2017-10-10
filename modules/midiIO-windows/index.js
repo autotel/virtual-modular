@@ -32,10 +32,7 @@ module.exports=function(environment){return new (function(){
     if(name){
       openedMidiPorts[name]={output:midi};
       console.log('   -openedMidiPorts ['+name+'].output = opened Midi port');
-      midi.MidiOut(0x90,60,100); midi.MidiOut(0x90,64,100); midi.MidiOut(0x90,67,100);
-      setTimeout(function(){
-        midi.MidiOut(0x80,60,0); midi.MidiOut(0x80,64,0); midi.MidiOut(0x80,67,0);
-      }, 3000);
+
     } else {
       console.log('   -No out port '+currentPortNumber);
       midiOpenFail=true;
@@ -76,7 +73,25 @@ module.exports=function(environment){return new (function(){
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
     var midi=properties.midiPort;
+
+    midi.out=function(a,b,c){console.log(a,b,c);midi.output.MidiOut(a,b,c)};
+    //todo: rename midi input listener to midi.in();
+    //console.log(midi);
+
+    midi.out(0x90,60,100); midi.out(0x90,64,100); midi.out(0x90,67,100);
+    setTimeout(function(){
+      midi.out(0x80,60,0); midi.out(0x80,64,0); midi.out(0x80,67,0);
+    }, 3000);
+
     var baseRemove=this.remove;
+    this.eventReceived=function(evt){
+      var eventMessage=evt.eventMessage;
+      // console.log("MIDI",evt);
+      if(eventMessage.value[0]=1){
+        eventMessage.value[1]=0x90;
+      }
+      midi.out(eventMessage.value[1],eventMessage.value[2],eventMessage.value[3]);
+    };
     this.remove=function(){
       if(midi.input) midi.input.MidiInClose();
       if(midi.output) midi.output.MidiOutClose();

@@ -25,12 +25,11 @@ module.exports=function(environment){
         updateLeds(hardware);
       }
     });
-    this.compatibilityTags=["x16v0"];
     this.matrixButtonPressed=function(event){
       if(hasEvent(event.button)){
         controlledModule.clearStep(event.button);
       }else{
-        controlledModule.addEvent(event.button,new EventMessage({value:[0x00,0x00,0x00]}));
+        controlledModule.addEvent(event.button,new EventMessage({value:[0x01,0x01,60,124]}));
       }
       updateHardware(event.hardware);
     };

@@ -28,7 +28,7 @@ module.exports=function(environment){
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
-      hardware.sendScreenA("monosequencer");
+      hardware.sendScreenA("Clock Generator");
       updateLeds(hardware);
     }
     var updateLeds=function(hardware){

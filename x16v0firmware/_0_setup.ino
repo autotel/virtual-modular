@@ -25,10 +25,6 @@
 #define encoder0PinB  A5
 volatile unsigned int encoder0Pos = 0;
 
-//serial is separated by pauses, sadly.
-//perhaps I should define a better protocol than this somehow.
-#define serialSeparationTime 200
-long lastSerial=0;
 //pins that are connected to the midi plugs as software serial
 #define sIn 0
 #define sOut 1

@@ -39,6 +39,54 @@ var X16SuperInteractorsSingleton=function(environment){
       throw "tried to add an object to a SuperInteractor that is not an interactor";
     }
   }
+/**
+*Tiny pseudo-interactor that is used to choose what module to isntantiate when we press on an empty slot of the "patchboard" (i.e. button that is not lid)
+*/
+  function ModuleCreator(myHardware){
+    var possibleModules=[];
+    var possibleModulesBitmap=0;
+    var moduleToCreateOnDisengage=false;
+    var lastMatrixButton=false;
+    this.engaged=false;
+    function updatePossibleModulesList(){
+      possibleModules=Object.keys(environment.modulesMan.modulesList);
+      possibleModulesBitmap=~(0xffff<<possibleModules.length);
+    }
+    function updateHardware(){
+      myHardware.sendScreenA("create module");
+      var head=0;
+      if(lastMatrixButton) head=1<<lastMatrixButton;
+      myHardware.draw([possibleModulesBitmap|head,0|head,possibleModulesBitmap|head]);
+    }
+    this.engage=function(){
+      if(possibleModules.length==0) updatePossibleModulesList();
+      updateHardware();
+      this.engaged=true;
+    }
+    this.disengage=function(){
+      var ret=false;
+      if(moduleToCreateOnDisengage){
+        var defaultProps={};
+        environment.modulesMan.addModule(moduleToCreateOnDisengage,defaultProps);
+        ret=moduleInterfaces[moduleInterfaces.length-1];
+      }
+      this.engaged=false;
+      return ret;
+    }
+    this.matrixButtonPressed=function(evt){
+      if(evt.data[0]===lastMatrixButton){
+        this.disengage();
+      }else if(evt.data[0]<possibleModules.length){
+        lastMatrixButton=evt.data[0];
+        moduleToCreateOnDisengage=possibleModules[evt.data[0]];
+        myHardware.sendScreenA("+"+moduleToCreateOnDisengage);
+      }else{
+        moduleToCreateOnDisengage=false;
+        this.disengage();
+      }
+    }
+    this.matrixButtonReleased=function(evt){}
+  }
 
   /**
   * @constructor
@@ -68,36 +116,45 @@ var X16SuperInteractorsSingleton=function(environment){
      //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
      var firstPressedMatrixButton=false;
      onHandlers.call(this);
-     // this.on('interaction',console.log);
 
-     this.on('matrixButtonPressed',function(event){
-       event.button=event.data[0];
-       // console.log(event);
-       if(!engagedModule){
-         if(firstPressedMatrixButton===false){
-           selectedInterface=moduleInterfaces[event.data[0]];
-           firstPressedMatrixButton=event.data[0];
-           updateHardware();
-         }else{
-           if(selectedInterface&&moduleInterfaces[event.data[0]])try{
-             var connected=selectedInterface.controlledModule.toggleOutput(moduleInterfaces[event.data[0]].controlledModule);
-             myHardware.sendScreenB((connected?">":"X")+moduleInterfaces[event.data[0]].controlledModule.name);
-           }catch(e){
-             console.error(e);
-             myHardware.sendScreenB("X");
-           }
-           updateLeds();
-         }
-         if(!selectedInterface){
-           selectedInterface=false;
-           environment.modulesMan.addModule();
-           selectedInterface=moduleInterfaces[moduleInterfaces.length-1];
+      var myModuleCreator=new ModuleCreator(myHardware);
+      // this.on('interaction',console.log);
+      environment.on('module created',function(evt){
+        if(!(engagedModule||myModuleCreator.engaged)){
+          updateHardware();
+        }
+      });
+      this.on('matrixButtonPressed',function(event){
+      event.button=event.data[0];
+      // console.log(event);
+      if(myModuleCreator.engaged){
+        myModuleCreator.matrixButtonPressed(event);
+      }else if(!engagedModule){
+        if(firstPressedMatrixButton===false){
+          selectedInterface=moduleInterfaces[event.data[0]];
+          firstPressedMatrixButton=event.data[0];
+          updateHardware();
+        }else{
+          if(selectedInterface&&moduleInterfaces[event.data[0]])try{
+            var connected=selectedInterface.controlledModule.toggleOutput(moduleInterfaces[event.data[0]].controlledModule);
+            myHardware.sendScreenB((connected?">":"X")+moduleInterfaces[event.data[0]].controlledModule.name);
+          }catch(e){
+            console.error(e);
+            myHardware.sendScreenB("X");
+          }
+          updateLeds();
+        }
+        if(!selectedInterface){
+          selectedInterface=false;
+          //  environment.modulesMan.addModule();
+          if(event.data[0]==moduleInterfaces.length) myModuleCreator.engage();
+          // selectedInterface=moduleInterfaces[moduleInterfaces.length-1];
           //  console.log();
-         }
-       }else{
-         engagedModule.matrixButtonPressed(event);
-         matrixButtonOwners[event.data[0]]=engagedModule;
-       }
+        }
+      }else{
+        engagedModule.matrixButtonPressed(event);
+        matrixButtonOwners[event.data[0]]=engagedModule;
+      }
      });
      this.on('matrixButtonReleased',function(event){
        if(firstPressedMatrixButton===event.data[0]){
@@ -135,16 +192,14 @@ var X16SuperInteractorsSingleton=function(environment){
        }
      });
      this.on('selectorButtonReleased',function(event){
-       /**
-       TODO: on button release, if the currently selected button doesn't have a module, it prompts what module to create
-       */
-       myHardware.sendScreenA("TO DO");
-
        event.button=event.data[0];
        if(selectorButtonOwners[event.data[0]]){
          selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
          delete selectorButtonOwners[event.data[0]];
        }else{
+         var newCreated=false;
+         if(myModuleCreator.engaged) newCreated=myModuleCreator.disengage();
+         if(newCreated) selectedInterface=newCreated;
          if(selectedInterface){
            engagedModule=selectedInterface;
            // console.log("engaged",engagedModule);
@@ -188,13 +243,14 @@ var X16SuperInteractorsSingleton=function(environment){
           //we add a bit to the array position of the interactor that iterated output module has
           outputs|=1 << moduleInterfaces.indexOf(siOpts.interactor);
         }}
+        var creatorBtn=1<<moduleInterfaces.length;
         var selectable=~(0xffff<<moduleInterfaces.length);
         var selected=1<<moduleInterfaces.indexOf(selectedInterface);
         //selected module is white
         //outputs of selected modules are red
         //selectable modules are blue
         //perhaps I could make inputs green?
-        myHardware.draw([selected|outputs,selected,selected|(selectable^outputs)]);
+        myHardware.draw([selected|outputs,selected|creatorBtn,selected|(selectable^outputs)|creatorBtn]);
      }
      this.disengage=function(){
        throw "oops";

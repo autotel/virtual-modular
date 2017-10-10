@@ -32,7 +32,7 @@ const comConsts={
     },
     "rHNames": {},
     "rLengths": [0, 0, 4, 4, 4, 4, 2, 2, 2, 1, 1, 1,"unknown"],
-    "baudRate": 19200,
+    //"baudRate": 19200,
     "eoString": 3
 };
 //create inverse list of indexes for easier lookup
@@ -72,7 +72,7 @@ var lastSentBitmap={
 
 // console.log(comConsts);
 
-var dataChopper=new(function(){
+var DataChopper=function(){
   var inBuff;
   var expectedLength;
   var byteNumber=0;
@@ -120,7 +120,7 @@ var dataChopper=new(function(){
     }
   }
   return this;
-})();
+};
 
 /**
  * @type {HardwareDriver};
@@ -131,7 +131,7 @@ var dataChopper=new(function(){
  * @example function createHardwareController(portName){
    var err=0;
    let newPort = new SerialPort(portName, {
-     baudRate: baudRate
+     baudRate: 115200
    });
 
    //console.log("newPort",newPort);
@@ -141,8 +141,12 @@ var dataChopper=new(function(){
  }
 
  */
+ var instances=0;
 var DriverX16v0=function(environment,properties){
   HardwareDriver.call(this);
+  var myInstanceNumber=instances;
+  instances++;
+  var dataChopper=new DataChopper();
   // console.log(environment.interactionMan.entryInteractors.x16basic);
   var myInteractionPattern=environment.interactionMan.newSuperInteractor("x16basic",this);
   var serial=properties.serial;
@@ -261,7 +265,7 @@ var DriverX16v0=function(environment,properties){
     }
   }
   setTimeout(function(){
-    sendScreenA("initialized");
+    sendScreenA("initialized n."+myInstanceNumber);
     sendScreenB("autotel x16v0");
   },2000);
 

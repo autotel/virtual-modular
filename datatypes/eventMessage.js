@@ -54,7 +54,7 @@ var EventMessage=function(inputValue){
   @returns a copy of itself
   */
   this.clone=function(){
-    return new EventMessage(this.value);
+    return new EventMessage(this);
   }
   this.compareTo=function(otherEvent,propertyList){
     for(var a of propertyList){

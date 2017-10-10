@@ -46,10 +46,15 @@ module.exports=function(){
   this.removeInput=function(what){
     what.removeOutput(thisModule)
   }
+  this.eventReceived=function(evt){
+    // console.log(evt);
+  }
   this.output=function(eventMessage){
-    outputs.forEach(callbackFn,thisModule);
+    outputs.forEach(function(module){
+      module.eventReceived({eventMessage:eventMessage.clone(),origin:thisModule});
+    });
   }
   this.remove=function(){
-    
+
   }
 }

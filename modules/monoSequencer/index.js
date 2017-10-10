@@ -22,10 +22,12 @@ module.exports=function(environment){return new (function(){
   require to moduleBase.call
   */
   this.Instance=function(properties){
+    var thisInstance=this;
     moduleInstanceBase.call(this);
     this.baseName="monoSequencer";
     testGetName.call(this);
-
+    this.step={value:0}
+    var step=this.step;
     this.baseName="monosequencer";
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
@@ -33,7 +35,23 @@ module.exports=function(environment){return new (function(){
     var patMem={};
     this.addEvent=function(step,event){
       patMem[step]=event;
-      // console.log(patMem);
+      //console.log(patMem);
+    }
+    this.eventReceived=function(evt){
+      if(evt.eventMessage.value[0]==0){
+        //TODO: this is incorrect implementation of clock. The other data's shoudl be considered
+        step.value++;
+        step.value%=16;
+        thisInstance.handle('step',{originator:evt,step:step.value});
+        if(patMem[step.value]){
+          //console.log("otp");
+          thisInstance.output(patMem[step.value]);
+        }else{
+          //console.log("NS"+step.value);
+        }
+      }else{
+        //console.log(evt.eventMessage);
+      }
     }
     this.clearStep=function(step){
       delete patMem[step];
