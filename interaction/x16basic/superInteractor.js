@@ -65,12 +65,12 @@ var X16SuperInteractorsSingleton=function(environment){
     }
     this.disengage=function(){
       var ret=false;
+      this.engaged=false;
       if(moduleToCreateOnDisengage){
         var defaultProps={};
         environment.modulesMan.addModule(moduleToCreateOnDisengage,defaultProps);
         ret=moduleInterfaces[moduleInterfaces.length-1];
       }
-      this.engaged=false;
       return ret;
     }
     this.matrixButtonPressed=function(evt){
