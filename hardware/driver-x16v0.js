@@ -24,7 +24,7 @@ const comConsts={
         "matrixButtonVelocity": 5,
         "selectorButtonPressed": 6,
         "selectorButtonReleased": 7,
-        "encoderScroll": 8,
+        "encoderScrolled": 8,
         "encoderPressed": 9,
         "encoderReleased": 10,
         "comTester": 11,
@@ -208,10 +208,13 @@ var DriverX16v0=function(environment,properties){
       // console.log("sent",buf1);
     });
   }
+  this.lastScreenValues=[];
   var sendScreenA=function(str){
+    tHardware.lastScreenValues[0]=str;
     sendString(tHeaders.screenA,str.substring(0,16));
   }
   var sendScreenB=function(str){
+    tHardware.lastScreenValues[1]=str;
     sendString(tHeaders.screenB,str.substring(0,16));
   }
   this.sendScreenA=sendScreenA;
@@ -261,6 +264,13 @@ var DriverX16v0=function(environment,properties){
       }
       // console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
+      //convert encoder scrolls to signed (it can only be -1 or -2)
+      event.data=Array.from(event.data);
+      if(event.type=="encoderScrolled"){
+        // event.data
+        event.data[1]=(event.data[1]==0xFF?-1:event.data[1]);
+        event.data[1]=(event.data[1]==0xFE?-2:event.data[1]);
+      }
       myInteractionPattern.handle(event.type,event);
     }
   }
