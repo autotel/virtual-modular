@@ -15,7 +15,7 @@ module.exports=function(environment){return new (function(){
     var thisInstance=this;
     // clocks per step
     // the step
-    var myEventMessage=new EventMessage({value:[clockSpec.incrementalTick[0],12/*ck per step*/,0/* step number*/]});
+    var myEventMessage=new EventMessage({value:[clockSpec[0].incrementalTick,12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
     this.baseName="clockGenerator";
     name.call(this);

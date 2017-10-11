@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
       //console.log(patMem);
     }
     this.eventReceived=function(evt){
-      if(evt.eventMessage.value[0]==clockSpec.incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
+      if(evt.eventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
         for(var noff of noteOnTracker){
           thisInstance.output(noff);
           noteOnTracker.delete(noff);

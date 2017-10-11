@@ -18,6 +18,7 @@ module.exports=function(environment){
     myInteractorBase.call(this,controlledModule);
     var configurators={};
     configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+    
     var engagedConfigurator=false;
     var lastEngagedConfigurator=configurators.event;
     var engagedHardwares=new Set();
@@ -28,7 +29,7 @@ module.exports=function(environment){
     //different interaction modes
     var skipMode=false;
     var shiftPressed=false;
-    var selectorsPressed={};
+    var configuratorsPressed={};
 
     //configurators setup
 
@@ -137,7 +138,7 @@ module.exports=function(environment){
         if(subSelectorEngaged===false)
         updateLeds(hardware);
         if(lastsubSelectorEngaged==="timeConfig"){
-          selectors.timeConfig.updateLcd();
+          configurators.timeConfig.updateLcd();
         }
       }
 
@@ -165,17 +166,17 @@ module.exports=function(environment){
           });
         }/*else if(trhoughFold>0){
           //there is an event on some folds of the lookloop
-          var newStepEv=selectors.dimension.getSeqEvent();
+          var newStepEv=configurators.event.getSeqEvent();
           eachFold(button,function(step){
             store(step,newStepEv);
           });
         }*/else{
           //on every repetition is empty
-          noteLengthner.startAdding(button,selectors.dimension.getSeqEvent());
+          noteLengthner.startAdding(button,configurators.event.getSeqEvent());
         }
         updateLeds();
       }else{
-        selectors[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
+        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
       }// console.log(evt.data);
       if(skipMode){
         controlledModule.restart(evt.data[0]);
@@ -194,25 +195,25 @@ module.exports=function(environment){
           });
         }/*else if(trhoughFold>0){
           //there is an event on some folds of the lookloop
-          var newStepEv=selectors.dimension.getSeqEvent();
+          var newStepEv=configurators.event.getSeqEvent();
           eachFold(button,function(step){
             store(step,newStepEv);
           });
         }*/else{
           //on every repetition is empty
-          noteLengthner.startAdding(button,selectors.dimension.getSeqEvent());
+          noteLengthner.startAdding(button,configurators.event.getSeqEvent());
         }
         updateLeds();
       }else{
-        selectors[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
+        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
       }
     };
     this.matrixButtonReleased=function(event){
-      noteLengthner.finishAdding(evt.data[0],selectors.dimension.getSeqEvent());
+      noteLengthner.finishAdding(evt.data[0],configurators.event.getSeqEvent());
       if(subSelectorEngaged===false){
         updateLeds();
       }else{
-        selectors[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
+        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
       }
     };
     this.matrixButtonHold=function(event){};
@@ -220,10 +221,10 @@ module.exports=function(environment){
       var hardware=event.hardware;
       // console.log(evt);
       //keep trak of pressed buttons for button combinations
-      selectorsPressed[evt.data[0]]=true;
-      if(selectorsPressed[2]&&selectorsPressed[3]){
+      configuratorsPressed[evt.data[0]]=true;
+      if(configuratorsPressed[2]&&configuratorsPressed[3]){
         if(lastsubSelectorEngaged)
-        selectors[lastsubSelectorEngaged].disengage();
+        configurators[lastsubSelectorEngaged].disengage();
         lastsubSelectorEngaged=false;
         skipMode=true;
         hardware.sendScreenA("skip to step");
@@ -231,35 +232,35 @@ module.exports=function(environment){
       }else if(evt.data[0]==1){
         subSelectorEngaged='dimension';
         lastsubSelectorEngaged='dimension';
-        selectors.dimension.engage();
+        configurators.event.engage();
       }else if(evt.data[0]==2){
         subSelectorEngaged='timeConfig';
         lastsubSelectorEngaged='timeConfig';
-        selectors.timeConfig.engage();
+        configurators.timeConfig.engage();
       }else if(evt.data[0]==3){
         shiftPressed=true;
       }
       if(subSelectorEngaged)
-      selectors[subSelectorEngaged].eventResponses.selectorButtonPressed(evt);
+      configurators[subSelectorEngaged].eventResponses.selectorButtonPressed(evt);
     };
     this.selectorButtonReleased=function(event){
-      selectorsPressed[evt.data[0]]=false;
+      configuratorsPressed[evt.data[0]]=false;
       skipMode=false;
       if(subSelectorEngaged)
-      selectors[subSelectorEngaged].eventResponses.selectorButtonReleased(evt);
+      configurators[subSelectorEngaged].eventResponses.selectorButtonReleased(evt);
       if(evt.data[0]==1){
         subSelectorEngaged=false;
-        selectors.dimension.disengage();
+        configurators.event.disengage();
       }else if(evt.data[0]==2){
         subSelectorEngaged=false;
-        selectors.timeConfig.disengage();
+        configurators.timeConfig.disengage();
       }else if(evt.data[0]==3){
         shiftPressed=false;
       }
     };
     this.encoderScrolled=function(event){
-      if(selectors[lastsubSelectorEngaged])
-      selectors[lastsubSelectorEngaged].eventResponses.encoderScroll(evt);
+      if(configurators[lastsubSelectorEngaged])
+      configurators[lastsubSelectorEngaged].eventResponses.encoderScroll(evt);
     };
     this.encoderPressed=function(event){};
     this.encoderReleased=function(event){};
@@ -275,8 +276,8 @@ module.exports=function(environment){
         if(lastRecordedNote){
           // console.log("lastRecordedNote",lastRecordedNote);
           //this will update the output list in the sequencer, otherwise it may have a value out of array
-          selectors.dimension.options[0].valueNames(0);
-          selectors.dimension.setFromSeqEvent(lastRecordedNote);
+          configurators.event.options[0].valueNames(0);
+          configurators.event.setFromSeqEvent(lastRecordedNote);
           lastRecordedNote=false;
         }
         updateLeds();
@@ -295,9 +296,9 @@ module.exports=function(environment){
       hardware.draw([playHeadBmp,playHeadBmp|stepsBmp,stepsBmp]);
     }
 
-    var focusedFilter=new selectors.dimension.Filter({destination:true,header:true,value_a:true});
-    var bluredFilter=new selectors.dimension.Filter({destination:true,header:true});
-    var moreBluredFilter=new selectors.dimension.Filter({destination:true});
+    var focusedFilter=new configurators.event.Filter({destination:true,header:true,value_a:true});
+    var bluredFilter=new configurators.event.Filter({destination:true,header:true});
+    var moreBluredFilter=new configurators.event.Filter({destination:true});
     function updateLeds(hardware){
       //actually should display also according to the currently being tweaked
       var showThroughfold=lastsubSelectorEngaged=="timeConfig";

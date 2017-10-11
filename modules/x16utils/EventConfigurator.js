@@ -1,4 +1,4 @@
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventPattern=require('../../datatypes/eventPattern.js');
 var MyInteractorBase=require('../../interaction/x16basic/interactorBase.js');
 /**
 user interface pattern that allows to tweak a note. A usage example is the event selector of the monoSequencer, the one used to select the note that will be set on the next tap of a matrix button

@@ -24,7 +24,7 @@ general       ├────────────────── Function
 presetKit     ├────────────────── x00: clock tick
               | | | | | |         x01: trigger one preset given by the data 2 number, until note off (NI.! all headers give this result) *3
               | | | | | |         x02: send note off from one preset given by the data 2 number *2
-              | | | | | |         x04: trigger one preset given by the data 2 number, and hold that note on until the amount of clocks indicated in the data 3 (NI.!)
+              | | | | | |         x04: trigger one preset given by the data 2 number, and hold that note on until the amount of clocks indicated in the data 3 (NI.!) TODO:What about velocity then?!
               | | | | | |         x70: request of stored data, it will trigger a data response
               | | | | | |         x71: data response
               | ├──────────────── (if header 01-04) Not used. ? Maybe in the future I use it for multi-page or 2d presetKits, or multivoice in single note presetkits
