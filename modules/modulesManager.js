@@ -12,12 +12,13 @@ var modulesManager=function(environment){ return new(function(){
   this.modulesList=modulesList;
   for(var a in modulesList){
     try{
-      console.log(" -"+a+" module available");
+      console.log(" - initializing module \""+a+"\" ");
       moduleSingletons[a]=require(modulesList[a])(environment);
-      environment.interactionMan.appendInteractorSingleton(
-        moduleSingletons[a].InteractorSingleton);
+      environment.interactionMan.appendInteractorSingleton(moduleSingletons[a].InteractorSingleton);
     }catch(e){
-      console.error(" -"+a+" module is not valid:",e);
+      delete moduleSingletons[a];
+      moduleSingletons["(X)"+a]=false;
+      console.error('\x1b[33m - "'+a+'" module is not valid:\x1b[0m\n',e);
     }
   }
 
@@ -35,7 +36,7 @@ var modulesManager=function(environment){ return new(function(){
   this.addModule=function(moduleName,properties){
     if(!moduleName) moduleName="monoSequencer";
     if(!properties) properties={};
-    if(! moduleSingletons[moduleName] ) throw "no module named "+moduleName+" is registered";
+    if(! moduleSingletons[moduleName] ) throw "module named "+moduleName+" is registered";
     var newInstance=new moduleSingletons[moduleName].Instance(properties);
     modules.push(newInstance);
     environment.handle('module created',{module:newInstance});

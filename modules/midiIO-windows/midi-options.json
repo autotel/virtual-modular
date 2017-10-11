@@ -12,7 +12,8 @@
 		"from reaper": false,
 		"to reaper": false,
 		"from modular": true,
-		"to modular": false
+		"to modular": false,
+		"UM-1": true
 	},
 	"inputs": {
 		"daw in": false,
@@ -26,6 +27,7 @@
 		"from reaper": false,
 		"to reaper": false,
 		"from modular": false,
-		"to modular": true
+		"to modular": true,
+		"UM-1": true
 	}
 }

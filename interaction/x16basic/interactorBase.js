@@ -4,6 +4,7 @@ var InteractorBase=require('../Interactor.js');
  base template for interactors when they are x16basic compatible
 */
 var x16InteractorBase=function(controlledModule){
+  var thisInteractor=this;
   InteractorBase.call(this,controlledModule);
   this.compatibilityTags=["x16v0"];
   // console.log(".....",this.compatibilityTags);

@@ -1,5 +1,6 @@
 "use strict";
 var EventMessage=require('../../datatypes/eventMessage.js');
+var EventConfigurator=require('../x16utils/EventConfigurator.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -13,6 +14,10 @@ module.exports=function(environment){
   //instance section
   this.Instance=function(controlledModule){
     myInteractorBase.call(this,controlledModule);
+    var configurators={};
+    configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+    var engagedConfigurator=false;
+    var lastEngagedConfigurator=configurators.event;
     var stepsBmp=0x0000;
     var playHeadBmp=0x0000;
     function hasEvent(button){
@@ -26,18 +31,49 @@ module.exports=function(environment){
       }
     });
     this.matrixButtonPressed=function(event){
-      if(hasEvent(event.button)){
-        controlledModule.clearStep(event.button);
+      if(engagedConfigurator){
+        engagedConfigurator.matrixButtonPressed(event);
       }else{
-        controlledModule.addEvent(event.button,new EventMessage({value:[0x01,0x01,60,124]}));
+        if(hasEvent(event.button)){
+          controlledModule.clearStep(event.button);
+        }else{
+          controlledModule.addEvent(event.button,new EventMessage({value:[0x01,0x01,60,124]}));
+        }
+        updateHardware(event.hardware);
       }
-      updateHardware(event.hardware);
     };
     this.matrixButtonReleased=function(event){};
     this.matrixButtonHold=function(event){};
-    this.selectorButtonPressed=function(event){};
-    this.selectorButtonReleased=function(event){};
-    this.encoderScrolled=function(event){};
+    this.selectorButtonPressed=function(event){
+      var hardware=event.hardware;
+      if(engagedConfigurator){
+        engagedConfigurator.selectorButtonPressed(event);
+      }else{
+        if(event.data[0]==1){
+          engagedConfigurator=configurators.event;
+          configurators.event.engage({hardware:hardware});
+        }
+      }
+    };
+    this.selectorButtonReleased=function(event){
+      var hardware=event.hardware;
+      if(event.data[0]==1){
+        if(engagedConfigurator==configurators.event){
+          lastEngagedConfigurator=engagedConfigurator;
+          engagedConfigurator=false;
+          configurators.event.disengage({hardware:hardware});
+        }
+      }
+    };
+    this.encoderScrolled=function(event){
+      if(engagedConfigurator){
+        engagedConfigurator.encoderScrolled(event);
+      }else{
+        if(lastEngagedConfigurator){
+          lastEngagedConfigurator.encoderScrolled(event)
+        }
+      }
+    };
     this.encoderPressed=function(event){};
     this.encoderReleased=function(event){};
     this.engage=function(event){

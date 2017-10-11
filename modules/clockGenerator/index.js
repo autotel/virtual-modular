@@ -2,6 +2,8 @@
 var EventMessage=require('../../datatypes/eventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+var clockSpec=require('../standards/clock.js');
+
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   var instanced=0;
@@ -11,13 +13,18 @@ module.exports=function(environment){return new (function(){
   }
   this.Instance=function(properties){
     var thisInstance=this;
+    // clocks per step
+    // the step
+    var myEventMessage=new EventMessage({value:[clockSpec.incrementalTick[0],12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
     this.baseName="clockGenerator";
     name.call(this);
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
     setInterval(function(){
-      thisInstance.output(new EventMessage({value:[0,1,0]}));
-    },200);
+      thisInstance.output(myEventMessage);
+      myEventMessage.value[2]++;
+      myEventMessage.value[2]%=myEventMessage.value[1];
+    },200/12);
   }
 })};

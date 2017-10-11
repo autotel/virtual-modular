@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/eventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+var clockSpec=require('../standards/clock.js');
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
@@ -29,7 +30,6 @@ module.exports=function(environment){return new (function(){
     testGetName.call(this);
     this.step={value:0}
     var step=this.step;
-    this.baseName="monosequencer";
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
     this.interactor.name=this.name;
@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
       //console.log(patMem);
     }
     this.eventReceived=function(evt){
-      if(evt.eventMessage.value[0]==0){
+      if(evt.eventMessage.value[0]==clockSpec.incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
         for(var noff of noteOnTracker){
           thisInstance.output(noff);
           noteOnTracker.delete(noff);

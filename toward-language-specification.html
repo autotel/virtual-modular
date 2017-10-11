@@ -47,7 +47,7 @@ presetKit     ├────────────────── x00: clo
 sequencer     ├────────────────── x00: clock tick
               | | | | | |         x01: set the playhead to a position indicated by data 1, set the state to play (and play it?) (NI.!)
               | | | | | |         x02: set the state to stop (NI.!)
-              | | | | | |         x04: jump playhead to position indicated by data 1, but don't change the playing state (NI.!)
+              | | | | | |         x03: jump playhead to position indicated by data 1, but don't change the playing state (NI.!)
               | | | | | |         x70: request of stored data, it will trigger a data response
               | | | | | |         x71: data response
               | ├──────────────── (if header 70-71) Contains a request number, this allows matching the message with a promise callback function
