@@ -22,6 +22,7 @@ module.exports=function(environment){return new (function(){
   require to moduleBase.call
   */
   this.Instance=function(properties){
+    var noteOnTracker=new Set();
     var thisInstance=this;
     moduleInstanceBase.call(this);
     this.baseName="monoSequencer";
@@ -39,6 +40,10 @@ module.exports=function(environment){return new (function(){
     }
     this.eventReceived=function(evt){
       if(evt.eventMessage.value[0]==0){
+        for(var noff of noteOnTracker){
+          thisInstance.output(noff);
+          noteOnTracker.delete(noff);
+        }
         //TODO: this is incorrect implementation of clock. The other data's shoudl be considered
         step.value++;
         step.value%=16;
@@ -46,6 +51,9 @@ module.exports=function(environment){return new (function(){
         if(patMem[step.value]){
           //console.log("otp");
           thisInstance.output(patMem[step.value]);
+          var noff=patMem[step.value].clone();
+          noff.value[0]=2;
+          noteOnTracker.add(noff);
         }else{
           //console.log("NS"+step.value);
         }
@@ -65,6 +73,11 @@ module.exports=function(environment){return new (function(){
       }
       return ret;
     }
-    // console.log(".",myInteractor);
+    this.delete=function(){
+      for(var noff of noteOnTracker){
+        thisInstance.output(noff);
+        noteOnTracker.delete(noff);
+      }
+    }
   }
 })};

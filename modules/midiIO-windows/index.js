@@ -125,8 +125,12 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(evt){
       var eventMessage=evt.eventMessage;
       // console.log("MIDI",evt);
-      if(eventMessage.value[0]=1){
-        eventMessage.value[1]=0x90;
+      if(eventMessage.value[0]==1){
+        eventMessage.value[1]=0x90|eventMessage.value[1];
+      }
+      if(eventMessage.value[0]==2){
+        eventMessage.value[1]=0x80|eventMessage.value[1];
+        eventMessage.value[3]=0;
       }
       midi.out(eventMessage.value[1],eventMessage.value[2],eventMessage.value[3]);
     };
