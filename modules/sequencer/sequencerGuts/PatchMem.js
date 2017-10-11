@@ -1,7 +1,7 @@
 
 'use strict';
-var eventMessage=require('../../../datatypes/eventMessage.js');
-var patternEvent=require('../../../datatypes/patternEvent');
+var EventMessage=require('../../../datatypes/EventMessage.js');
+var PatternEvent=require('../../../datatypes/EventPattern.js');
 
 module.exports=function(sequencerModule){ return new(function(){
   var thisModule=this;
@@ -119,8 +119,8 @@ module.exports=function(sequencerModule){ return new(function(){
             //instances of the same class, to avoid easter egg bugs
             if(!patData[targetStep]) patData[targetStep]=[];
             patData[targetStep].push(new patternEvent({
-              on:new eventMessage(patData[step][a].on),
-              off:new eventMessage(patData[step][a].off),
+              on:new EventMessage(patData[step][a].on),
+              off:new EventMessage(patData[step][a].off),
               stepLength:patData[step][a].stepLength,
             }));
           }

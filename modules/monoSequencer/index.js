@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 var clockSpec=require('../standards/clock.js');
@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
       //console.log(patMem);
     }
     this.eventReceived=function(evt){
-      if(evt.eventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
+      if(evt.EventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
         for(var noff of noteOnTracker){
           thisInstance.output(noff);
           noteOnTracker.delete(noff);
@@ -58,7 +58,7 @@ module.exports=function(environment){return new (function(){
           //console.log("NS"+step.value);
         }
       }else{
-        //console.log(evt.eventMessage);
+        //console.log(evt.EventMessage);
       }
     }
     this.clearStep=function(step){

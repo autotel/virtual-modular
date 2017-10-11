@@ -2,7 +2,7 @@
 Module that enables interconnectivity with midi inputs and midi outputs, presumably via USB.
 */
 'use strict';
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 var midiInstance=require('./instance');
@@ -123,16 +123,16 @@ module.exports=function(environment){return new (function(){
 
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
-      var eventMessage=evt.eventMessage;
+      var EventMessage=evt.EventMessage;
       // console.log("MIDI",evt);
-      if(eventMessage.value[0]==1){
-        eventMessage.value[1]=0x90|eventMessage.value[1];
+      if(EventMessage.value[0]==1){
+        EventMessage.value[1]=0x90|EventMessage.value[1];
       }
-      if(eventMessage.value[0]==2){
-        eventMessage.value[1]=0x80|eventMessage.value[1];
-        eventMessage.value[3]=0;
+      if(EventMessage.value[0]==2){
+        EventMessage.value[1]=0x80|EventMessage.value[1];
+        EventMessage.value[3]=0;
       }
-      midi.out(eventMessage.value[1],eventMessage.value[2],eventMessage.value[3]);
+      midi.out(EventMessage.value[1],EventMessage.value[2],EventMessage.value[3]);
     };
     this.remove=function(){
       if(midi.input) midi.input.MidiInClose();

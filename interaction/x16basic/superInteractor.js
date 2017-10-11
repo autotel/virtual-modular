@@ -1,4 +1,5 @@
 "use strict";
+var RARROW=String.fromCharCode(126);
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
@@ -137,7 +138,7 @@ var X16SuperInteractorsSingleton=function(environment){
         }else{
           if(selectedInterface&&moduleInterfaces[event.data[0]])try{
             var connected=selectedInterface.controlledModule.toggleOutput(moduleInterfaces[event.data[0]].controlledModule);
-            myHardware.sendScreenB((connected?">":"X")+moduleInterfaces[event.data[0]].controlledModule.name);
+            myHardware.sendScreenB((connected?RARROW:"X")+moduleInterfaces[event.data[0]].controlledModule.name);
           }catch(e){
             console.error(e);
             myHardware.sendScreenB("X");

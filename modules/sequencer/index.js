@@ -3,7 +3,7 @@ var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 var clockSpec=require('../standards/clock.js');
 
-var eventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 const sequencerFunctions=require("./sequencerGuts");
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
@@ -71,7 +71,7 @@ module.exports=function(environment){return new (function(){
     // x70: request of stored data, it will trigger a data response
     // x71: data response
     this.eventReceived=function(event){
-      var evt=event.eventMessage;
+      var evt=event.EventMessage;
       // console.log(evt);
       this.handle('receive',evt)
       if(evt.value[0]==0){

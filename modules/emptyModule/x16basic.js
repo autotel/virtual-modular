@@ -1,5 +1,5 @@
 "use strict";
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */

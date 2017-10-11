@@ -1,5 +1,5 @@
 "use strict";
-var EventMessage = require( '../../datatypes/eventMessage.js' );
+var EventMessage = require( '../../datatypes/EventMessage.js' );
 var EventConfigurator = require( '../x16utils/EventConfigurator.js' );
 var NoteLengthner = require( './interfaceUtils/NoteLengthner.js' );
 /**
@@ -18,7 +18,7 @@ module.exports=function(environment){
     myInteractorBase.call(this,controlledModule);
     var configurators={};
     configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
-    
+
     var engagedConfigurator=false;
     var lastEngagedConfigurator=configurators.event;
     var engagedHardwares=new Set();
@@ -118,7 +118,7 @@ module.exports=function(environment){
         // console.log("rec rec");
         var newStepEvent=new patternEvent({
           on:stepOn,
-          off:new eventMessage(stepOn)
+          off:new EventMessage(stepOn)
         });
         lastRecordedNote=newStepEvent;
         newStepEvent.off.value[2]=0;

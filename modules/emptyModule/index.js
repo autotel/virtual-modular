@@ -1,6 +1,6 @@
 'use strict';
 //this module is not active because it's not listed in "modulesList.js". It is just an boilerplate to create modules
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 //we require the user interface script. It should be one per hardware that we want to be compatible with.
 var uix16Control=require('./x16basic');
@@ -34,6 +34,6 @@ module.exports=function(environment){return new (function(){
     this.interactor.name=this.name;
 
     //here the custom code for the module
-    //we send an eventMessage to the module's output by using this.output(eventMessage);
+    //we send an EventMessage to the module's output by using this.output(EventMessage);
   }
 })};

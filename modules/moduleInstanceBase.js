@@ -49,9 +49,9 @@ module.exports=function(){
   this.eventReceived=function(evt){
     // console.log(evt);
   }
-  this.output=function(eventMessage){
+  this.output=function(EventMessage){
     outputs.forEach(function(module){
-      module.eventReceived({eventMessage:eventMessage.clone(),origin:thisModule});
+      module.eventReceived({EventMessage:EventMessage.clone(),origin:thisModule});
     });
   }
   this.remove=function(){

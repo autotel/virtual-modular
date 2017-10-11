@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 var clockSpec=require('../standards/clock.js');

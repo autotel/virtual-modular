@@ -1,5 +1,5 @@
 "use strict";
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -8,7 +8,7 @@ module.exports=function(environment){
     /**
     plan for the midi io module:
     you can select each one of the outputs, and then select a filter function that dictates what midi input events are routed to each output.
-    -should midi input be mapped to their corresponfing eventMessages according to my internal standard?
+    -should midi input be mapped to their corresponfing EventMessages according to my internal standard?
     */
     var selectedOutputNumber=false;
     environment.interactionMan.interfaces.x16basic.interactorBase.call(this,controlledModule);

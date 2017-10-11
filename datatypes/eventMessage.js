@@ -6,7 +6,7 @@ var EventMessage=function(inputValue){
   var thisEm=this;
   this.isEventMessage=true;
   /**
-  value of the eventMessage
+  value of the EventMessage
 
   [0]=function header, indicates the receiving module what function to perform with the following data
 
@@ -16,20 +16,20 @@ var EventMessage=function(inputValue){
 
   [3 ... ]= more data, depending on the particular function of the receiver following data may make sense or not.
 
-  all the efforts are done to avoid it's value to be a reference. to simulate modular elements, the eventMessages must have their own copy of the data, otherwise it could happen that a module edits an eventMessage that has been received by other. This is why to modify the .value of eventMessage, you can opt for
+  all the efforts are done to avoid it's value to be a reference. to simulate modular elements, the EventMessages must have their own copy of the data, otherwise it could happen that a module edits an EventMessage that has been received by other. This is why to modify the .value of EventMessage, you can opt for
   * set a single index of the value `myEventMessage.value[2]=0x44`
   * or use the set function `myEventMessage.set({value:[0x44,0x44,0x44]});
   */
 
   this.value=[];
   /**
-  valuenames is correlated to values array, and is used to have friendlier names to a certain eventMessage. It helps make these more readable; however you must avoid referencing to values using the names because that doesn't ensure compatibility with modules that may name values differently, and also it is slower in execution.
+  valuenames is correlated to values array, and is used to have friendlier names to a certain EventMessage. It helps make these more readable; however you must avoid referencing to values using the names because that doesn't ensure compatibility with modules that may name values differently, and also it is slower in execution.
   @example myEventMessage.print();
   */
   this.valueNames=[];
   /**print to the console it's values with index and names (if applicable)*/
   this.print=function(){
-    console.log("eventMessage { ");
+    console.log("EventMessage { ");
     for(var a in this.value){
       var str="["+a+"]";
       if(this.valueNames[a]) str+="("+valueNames[a]+") ";
@@ -39,7 +39,7 @@ var EventMessage=function(inputValue){
     console.log("}");
   }
   /**
-  set parameters of the eventMessage Data contains properties to set.
+  set parameters of the EventMessage Data contains properties to set.
   @example myEventMessage.set({value:[0x44,0x44,0x44],note:"example event message"});
 
   the only standard property that can be set is the value, other properties such as the exaple "note" are not standard, avoid using non-standard parameters unless it excplusively within the same module that is using it

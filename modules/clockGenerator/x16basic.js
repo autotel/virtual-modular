@@ -1,5 +1,5 @@
 "use strict";
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 module.exports=function(environment){
   this.Instance=function(controlledModule){
     environment.interactionMan.interfaces.x16basic.interactorBase.call(this,controlledModule);
