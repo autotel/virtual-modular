@@ -84,5 +84,43 @@ var EventConfigurator=function(parentInteractor,properties){
     var hardware=event.hardware;
     engagedHardwares.delete(hardware);
   }
+
+  this.Filter=function(criteria){
+    this.criteria=criteria;
+    var criteria=this.criteria;
+    return function(message){
+      var onMessage=message.on
+      var ret=true;
+      if(criteria){
+        if(criteria.header)
+          ret&=(onMessage.value[0]===myEvent.value[0]);
+        if(criteria.value_a)
+          ret&=(onMessage.value[1]===myEvent.value[1]);
+        if(criteria.value_b)
+          ret&=(onMessage.value[2]===myEvent.value[2]);
+        if(criteria.value_c)
+          ret&=(onMessage.value[2]===myEvent.value[2]);
+      }
+      return ret;
+    }
+  }
+  this.setFromSeqEvent=function(EvPat){
+    if(EvPat){
+      if(EvPat.on){
+        myEvent.from(evPat.on);
+        updateLcd();
+      }
+    }
+
+  }
+
+  this.getSeqEvent=function(){
+    // if(!newDest) newDest=options[0].valueNames(0);
+    var newEvPat=new EventPattern();
+    newEvPat.from(myEvent);
+    newEvPat.stepLength=1;
+    return newEvPat;
+  }
+
 };
 module.exports=EventConfigurator;

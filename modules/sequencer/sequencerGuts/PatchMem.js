@@ -163,7 +163,7 @@ module.exports=function(sequencerModule){ return new(function(){
     loopDisplace.value=0;
     microStep.value=0;
   }
-  this.stepMicro=function(number,base){
+  this.stepMicro=function(base,number){
     // console.log(base,number);s
     // console.log(" micro"+microStep.value);
     microStep.value=number;

@@ -1,7 +1,8 @@
 "use strict";
 var EventMessage = require( '../../datatypes/EventMessage.js' );
 var EventConfigurator = require( '../x16utils/EventConfigurator.js' );
-var NoteLengthner = require( './interfaceUtils/NoteLengthner.js' );
+var BlankConfigurator = require( '../x16utils/BlankConfigurator.js' );
+
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -16,11 +17,9 @@ module.exports=function(environment){
   this.Instance=function(controlledModule){
     //boilerplate
     myInteractorBase.call(this,controlledModule);
-    var configurators={};
-    configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+
 
     var engagedConfigurator=false;
-    var lastEngagedConfigurator=configurators.event;
     var engagedHardwares=new Set();
 
     //tracking vars
@@ -32,11 +31,70 @@ module.exports=function(environment){
     var configuratorsPressed={};
 
     //configurators setup
+    var configurators={};
+    configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+    var lastEngagedConfigurator=configurators.event;
+    var lookLoop={value:0};
+    var loopLength={value:0};
+    var loopDisplace=controlledModule.loopDisplace;
+    configurators.time=new BlankConfigurator(this,{
+        name:"T",
+        values:{
+          lookLoop:lookLoop,
+          loopLength:loopLength,
+          loopDisplace:loopDisplace
+        }
+      });
 
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
-
+    var loopLength=controlledModule.loopLength;
     //special edition functions
+
+    var NoteLengthner=function(){
+      var thisNoteLengthner=this;
+      this.startPointsBitmap=0x0;
+      this.lengthsBitmap=0x0;
+      var notesInCreation=[];
+      //count of notes in creation
+      var nicCount=0;
+      var stepCounter=0;
+      this.startAdding=function(differenciator,newStepEv){
+        // console.log("startadding("+differenciator+"...");
+        if(!newStepEv.stepLength){
+          newStepEv.stepLength=1;
+        }
+        notesInCreation[differenciator]={sequencerEvent:newStepEv,started:stepCounter};
+        thisNoteLengthner.startPointsBitmap|=0x1<<differenciator;
+        thisNoteLengthner.lengthsBitmap=thisNoteLengthner.startPointsBitmap;
+        nicCount++;
+        // console.log(notesInCreation[differenciator]);
+      }
+      this.finishAdding=function(differenciator){
+        if(notesInCreation[differenciator]){
+          notesInCreation[differenciator].sequencerEvent.stepLength=stepCounter-notesInCreation[differenciator].started;
+          eachFold(differenciator,function(step){
+            /*var added=*/controlledModule.storeNoDup(step,notesInCreation[differenciator].sequencerEvent);
+          });
+          // console.log(notesInCreation[differenciator]);
+          delete notesInCreation[differenciator];
+          nicCount--;
+          if(nicCount==0){
+            thisNoteLengthner.startPointsBitmap=0;
+            thisNoteLengthner.lengthsBitmap=0;
+          }
+        }
+      }
+      this.step=function(){
+        stepCounter++;
+        console.log(stepCounter);
+        if(nicCount>0){
+          thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap<<1;
+          thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap>>16;
+        }
+      }
+    };
+
     function eachFold(button,callback){
       var len=loopLength.value;
       var look=lookLoop.value||len;
@@ -133,31 +191,37 @@ module.exports=function(environment){
       noteLengthner.finishAdding(recorderDifferenciatorList[differenciator]);
     }
 
+
     controlledModule.on('step',function(event){
       for (let hardware of engagedHardwares) {
-        if(subSelectorEngaged===false)
+
+        if(engagedConfigurator===false)
         updateLeds(hardware);
-        if(lastsubSelectorEngaged==="timeConfig"){
-          configurators.timeConfig.updateLcd();
+        if(lastEngagedConfigurator==="time"){
+          configurators.time.updateLcd(hardware);
         }
       }
-
-      noteLengthner.stepCount();
-      loopDisplace.value=controlledModule.loopDisplace.value;
+      noteLengthner.step();
+      // loopDisplace.value=controlledModule.loopDisplace.value;
     });
 
     this.matrixButtonPressed=function(event){
-      // console.log(evt.data);
-
+      // console.log(event.data);
+      var hardware=event.hardware;
       if(skipMode){
-        controlledModule.restart(evt.data[0]);
-      }else if(subSelectorEngaged===false){
-        var button=evt.data[0];
+        controlledModule.restart(event.data[0]);
+
+      }else if(engagedConfigurator===false){
+        var button=event.data[0];
         var currentFilter=shiftPressed?moreBluredFilter:focusedFilter;
         var throughfold=getThroughfoldBoolean(button,currentFilter);
 
         //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
-        if(shiftPressed){ if(throughfold!==true) throughfold=throughfold>0; }else{ throughfold=throughfold===true; }
+        if(shiftPressed){
+          if(throughfold!==true) throughfold=throughfold>0;
+        }else{
+          throughfold=throughfold===true;
+        }
         // console.log(throughfold);
         if(throughfold){
           //there is an event on every fold of the lookloop
@@ -174,93 +238,81 @@ module.exports=function(environment){
           //on every repetition is empty
           noteLengthner.startAdding(button,configurators.event.getSeqEvent());
         }
-        updateLeds();
+        updateLeds(hardware);
       }else{
-        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
-      }// console.log(evt.data);
-      if(skipMode){
-        controlledModule.restart(evt.data[0]);
-      }else if(subSelectorEngaged===false){
-        var button=evt.data[0];
-        var currentFilter=shiftPressed?moreBluredFilter:focusedFilter;
-        var throughfold=getThroughfoldBoolean(button,currentFilter);
 
-        //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
-        if(shiftPressed){ if(throughfold!==true) throughfold=throughfold>0; }else{ throughfold=throughfold===true; }
-        // console.log(throughfold);
-        if(throughfold){
-          //there is an event on every fold of the lookloop
-          eachFold(button,function(step){
-            controlledModule.clearStepByFilter(step,currentFilter)
-          });
-        }/*else if(trhoughFold>0){
-          //there is an event on some folds of the lookloop
-          var newStepEv=configurators.event.getSeqEvent();
-          eachFold(button,function(step){
-            store(step,newStepEv);
-          });
-        }*/else{
-          //on every repetition is empty
-          noteLengthner.startAdding(button,configurators.event.getSeqEvent());
-        }
-        updateLeds();
-      }else{
-        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
-      }
+        configurators[engagedConfigurator].matrixButtonPressed(event);
+      }// console.log(event.data);
     };
     this.matrixButtonReleased=function(event){
-      noteLengthner.finishAdding(evt.data[0],configurators.event.getSeqEvent());
-      if(subSelectorEngaged===false){
-        updateLeds();
+      var hardware=event.hardware;
+      noteLengthner.finishAdding(event.data[0],configurators.event.getSeqEvent());
+
+      if(engagedConfigurator===false){
+        updateLeds(hardware);
       }else{
-        configurators[subSelectorEngaged].eventResponses.buttonMatrixPressed(evt);
+
+        configurators[engagedConfigurator].matrixButtonPressed(event);
       }
     };
     this.matrixButtonHold=function(event){};
     this.selectorButtonPressed=function(event){
       var hardware=event.hardware;
-      // console.log(evt);
+      // console.log(event);
       //keep trak of pressed buttons for button combinations
-      configuratorsPressed[evt.data[0]]=true;
+      configuratorsPressed[event.data[0]]=true;
       if(configuratorsPressed[2]&&configuratorsPressed[3]){
-        if(lastsubSelectorEngaged)
-        configurators[lastsubSelectorEngaged].disengage();
-        lastsubSelectorEngaged=false;
+        if(lastEngagedConfigurator)
+        configurators[lastEngagedConfigurator].disengage(hardware);
+        lastEngagedConfigurator=false;
         skipMode=true;
         hardware.sendScreenA("skip to step");
-        updateLeds();
-      }else if(evt.data[0]==1){
-        subSelectorEngaged='dimension';
-        lastsubSelectorEngaged='dimension';
-        configurators.event.engage();
-      }else if(evt.data[0]==2){
-        subSelectorEngaged='timeConfig';
-        lastsubSelectorEngaged='timeConfig';
-        configurators.timeConfig.engage();
-      }else if(evt.data[0]==3){
+        updateLeds(hardware);
+      }else if(event.data[0]==1){
+
+        engagedConfigurator='event';
+        lastEngagedConfigurator='event';
+        configurators.event.engage(event);
+      }else if(event.data[0]==2){
+
+        engagedConfigurator='time';
+        lastEngagedConfigurator='time';
+        configurators.time.engage(event);
+      }else if(event.data[0]==3){
         shiftPressed=true;
+        updateLeds(hardware);
       }
-      if(subSelectorEngaged)
-      configurators[subSelectorEngaged].eventResponses.selectorButtonPressed(evt);
+
+      if(engagedConfigurator)
+      configurators[engagedConfigurator].selectorButtonPressed(event);
     };
     this.selectorButtonReleased=function(event){
-      configuratorsPressed[evt.data[0]]=false;
+      var hardware=event.hardware;
+      configuratorsPressed[event.data[0]]=false;
       skipMode=false;
-      if(subSelectorEngaged)
-      configurators[subSelectorEngaged].eventResponses.selectorButtonReleased(evt);
-      if(evt.data[0]==1){
-        subSelectorEngaged=false;
-        configurators.event.disengage();
-      }else if(evt.data[0]==2){
-        subSelectorEngaged=false;
-        configurators.timeConfig.disengage();
-      }else if(evt.data[0]==3){
+
+      if(engagedConfigurator)
+
+      configurators[engagedConfigurator].selectorButtonReleased(event);
+      if(event.data[0]==1){
+
+        engagedConfigurator=false;
+        configurators.event.disengage(hardware);
+      }else if(event.data[0]==2){
+
+        engagedConfigurator=false;
+        configurators.time.disengage(hardware);
+      }else if(event.data[0]==3){
         shiftPressed=false;
       }
+      updateHardware(hardware);
     };
     this.encoderScrolled=function(event){
-      if(configurators[lastsubSelectorEngaged])
-      configurators[lastsubSelectorEngaged].eventResponses.encoderScroll(evt);
+      var hardware=event.hardware;
+      if(configurators[lastEngagedConfigurator]){
+        configurators[lastEngagedConfigurator].encoderScrolled(event);
+      }
+      updateLeds(hardware);
     };
     this.encoderPressed=function(event){};
     this.encoderReleased=function(event){};
@@ -280,7 +332,7 @@ module.exports=function(environment){
           configurators.event.setFromSeqEvent(lastRecordedNote);
           lastRecordedNote=false;
         }
-        updateLeds();
+        updateLeds(hardware);
     };
     this.disengage=function(event){
       engagedHardwares.delete(event.hardware);
@@ -291,17 +343,17 @@ module.exports=function(environment){
       hardware.sendScreenA("monosequencer");
       updateLeds(hardware);
     }
-    var updateLeds=function(hardware){
-      stepsBmp=controlledModule.getBitmap16();
-      hardware.draw([playHeadBmp,playHeadBmp|stepsBmp,stepsBmp]);
-    }
+    // var updateLeds=function(hardware){
+    //   stepsBmp=getBitmap16();
+    //   hardware.draw([playHeadBmp,playHeadBmp|stepsBmp,stepsBmp]);
+    // }
 
-    var focusedFilter=new configurators.event.Filter({destination:true,header:true,value_a:true});
-    var bluredFilter=new configurators.event.Filter({destination:true,header:true});
-    var moreBluredFilter=new configurators.event.Filter({destination:true});
+    var focusedFilter=new configurators.event.Filter({header:true,value_a:true,value_b:true});
+    var bluredFilter=new configurators.event.Filter({header:true,value_a:true});
+    var moreBluredFilter=new configurators.event.Filter({header:true});
     function updateLeds(hardware){
       //actually should display also according to the currently being tweaked
-      var showThroughfold=lastsubSelectorEngaged=="timeConfig";
+      var showThroughfold=lastEngagedConfigurator=="time";
       var mostImportant=getBitmapx16(shiftPressed?moreBluredFilter:focusedFilter,showThroughfold);
       var mediumImportant=getBitmapx16(moreBluredFilter,showThroughfold);
       mediumImportant|=noteLengthner.startPointsBitmap;
@@ -311,7 +363,7 @@ module.exports=function(environment){
       var playHeadBmp=0;
       //"render" play header:
       //if we are in modulus view, it renders many playheads
-      if(lastsubSelectorEngaged=="timeConfig"){
+      if(lastEngagedConfigurator=="time"){
         drawStep=currentStep.value%(lookLoop.value||loopLength.value);
         var stepFolds=Math.ceil(loopLength.value/(lookLoop.value||loopLength.value));
         for(var a=0; a<stepFolds;a++){

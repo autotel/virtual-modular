@@ -124,15 +124,20 @@ module.exports=function(environment){return new (function(){
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
       var EventMessage=evt.EventMessage;
+      var midiOut=[0,0,0];
       // console.log("MIDI",evt);
       if(EventMessage.value[0]==1){
-        EventMessage.value[1]=0x90|EventMessage.value[1];
+        midiOut[0]=0x90|EventMessage.value[1];
+        midiOut[1]=EventMessage.value[2];
+        midiOut[2]=EventMessage.value[3];
       }
       if(EventMessage.value[0]==2){
-        EventMessage.value[1]=0x80|EventMessage.value[1];
-        EventMessage.value[3]=0;
+        midiOut[0]=0x80|EventMessage.value[1];
+        midiOut[1]=EventMessage.value[2];
+        midiOut[2]=0;
       }
-      midi.out(EventMessage.value[1],EventMessage.value[2],EventMessage.value[3]);
+      console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
+      midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
     this.remove=function(){
       if(midi.input) midi.input.MidiInClose();

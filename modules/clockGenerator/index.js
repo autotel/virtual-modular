@@ -25,6 +25,6 @@ module.exports=function(environment){return new (function(){
       thisInstance.output(myEventMessage);
       myEventMessage.value[2]++;
       myEventMessage.value[2]%=myEventMessage.value[1];
-    },200/12);
+    },200/24);
   }
 })};

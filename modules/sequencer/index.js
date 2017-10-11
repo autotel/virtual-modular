@@ -15,13 +15,10 @@ module.exports=function(environment){return new (function(){
   }
   this.Instance=function(environment){
     moduleInstanceBase.call(this);
-    this.baseName="monoSequencer";
+    this.baseName="sequencer";
     testGetName.call(this);
-    var myInteractor=new interactorSingleton.Instance(this);
-    this.interactor=myInteractor;
-    this.interactor.name=this.name;
 
-    if(!props) props={};
+
     var currentStep={value:0};
     this.currentStep=currentStep;
     /**/console.log(sequencerFunctions);
@@ -63,7 +60,6 @@ module.exports=function(environment){return new (function(){
       //console.log("MMO"+currentStep.value);
       this.handle('step',evt);
     }
-    destinationBase.call(this,environment);
     // x00: clock tick
     // x01: set the playhead to a position indicated by data 1, set the state to play (and play it?) (NI.!)
     // x02: set the state to stop (NI.!)
@@ -76,22 +72,26 @@ module.exports=function(environment){return new (function(){
       this.handle('receive',evt)
       if(evt.value[0]==0){
         this.stepMicro(evt.value[1],evt.value[2]);
-        console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
+        // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
       }else if(evt.value[0]==1){
         thisInstance.stepAbsolute(evt.value[1]);
         thisInstance.play();
-        console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
+        // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==2){
         thisInstance.stop();
         console.log("2 stop");
       }else if(evt.value[0]==3){
         thisInstance.stepAbsolute(evt.value[1]);
-        console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
+        // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==0x02){
         thisInstance.stop();
       }else if(evt.value[0]==0x04){
         thisInstance.stepAbsolute(evt.value[1]);
       }
     }
+
+    var myInteractor=new interactorSingleton.Instance(this);
+    this.interactor=myInteractor;
+    this.interactor.name=this.name;
   }
 })};
