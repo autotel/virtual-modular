@@ -64,7 +64,7 @@ var EventMessage=function(inputValue){
     return true;
   }
   /**apply all the characteristics of other event message to this one, except the ones that are
-  //"transparent" in the other (value==-1)*/
+  "transparent" in the other (value==-1)*/
   this.superImpose=function(otherEvent){
     for(var a in otherEvent.value){
       if(otherEvent.value[a]!=-1){

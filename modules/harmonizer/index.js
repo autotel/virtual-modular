@@ -48,8 +48,11 @@ module.exports=function(environment){return new (function(){
       thisInstance.triggerOff(gradeNumber);
     }
 
-    this.triggerOn=function(gradeNumber){
+    this.triggerOn=function(gradeNumber,underImpose=false){
       var newEvent=getOutputMessageFromNumber(gradeNumber);
+      if(underImpose){
+        newEvent.underImpose(underImpose);
+      }
       if(newEvent){
         thisInstance.output(newEvent);
 
@@ -114,7 +117,7 @@ module.exports=function(environment){return new (function(){
             thisInstance.handle('chordchange');
             // console.log("chordchange",event);
           }else if(eventMessage.value[0]==1){
-            thisInstance.triggerOn(eventMessage.value[2]);
+            thisInstance.triggerOn(eventMessage.value[2],eventMessage);
           }else{
             console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
           }

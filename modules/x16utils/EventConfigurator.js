@@ -53,7 +53,7 @@ var EventConfigurator=function(parentInteractor,properties){
     hardware.sendScreenB(
       thisInteractor.name
       +":"+valueNames[selectedValueNumber]
-      +"="+(baseEvent.value[selectedValueNumber])
+      +"="+(baseEvent.value[selectedValueNumber]===-1?"transparent":baseEvent.value[selectedValueNumber])
     );
   }
   this.matrixButtonPressed=function(event){
