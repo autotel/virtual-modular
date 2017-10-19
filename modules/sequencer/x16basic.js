@@ -17,9 +17,8 @@ module.exports=function(environment){
   this.Instance=function(controlledModule){
     //boilerplate
     myInteractorBase.call(this,controlledModule);
+    var thisInterface=this;
 
-
-    var engagedConfigurator=false;
     var engagedHardwares=new Set();
 
     //tracking vars
@@ -31,6 +30,7 @@ module.exports=function(environment){
     var configuratorsPressed={};
 
     //configurators setup
+    var engagedConfigurator=false;
     var configurators={};
     configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
     var lastEngagedConfigurator=configurators.event;
@@ -38,13 +38,13 @@ module.exports=function(environment){
     var loopLength={value:0};
     var loopDisplace=controlledModule.loopDisplace;
     configurators.time=new BlankConfigurator(this,{
-        name:"T",
-        values:{
-          lookLoop:lookLoop,
-          loopLength:loopLength,
-          loopDisplace:loopDisplace
-        }
-      });
+      name:"T",
+      values:{
+        lookLoop:lookLoop,
+        loopLength:loopLength,
+        loopDisplace:loopDisplace
+      }
+    });
 
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
@@ -87,7 +87,7 @@ module.exports=function(environment){
       }
       this.step=function(){
         stepCounter++;
-        console.log(stepCounter);
+        // console.log(stepCounter);
         if(nicCount>0){
           thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap<<1;
           thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap>>16;
@@ -187,19 +187,15 @@ module.exports=function(environment){
       }
     }
     this.recordNoteEnd=function(differenciator){
-      console.log("noteEnd",differenciator);
+      // console.log("noteEnd",differenciator);
       noteLengthner.finishAdding(recorderDifferenciatorList[differenciator]);
     }
 
 
     controlledModule.on('step',function(event){
       for (let hardware of engagedHardwares) {
-
         if(engagedConfigurator===false)
         updateLeds(hardware);
-        if(lastEngagedConfigurator==="time"){
-          configurators.time.updateLcd(hardware);
-        }
       }
       noteLengthner.step();
       // loopDisplace.value=controlledModule.loopDisplace.value;
@@ -230,13 +226,13 @@ module.exports=function(environment){
           });
         }/*else if(trhoughFold>0){
           //there is an event on some folds of the lookloop
-          var newStepEv=configurators.event.getSeqEvent();
+          var newStepEv=configurators.event.getEventPattern();
           eachFold(button,function(step){
             store(step,newStepEv);
           });
         }*/else{
           //on every repetition is empty
-          noteLengthner.startAdding(button,configurators.event.getSeqEvent());
+          noteLengthner.startAdding(button,configurators.event.getEventPattern());
         }
         updateLeds(hardware);
       }else{
@@ -246,7 +242,7 @@ module.exports=function(environment){
     };
     this.matrixButtonReleased=function(event){
       var hardware=event.hardware;
-      noteLengthner.finishAdding(event.data[0],configurators.event.getSeqEvent());
+      noteLengthner.finishAdding(event.data[0],configurators.event.getEventPattern());
 
       if(engagedConfigurator===false){
         updateLeds(hardware);
@@ -269,7 +265,7 @@ module.exports=function(environment){
         hardware.sendScreenA("skip to step");
         updateLeds(hardware);
       }else if(event.data[0]==1){
-
+        /**TODO: use configurator objects instead of their names**/
         engagedConfigurator='event';
         lastEngagedConfigurator='event';
         configurators.event.engage(event);
@@ -291,11 +287,10 @@ module.exports=function(environment){
       configuratorsPressed[event.data[0]]=false;
       skipMode=false;
 
-      if(engagedConfigurator)
-
-      configurators[engagedConfigurator].selectorButtonReleased(event);
+      if(engagedConfigurator){
+        configurators[engagedConfigurator].selectorButtonReleased(event);
+      }
       if(event.data[0]==1){
-
         engagedConfigurator=false;
         configurators.event.disengage(hardware);
       }else if(event.data[0]==2){
@@ -321,7 +316,6 @@ module.exports=function(environment){
       engagedHardwares.add(event.hardware);
       updateHardware(event.hardware);
 
-      hardware.sendScreenA("Sequencer mode");
         //when you record from a preset kit, and then search the Sequencer
         //it can get really hard to find the sequencer if they don't show the
         //recording by defaut
@@ -329,7 +323,7 @@ module.exports=function(environment){
           // console.log("lastRecordedNote",lastRecordedNote);
           //this will update the output list in the sequencer, otherwise it may have a value out of array
           configurators.event.options[0].valueNames(0);
-          configurators.event.setFromSeqEvent(lastRecordedNote);
+          configurators.event.setFromEventPattern(lastRecordedNote);
           lastRecordedNote=false;
         }
         updateLeds(hardware);
@@ -340,7 +334,7 @@ module.exports=function(environment){
 
     //feedback functions
     var updateHardware=function(hardware){
-      hardware.sendScreenA("monosequencer");
+      hardware.sendScreenA(thisInterface.name);
       updateLeds(hardware);
     }
     // var updateLeds=function(hardware){

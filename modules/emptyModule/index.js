@@ -26,7 +26,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     //this make this module to be recognized as a module, and makes it possible for it to connect to other modules
     moduleInstanceBase.call(this);
-    this.baseName="emptyModule";
+    this.baseName="empty module";
     //get my unique name
     name.call(this);
     //create the instance of my interactor. There is one interactor per module, per compatible hardware version. (two of the same hardware have only one interactor)

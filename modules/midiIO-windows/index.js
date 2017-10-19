@@ -9,7 +9,7 @@ var midiInstance=require('./instance');
 
 var fs=require('fs');
 var path=require('path');
-var midiOptions = require('./midi-options.json');
+var midiOptions = require('./midi-options.js');
 
 var jazz = require('jazz-midi');
 
@@ -80,7 +80,7 @@ module.exports=function(environment){return new (function(){
     }
     currentPortNumber++;
   }
-  fs.writeFile(path.join(__dirname,'./midi-options.json'), JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
+  fs.writeFile(path.join(__dirname,'/midi-options.js'), "module.exports="+JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
 
   environment.on('created',function(){
     for(var midiItem in openedMidiPorts){
@@ -136,7 +136,7 @@ module.exports=function(environment){return new (function(){
         midiOut[1]=EventMessage.value[2];
         midiOut[2]=0;
       }
-      console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
+      // console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
       midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
     this.remove=function(){

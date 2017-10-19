@@ -21,7 +21,7 @@ module.exports=function(environment){return new (function(){
 
     var currentStep={value:0};
     this.currentStep=currentStep;
-    /**/console.log(sequencerFunctions);
+    // /**/console.log(sequencerFunctions);
     var thisModule=this;
     this.patData={};
     var currentModulus=16;
@@ -69,7 +69,7 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(event){
       var evt=event.EventMessage;
       // console.log(evt);
-      this.handle('receive',evt)
+      this.handle('receive',evt);
       if(evt.value[0]==0){
         this.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
@@ -79,7 +79,7 @@ module.exports=function(environment){return new (function(){
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==2){
         thisInstance.stop();
-        console.log("2 stop");
+        // console.log("2 stop");
       }else if(evt.value[0]==3){
         thisInstance.stepAbsolute(evt.value[1]);
         // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");

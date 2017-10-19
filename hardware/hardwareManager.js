@@ -1,7 +1,7 @@
 'use strict';
 //baudrate is applied to all devices in order to check their type via Serial.
 //if a device needed a faster baud, it's controller could implement a negotiation
-var baudRate= 115200;
+var baudRate= 19200;
 var SerialPort = require('serialport');
 const GETVERSION = 0x40;
 

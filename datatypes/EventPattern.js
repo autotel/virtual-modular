@@ -4,19 +4,13 @@ var noteSpec=require("../modules/standards/note.js");
 /**
 prototype of event messages in a format that is handy for storage
 */
-module.exports=function(properties){
+var EventPattern=function(properties){
   var thisPE=this;
-  if(properties){
-    for(var a in properties){
-      this[a]=properties[a];
-    }
-    if(thisPE.on.isEventMessage!==true) thisPE.on=new EventMessage(thisPE.on);
-    if(thisPE.off!==false)
-      if(thisPE.off.isEventMessage!==true) thisPE.off=new EventMessage(thisPE.off);
-      //untested:
-  }
+
+
+
   this.compareTo=function(other,propertyList){
-    return this.on.compareTo(other.on);//& this.off.compareTo(other.off);
+    return thisPE.on.compareTo(other.on);//& this.off.compareTo(other.off);
   }
   this.from=function(evMes){
     thisPE.on=new EventMessage(evMes);
@@ -26,4 +20,19 @@ module.exports=function(properties){
       thisPE.off.value[3]=0x00;
     }
   };
+
+  if(properties){
+    for(var a in properties){
+      thisPE[a]=properties[a];
+    }
+    if(thisPE.on.isEventMessage!==true) thisPE.on=new EventMessage(thisPE.on);
+    if(thisPE.off!==false)
+      if(thisPE.off.isEventMessage!==true) thisPE.off=new EventMessage(thisPE.off);
+    if(thisPE.off===undefined) thisPE.from(thisPE.on);
+      //untested:
+  }else{
+    thisPE.on=new EventMessage();
+    thisPE.from(thisPE.on);
+  }
 }
+module.exports=EventPattern;

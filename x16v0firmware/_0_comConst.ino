@@ -1,5 +1,5 @@
 //these constants are shared between brain and this, and thus should be updated with the update app
-#define SOFT_BAUDRATE 115200
+#define SOFT_BAUDRATE 19200
 #define EOMessage 3
 #define unknown -1
 

@@ -34,13 +34,15 @@ var modulesManager=function(environment){ return new(function(){
   instanciate and register a new module.
   */
   this.addModule=function(moduleName,properties){
-    if(!moduleName) moduleName="monoSequencer";
+    console.log("instancing singleton of module: ",moduleName);
+    if(!moduleName) moduleName="unnamed";
     if(!properties) properties={};
-    if(! moduleSingletons[moduleName] ) throw "module named "+moduleName+" is registered";
+    if(!moduleSingletons[moduleName] ) {console.error("module named "+moduleName+" is registered");}
     var newInstance=new moduleSingletons[moduleName].Instance(properties);
     modules.push(newInstance);
     environment.handle('module created',{module:newInstance});
     // console.log(modules);
+    console.log("TODO: allow module names to be custom");
   }
   return this;
 })};

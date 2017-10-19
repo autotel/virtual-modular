@@ -131,7 +131,7 @@ var DataChopper=function(){
  * @example function createHardwareController(portName){
    var err=0;
    let newPort = new SerialPort(portName, {
-     baudRate: 115200
+     baudRate: 19200
    });
 
    //console.log("newPort",newPort);
@@ -262,8 +262,9 @@ var DriverX16v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
-      // console.log("recv",chd);
+      console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
+      // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
       event.data=Array.from(event.data);
       if(event.type=="encoderScrolled"){

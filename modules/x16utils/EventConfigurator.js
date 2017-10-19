@@ -16,10 +16,20 @@ var EventConfigurator=function(parentInteractor,properties){
   var valueNames=["fnHead","chan","number","prop"];
   if(properties.valueNames) valueNames=properties.valueNames
   var engagedHardwares=new Set();
-  var myEvent=new EventMessage({value:[0]});
+  /**
+  the interface is based on an eventMessage, but the input and output is an eventPattern
+  */
+  var baseEvent;
+  if(properties.baseEvent){
+    // console.log("NM");
+    baseEvent=properties.baseEvent;
+  }else{
+    // console.log("nono");
+    baseEvent=this.baseEvent=new EventMessage({value:[0]});
+  }
   if(properties.values){
     for(var a in properties.values){
-      myEvent.value[a]=properties.values[a];
+      baseEvent.value[a]=properties.values[a];
     }
   }
   var valueChanged=function(){
@@ -30,7 +40,7 @@ var EventConfigurator=function(parentInteractor,properties){
   }
   var updateLeds=function(hardware){
     var selectBmp=1<<selectedValueNumber;
-    var eventLengthBmp=~(0xFFFF<<myEvent.value.length);
+    var eventLengthBmp=~(0xFFFF<<baseEvent.value.length);
     hardware.draw([selectBmp|eventLengthBmp,selectBmp,selectBmp|eventLengthBmp]);
   }
   var updateScreen=function(hardware){
@@ -43,7 +53,7 @@ var EventConfigurator=function(parentInteractor,properties){
     hardware.sendScreenB(
       thisInteractor.name
       +":"+valueNames[selectedValueNumber]
-      +"="+(myEvent.value[selectedValueNumber])
+      +"="+(baseEvent.value[selectedValueNumber])
     );
   }
   this.matrixButtonPressed=function(event){
@@ -63,8 +73,8 @@ var EventConfigurator=function(parentInteractor,properties){
   };
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
-    if(myEvent.value.length>selectedValueNumber){
-      myEvent.value[selectedValueNumber]+=event.data[1];
+    if(baseEvent.value.length>selectedValueNumber){
+      baseEvent.value[selectedValueNumber]+=event.data[1];
       updateScreen(hardware);
     }
   };
@@ -93,31 +103,32 @@ var EventConfigurator=function(parentInteractor,properties){
       var ret=true;
       if(criteria){
         if(criteria.header)
-          ret&=(onMessage.value[0]===myEvent.value[0]);
+          ret&=(onMessage.value[0]===baseEvent.value[0]);
         if(criteria.value_a)
-          ret&=(onMessage.value[1]===myEvent.value[1]);
+          ret&=(onMessage.value[1]===baseEvent.value[1]);
         if(criteria.value_b)
-          ret&=(onMessage.value[2]===myEvent.value[2]);
+          ret&=(onMessage.value[2]===baseEvent.value[2]);
         if(criteria.value_c)
-          ret&=(onMessage.value[2]===myEvent.value[2]);
+          ret&=(onMessage.value[2]===baseEvent.value[2]);
       }
       return ret;
     }
   }
-  this.setFromSeqEvent=function(EvPat){
+
+  this.setFromEventPattern=function(EvPat){
     if(EvPat){
       if(EvPat.on){
-        myEvent.from(evPat.on);
+        baseEvent.from(evPat.on);
         updateLcd();
       }
     }
 
   }
 
-  this.getSeqEvent=function(){
+  this.getEventPattern=function(){
     // if(!newDest) newDest=options[0].valueNames(0);
     var newEvPat=new EventPattern();
-    newEvPat.from(myEvent);
+    newEvPat.from(baseEvent);
     newEvPat.stepLength=1;
     return newEvPat;
   }

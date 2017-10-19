@@ -40,6 +40,10 @@ var X16SuperInteractorsSingleton=function(environment){
       throw "tried to add an object to a SuperInteractor that is not an interactor";
     }
   }
+  /** get the list of interactors @return array*/
+  this.getModuleInteractors=function(){
+    return moduleInterfaces;
+  }
   /**
   *Tiny pseudo-interactor that is used to choose what module to isntantiate when we press on an empty slot of the "patchboard" (i.e. button that is not lid)
   */

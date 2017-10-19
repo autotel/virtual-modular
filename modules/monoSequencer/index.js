@@ -26,7 +26,7 @@ module.exports=function(environment){return new (function(){
     var noteOnTracker=new Set();
     var thisInstance=this;
     moduleInstanceBase.call(this);
-    this.baseName="monoSequencer";
+    this.baseName="monosequencer";
     testGetName.call(this);
     this.step={value:0}
     var step=this.step;
@@ -53,6 +53,7 @@ module.exports=function(environment){return new (function(){
           thisInstance.output(patMem[step.value]);
           var noff=patMem[step.value].clone();
           noff.value[0]=2;
+          console.log(noff);
           noteOnTracker.add(noff);
         }else{
           //console.log("NS"+step.value);
