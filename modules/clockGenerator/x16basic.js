@@ -7,11 +7,12 @@ module.exports=function(environment){
     var playHeadBmp;
     var microStepsBmp;
 
-    controlledModule.on('micro step',function(event){
+    // controlledModule.on('micro step',function(event){
+    // });
+    //microStep event happens too often, instead I am setting an interval to updte the leds
+    setInterval(function(){
       playHeadBmp=1<<controlledModule.step.value;
       microStepsBmp=~(0xffff<<controlledModule.step.microSteps);
-    });
-    setInterval(function(){
       for (let hardware of engagedHardwares) {
         updateLeds(hardware);
       }
@@ -24,8 +25,8 @@ module.exports=function(environment){
     this.selectorButtonPressed=function(event){};
     this.selectorButtonReleased=function(event){};
     this.encoderScrolled=function(event){
-      controlledModule.bpm.value+=event.data[1];
-      event.hardware.sendScreenA("BPM"+controlledModule.bpm.value);
+      controlledModule.cpm.value+=event.data[1];
+      event.hardware.sendScreenA("CPM"+controlledModule.cpm.value);
     };
     this.encoderPressed=function(event){};
     this.encoderReleased=function(event){};

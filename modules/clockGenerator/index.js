@@ -16,9 +16,9 @@ module.exports=function(environment){return new (function(){
     var myInterval=false;
     var myEventMessage=new EventMessage({value:[clockSpec[0].incrementalTick,12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
-    var bpm=this.bpm={value:120,updated:120};
+    var cpm=this.cpm={value:120*8,updated:120*8};
     var step=this.step={value:0,microSteps:12}
-    if(properties.bpm)this.bpm.value=properties.bpm;
+    if(properties.cpm)this.cpm.value=properties.cpm;
     this.baseName="clockGenerator";
     name.call(this);
     if(properties.name) this.name=properties.name;
@@ -26,16 +26,16 @@ module.exports=function(environment){return new (function(){
     this.interactor.name=this.name;
     function resetInterval(){
       clearInterval(myInterval);
-      bpm.updated=bpm.value;
+      cpm.updated=cpm.value;
       myInterval=setInterval(function(){
-        if(bpm.value!=bpm.updated) resetInterval();
+        if(cpm.value!=cpm.updated) resetInterval();
         step.value++;
         step.value%=step.microSteps;
         myEventMessage.value[1]=step.microSteps;
         myEventMessage.value[2]=step.value;
         thisInstance.output(myEventMessage);
-        thisInstance.handle('micro step');
-      },(60000)/(bpm.value*step.microSteps));
+        // thisInstance.handle('micro step');
+      },(60000)/(cpm.value*step.microSteps));
     }
     resetInterval();
   }
