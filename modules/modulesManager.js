@@ -1,5 +1,5 @@
 "use strict";
-var modulesList=require('./modulesList');
+var modulePrototypesList=require('./modulePrototypesList');
 var moduleSingletons={};
 var modules=[];
 
@@ -8,12 +8,13 @@ var modules=[];
 ModulesManager is a singleton that manages the pattern modifying modules.
 */
 var modulesManager=function(environment){ return new(function(){
+  var thisMan=this;
   console.log("-modulesManager");
-  this.modulesList=modulesList;
-  for(var a in modulesList){
+  this.modulePrototypesList=modulePrototypesList;
+  for(var a in modulePrototypesList){
     try{
       console.log(" - initializing module \""+a+"\" ");
-      moduleSingletons[a]=require(modulesList[a])(environment);
+      moduleSingletons[a]=require(modulePrototypesList[a])(environment);
       environment.interactionMan.appendInteractorSingleton(moduleSingletons[a].InteractorSingleton);
     }catch(e){
       delete moduleSingletons[a];
@@ -23,9 +24,10 @@ var modulesManager=function(environment){ return new(function(){
   }
 
   this.getModuleWithName=function(name){
-    for(var a of modulesList){
-      if(a.name==name){
-        return a;
+    // console.log(modules);
+    for(var module of modules){
+      if(module.name==name){
+        return module;
       }
     }
   }
@@ -43,7 +45,29 @@ var modulesManager=function(environment){ return new(function(){
     environment.handle('module created',{module:newInstance});
     // console.log(modules);
     console.log("TODO: allow module names to be custom");
+    return newInstance;
   }
+  this.applyProperties=function(props){
+    console.log("Creating modules net:");
+    for(var module of props){
+      thisMan.addModule(module.type,module.properties);
+    }
+    for(var moduleDefiner of props){
+      // console.log(moduleDefiner.properties.name);
+      var module=thisMan.getModuleWithName(moduleDefiner.properties.name);
+      for(var outputName of moduleDefiner.outputs){
+        try{
+          var output=thisMan.getModuleWithName(outputName);
+          if(!output)throw "  -couldn't find module named "+outputName
+          module.addOutput(output);
+        }catch(e){
+          console.log(module);
+          console.error(" -could't set output of "+moduleDefiner.properties.name+" to "+outputName+": \n",e);
+        }
+      }
+    }
+  }
+
   return this;
 })};
 module.exports=modulesManager;

@@ -13,10 +13,11 @@ module.exports=function(environment){return new (function(){
     this.name=this.baseName+" "+testcount;
     testcount++;
   }
-  this.Instance=function(environment){
+  this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="sequencer";
     testGetName.call(this);
+    if(properties.name) this.name=properties.name;
 
 
     var currentStep={value:0};

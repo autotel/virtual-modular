@@ -88,10 +88,17 @@ module.exports=function(environment){return new (function(){
       var ioString="";
       if(openedMidiPorts[midiItem].input!==undefined) ioString+="I";
       if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";
-      environment.modulesMan.addModule("midiIO",{
-        midiPort:openedMidiPorts[midiItem],
-        name:ioString+"-"+midiItem
-      });
+      if(midiOptions.rename[midiItem]){
+        environment.modulesMan.addModule("midiIO",{
+          midiPort:openedMidiPorts[midiItem],
+          name:midiOptions.rename[midiItem]
+        });
+      }else{
+        environment.modulesMan.addModule("midiIO",{
+          midiPort:openedMidiPorts[midiItem],
+          name:ioString+"-"+midiItem
+        });
+      }
     }
   });
 
@@ -104,6 +111,9 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
     getName.call(this);
+
+    if(properties.name) this.name=properties.name;
+
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
     var midi=properties.midiPort;

@@ -26,6 +26,7 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName="harmonizer";
     name.call(this);
+    if(properties.name) this.name=properties.name;
     /** TODO: this naming convention **/
     var thisInstance=this;
 

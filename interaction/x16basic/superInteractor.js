@@ -54,7 +54,7 @@ var X16SuperInteractorsSingleton=function(environment){
     var lastMatrixButton=false;
     this.engaged=false;
     function updatePossibleModulesList(){
-      possibleModules=Object.keys(environment.modulesMan.modulesList);
+      possibleModules=Object.keys(environment.modulesMan.modulePrototypesList);
       possibleModulesBitmap=~(0xffff<<possibleModules.length);
     }
     function updateHardware(){

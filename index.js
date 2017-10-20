@@ -11,3 +11,10 @@ environment.interactionMan=require("./interaction/interactionManager.js")(enviro
 /** modulesMan is responsible for the modular environment */
 environment.modulesMan=require("./modules/modulesManager.js")(environment);
 environment.handle('created');
+
+//startup actions
+try{
+  environment.modulesMan.applyProperties(require('./default-patch.js'));
+}catch(e){
+  console.error("error while loading default patch: ",e);
+}

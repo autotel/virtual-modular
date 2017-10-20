@@ -28,6 +28,7 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName="monosequencer";
     testGetName.call(this);
+    if(properties.name) this.name=properties.name;
     this.step={value:0}
     var step=this.step;
     var myInteractor=new interactorSingleton.Instance(this);

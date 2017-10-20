@@ -1,5 +1,5 @@
 'use strict';
-//this module is not active because it's not listed in "modulesList.js". It is just an boilerplate to create modules
+//this module is not active because it's not listed in "modulePrototypesList.js". It is just an boilerplate to create modules
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 //we require the user interface script. It should be one per hardware that we want to be compatible with.
@@ -29,6 +29,7 @@ module.exports=function(environment){return new (function(){
     this.baseName="empty module";
     //get my unique name
     name.call(this);
+    if(properties.name) this.name=properties.name;
     //create the instance of my interactor. There is one interactor per module, per compatible hardware version. (two of the same hardware have only one interactor)
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;

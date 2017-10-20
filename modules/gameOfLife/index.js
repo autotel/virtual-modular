@@ -33,6 +33,9 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName="game of life";
     testGetName.call(this);
+
+    if(properties.name) this.name=properties.name;
+    
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
     this.interactor.name=this.name;

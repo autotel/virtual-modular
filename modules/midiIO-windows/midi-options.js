@@ -19,5 +19,8 @@ module.exports={
 		"from modular": true,
 		"to modular": true,
 		"CVpal": true
+	},
+	"rename": {
+		"Microsoft GS Wavetable Synth": "default midi out"
 	}
 }

@@ -27,6 +27,8 @@ module.exports=function(environment){return new (function(){
     var thisInstance=this;
     //get my unique name
     name.call(this);
+
+    if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
 

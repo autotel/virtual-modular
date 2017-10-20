@@ -19,6 +19,7 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName="clockGenerator";
     name.call(this);
+    if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
     setInterval(function(){
