@@ -50,12 +50,15 @@ var modulesManager=function(environment){ return new(function(){
   this.applyProperties=function(props){
     console.log("Creating modules net:");
     for(var module of props){
+
       thisMan.addModule(module.type,module.properties);
     }
     for(var moduleDefiner of props){
       // console.log(moduleDefiner.properties.name);
       var module=thisMan.getModuleWithName(moduleDefiner.properties.name);
+      console.log(" - patch module \""+moduleDefiner.properties.name+"\" ("+moduleDefiner.type+") ");
       for(var outputName of moduleDefiner.outputs){
+        console.log(" - to \""+outputName+"\"");
         try{
           var output=thisMan.getModuleWithName(outputName);
           if(!output)throw "  -couldn't find module named "+outputName
