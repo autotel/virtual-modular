@@ -3,6 +3,8 @@ var RARROW=String.fromCharCode(126);
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
+
+A superInteractor defines the main context for the interactors of the specific hardware. A superinteractor is the entry point to any of the other interfaces. For instance, if somebody created a hardware that is designed only for one specific module, the superinteractor would be in charge of routing the compatible module to that hardware device. If the module is supposed to be able to create and route modules (like in this case), a superinteractor defines the user interaction patterns of how the modules are created; and how one switches between interface.
 */
 module.exports={};
 var onHandlers=require("onhandlers");
@@ -79,12 +81,13 @@ var X16SuperInteractorsSingleton=function(environment){
       return ret;
     }
     this.matrixButtonPressed=function(evt){
-      if(evt.data[0]===lastMatrixButton){
+      /*if(evt.data[0]===lastMatrixButton){ deprecated create module on second tap.
         this.disengage();
-      }else if(evt.data[0]<possibleModules.length){
+      }else */if(evt.data[0]<possibleModules.length){
         lastMatrixButton=evt.data[0];
         moduleToCreateOnDisengage=possibleModules[evt.data[0]];
-        myHardware.sendScreenA("+"+moduleToCreateOnDisengage);
+        myHardware.sendScreenA("Release to create");
+        myHardware.sendScreenB("+"+moduleToCreateOnDisengage);
       }else{
         moduleToCreateOnDisengage=false;
         this.disengage();
