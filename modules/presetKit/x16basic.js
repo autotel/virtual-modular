@@ -36,6 +36,9 @@ module.exports=function(environment){
         });
       }
     });
+    controlledModule.on('kit changed',function(){
+      updateAvailablePresetsBitmap();
+    });
 
     this.matrixButtonPressed=function(event){
       selectedPresetNumber=event.button;
@@ -99,12 +102,12 @@ module.exports=function(environment){
       }else{
         if(lastEngagedConfigurator==configurators.event){
           lastEngagedConfigurator.encoderScrolled(event);
-          if(!controlledModule.kit[selectedPresetNumber]) updateAvailablePresetsBitmap ();
           controlledModule.kit[selectedPresetNumber]=configurators.event.getEventPattern();
-
+          updateAvailablePresetsBitmap ();
         }
-
       }
+
+      updateHardware(event.hardware);
     };
     this.encoderPressed=function(event){
       if(engagedConfigurator){

@@ -80,7 +80,7 @@ module.exports=function(environment){return new (function(){
 
     */
 
-    */
+    
     // x71: data response
     this.eventReceived=function(event){
       var evt=event.EventMessage;

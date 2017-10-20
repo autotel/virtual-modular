@@ -44,6 +44,13 @@ module.exports=function(environment){return new (function(){
 
     this.kit={};
 
+    if(properties.kit){
+      for(var n in properties.kit){
+        this.kit[n%16]=new EventPattern({on:{value:properties.kit[n]}});
+      }
+      thisInstance.handle('kit changed');
+    }
+
     this.noteOnTracker={}
 
     this.uiTriggerOn=function(presetNumber){

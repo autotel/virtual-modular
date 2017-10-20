@@ -8,7 +8,8 @@ module.exports={
 		"to reaper": true,
 		"from modular": true,
 		"to modular": true,
-		"CVpal": true
+		"CVpal": true,
+		"to DAW": true
 	},
 	"inputs": {
 		"7- UM-1": true,
@@ -18,7 +19,8 @@ module.exports={
 		"to reaper": true,
 		"from modular": true,
 		"to modular": true,
-		"CVpal": true
+		"CVpal": true,
+		"to DAW": false
 	},
 	"rename": {
 		"Microsoft GS Wavetable Synth": "default midi out"

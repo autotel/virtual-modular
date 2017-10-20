@@ -26,9 +26,10 @@ var EventPattern=function(properties){
       thisPE[a]=properties[a];
     }
     if(thisPE.on.isEventMessage!==true) thisPE.on=new EventMessage(thisPE.on);
-    if(thisPE.off!==false)
+    if(thisPE.off===undefined){
+      thisPE.from(thisPE.on);
+    }else if(thisPE.off!==false)
       if(thisPE.off.isEventMessage!==true) thisPE.off=new EventMessage(thisPE.off);
-    if(thisPE.off===undefined) thisPE.from(thisPE.on);
       //untested:
   }else{
     thisPE.on=new EventMessage();
