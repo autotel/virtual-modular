@@ -4,10 +4,20 @@ var EventPattern=require('../../datatypes/EventPattern.js');
 
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
+
+ # module interpretation of eventMessages:
+[header,A,presetNumber,optionalVelocity]
+ * Header
+  * 0: clock. Is not yet used
+  * 1: trigger preset [presetNumber] on
+  * 2: send note off for all the note on that have been triggered using the same [presetNumber]. Note it is not a sinonym of triggering a noteOff for the preset [presetNumber]: the preset may have been changed between the note on and note off. In this way we minimize the possibility of hanging notes.
+ * A: ignored. If there were functions that use clock, this would indicate the micro-steps per step
+ * presetNumber: indicates what presset to trigger, or preset to set off
 */
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
@@ -55,7 +65,8 @@ module.exports=function(environment){return new (function(){
       }
     }
 
-    this.triggerOn=function(presetNumber,optionalNote,optionalVelocity){
+    this.triggerOn=function(presetNumber,optionalVelocity){
+      presetNumber%=16;
       thisInstance.handle("extrigger",{preset:presetNumber});
       if(thisInstance.kit[presetNumber]){
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
@@ -64,7 +75,9 @@ module.exports=function(environment){return new (function(){
       }
     }
 
-    this.triggerOff=function(presetNumber,optionalNote,optionalVelocity){
+    this.triggerOff=function(presetNumber,optionalVelocity){
+      presetNumber%=16;
+      // console.log("ntoff");
       thisInstance.handle("extrigger",{preset:presetNumber});
       for(var a in thisInstance.noteOnTracker[presetNumber] ){
         if(thisInstance.noteOnTracker[presetNumber][a])
@@ -84,10 +97,10 @@ module.exports=function(environment){return new (function(){
         thisInstance.stepMicro(evM.value[1],evM.value[2]);
       }else if(evM.value[0]==1){
         //nton
-        thisInstance.triggerNoteOn(evM.value[1],evM.value[2],evM.value[3]);
+        thisInstance.triggerOn(evM.value[2],evM.value[3]);
       }else if(evM.value[0]==2){
         //ntoff
-        thisInstance.triggerNoteOff(evM.value[1],evM.value[2],evM.value[3]);
+        thisInstance.triggerOff(evM.value[2],evM.value[3]);
       }
     }
 

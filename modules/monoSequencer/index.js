@@ -7,6 +7,13 @@ var clockSpec=require('../standards/clock.js');
 @constructor ModuleSingleton
 singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
+
+# module interpretation of eventMessages:
+[header,A,B]
+* Header is 0: interpreted as a clock
+ * A indicates how many clocks make one step
+ * B indicates what clock number is the current clock number
+
 */
 
 module.exports=function(environment){return new (function(){

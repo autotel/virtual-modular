@@ -85,9 +85,9 @@
               
                 
                 <li><a
-                  href='#driverx16v0'
+                  href='#instances'
                   class="">
-                  DriverX16v0
+                  instances
                   
                 </a>
                 
@@ -229,9 +229,29 @@
               
                 
                 <li><a
+                  href='#getmoduleinteractors'
+                  class="">
+                  getModuleInteractors
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
                   href='#superinteractor'
                   class="">
                   SuperInteractor
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#modulecreator'
+                  class="">
+                  ModuleCreator
                   
                 </a>
                 
@@ -583,8 +603,8 @@
   
   <div class='clearfix'>
     
-    <h3 class='fl m0' id='driverx16v0'>
-      DriverX16v0
+    <h3 class='fl m0' id='instances'>
+      instances
     </h3>
     
     
@@ -593,7 +613,7 @@
 
   
 
-  <div class='pre p1 fill-light mt0'>DriverX16v0(environment: any, properties: any, input: <a href="#environment">environment</a>): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></div>
+  <div class='pre p1 fill-light mt0'>instances</div>
   
   
 
@@ -607,22 +627,6 @@
   
     <div class='py1 quiet mt1 prose-big'>Parameters</div>
     <div class='prose'>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>environment</span> <code class='quiet'>(any)</code>
-	    
-          </div>
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>properties</span> <code class='quiet'>(any)</code>
-	    
-          </div>
-          
-        </div>
       
         <div class='space-bottom0'>
           <div>
@@ -657,7 +661,7 @@
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createHardwareController</span>(<span class="hljs-params">portName</span>)</span>{
 <span class="hljs-keyword">var</span> err=<span class="hljs-number">0</span>;
 <span class="hljs-keyword">let</span> newPort = <span class="hljs-keyword">new</span> SerialPort(portName, {
-<span class="hljs-attr">baudRate</span>: baudRate
+<span class="hljs-attr">baudRate</span>: <span class="hljs-number">19200</span>
 });
 
 <span class="hljs-comment">//console.log("newPort",newPort);</span>
@@ -1411,6 +1415,53 @@ things such as "when the user press a button" become "view the sequencer user in
   
   <div class='clearfix'>
     
+    <h3 class='fl m0' id='getmoduleinteractors'>
+      getModuleInteractors
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>get the list of interactors @return array</p>
+
+
+  <div class='pre p1 fill-light mt0'>getModuleInteractors()</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
     <h3 class='fl m0' id='superinteractor'>
       SuperInteractor
     </h3>
@@ -1465,6 +1516,66 @@ things such as "when the user press a button" become "view the sequencer user in
 
       
     
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='modulecreator'>
+      ModuleCreator
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Tiny pseudo-interactor that is used to choose what module to isntantiate when we press on an empty slot of the "patchboard" (i.e. button that is not lid)</p>
+
+
+  <div class='pre p1 fill-light mt0'>new ModuleCreator(myHardware: any)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>myHardware</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
   
 
   
@@ -1555,7 +1666,7 @@ things such as "when the user press a button" become "view the sequencer user in
 
   
 
-  <div class='pre p1 fill-light mt0'>addModule()</div>
+  <div class='pre p1 fill-light mt0'>addModule(moduleName: any, properties: any)</div>
   
   
 
@@ -1566,6 +1677,27 @@ things such as "when the user press a button" become "view the sequencer user in
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>moduleName</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>properties</span> <code class='quiet'>(any)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   

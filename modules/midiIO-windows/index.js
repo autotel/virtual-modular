@@ -142,6 +142,7 @@ module.exports=function(environment){return new (function(){
         midiOut[2]=EventMessage.value[3];
       }
       if(EventMessage.value[0]==2){
+        console.log("mnotff");
         midiOut[0]=0x80|EventMessage.value[1];
         midiOut[1]=EventMessage.value[2];
         midiOut[2]=0;

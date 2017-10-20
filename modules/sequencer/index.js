@@ -5,6 +5,10 @@ var clockSpec=require('../standards/clock.js');
 
 var EventMessage=require('../../datatypes/EventMessage.js');
 const sequencerFunctions=require("./sequencerGuts");
+/**
+Sequencer
+
+*/
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   // environment.interactionMan.registerModuleInteractor(uix16Control);
@@ -61,11 +65,22 @@ module.exports=function(environment){return new (function(){
       //console.log("MMO"+currentStep.value);
       this.handle('step',evt);
     }
-    // x00: clock tick
-    // x01: set the playhead to a position indicated by data 1, set the state to play (and play it?) (NI.!)
-    // x02: set the state to stop (NI.!)
-    // x03: jump playhead to position indicated by data 1, but don't change the playing state (NI.!)
-    // x70: request of stored data, it will trigger a data response
+    /**
+
+
+    # module interpretation of eventMessages:
+    [header,data1,data2]
+    * Header is 0: eventMessage is a clock tick
+      * A indicates how many clocks makes one step. i.e. source clock rate is bpm*4
+      * B indicates what clock number is the current clock number
+    * Header is 1: set the playhead to a position indicated by data2, set the state to play (not implemented yet)
+    * Header is 2: stop playing (not implemented yet)
+    * Header is 3: jump playhead to position indicated by data 2, but don't change the playing state (not implemented yet)
+    * Header is 70: request of stored data, it will trigger a data response. Not implemented yet
+
+    */
+
+    */
     // x71: data response
     this.eventReceived=function(event){
       var evt=event.EventMessage;
@@ -75,7 +90,7 @@ module.exports=function(environment){return new (function(){
         this.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
       }else if(evt.value[0]==1){
-        thisInstance.stepAbsolute(evt.value[1]);
+        thisInstance.stepAbsolute(evt.value[2]);
         thisInstance.play();
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==2){
