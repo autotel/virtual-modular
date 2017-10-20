@@ -44,18 +44,18 @@ module.exports=function(environment){return new (function(){
     if(name){
       if(midiOptions.outputs[name]===undefined){
         midiOptions.outputs[name]=true;
-        console.log("     -"+name +" has no config. Setting to true");
+        console.log("       -"+name +" has no config. Setting to true");
       }
       if(midiOptions.outputs[name]===true){
         if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
         openedMidiPorts[name].output=midi;
-        console.log('   -openedMidiPorts ['+name+'].output = opened Midi port');
+        console.log('     -openedMidiPorts ['+name+'].output = opened Midi port');
       }else{
-        console.log('   -openedMidiPorts ['+name+'].output disabled in midi-options.json');
+        console.log('    -openedMidiPorts ['+name+'].output disabled in midi-options.json');
         if(midi) midi.MidiOutClose();
       }
     } else {
-      console.log('   -No out port '+currentPortNumber);
+      console.log('    -No out port '+currentPortNumber);
       midiOpenFail=true;
     }
 
@@ -63,19 +63,19 @@ module.exports=function(environment){return new (function(){
     if(name){
       if(midiOptions.inputs[name]===undefined){
         midiOptions.inputs[name]=true;
-        console.log("   -"+name +" has no config. Setting to true");
+        console.log("     -"+name +" has no config. Setting to true");
       }
       if(midiOptions.inputs[name]===true){
         if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
         openedMidiPorts[name].input=midi;
-        console.log('   -openedMidiPorts ['+name+'].input = opened Midi port');
+        console.log('     -openedMidiPorts ['+name+'].input = opened Midi port');
         midiOpenFail=false;
       }else{
-        console.log('   -openedMidiPorts ['+name+'].input disabled in midi-options.json');
+        console.log('    -openedMidiPorts ['+name+'].input disabled in midi-options.json');
         if(midi) midi.MidiInClose();
       }
     } else {
-      console.log('   -No in port '+currentPortNumber);
+      console.log('    -No in port '+currentPortNumber);
       if(midiOpenFail) midiOpenFail=true;
     }
     currentPortNumber++;
@@ -84,7 +84,7 @@ module.exports=function(environment){return new (function(){
 
   environment.on('created',function(){
     for(var midiItem in openedMidiPorts){
-      console.log("instancing midi");
+      console.log("     - instancing midi");
       var ioString="";
       if(openedMidiPorts[midiItem].input!==undefined) ioString+="I";
       if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";

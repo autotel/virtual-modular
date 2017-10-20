@@ -4,12 +4,18 @@ module.exports=function(environment){
   this.Instance=function(controlledModule){
     environment.interactionMan.interfaces.x16basic.interactorBase.call(this,controlledModule);
     var engagedHardwares=new Set();
-    controlledModule.on('step',function(event){
+    var playHeadBmp;
+    var microStepsBmp;
+
+    controlledModule.on('micro step',function(event){
+      playHeadBmp=1<<controlledModule.step.value;
+      microStepsBmp=~(0xffff<<controlledModule.step.microSteps);
+    });
+    setInterval(function(){
       for (let hardware of engagedHardwares) {
-        playHeadBmp=1<<(event.step%16);
         updateLeds(hardware);
       }
-    });
+    },20);
     this.matrixButtonPressed=function(event){
       var hardware=event.hardware;
     };
@@ -17,7 +23,10 @@ module.exports=function(environment){
     this.matrixButtonHold=function(event){};
     this.selectorButtonPressed=function(event){};
     this.selectorButtonReleased=function(event){};
-    this.encoderScrolled=function(event){};
+    this.encoderScrolled=function(event){
+      controlledModule.bpm.value+=event.data[1];
+      event.hardware.sendScreenA("BPM"+controlledModule.bpm.value);
+    };
     this.encoderPressed=function(event){};
     this.encoderReleased=function(event){};
     this.engage=function(event){
@@ -32,7 +41,11 @@ module.exports=function(environment){
       updateLeds(hardware);
     }
     var updateLeds=function(hardware){
-      hardware.draw([1,2,4]);
+      hardware.draw([
+        playHeadBmp,
+        playHeadBmp|microStepsBmp,
+        playHeadBmp|microStepsBmp
+      ]);
     }
   }
 }

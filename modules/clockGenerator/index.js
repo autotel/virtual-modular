@@ -13,19 +13,30 @@ module.exports=function(environment){return new (function(){
   }
   this.Instance=function(properties){
     var thisInstance=this;
-    // clocks per step
-    // the step
+    var myInterval=false;
     var myEventMessage=new EventMessage({value:[clockSpec[0].incrementalTick,12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
+    var bpm=this.bpm={value:120,updated:120};
+    var step=this.step={value:0,microSteps:12}
+    if(properties.bpm)this.bpm.value=properties.bpm;
     this.baseName="clockGenerator";
     name.call(this);
     if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
-    setInterval(function(){
-      thisInstance.output(myEventMessage);
-      myEventMessage.value[2]++;
-      myEventMessage.value[2]%=myEventMessage.value[1];
-    },200/12);
+    function resetInterval(){
+      clearInterval(myInterval);
+      bpm.updated=bpm.value;
+      myInterval=setInterval(function(){
+        if(bpm.value!=bpm.updated) resetInterval();
+        step.value++;
+        step.value%=step.microSteps;
+        myEventMessage.value[1]=step.microSteps;
+        myEventMessage.value[2]=step.value;
+        thisInstance.output(myEventMessage);
+        thisInstance.handle('micro step');
+      },(60000)/(bpm.value*step.microSteps));
+    }
+    resetInterval();
   }
 })};
