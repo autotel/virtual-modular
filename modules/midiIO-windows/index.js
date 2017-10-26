@@ -28,6 +28,7 @@ module.exports=function(environment){return new (function(){
 
   //open every possible midi ports i/o
   var midiOpenFail=false;
+  var midiDevicesAmount=1;
   var currentPortNumber=0;
   var openedMidiPorts=[];
 
@@ -37,21 +38,22 @@ module.exports=function(environment){return new (function(){
   if(midiOptions.inputs===undefined){
     midiOptions.inputs={}
   }
-
-  while(!midiOpenFail){
+  var keepScanning=40;
+  while(keepScanning){
+    keepScanning--;
     var midi = new jazz.MIDI();
-    var name = midi.MidiOutOpen(currentPortNumber);
-    if(name){
-      if(midiOptions.outputs[name]===undefined){
-        midiOptions.outputs[name]=true;
-        console.log("       -"+name +" has no config. Setting to true");
+    var currentPortName= midi.MidiOutOpen(currentPortNumber);
+    if(currentPortName){
+      if(midiOptions.outputs[currentPortName]===undefined){
+        midiOptions.outputs[currentPortName]=true;
+        console.log("       -"+currentPortName +" has no config. Setting to true");
       }
-      if(midiOptions.outputs[name]===true){
-        if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
-        openedMidiPorts[name].output=midi;
-        console.log('     -openedMidiPorts ['+name+'].output = opened Midi port');
+      if(midiOptions.outputs[currentPortName]===true){
+        if(openedMidiPorts[currentPortName]===undefined) openedMidiPorts[currentPortName]={};
+        openedMidiPorts[currentPortName].output=midi;
+        console.log('     -openedMidiPorts ['+currentPortName+'].output = opened Midi port');
       }else{
-        console.log('    -openedMidiPorts ['+name+'].output disabled in midi-options.json');
+        console.log('    -openedMidiPorts ['+currentPortName+'].output disabled in midi-options.json');
         if(midi) midi.MidiOutClose();
       }
     } else {
@@ -59,19 +61,19 @@ module.exports=function(environment){return new (function(){
       midiOpenFail=true;
     }
 
-    var name = midi.MidiInOpen(currentPortNumber);
-    if(name){
-      if(midiOptions.inputs[name]===undefined){
-        midiOptions.inputs[name]=true;
-        console.log("     -"+name +" has no config. Setting to true");
+    currentPortName = midi.MidiInOpen(currentPortNumber)||currentPortName;
+    if(currentPortName){
+      midiOpenFail=false;
+      if(midiOptions.inputs[currentPortName]===undefined){
+        midiOptions.inputs[currentPortName]=true;
+        console.log("     -"+currentPortName +" has no config. Setting to true");
       }
-      if(midiOptions.inputs[name]===true){
-        if(openedMidiPorts[name]===undefined) openedMidiPorts[name]={};
-        openedMidiPorts[name].input=midi;
-        console.log('     -openedMidiPorts ['+name+'].input = opened Midi port');
-        midiOpenFail=false;
+      if(midiOptions.inputs[currentPortName]===true){
+        if(openedMidiPorts[currentPortName]===undefined) openedMidiPorts[currentPortName]={};
+        openedMidiPorts[currentPortName].input=midi;
+        console.log('     -openedMidiPorts ['+currentPortName+'].input = opened Midi port');
       }else{
-        console.log('    -openedMidiPorts ['+name+'].input disabled in midi-options.json');
+        console.log('    -openedMidiPorts ['+currentPortName+'].input disabled in midi-options.json');
         if(midi) midi.MidiInClose();
       }
     } else {

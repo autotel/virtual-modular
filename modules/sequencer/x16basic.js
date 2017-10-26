@@ -237,7 +237,7 @@ module.exports=function(environment){
         updateLeds(hardware);
       }else{
 
-        configurators[engagedConfigurator].matrixButtonPressed(event);
+        engagedConfigurator.matrixButtonPressed(event);
       }// console.log(event.data);
     };
     this.matrixButtonReleased=function(event){
@@ -248,7 +248,7 @@ module.exports=function(environment){
         updateLeds(hardware);
       }else{
 
-        configurators[engagedConfigurator].matrixButtonPressed(event);
+        engagedConfigurator.matrixButtonPressed(event);
       }
     };
     this.matrixButtonHold=function(event){};
@@ -259,28 +259,27 @@ module.exports=function(environment){
       configuratorsPressed[event.data[0]]=true;
       if(configuratorsPressed[2]&&configuratorsPressed[3]){
         if(lastEngagedConfigurator)
-        configurators[lastEngagedConfigurator].disengage(hardware);
+        lastEngagedConfigurator.disengage(hardware);
         lastEngagedConfigurator=false;
         skipMode=true;
         hardware.sendScreenA("skip to step");
         updateLeds(hardware);
       }else if(event.data[0]==1){
         /**TODO: use configurator objects instead of their names**/
-        engagedConfigurator='event';
-        lastEngagedConfigurator='event';
+        engagedConfigurator=configurators.event;
+        lastEngagedConfigurator=configurators.event;
         configurators.event.engage(event);
       }else if(event.data[0]==2){
-
-        engagedConfigurator='time';
-        lastEngagedConfigurator='time';
-        configurators.time.engage(event);
+        engagedConfigurator=configurators.time;
+        lastEngagedConfigurator=configurators.time;
+        engagedConfigurator.engage(event);
       }else if(event.data[0]==3){
         shiftPressed=true;
         updateLeds(hardware);
       }
 
       if(engagedConfigurator)
-      configurators[engagedConfigurator].selectorButtonPressed(event);
+      engagedConfigurator.selectorButtonPressed(event);
     };
     this.selectorButtonReleased=function(event){
       var hardware=event.hardware;
@@ -288,7 +287,7 @@ module.exports=function(environment){
       skipMode=false;
 
       if(engagedConfigurator){
-        configurators[engagedConfigurator].selectorButtonReleased(event);
+        engagedConfigurator.selectorButtonReleased(event);
       }
       if(event.data[0]==1){
         engagedConfigurator=false;
@@ -304,8 +303,8 @@ module.exports=function(environment){
     };
     this.encoderScrolled=function(event){
       var hardware=event.hardware;
-      if(configurators[lastEngagedConfigurator]){
-        configurators[lastEngagedConfigurator].encoderScrolled(event);
+      if(lastEngagedConfigurator){
+        lastEngagedConfigurator.encoderScrolled(event);
       }
       updateLeds(hardware);
     };
@@ -347,7 +346,7 @@ module.exports=function(environment){
     var moreBluredFilter=new configurators.event.Filter({header:true});
     function updateLeds(hardware){
       //actually should display also according to the currently being tweaked
-      var showThroughfold=lastEngagedConfigurator=="time";
+      var showThroughfold=lastEngagedConfigurator==configurators.time;
       var mostImportant=getBitmapx16(shiftPressed?moreBluredFilter:focusedFilter,showThroughfold);
       var mediumImportant=getBitmapx16(moreBluredFilter,showThroughfold);
       mediumImportant|=noteLengthner.startPointsBitmap;

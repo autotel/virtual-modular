@@ -9,7 +9,10 @@ module.exports={
 		"from modular": true,
 		"to modular": true,
 		"CVpal": true,
-		"to DAW": true
+		"to DAW": true,
+		"loopMIDI Port": true,
+		"loopMIDI Port 1": true,
+		"loopMIDI Port 2": true
 	},
 	"inputs": {
 		"7- UM-1": true,
@@ -20,7 +23,10 @@ module.exports={
 		"from modular": true,
 		"to modular": true,
 		"CVpal": true,
-		"to DAW": false
+		"to DAW": false,
+		"loopMIDI Port": true,
+		"loopMIDI Port 1": true,
+		"loopMIDI Port 2": true
 	},
 	"rename": {
 		"Microsoft GS Wavetable Synth": "default midi out"

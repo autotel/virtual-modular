@@ -61,7 +61,7 @@ var modulesManager=function(environment){ return new(function(){
           if(!output)throw "  -couldn't find module named "+outputName
           module.addOutput(output);
         }catch(e){
-          console.log(module);
+          // console.log(module);
           console.error(" -could't set output of "+moduleDefiner.properties.name+" to "+outputName+": \n",e);
         }
       }

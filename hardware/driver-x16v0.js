@@ -262,7 +262,7 @@ var DriverX16v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
-      console.log("recv",chd);
+      // console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)

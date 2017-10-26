@@ -50,8 +50,8 @@ var BlankConfigurator=function(parentInteractor,properties){
       selectBmp|eventLengthBmp
     ]);
   }
-  var updateScreen=function(hardware){
-
+  function updateScreen(hardware){
+    console.log(thisInteractor.vars);
     hardware.sendScreenB(
       thisInteractor.name
       +":"+varNames[selectedVarNumber]
