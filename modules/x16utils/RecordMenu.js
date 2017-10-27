@@ -7,34 +7,48 @@ user interface pattern that allows to tweak parameters
 */
 
 var RecordMenu=function(parentInteractor,properties){
+  if(!properties.environment) throw "RecordMenu needs you to pass the environment in the properties";
+  if(!properties.controlledModule) throw "RecordMenu needs you to pass the controlledModule in the properties";
+  var environment=properties.environment;
+  var controlledModule=properties.controlledModule;
+  var moduleInstances=environment.modulesMan.moduleInstances;
+  var moduleInstancesArray=Array.from(moduleInstances);
+  var recordingOuptutsBitmap=0;
+  function refreshModuleInstanceNames(){
+    if(moduleInstances.size!==moduleInstancesArray.length){
+      moduleInstancesArray=Array.from(moduleInstances);
+      // console.log(moduleInstancesArray);
+    }
+  }
+  if(properties===undefined) properties={};
 
   MyInteractorBase.call(this);
 
-  this.vars={};
-  var varNames=[];
+  // this.vars={};
+  // var varNames=[];
 
   this.name="set";
   thisInteractor=this;
+  //
+  // this.addVars=function(nvars){
+  //   for(var a in nvars){
+  //     thisInteractor.vars[a]=nvars[a];
+  //   }
+  //   watchvarNames();
+  // }
 
-  this.addVars=function(nvars){
-    for(var a in nvars){
-      thisInteractor.vars[a]=nvars[a];
-    }
-    watchvarNames();
-  }
-
-  function watchvarNames(){
-    varNames=Object.keys(thisInteractor.vars);
-  }
+  // function watchvarNames(){
+  //   varNames=Object.keys(thisInteractor.vars);
+  // }
   if(properties.name) this.name=properties.name;
-  var selectedVarNumber=0;
+  var selectedModuleNumber=0;
 
   var engagedHardwares=new Set();
 
   if(properties.values){
     this.vars=properties.values;
   }
-  watchvarNames();
+  // watchvarNames();
 
   var valueChanged=function(){
     //value can change while not engaged
@@ -43,26 +57,30 @@ var RecordMenu=function(parentInteractor,properties){
     }
   }
   var updateLeds=function(hardware){
-    var selectBmp=1<<selectedVarNumber;
-    var eventLengthBmp=~(0xFFFF<<varNames.length);
+    refreshModuleInstanceNames();
+    // var selectBmp=1<<selectedModuleNumber;
+
+    var eventLengthBmp=~(0xFFFF<<moduleInstancesArray.length);
     hardware.draw([
-      selectBmp|eventLengthBmp,
-      selectBmp,
-      selectBmp|eventLengthBmp
+      recordingOuptutsBitmap|eventLengthBmp,
+      eventLengthBmp^recordingOuptutsBitmap,
+      eventLengthBmp^recordingOuptutsBitmap
     ]);
   }
   var updateScreen=function(hardware){
-
-    hardware.sendScreenB(
-      thisInteractor.name
-      +":"+varNames[selectedVarNumber]
-      +"="+(thisInteractor.vars[varNames[selectedVarNumber]].value)
-    );
+    hardware.sendScreenA("Rec dest");
+    hardware.sendScreenB(">"+moduleInstancesArray[selectedModuleNumber].name);
   }
   this.matrixButtonPressed=function(event){
+    refreshModuleInstanceNames();
     var hardware=event.hardware;
-    if(event.data[0]<varNames.length){
-      selectedVarNumber=event.data[0];
+    if(event.data[0]<moduleInstancesArray.length){
+      selectedModuleNumber=event.data[0];
+      if(controlledModule.toggleRecordOutput(moduleInstancesArray[selectedModuleNumber])){
+        recordingOuptutsBitmap|=1<<selectedModuleNumber;
+      }else{
+        recordingOuptutsBitmap&=~(1<<selectedModuleNumber);
+      }
       updateLeds(hardware);
       updateScreen(hardware);
     }
@@ -78,8 +96,8 @@ var RecordMenu=function(parentInteractor,properties){
   };
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
-    if(thisInteractor.vars.length>selectedVarNumber){
-      thisInteractor.vars[selectedVarNumber].value+=event.data[1];
+    if(thisInteractor.vars.length>selectedModuleNumber){
+      thisInteractor.vars[selectedModuleNumber].value+=event.data[1];
       updateScreen(hardware);
     }
   };
@@ -100,4 +118,4 @@ var RecordMenu=function(parentInteractor,properties){
     engagedHardwares.delete(hardware);
   }
 };
-module.exports=BlankConfigurator;
+module.exports=RecordMenu;

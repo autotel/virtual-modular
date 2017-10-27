@@ -1,7 +1,9 @@
 'use strict';
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
-var clockSpec=require('../standards/clock.js');
+// var clockSpec=require('../standards/clock.js');
+var CLOCKTICKHEADER = 0x00;
+var CLOCKABSOLUTEHEADER = 0x03;
 
 var EventMessage=require('../../datatypes/EventMessage.js');
 const sequencerFunctions=require("./sequencerGuts");
@@ -76,17 +78,18 @@ module.exports=function(environment){return new (function(){
     * Header is 1: set the playhead to a position indicated by data2, set the state to play (not implemented yet)
     * Header is 2: stop playing (not implemented yet)
     * Header is 3: jump playhead to position indicated by data 2, but don't change the playing state (not implemented yet)
+
     * Header is 70: request of stored data, it will trigger a data response. Not implemented yet
 
     */
 
-    
+
     // x71: data response
     this.eventReceived=function(event){
       var evt=event.EventMessage;
       // console.log(evt);
       this.handle('receive',evt);
-      if(evt.value[0]==0){
+      if(evt.value[0]==CLOCKTICKHEADER){
         this.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
       }else if(evt.value[0]==1){
@@ -96,7 +99,7 @@ module.exports=function(environment){return new (function(){
       }else if(evt.value[0]==2){
         thisInstance.stop();
         // console.log("2 stop");
-      }else if(evt.value[0]==3){
+      }else if(evt.value[0]==CLOCKABSOLUTEHEADER){
         thisInstance.stepAbsolute(evt.value[1]);
         // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==0x02){

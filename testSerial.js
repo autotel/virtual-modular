@@ -3,7 +3,7 @@ var SerialPort = require('serialport');
 
 for (var pname of ["COM17","COM23","COM21"]){
   new(function(){
-    var port = new SerialPort(pname,{ baudRate: 115200 });//
+    var port = new SerialPort(pname,{ baudRate: 19200 });//
     var count=0;
 
     port.on('open', function() {

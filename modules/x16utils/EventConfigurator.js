@@ -115,11 +115,11 @@ var EventConfigurator=function(parentInteractor,properties){
     }
   }
 
-  this.setFromEventPattern=function(EvPat){
+  this.setFromEventPattern=function(EvPat,hardware){
     if(EvPat){
       if(EvPat.on){
-        baseEvent.from(evPat.on);
-        updateLcd();
+        baseEvent=new EventMessage(EvPat.on);
+        updateScreen(hardware);
       }
     }
 

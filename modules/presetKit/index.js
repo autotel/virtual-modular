@@ -1,4 +1,8 @@
 'use strict';
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventPattern=require('../../datatypes/EventPattern.js');
 
@@ -16,6 +20,7 @@ every module needs to run at the beginning of the runtime to register it's inter
   * 0: clock. Is not yet used
   * 1: trigger preset [presetNumber] on
   * 2: send note off for all the note on that have been triggered using the same [presetNumber]. Note it is not a sinonym of triggering a noteOff for the preset [presetNumber]: the preset may have been changed between the note on and note off. In this way we minimize the possibility of hanging notes.
+  * 0xAA: store the following eventMessage in the next available preset, shift()ing the value of the eventMessage
  * A: ignored. If there were functions that use clock, this would indicate the micro-steps per step
  * presetNumber: indicates what presset to trigger, or preset to set off
 */
@@ -38,6 +43,8 @@ module.exports=function(environment){return new (function(){
     //get my unique name
     name.call(this);
 
+    this.recordingUi=true;
+
     if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
@@ -59,6 +66,9 @@ module.exports=function(environment){return new (function(){
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
         thisInstance.noteOnTracker[presetNumber].push( new EventPattern().from(thisInstance.kit[presetNumber].on) );
         thisInstance.output(thisInstance.kit[presetNumber].on);
+        if(thisInstance.recordingUi){
+          thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+        }
       }
     }
 
@@ -96,18 +106,31 @@ module.exports=function(environment){return new (function(){
     }
 
     this.stepMicro=function(){}
-
+    var recordHead=0;
+    this.recordEvent=function(evM){
+      thisInstance.handle('kit changed');
+      thisInstance.kit[recordHead]=new EventPattern();
+      thisInstance.kit[recordHead].from(evM);
+      console.log("rec",thisInstance.kit[recordHead]);
+      recordHead++;
+      recordHead%=16;
+    }
     this.eventReceived=function(event){
       var evM=event.EventMessage;
+      // console.log(evM);
       thisInstance.handle('receive',event);
-      if(evM.value[0]==0){
+      if(evM.value[0]==CLOCKTICKHEADER){
         thisInstance.stepMicro(evM.value[1],evM.value[2]);
-      }else if(evM.value[0]==1){
+      }else if(evM.value[0]==TRIGGERONHEADER){
         //nton
         thisInstance.triggerOn(evM.value[2],evM.value[3]);
-      }else if(evM.value[0]==2){
+      }else if(evM.value[0]==TRIGGEROFFHEADER){
         //ntoff
         thisInstance.triggerOff(evM.value[2],evM.value[3]);
+      }else if(evM.value[0]==RECORDINGHEADER){
+        evM.value.shift();
+        // console.log("rec",evm);
+        this.recordEvent(evM);
       }
     }
 

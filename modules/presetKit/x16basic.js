@@ -2,11 +2,13 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventPattern=require('../../datatypes/EventPattern.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
+var RecordMenu=require('../x16utils/RecordMenu.js');
 /**
 definition of a presetkit interactor for the x16basic controller hardware
 */
 module.exports=function(environment){
   this.Instance=function(controlledModule){
+    // this.controlledModule=controlledModule;
     environment.interactionMan.interfaces.x16basic.interactorBase.call(this,controlledModule);
     var engagedHardwares=new Set();
     var thisInteractor=this;
@@ -14,6 +16,8 @@ module.exports=function(environment){
     var engagedConfigurator=false;
     var configurators={};
     configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+    configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
+
     var lastEngagedConfigurator=configurators.event;
     // configurators.one=new BlankConfigurator(this,{
     //   name:"T",
@@ -51,7 +55,8 @@ module.exports=function(environment){
         controlledModule.uiTriggerOn(selectedPresetNumber);
         if(controlledModule.kit[event.button])
         if(lastEngagedConfigurator==configurators.event){
-          configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;
+          // configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;
+          configurators.event.setFromEventPattern(controlledModule.kit[selectedPresetNumber],hardware);
         }
         updateHardware(hardware);
       }
@@ -76,6 +81,9 @@ module.exports=function(environment){
         if(event.button==1){
           lastEngagedConfigurator=engagedConfigurator=configurators.event;
           configurators.event.engage(event);
+        }else if(event.button==2){
+          lastEngagedConfigurator=engagedConfigurator=configurators.record;
+          configurators.record.engage(event);
         }
       }
     };
@@ -83,6 +91,10 @@ module.exports=function(environment){
       if(engagedConfigurator){
         engagedConfigurator.selectorButtonReleased(event);
         if(event.button==1&&engagedConfigurator==configurators.event){
+          engagedConfigurator.disengage(event);
+          engagedConfigurator=false;
+          updateHardware(event.hardware);
+        }else if(event.button==2&&engagedConfigurator==configurators.record){
           engagedConfigurator.disengage(event);
           engagedConfigurator=false;
           updateHardware(event.hardware);
