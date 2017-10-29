@@ -1,19 +1,18 @@
-var NoteLengthner=function(){
+/**
+object that keeps track of the length of all the notes that are being created, in order to add the note ends in their corresponding times in the sequencer.
+*/
+var NoteLengthner=module.exports=function(controlledModule){
   var thisNoteLengthner=this;
-  this.startPointsBitmap=0x0;
-  this.lengthsBitmap=0x0;
+
   var notesInCreation=[];
   //count of notes in creation
   var nicCount=0;
   var stepCounter=0;
   this.startAdding=function(differenciator,newStepEv){
-    // console.log("startadding("+differenciator+"...");
     if(!newStepEv.stepLength){
       newStepEv.stepLength=1;
     }
     notesInCreation[differenciator]={sequencerEvent:newStepEv,started:stepCounter};
-    thisNoteLengthner.startPointsBitmap|=0x1<<differenciator;
-    thisNoteLengthner.lengthsBitmap=thisNoteLengthner.startPointsBitmap;
     nicCount++;
     // console.log(notesInCreation[differenciator]);
   }
@@ -32,12 +31,17 @@ var NoteLengthner=function(){
       }
     }
   }
-  this.step=function(){
+  var stepCallback=false;
+  function step(){
     stepCounter++;
-    // console.log(stepCounter);
-    if(nicCount>0){
-      thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap<<1;
-      thisNoteLengthner.lengthsBitmap|=thisNoteLengthner.lengthsBitmap>>16;
+  }
+  controlledModule.on('step',function(event){
+    step();
+    if(stepCallback){
+      stepCallback(thisNoteLengthner,nicCount);
     }
+  });
+  this.onStep=function(nStepCallback){
+    stepCallback=nStepCallback;
   }
 };

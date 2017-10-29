@@ -1,6 +1,7 @@
 'use strict';
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+var Recorder=require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
 
 var CLOCKABSOLUTEHEADER = 0x03;
@@ -28,6 +29,7 @@ module.exports=function(environment){return new (function(){
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
 
+    var recorder=new Recorder(this);
 
     var currentStep={value:0};
     this.currentStep=currentStep;

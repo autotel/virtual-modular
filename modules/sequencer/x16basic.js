@@ -17,6 +17,7 @@ module.exports=function(environment){
   //instance section
   this.Instance=function(controlledModule){
     //boilerplate
+
     myInteractorBase.call(this,controlledModule);
     var thisInterface=this;
 
@@ -25,6 +26,17 @@ module.exports=function(environment){
     //tracking vars
     var lastRecordedNote=false;
     var recorderDifferenciatorList={};
+
+    var noteLengthnerStartPointsBitmap=0x0;
+    var noteLengthnerLengthsBitmap=0x0;
+    var noteLengthner=new NoteLengthner(controlledModule);
+    noteLengthner.onStep(function(thisNoteLengthner,nicCount){
+      //TODO lengthsBitmap should be on scope of interface, not noteLengthner
+      if(nicCount>0){
+        noteLengthnerLengthsBitmap|=noteLengthnerLengthsBitmap<<1;
+        noteLengthnerLengthsBitmap|=noteLengthnerLengthsBitmap>>16;
+      }
+    });
     //different interaction modes
     var skipMode=false;
     var shiftPressed=false;
@@ -127,7 +139,6 @@ module.exports=function(environment){
         if(engagedConfigurator===false)
         updateLeds(hardware);
       }
-      noteLengthner.step();
       // loopDisplace.value=controlledModule.loopDisplace.value;
     });
 
@@ -163,6 +174,8 @@ module.exports=function(environment){
         }*/else{
           //on every repetition is empty
           noteLengthner.startAdding(button,configurators.event.getEventPattern());
+          noteLengthnerStartPointsBitmap|=0x1<<button;
+          noteLengthnerLengthsBitmap=noteLengthnerStartPointsBitmap;
         }
         updateLeds(hardware);
       }else{
