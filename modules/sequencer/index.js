@@ -2,9 +2,12 @@
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var CLOCKABSOLUTEHEADER = 0x03;
 
+var CLOCKABSOLUTEHEADER = 0x03;
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
 var EventMessage=require('../../datatypes/EventMessage.js');
 const sequencerFunctions=require("./sequencerGuts");
 /**
@@ -92,17 +95,17 @@ module.exports=function(environment){return new (function(){
       if(evt.value[0]==CLOCKTICKHEADER){
         this.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
-      }else if(evt.value[0]==1){
+      }else if(evt.value[0]=TRIGGERONHEADER){
         thisInstance.stepAbsolute(evt.value[2]);
         thisInstance.play();
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
-      }else if(evt.value[0]==2){
+      }else if(evt.value[0]=TRIGGEROFFHEADER){
         thisInstance.stop();
         // console.log("2 stop");
       }else if(evt.value[0]==CLOCKABSOLUTEHEADER){
         thisInstance.stepAbsolute(evt.value[1]);
         // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
-      }else if(evt.value[0]==0x02){
+      }else if(evt.value[0]==TRIGGEROFFHEADER){
         thisInstance.stop();
       }else if(evt.value[0]==0x04){
         thisInstance.stepAbsolute(evt.value[1]);

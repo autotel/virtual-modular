@@ -2,6 +2,7 @@
 var EventMessage = require( '../../datatypes/EventMessage.js' );
 var EventConfigurator = require( '../x16utils/EventConfigurator.js' );
 var BlankConfigurator = require( '../x16utils/BlankConfigurator.js' );
+var RecordMenu=require('../x16utils/RecordMenu.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
@@ -37,14 +38,7 @@ module.exports=function(environment){
     var lookLoop={value:0};
     var loopLength={value:0};
     var loopDisplace=controlledModule.loopDisplace;
-    configurators.time=new BlankConfigurator(this,{
-      name:"T",
-      values:{
-        lookLoop:lookLoop,
-        loopLength:loopLength,
-        loopDisplace:loopDisplace
-      }
-    });
+    configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
 
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
@@ -270,8 +264,8 @@ module.exports=function(environment){
         lastEngagedConfigurator=configurators.event;
         configurators.event.engage(event);
       }else if(event.data[0]==2){
-        engagedConfigurator=configurators.time;
-        lastEngagedConfigurator=configurators.time;
+        engagedConfigurator=configurators.record;
+        lastEngagedConfigurator=configurators.record;
         engagedConfigurator.engage(event);
       }else if(event.data[0]==3){
         shiftPressed=true;
@@ -290,12 +284,11 @@ module.exports=function(environment){
         engagedConfigurator.selectorButtonReleased(event);
       }
       if(event.data[0]==1){
+        engagedConfigurator.disengage(hardware);
         engagedConfigurator=false;
-        configurators.event.disengage(hardware);
       }else if(event.data[0]==2){
-
+        engagedConfigurator.disengage(hardware);
         engagedConfigurator=false;
-        configurators.time.disengage(hardware);
       }else if(event.data[0]==3){
         shiftPressed=false;
       }

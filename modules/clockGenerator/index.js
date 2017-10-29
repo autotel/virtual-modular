@@ -15,7 +15,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     var thisInstance=this;
     var myInterval=false;
-    var myEventMessage=new EventMessage({value:[CLOCKABSOLUTEHEADER,12/*ck per step*/,0/* step number*/]});
+    var myEventMessage=new EventMessage({value:[CLOCKTICKHEADER,12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
     var cpm=this.cpm={value:120*8,updated:120*8};
     var step=this.step={value:0,microSteps:12}

@@ -2,7 +2,11 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
-var clockSpec=require('../standards/clock.js');
+// var clockSpec=require('../standards/clock.js');
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
@@ -35,7 +39,7 @@ module.exports=function(environment){return new (function(){
     testGetName.call(this);
 
     if(properties.name) this.name=properties.name;
-    
+
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
     this.interactor.name=this.name;
@@ -60,7 +64,7 @@ module.exports=function(environment){return new (function(){
       return myBitmap;
     }
     this.eventReceived=function(evt){
-      if(evt.EventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
+      if(evt.EventMessage.value[0]==CLOCKTICKHEADER&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
         // console.log("step");
         for(var x in cells){
           for(var y in cells[x]){

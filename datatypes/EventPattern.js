@@ -1,6 +1,10 @@
 'use strict'
 var EventMessage=require("./EventMessage.js");
-var noteSpec=require("../modules/standards/note.js");
+// var noteSpec=require("../modules/standards/note.js");
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
 /**
 prototype of event messages in a format that is handy for storage
 */
@@ -15,8 +19,8 @@ var EventPattern=function(properties){
   this.from=function(evMes){
     thisPE.on=new EventMessage(evMes);
     thisPE.off=new EventMessage(evMes);
-    if(thisPE.on.value[0]==noteSpec[0].triggerNoteOn){
-      thisPE.off.value[0]=noteSpec[0].triggerNoteOff;
+    if(thisPE.on.value[0]==TRIGGERONHEADER){
+      thisPE.off.value[0]=TRIGGEROFFHEADER;
       thisPE.off.value[3]=0x00;
     }
   };
