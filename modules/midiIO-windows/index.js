@@ -2,6 +2,11 @@
 Module that enables interconnectivity with midi inputs and midi outputs, presumably via USB.
 */
 'use strict';
+var CLOCKABSOLUTEHEADER = 0x03;
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
@@ -57,7 +62,7 @@ module.exports=function(environment){return new (function(){
         if(midi) midi.MidiOutClose();
       }
     } else {
-      console.log('    -No out port '+currentPortNumber);
+      // console.log('    -No out port '+currentPortNumber);
       midiOpenFail=true;
     }
 
@@ -77,7 +82,7 @@ module.exports=function(environment){return new (function(){
         if(midi) midi.MidiInClose();
       }
     } else {
-      console.log('    -No in port '+currentPortNumber);
+      // console.log('    -No in port '+currentPortNumber);
       if(midiOpenFail) midiOpenFail=true;
     }
     currentPortNumber++;
@@ -110,6 +115,7 @@ module.exports=function(environment){return new (function(){
   require to moduleBase.call
   */
   this.Instance=function(properties){
+    //TODO: move instance to instance.js
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
     getName.call(this);
@@ -128,22 +134,24 @@ module.exports=function(environment){return new (function(){
     //todo: rename midi input listener to midi.in();
     //console.log(midi);
 
-    midi.out(0x90,60,100); midi.out(0x90,64,100); midi.out(0x90,67,100);
-    setTimeout(function(){
-      midi.out(0x80,60,0); midi.out(0x80,64,0); midi.out(0x80,67,0);
-    }, 3000);
+    // midi.out(0x90,60,100); midi.out(0x90,64,100); midi.out(0x90,67,100);
+    // setTimeout(function(){
+    //   midi.out(0x80,60,0); midi.out(0x80,64,0); midi.out(0x80,67,0);
+    // }, 3000);
 
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
       var EventMessage=evt.EventMessage;
       var midiOut=[0,0,0];
       // console.log("MIDI",evt);
-      if(EventMessage.value[0]==1){
+      if(EventMessage.value[0]==TRIGGERONHEADER){
+        console.log("mnoton");
+
         midiOut[0]=0x90|EventMessage.value[1];
         midiOut[1]=EventMessage.value[2];
         midiOut[2]=EventMessage.value[3];
       }
-      if(EventMessage.value[0]==2){
+      if(EventMessage.value[0]==TRIGGEROFFHEADER){
         console.log("mnotff");
         midiOut[0]=0x80|EventMessage.value[1];
         midiOut[1]=EventMessage.value[2];

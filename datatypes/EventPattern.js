@@ -23,6 +23,7 @@ var EventPattern=function(properties){
       thisPE.off.value[0]=TRIGGEROFFHEADER;
       thisPE.off.value[3]=0x00;
     }
+    return thisPE;
   };
 
   if(properties){

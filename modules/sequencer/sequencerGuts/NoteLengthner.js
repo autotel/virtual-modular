@@ -16,19 +16,18 @@ var NoteLengthner=module.exports=function(controlledModule){
     nicCount++;
     // console.log(notesInCreation[differenciator]);
   }
-  this.finishAdding=function(differenciator){
+  this.finishAdding=function(differenciator,storeCallback=false){
     if(notesInCreation[differenciator]){
       notesInCreation[differenciator].sequencerEvent.stepLength=stepCounter-notesInCreation[differenciator].started;
-      eachFold(differenciator,function(step){
-        /*var added=*/controlledModule.storeNoDup(step,notesInCreation[differenciator].sequencerEvent);
-      });
+      nicCount--;
+      if(storeCallback){
+        //TODO: these callback parameters are stupid, perhaps should pass an object instead of many parameters
+        storeCallback(differenciator,notesInCreation[differenciator].sequencerEvent,nicCount);
+      }else{
+        console.warn("noteLengthner didn't have a sequencer event store function, which defeats the purpose of the noteLengthner");
+      }
       // console.log(notesInCreation[differenciator]);
       delete notesInCreation[differenciator];
-      nicCount--;
-      if(nicCount==0){
-        thisNoteLengthner.startPointsBitmap=0;
-        thisNoteLengthner.lengthsBitmap=0;
-      }
     }
   }
   var stepCallback=false;

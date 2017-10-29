@@ -73,9 +73,11 @@ module.exports=function(environment){return new (function(){
     }
 
     this.uiTriggerOff=function(presetNumber){
+      // console.log("koff=",thisInstance.noteOnTracker[presetNumber]);
       for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        if(thisInstance.noteOnTracker[presetNumber][a])
-        thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
+        if(thisInstance.noteOnTracker[presetNumber][a]){
+          thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
+        }
       }
       for(var a in thisInstance.noteOnTracker[presetNumber] ){
         delete thisInstance.noteOnTracker[presetNumber][a];

@@ -32,6 +32,7 @@ module.exports=function(environment){
     var noteLengthner=new NoteLengthner(controlledModule);
     noteLengthner.onStep(function(thisNoteLengthner,nicCount){
       //TODO lengthsBitmap should be on scope of interface, not noteLengthner
+      // console.log(nicCount);
       if(nicCount>0){
         noteLengthnerLengthsBitmap|=noteLengthnerLengthsBitmap<<1;
         noteLengthnerLengthsBitmap|=noteLengthnerLengthsBitmap>>16;
@@ -185,7 +186,18 @@ module.exports=function(environment){
     };
     this.matrixButtonReleased=function(event){
       var hardware=event.hardware;
-      noteLengthner.finishAdding(event.data[0],configurators.event.getEventPattern());
+      noteLengthner.finishAdding(event.data[0],function(differenciator,sequencerEvent,nicCount){
+        eachFold(differenciator,function(step){
+          /*var added=*/controlledModule.storeNoDup(step,sequencerEvent);
+        });
+        if(nicCount==0){
+          noteLengthnerStartPointsBitmap=0;
+          noteLengthnerLengthsBitmap=0;
+        }
+        console.log(nicCount);
+      }/*,configurators.event.getEventPattern()*/);
+
+
 
       if(engagedConfigurator===false){
         updateLeds(hardware);
@@ -291,9 +303,9 @@ module.exports=function(environment){
       var showThroughfold=lastEngagedConfigurator==configurators.time;
       var mostImportant=getBitmapx16(shiftPressed?moreBluredFilter:focusedFilter,showThroughfold);
       var mediumImportant=getBitmapx16(moreBluredFilter,showThroughfold);
-      mediumImportant|=noteLengthner.startPointsBitmap;
+      mediumImportant|=noteLengthnerStartPointsBitmap;
       var leastImportant=getBitmapx16(bluredFilter,false,!shiftPressed);//red, apparently
-      leastImportant|=noteLengthner.lengthsBitmap;
+      leastImportant|=noteLengthnerLengthsBitmap;
       var drawStep=0;
       var playHeadBmp=0;
       //"render" play header:
