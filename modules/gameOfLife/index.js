@@ -53,7 +53,7 @@ module.exports=function(environment){return new (function(){
     this.toggleStep=function(square){
       var x=Math.floor(square/4);
       var y=square%4;
-      console.log(x,y);
+      // console.log(x,y);
       if(cells[x][y]==1){
         myBitmap&=~(1<<square);
         cells[x][y]=0;
