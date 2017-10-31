@@ -85,7 +85,7 @@ module.exports=function(environment){return new (function(){
       if(newEvent){
         thisInstance.output(newEvent);
 
-        console.log(newEvent);
+        // console.log(newEvent);
         //TODO: makes more sense to make a eventPattern, so then we don't need to calculate the noteoff "manually"
         if(!noteOnTracker[gradeNumber])noteOnTracker[gradeNumber]=[];
         noteOnTracker[gradeNumber].push(newEvent);
