@@ -38,7 +38,7 @@ module.exports=function(sequencerModule){ return new(function(){
       var cancel=false;
       for(var a in patData[step]){
         try{
-          if(patData[step][a].on.compareTo(data.on,['destination','value'])){
+          if(patData[step][a].on.compareTo(data.on,['value'])){
             cancel=true;
             break;
           }

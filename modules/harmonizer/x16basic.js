@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator = require( '../x16utils/EventConfigurator.js' );
 var BlankConfigurator = require( '../x16utils/BlankConfigurator.js' );
+var RecordMenu = require( '../x16utils/RecordMenu.js' );
 // var RecordMenu=require('../x16utils/RecordMenu.js');
 /**
 definition of a harmonizer interactor for the x16basic controller hardware
@@ -21,14 +22,7 @@ module.exports=function(environment){
     configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
     var lastEngagedConfigurator=configurators.event;
     var loopDisplace=controlledModule.loopDisplace;
-    configurators.time=new BlankConfigurator(this,{
-      name:"T",
-      values:{
-        // "base note":baseNote,
-        // loopLength:loopLength,
-        // loopDisplace:loopDisplace
-      }
-    });
+    configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
 
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
@@ -152,9 +146,9 @@ module.exports=function(environment){
         lastEngagedConfigurator=configurators.event;
         configurators.event.engage(event);
       }else if(event.data[0]==2){
-        engagedConfigurator=configurators.time;
-        lastEngagedConfigurator=configurators.time;
-        configurators.time.engage(event);
+        engagedConfigurator=configurators.record;
+        lastEngagedConfigurator=configurators.record;
+        configurators.record.engage(event);
       }else if(event.data[0]==3){
         performMode=!performMode;
         updateHardware(hardware);
@@ -173,7 +167,7 @@ module.exports=function(environment){
         configurators.event.disengage(hardware);
       }else if(event.data[0]==2){
         engagedConfigurator=false;
-        configurators.time.disengage(hardware);
+        configurators.record.disengage(hardware);
       }else if(event.data[0]==3){
       }
       updateHardware(hardware);

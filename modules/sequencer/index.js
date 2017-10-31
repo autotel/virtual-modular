@@ -29,10 +29,10 @@ module.exports=function(environment){return new (function(){
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
 
-    var recorder=new Recorder(this);
 
     var currentStep={value:0};
     this.currentStep=currentStep;
+    var recorder=new Recorder(this);
     // /**/console.log(sequencerFunctions);
     var thisModule=this;
     this.patData={};
@@ -92,26 +92,43 @@ module.exports=function(environment){return new (function(){
     // x71: data response
     this.eventReceived=function(event){
       var evt=event.EventMessage;
+      // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
       // console.log(evt);
-      this.handle('receive',evt);
+
       if(evt.value[0]==CLOCKTICKHEADER){
+        // console.log("sq:CLOCKTICKHEADER");
         this.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
-      }else if(evt.value[0]=TRIGGERONHEADER){
+      }else if(evt.value[0]==TRIGGERONHEADER){
+        // console.log("sq:TRIGGERONHEADER");
         thisInstance.stepAbsolute(evt.value[2]);
         thisInstance.play();
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
-      }else if(evt.value[0]=TRIGGEROFFHEADER){
+      }else if(evt.value[0]==TRIGGEROFFHEADER){
+        // console.log("sq:TRIGGEROFFHEADER");
         thisInstance.stop();
         // console.log("2 stop");
       }else if(evt.value[0]==CLOCKABSOLUTEHEADER){
+        // console.log("sq:CLOCKABSOLUTEHEADER");
         thisInstance.stepAbsolute(evt.value[1]);
         // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
       }else if(evt.value[0]==TRIGGEROFFHEADER){
+        // console.log("sq:TRIGGEROFFHEADER");
         thisInstance.stop();
       }else if(evt.value[0]==0x04){
         thisInstance.stepAbsolute(evt.value[1]);
+      }else if(evt.value[0]==RECORDINGHEADER){
+        // console.log("sq:RECORDINGHEADER");
+        console.log("REC");
+        evt.value.shift();
+        if(evt.value[0]==TRIGGERONHEADER){
+          recorder.recordNoteStart(evt.value[1]*evt.value[2],evt);
+        }else if (evt.value[0]==TRIGGEROFFHEADER) {
+          recorder.recordNoteEnd(evt.value[1]*evt.value[2]);
+        }
+        // thisInstance.recorder.start();
       }
+      this.handle('receive',evt);
     }
 
     var myInteractor=new interactorSingleton.Instance(this);

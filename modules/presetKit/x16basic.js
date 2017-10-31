@@ -28,6 +28,7 @@ module.exports=function(environment){
     var highlightedBitmap=0;
     var selectedPresetNumber=false;
     controlledModule.on('extrigger',function(event){
+      if(!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         highlightedBitmap|=1<<event.preset;
         updateLeds(hardware);

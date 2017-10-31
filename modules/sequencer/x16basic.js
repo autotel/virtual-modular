@@ -25,7 +25,7 @@ module.exports=function(environment){
 
     //tracking vars
     var lastRecordedNote=false;
-    var recorderDifferenciatorList={};
+
 
     var noteLengthnerStartPointsBitmap=0x0;
     var noteLengthnerLengthsBitmap=0x0;
@@ -134,8 +134,11 @@ module.exports=function(environment){
 
 
 
-
+    controlledModule.on('noteOnRecorded',function(event){
+      configurators.event.setFromEventPattern(event.eventPattern);
+    });
     controlledModule.on('step',function(event){
+      if(!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         if(engagedConfigurator===false)
         updateLeds(hardware);

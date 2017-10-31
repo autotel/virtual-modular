@@ -50,8 +50,8 @@ module.exports=function(){
     }
   }
   this.output=function(EventMessage){
-    outputs.forEach(function(module){
-      module.eventReceived({EventMessage:EventMessage.clone(),origin:thisModule});
+    outputs.forEach(function(tModule){
+      tModule.eventReceived({EventMessage:EventMessage.clone(),origin:thisModule});
     });
   }
   this.eventReceived=function(evt){
@@ -104,10 +104,11 @@ module.exports=function(){
     }
   }
   this.recordOutput=function(eventMessage){
-    recordOutputs.forEach(function(module){
+    recordOutputs.forEach(function(tModule){
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(RECORDINGHEADER);
-      module.eventReceived({EventMessage:recordEventMessage,origin:thisModule});
+      // console.log(recordEventMessage.value);
+      tModule.eventReceived({EventMessage:recordEventMessage,origin:thisModule});
     });
   }
   // this.recordEventReceived=function(evt){

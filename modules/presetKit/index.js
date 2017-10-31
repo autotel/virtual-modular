@@ -64,10 +64,10 @@ module.exports=function(environment){return new (function(){
       // console.log("tr",thisInstance.kit[presetNumber]);
       if(thisInstance.kit[presetNumber]){
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().from(thisInstance.kit[presetNumber].on) );
+        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(thisInstance.kit[presetNumber].on) );
         thisInstance.output(thisInstance.kit[presetNumber].on);
         if(thisInstance.recordingUi){
-          thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+          thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,100]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
         }
       }
     }
@@ -77,6 +77,9 @@ module.exports=function(environment){return new (function(){
       for(var a in thisInstance.noteOnTracker[presetNumber] ){
         if(thisInstance.noteOnTracker[presetNumber][a]){
           thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
+          if(thisInstance.recordingUi){
+            thisInstance.recordOutput(new EventMessage({value:[TRIGGEROFFHEADER,0,presetNumber,100]}));
+          }
         }
       }
       for(var a in thisInstance.noteOnTracker[presetNumber] ){
@@ -89,7 +92,7 @@ module.exports=function(environment){return new (function(){
       thisInstance.handle("extrigger",{preset:presetNumber});
       if(thisInstance.kit[presetNumber]){
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().from(thisInstance.kit[presetNumber].on) );
+        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(thisInstance.kit[presetNumber].on) );
         thisInstance.output(thisInstance.kit[presetNumber].on);
       }
     }
@@ -111,8 +114,7 @@ module.exports=function(environment){return new (function(){
     var recordHead=0;
     this.recordEvent=function(evM){
       thisInstance.handle('kit changed');
-      thisInstance.kit[recordHead]=new EventPattern();
-      thisInstance.kit[recordHead].from(evM);
+      thisInstance.kit[recordHead]=new EventPattern().fromEventMessage(evM);
       console.log("rec",thisInstance.kit[recordHead]);
       recordHead++;
       recordHead%=16;

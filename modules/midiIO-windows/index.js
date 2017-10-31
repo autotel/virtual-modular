@@ -145,14 +145,14 @@ module.exports=function(environment){return new (function(){
       var midiOut=[0,0,0];
       // console.log("MIDI",evt);
       if(EventMessage.value[0]==TRIGGERONHEADER){
-        console.log("mnoton");
+        // console.log("mnoton");
 
         midiOut[0]=0x90|EventMessage.value[1];
         midiOut[1]=EventMessage.value[2];
         midiOut[2]=EventMessage.value[3];
       }
       if(EventMessage.value[0]==TRIGGEROFFHEADER){
-        console.log("mnotff");
+        // console.log("mnotff");
         midiOut[0]=0x80|EventMessage.value[1];
         midiOut[1]=EventMessage.value[2];
         midiOut[2]=0;

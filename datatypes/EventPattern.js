@@ -16,7 +16,7 @@ var EventPattern=function(properties){
   this.compareTo=function(other,propertyList){
     return thisPE.on.compareTo(other.on);//& this.off.compareTo(other.off);
   }
-  this.from=function(evMes){
+  this.fromEventMessage=function(evMes){
     thisPE.on=new EventMessage(evMes);
     thisPE.off=new EventMessage(evMes);
     if(thisPE.on.value[0]==TRIGGERONHEADER){
@@ -32,13 +32,13 @@ var EventPattern=function(properties){
     }
     if(thisPE.on.isEventMessage!==true) thisPE.on=new EventMessage(thisPE.on);
     if(thisPE.off===undefined){
-      thisPE.from(thisPE.on);
+      thisPE.fromEventMessage(thisPE.on);
     }else if(thisPE.off!==false)
       if(thisPE.off.isEventMessage!==true) thisPE.off=new EventMessage(thisPE.off);
       //untested:
   }else{
     thisPE.on=new EventMessage();
-    thisPE.from(thisPE.on);
+    thisPE.fromEventMessage(thisPE.on);
   }
 }
 module.exports=EventPattern;

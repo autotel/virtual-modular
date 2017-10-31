@@ -38,6 +38,12 @@ var EventConfigurator=function(parentInteractor,properties){
       updateLeds(hardware);
     }
   }
+  var passiveUpdateScreen=function(){
+    //value can change while not engaged
+    for (let hardware of engagedHardwares) {
+      updateScreen(hardware);
+    }
+  }
   var updateLeds=function(hardware){
     var selectBmp=1<<selectedValueNumber;
     var eventLengthBmp=~(0xFFFF<<baseEvent.value.length);
@@ -119,7 +125,11 @@ var EventConfigurator=function(parentInteractor,properties){
     if(EvPat){
       if(EvPat.on){
         baseEvent=new EventMessage(EvPat.on);
-        updateScreen(hardware);
+        if(hardware){
+          updateScreen(hardware);
+        }else{
+          passiveUpdateScreen();
+        }
       }
     }
 
@@ -128,7 +138,7 @@ var EventConfigurator=function(parentInteractor,properties){
   this.getEventPattern=function(){
     // if(!newDest) newDest=options[0].valueNames(0);
     var newEvPat=new EventPattern();
-    newEvPat.from(baseEvent);
+    newEvPat.fromEventMessage(baseEvent);
     newEvPat.stepLength=1;
     return newEvPat;
   }
