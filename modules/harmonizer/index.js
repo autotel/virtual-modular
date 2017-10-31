@@ -2,7 +2,11 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var patternEvent=require('../../datatypes/EventPattern.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
-
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var RECORDINGHEADER = 0xAA;
+var CHORDCHANGEHEADER = 0x02;
 
 var uix16Control=require('./x16basic');
 /**
@@ -29,7 +33,7 @@ module.exports=function(environment){return new (function(){
     if(properties.name) this.name=properties.name;
     /** TODO: this naming convention **/
     var thisInstance=this;
-
+    this.recordingUi=true;
     this.currentScale=0;
     this.baseEventMessage=new EventMessage({value:[1,0,60,90]});
     var scaleMap={};
@@ -39,14 +43,38 @@ module.exports=function(environment){return new (function(){
 
     this.uiScaleChange=function(scalen){
       thisInstance.currentScale=scalen;
+      if(thisInstance.recordingUi){
+        thisInstance.recordOutput(new EventMessage({
+          value:[
+            CHORDCHANGEHEADER,
+            thisInstance.baseEventMessage.value[1],
+            scalen,100
+          ]}));
+      }
     }
 
     this.uiTriggerOn=function(gradeNumber){
       thisInstance.triggerOn(gradeNumber);
+      if(thisInstance.recordingUi){
+        thisInstance.recordOutput(new EventMessage({
+          value:[
+            TRIGGERONHEADER,
+            thisInstance.baseEventMessage.value[1],
+            gradeNumber,100
+          ]}));
+      }
     }
 
     this.uiTriggerOff=function(gradeNumber){
       thisInstance.triggerOff(gradeNumber);
+      if(thisInstance.recordingUi){
+        thisInstance.recordOutput(new EventMessage({
+          value:[
+            TRIGGEROFFHEADER,
+            thisInstance.baseEventMessage.value[1],
+            gradeNumber,100
+          ]}));
+      }
     }
 
     this.triggerOn=function(gradeNumber,underImpose=false){
@@ -104,12 +132,10 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(event){
       /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
       var eventMessage=event.EventMessage
-      //TODO: if I don't have that chord or it is empty, I just don't play anything.
       if(!thisInstance.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
           thisInstance.triggerOff(eventMessage.value[2]);
         }else{
-          // console.log("B");
           this.handle('receive',eventMessage);
           if(eventMessage.value[0]==3){
             //header 3 is change chord
