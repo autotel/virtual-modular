@@ -38,7 +38,7 @@ module.exports=function(environment){
           if(engagedHardwares.has(hardware)){
             updateLeds(hardware);
           }
-        });
+        },500);
       }
     });
     controlledModule.on('kit changed',function(){

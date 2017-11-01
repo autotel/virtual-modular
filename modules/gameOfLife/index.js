@@ -34,6 +34,9 @@ module.exports=function(environment){return new (function(){
     var noteOnTracker=new Set();
     var thisInstance=this;
     var myBitmap=0;
+
+    var clock=this.clock={subSteps:4,subStep:0}
+
     moduleInstanceBase.call(this);
     this.baseName="game of life";
     testGetName.call(this);
@@ -63,52 +66,24 @@ module.exports=function(environment){return new (function(){
       }
       return myBitmap;
     }
+
+    this.cellOutput=function(x,y,val){
+      if(val){
+        thisInstance.output(new EventMessage({value:[TRIGGERONHEADER,-1,x*4+y,-1]}));
+      }else{
+
+      }
+    }
+
     this.eventReceived=function(evt){
       if(evt.EventMessage.value[0]==CLOCKTICKHEADER&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
-        // console.log("step");
-        for(var x in cells){
-          for(var y in cells[x]){
-            var neighbours=0;
-            x=parseFloat(x);
-            y=parseFloat(y);
-            var left=x-1;
-            if(left==-1) left=3;
-            var right=x+1;
-            if(right==4) right=0;
-            var top=y-1;
-            if(top==-1) top=3;
-            var bott = y+1;
-            if(bott==4) bott=0;
-
-            // console.log("x"+x,"y"+y,"left"+left,"right"+right,"top"+top,"bott"+bott);
-
-            neighbours+=cells[left][top];
-            neighbours+=cells[left][y];
-            neighbours+=cells[left][bott];
-
-            neighbours+=cells[x][top];
-            // neighbours+=cells[x][y];
-            neighbours+=cells[x][bott];
-
-            neighbours+=cells[right][top];
-            neighbours+=cells[right][y];
-            neighbours+=cells[right][bott];
-
-            if(neighbours<2||neighbours>3){
-              myBitmap&=~(1<<(x*4+y));
-            }else if(neighbours==3){
-              myBitmap|=1<<(x*4+y);
-            }
-          }
+        clock.subStep++;
+        if(clock.subStep>=clock.subSteps){
+          clock.subStep=0;
+          cellOperation();
+          this.handle('step');
         }
-        for(var a=0; a<16; a++){
-          var x=Math.floor(a/4);
-          var y=a%4;
-          cells[x][y]=myBitmap>>a&1;
-        }
-        this.handle('step');
       }else{
-        //console.log(evt.EventMessage);
       }
     }
 
@@ -120,6 +95,52 @@ module.exports=function(environment){return new (function(){
       for(var noff of noteOnTracker){
         thisInstance.output(noff);
         noteOnTracker.delete(noff);
+      }
+    }
+
+    function cellOperation(){
+      // console.log("step");
+      for(var x in cells){
+        for(var y in cells[x]){
+          var neighbours=0;
+          x=parseFloat(x);
+          y=parseFloat(y);
+          var left=x-1;
+          if(left==-1) left=3;
+          var right=x+1;
+          if(right==4) right=0;
+          var top=y-1;
+          if(top==-1) top=3;
+          var bott = y+1;
+          if(bott==4) bott=0;
+
+          // console.log("x"+x,"y"+y,"left"+left,"right"+right,"top"+top,"bott"+bott);
+
+          neighbours+=cells[left][top];
+          neighbours+=cells[left][y];
+          neighbours+=cells[left][bott];
+
+          neighbours+=cells[x][top];
+          // neighbours+=cells[x][y];
+          neighbours+=cells[x][bott];
+
+          neighbours+=cells[right][top];
+          neighbours+=cells[right][y];
+          neighbours+=cells[right][bott];
+
+          if(neighbours<2||neighbours>3){
+            myBitmap&=~(1<<(x*4+y));
+          }else if(neighbours==3){
+            myBitmap|=1<<(x*4+y);
+          }
+        }
+      }
+      for(var a=0; a<16; a++){
+        var x=Math.floor(a/4);
+        var y=a%4;
+        var set=myBitmap>>a&1;
+        cells[x][y]=set;
+        thisInstance.cellOutput(x,y,set>0);
       }
     }
   }
