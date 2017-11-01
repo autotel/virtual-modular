@@ -13,6 +13,7 @@ module.exports=function(environment){
     var thisInterface=this;
     var fingerMap=0x0000;
     var scaleMap=0xAB5;//major
+    var noteHiglightMap=0;
     var performMode=false;
     var currentScale=0;
     var engaged=false;
@@ -25,8 +26,9 @@ module.exports=function(environment){
 
     configurators.event=new EventConfigurator(this,{
       baseEvent:controlledModule.baseEventMessage,
-      extraValues:{"keyboard base":keyboardRoot,"keyboard chan":keyboardChan},
-      name:"Msg & Perform"
+      extraValues:{"keyboard base":keyboardRoot/*,"keyboard chan":keyboardChan*/},
+      name:"Msg & Perform",
+      valueNames:["func","set chan","root n","velo"]
     });
     // configurators.event.addExtraValues();
     var lastEngagedConfigurator=configurators.event;
@@ -35,9 +37,16 @@ module.exports=function(environment){
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
     var loopLength=controlledModule.loopLength;
-
     var engagedHardwares=new Set();
-
+    controlledModule.on('note played',function(evt){
+      var grade=evt.triggeredGrade;
+      var note=evt.triggeredNote%12;
+      var newH=noteHiglightMap|=1<<note+4;
+      setTimeout(function(){
+        noteHiglightMap&=~newH;
+      },300);
+      passiveUpdateLeds();
+    });
     controlledModule.on('chordchange',function(){
       for (let hardware of engagedHardwares) {
         // console.log("chc");
@@ -90,7 +99,7 @@ module.exports=function(environment){
           // }
           if(event.data[0]>3){
             //scale section pressed
-            controlledModule.uiTriggerOn(event.data[0]+keyboardRoot.value-4);
+            controlledModule.uiTriggerOn(event.data[0]+keyboardRoot.value-4/*, new EventMessage({value:[-1,-1,keyboardChan.value,-1]})*/);
 
             // if(configurators.recorder.recording){
             //   configurators.recorder.recordUiOn(event.data[0],onEventMessage);
@@ -139,7 +148,7 @@ module.exports=function(environment){
     this.matrixButtonReleased=function(event){
       var hardware=event.hardware;
       if(engagedConfigurator===false){
-        controlledModule.uiTriggerOff(event.data[0]+keyboardRoot.value-4);
+        controlledModule.uiTriggerOff(event.data[0]+keyboardRoot.value-4, keyboardChan.value);
         updateLeds(hardware);
 
       }else{
@@ -201,7 +210,11 @@ module.exports=function(environment){
     this.disengage=function(event){
       engagedHardwares.delete(event.hardware);
     }
-
+    var passiveUpdateLeds=function(){
+      for(var hardware of engagedHardwares){
+        updateLeds(hardware);
+      }
+    }
     var updateLeds=function(hardware){
       updateHardware(hardware,true,false);
     }
@@ -217,22 +230,14 @@ module.exports=function(environment){
       var displayChordSelectorMap=0xF;
       var screenAString="";
       var screenBString="";
+      var SNH=displayScaleMap^noteHiglightMap;
       if(performMode){
         currentScaleMap=controlledModule.currentScale&0xf;
-        // if(configurators.recorder.recording){
-        //   if(upleds)
-        //   hardware.draw([
-        //     displayChordSelectorMap|displayFingerMap|displayScaleMap,
-        //     displayChordSelectorMap|displayFingerMap^displayScaleMap,
-        //     0xAB5F|currentScaleMap|displayScaleMap
-        //   ]);
-        //   if(!engagedConfigurator) screenAString+="REC ";
-        // }else{
           if(upleds)
           hardware.draw([
-            displayChordSelectorMap|displayFingerMap|displayScaleMap,
-            displayChordSelectorMap|displayFingerMap^displayScaleMap,
-            0xAB50|currentScaleMap|displayScaleMap
+            displayChordSelectorMap  |displayFingerMap |SNH,
+            displayChordSelectorMap  |displayFingerMap |SNH,
+            0xAB50|currentScaleMap   |displayFingerMap |SNH
           ]);
           if(!engagedConfigurator) screenAString+="Perf "
         // }
@@ -244,9 +249,9 @@ module.exports=function(environment){
         //green,blue,red
         if(upleds)
         hardware.draw([
-          displayChordSelectorMap|displayFingerMap|displayScaleMap,
-          displayChordSelectorMap|displayFingerMap^displayScaleMap,
-          0xAB50|currentScaleMap|displayScaleMap
+          displayChordSelectorMap |displayFingerMap |SNH,
+          displayChordSelectorMap |displayFingerMap |SNH,
+          0xAB50|currentScaleMap  |displayFingerMap |SNH
         ]);
 
         if(!engagedConfigurator) screenAString+=("Edit ");

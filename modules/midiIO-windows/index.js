@@ -24,6 +24,7 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 */
 module.exports=function(environment){return new (function(){
+  var defaultMessage=new EventMessage({value:[0,0,0,0]});
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   var instanced=0;
   var getName=function(){
@@ -141,20 +142,20 @@ module.exports=function(environment){return new (function(){
 
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
-      var EventMessage=evt.EventMessage;
+      var eventMessage=evt.EventMessage;
+      eventMessage.underImpose(defaultMessage);
       var midiOut=[0,0,0];
       // console.log("MIDI",evt);
-      if(EventMessage.value[0]==TRIGGERONHEADER){
+      if(eventMessage.value[0]==TRIGGERONHEADER){
         // console.log("mnoton");
-
-        midiOut[0]=0x90|EventMessage.value[1];
-        midiOut[1]=EventMessage.value[2];
-        midiOut[2]=EventMessage.value[3];
+        midiOut[0]=0x90|eventMessage.value[1];
+        midiOut[1]=eventMessage.value[2];
+        midiOut[2]=eventMessage.value[3];
       }
-      if(EventMessage.value[0]==TRIGGEROFFHEADER){
+      if(eventMessage.value[0]==TRIGGEROFFHEADER){
         // console.log("mnotff");
-        midiOut[0]=0x80|EventMessage.value[1];
-        midiOut[1]=EventMessage.value[2];
+        midiOut[0]=0x80|eventMessage.value[1];
+        midiOut[1]=eventMessage.value[2];
         midiOut[2]=0;
       }
       // console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");

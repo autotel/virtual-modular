@@ -38,7 +38,7 @@ module.exports=function(environment){return new (function(){
 
     // this.baseNote={value:0};
 
-    this.baseEventMessage=new EventMessage({value:[1,0,0,90]});
+    this.baseEventMessage=new EventMessage({value:[1,-1,0,90]});
     var scaleMap={};
     //keep track of triggered notes
     this.scaleArray={};
@@ -56,7 +56,7 @@ module.exports=function(environment){return new (function(){
       }
     }
 
-    this.uiTriggerOn=function(gradeNumber){
+    this.uiTriggerOn=function(gradeNumber,underImpose=false){
       thisInstance.triggerOn(gradeNumber);
       if(thisInstance.recordingUi){
         thisInstance.recordOutput(new EventMessage({
@@ -93,6 +93,7 @@ module.exports=function(environment){return new (function(){
         if(!noteOnTracker[gradeNumber])noteOnTracker[gradeNumber]=[];
         noteOnTracker[gradeNumber].push(newEvent);
       }
+      thisInstance.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
     }
 
     this.triggerOff=function(gradeNumber){
