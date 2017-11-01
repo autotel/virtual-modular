@@ -48,6 +48,7 @@ module.exports=function(environment){
       passiveUpdateLeds();
     });
     controlledModule.on('chordchange',function(){
+      if(!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         // console.log("chc");
         if(performMode){
@@ -236,8 +237,8 @@ module.exports=function(environment){
           if(upleds)
           hardware.draw([
             displayChordSelectorMap  |displayFingerMap |SNH,
-            displayChordSelectorMap  |displayFingerMap |SNH,
-            0xAB50|currentScaleMap   |displayFingerMap |SNH
+            displayChordSelectorMap  |displayFingerMap |displayScaleMap,
+            0xAB50|currentScaleMap   |displayFingerMap |displayScaleMap
           ]);
           if(!engagedConfigurator) screenAString+="Perf "
         // }
@@ -250,8 +251,8 @@ module.exports=function(environment){
         if(upleds)
         hardware.draw([
           displayChordSelectorMap |displayFingerMap |SNH,
-          displayChordSelectorMap |displayFingerMap |SNH,
-          0xAB50|currentScaleMap  |displayFingerMap |SNH
+          displayChordSelectorMap |displayFingerMap |displayScaleMap,
+          0xAB50|currentScaleMap  |displayFingerMap |displayScaleMap
         ]);
 
         if(!engagedConfigurator) screenAString+=("Edit ");
