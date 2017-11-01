@@ -19,9 +19,17 @@ module.exports=function(environment){
     //configurators setup
     var engagedConfigurator=false;
     var configurators={};
-    configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
+
+    var keyboardRoot={value:20};
+    var keyboardChan={value:0};
+
+    configurators.event=new EventConfigurator(this,{
+      baseEvent:controlledModule.baseEventMessage,
+      extraValues:{"keyboard base":keyboardRoot,"keyboard chan":keyboardChan},
+      name:"Msg & Perform"
+    });
+    // configurators.event.addExtraValues();
     var lastEngagedConfigurator=configurators.event;
-    var loopDisplace=controlledModule.loopDisplace;
     configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
 
     //interaction with controlledModule
@@ -82,7 +90,7 @@ module.exports=function(environment){
           // }
           if(event.data[0]>3){
             //scale section pressed
-            controlledModule.uiTriggerOn(event.data[0]-4);
+            controlledModule.uiTriggerOn(event.data[0]+keyboardRoot.value-4);
 
             // if(configurators.recorder.recording){
             //   configurators.recorder.recordUiOn(event.data[0],onEventMessage);
@@ -131,7 +139,7 @@ module.exports=function(environment){
     this.matrixButtonReleased=function(event){
       var hardware=event.hardware;
       if(engagedConfigurator===false){
-        controlledModule.uiTriggerOff(event.button-4);
+        controlledModule.uiTriggerOff(event.data[0]+keyboardRoot.value-4);
         updateLeds(hardware);
 
       }else{

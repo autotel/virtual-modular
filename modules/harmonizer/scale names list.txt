@@ -1,5 +1,5 @@
 select: (^[\w \#\d\-]*)(\t)([\W\w]*)
-
+src: https://www.scales-chords.com/fscale_res_en.php?rn1=C&rn2=C&rn3=&rn4=&rn5=&rn6=&rn7=&rn8=&rn9=&normal=1&greek=1&greekalt=1&other=1&etnic=1&c1=&t1=&c2=&t2=&c3=&t3=
 "major":"C; D; E; F; G; A; B; C;"
 "melodic minor":"C; D; D#/Eb; F; G; A; B; C;"
 "ionian":"C; D; E; F; G; A; B; C;"

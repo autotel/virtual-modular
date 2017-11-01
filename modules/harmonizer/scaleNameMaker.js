@@ -1,7 +1,6 @@
 var fs=require('fs');
 var path=require('path');
 
-
 var scaleNames={};
 var gradeNames=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
 gradeNames=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];

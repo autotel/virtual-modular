@@ -35,7 +35,10 @@ module.exports=function(environment){return new (function(){
     var thisInstance=this;
     this.recordingUi=true;
     this.currentScale=0;
-    this.baseEventMessage=new EventMessage({value:[1,0,60,90]});
+
+    // this.baseNote={value:0};
+
+    this.baseEventMessage=new EventMessage({value:[1,0,0,90]});
     var scaleMap={};
     //keep track of triggered notes
     this.scaleArray={};
