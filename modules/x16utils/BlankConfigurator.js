@@ -1,3 +1,4 @@
+'use strict';
 var MyInteractorBase=require('../../interaction/x16basic/interactorBase.js');
 /**
 user interface pattern that allows to tweak parameters
@@ -13,7 +14,7 @@ var BlankConfigurator=function(parentInteractor,properties){
   var varNames=[];
 
   this.name="set";
-  thisInteractor=this;
+  var thisInteractor=this;
 
   this.addVars=function(nvars){
     for(var a in nvars){

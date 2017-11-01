@@ -1,3 +1,4 @@
+'use strict';
 var EventPattern=require('../../datatypes/EventPattern.js');
 var EventMessage=require('../../datatypes/EventMessage.js');
 
@@ -9,11 +10,13 @@ user interface pattern that allows to tweak a note. A usage example is the event
 */
 var EventConfigurator=function(parentInteractor,properties){
   MyInteractorBase.call(this);
-  this.name="event";
-  thisInteractor=this;
+  this.name="EventMessage";
+  var thisInteractor=this;
   if(properties.name) this.name=properties.name;
   var selectedValueNumber=0;
   var valueNames=["fnHead","chan","number","prop"];
+  var extraValueNames=[];
+  var extraValues=[];
   if(properties.valueNames) valueNames=properties.valueNames
   var engagedHardwares=new Set();
   /**
@@ -32,12 +35,20 @@ var EventConfigurator=function(parentInteractor,properties){
       baseEvent.value[a]=properties.values[a];
     }
   }
+  this.addExtraValues=function(valuesList){
+    for(var a in valuesList){
+      extraValueNames.push(a);
+      extraValues.push(valuesList[a]);
+    }
+  }
+  if(properties.extraValues) this.addExtraValues(properties.extraValues);
   var valueChanged=function(){
     //value can change while not engaged
     for (let hardware of engagedHardwares) {
       updateLeds(hardware);
     }
   }
+
   var passiveUpdateScreen=function(){
     //value can change while not engaged
     for (let hardware of engagedHardwares) {
@@ -47,20 +58,25 @@ var EventConfigurator=function(parentInteractor,properties){
   var updateLeds=function(hardware){
     var selectBmp=1<<selectedValueNumber;
     var eventLengthBmp=~(0xFFFF<<baseEvent.value.length);
-    hardware.draw([selectBmp|eventLengthBmp,selectBmp,selectBmp|eventLengthBmp]);
+    var extraValuesBmp=eventLengthBmp^~(0xFFFF<<(baseEvent.value.length+extraValueNames.length));
+
+    hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraValuesBmp,selectBmp|eventLengthBmp|extraValuesBmp]);
   }
   var updateScreen=function(hardware){
-    // setTimeout(function(){
-    //   var recover=JSON.parse(JSON.stringify(hardware.lastScreenValues));
-    //   sendScreenA(recover[0]);
-    //   // sendScreenB(recover[1]);
-    // },700);
-    // hardware.sendScreenA();
-    hardware.sendScreenB(
-      thisInteractor.name
-      +":"+valueNames[selectedValueNumber]
-      +"="+(baseEvent.value[selectedValueNumber]===-1?"transparent":baseEvent.value[selectedValueNumber])
-    );
+    hardware.sendScreenA(thisInteractor.name);
+    if(selectedValueNumber<baseEvent.value.length){
+      hardware.sendScreenB(
+        valueNames[selectedValueNumber]
+        +"="+(baseEvent.value[selectedValueNumber]===-1?"transparent":baseEvent.value[selectedValueNumber])
+      );
+    }else{
+      var selectedExtraValue=selectedValueNumber-baseEvent.value.length;
+      hardware.sendScreenB(
+        extraValueNames[selectedExtraValue]
+        +"="+extraValues[selectedExtraValue].value
+      );
+
+    }
   }
   this.matrixButtonPressed=function(event){
     var hardware=event.hardware;
@@ -81,6 +97,9 @@ var EventConfigurator=function(parentInteractor,properties){
     var hardware=event.hardware;
     if(baseEvent.value.length>selectedValueNumber){
       baseEvent.value[selectedValueNumber]+=event.data[1];
+      updateScreen(hardware);
+    }else if(extraValueNames.length>selectedValueNumber-baseEvent.value.length){
+      extraValues[selectedValueNumber-baseEvent.value.length].value+=event.data[1];
       updateScreen(hardware);
     }
   };
