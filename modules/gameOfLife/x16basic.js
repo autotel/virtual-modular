@@ -24,6 +24,7 @@ module.exports=function(environment){
     }
     var engagedHardwares=new Set();
     controlledModule.on('step',function(){
+      if(!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         updateLeds(hardware);
       }
