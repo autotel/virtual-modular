@@ -49,10 +49,12 @@ module.exports=function(environment){return new (function(){
     var cells=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
     var fixedCells=0;
     var setStep= this.setStep=function(square){
-      console.log("st",square);
+      // console.log("st",square);
+      myBitmap|=1<<square;
       cells[Math.floor(square/4)][square%4]=1;
     }
     var clearStep= this.clearStep=function(square){
+      myBitmap&=~(1<<square);
       cells[Math.floor(square/4)][square%4]=0;
     }
 
@@ -61,23 +63,21 @@ module.exports=function(environment){return new (function(){
       var y=square%4;
       // console.log(x,y);
       if(cells[x][y]==1){
-        myBitmap&=~(1<<square);
-        cells[x][y]=0;
+
+        clearStep(square);
       }else{
-        myBitmap|=1<<square;
-        cells[x][y]=1;
+
+        setStep(square);
       }
       return myBitmap;
     }
 
     var setFixedStep= this.setFixedStep=function(square){
       fixedCells|=1<<square;
-      myBitmap|=1<<square;
       setStep(square);
     }
     var clearFixedStep= this.clearFixedStep=function(square){
       fixedCells&=~(1<<square);
-      myBitmap&=~(1<<square);
       clearStep(square);
     }
     var toggleFixedStep= this.toggleFixedStep=function(square){
@@ -108,18 +108,25 @@ module.exports=function(environment){return new (function(){
           this.handle('step');
         }
       }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
+        // this.setFixedStep(evt.EventMessage.value[2]%16);
         this.setStep(evt.EventMessage.value[2]%16);
+      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
+        // this.clearFixedStep(evt.EventMessage.value[2]%16);
+      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER+1){
+        // this.setStep(evt.EventMessage.value[2]%16);
       }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
         evt.EventMessage.value.shift();
-        if(evt.EventMessage.value[0]==TRIGGERONHEADER){
-          this.setStep(evt.EventMessage.value[2]%16);
-        }
+        thisInstance.eventReceived(evt);
+        // if(evt.EventMessage.value[0]==TRIGGERONHEADER){
+        //   this.setFixedStep(evt.EventMessage.value[2]%16);
+        // }else  if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
+        //   this.clearFixedStep(evt.EventMessage.value[2]%16);
+        // }
       }else{
       }
     }
 
     this.getBitmap16=function(){
-
       return myBitmap;
     }
     this.delete=function(){
@@ -160,17 +167,20 @@ module.exports=function(environment){return new (function(){
           neighbours+=cells[right][bott];
 
           var linearCord=(x*4+y);
-          if(neighbours<2||neighbours>3){
-            myBitmap&=~(1<<linearCord);
-          }else if(neighbours==3){
-            myBitmap|=1<<linearCord;
-          }
-          if(fixedCells &(1<<linearCord)){
-            cells[x][y]=1;
-            myBitmap|=1<<linearCord;
-          }
+
+          // if(fixedCells &(1<<linearCord)){
+          //   cells[x][y]=1;
+          //   myBitmap|=1<<linearCord;
+          // }else{
+            if(neighbours<2||neighbours>3){
+              myBitmap&=~(1<<linearCord);
+            }else if(neighbours==3){
+              myBitmap|=1<<linearCord;
+            }
+          // }
         }
       }
+      // myBitmap|=fixedCells;
       for(var a=0; a<16; a++){
         var x=Math.floor(a/4);
         var y=a%4;

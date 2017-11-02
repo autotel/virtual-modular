@@ -83,7 +83,12 @@ module.exports=function(environment){return new (function(){
     this.triggerOn=function(gradeNumber,underImpose=false){
       var newEvent=getOutputMessageFromNumber(gradeNumber);
       if(underImpose){
-        newEvent.underImpose(underImpose);
+        try{
+          newEvent.underImpose(underImpose);
+        }catch(e){
+          console.log(e);
+          console.log(newEvent);
+        }
       }
       if(newEvent){
         thisInstance.output(newEvent);
