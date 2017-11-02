@@ -49,7 +49,7 @@ module.exports=function(environment){return new (function(){
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
 
-    this.kit={};
+    var kit= this.kit={};
 
     if(properties.kit){
       for(var n in properties.kit){
@@ -61,13 +61,17 @@ module.exports=function(environment){return new (function(){
     this.noteOnTracker={}
 
     this.uiTriggerOn=function(presetNumber){
-      // console.log("tr",thisInstance.kit[presetNumber]);
-      if(thisInstance.kit[presetNumber]){
-        if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(thisInstance.kit[presetNumber].on) );
-        thisInstance.output(thisInstance.kit[presetNumber].on);
-        if(thisInstance.recordingUi){
-          thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,100]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+      // console.log("tr",kit[presetNumber]);
+      // if(presetNumber!==undefined)
+      if(kit[presetNumber]){
+        if(!kit[presetNumber].mute){
+          if(thisInstance.noteOnTracker[presetNumber]===undefined) thisInstance.noteOnTracker[presetNumber]=[];
+          // console.log(thisInstance.noteOnTracker);
+          thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
+          thisInstance.output(kit[presetNumber].on);
+          if(thisInstance.recordingUi){
+            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,100]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+          }
         }
       }
     }
@@ -82,18 +86,18 @@ module.exports=function(environment){return new (function(){
           }
         }
       }
-      for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        delete thisInstance.noteOnTracker[presetNumber][a];
-      }
+      // for(var a in thisInstance.noteOnTracker[presetNumber] ){
+        delete thisInstance.noteOnTracker[presetNumber];
+      // }
     }
 
     this.triggerOn=function(presetNumber,optionalVelocity){
       presetNumber%=16;
       thisInstance.handle("extrigger",{preset:presetNumber});
-      if(thisInstance.kit[presetNumber]){
+      if(kit[presetNumber]){
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(thisInstance.kit[presetNumber].on) );
-        thisInstance.output(thisInstance.kit[presetNumber].on);
+        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
+        thisInstance.output(kit[presetNumber].on);
       }
     }
 
@@ -114,10 +118,18 @@ module.exports=function(environment){return new (function(){
     var recordHead=0;
     this.recordEvent=function(evM){
       thisInstance.handle('kit changed');
-      thisInstance.kit[recordHead]=new EventPattern().fromEventMessage(evM);
-      console.log("rec",thisInstance.kit[recordHead]);
+      kit[recordHead]=new EventPattern().fromEventMessage(evM);
+      console.log("rec",kit[recordHead]);
       recordHead++;
       recordHead%=16;
+    }
+    this.togglePresetMute=function(presetNumber){
+      if(kit[presetNumber]){
+        kit[presetNumber].mute=!kit[presetNumber].mute===true;
+        return kit[presetNumber].mute;
+      }else{
+        return false;
+      }
     }
     this.eventReceived=function(event){
       var evM=event.EventMessage;

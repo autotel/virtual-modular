@@ -16,7 +16,7 @@ var EventConfigurator=function(parentInteractor,properties){
   var selectedValueNumber=0;
   var valueNames=["func","chan","number","prop"];
   var extraValueNames=[];
-  var extraValues=[];
+  var extraVariables=[];
   if(properties.valueNames) valueNames=properties.valueNames
   var engagedHardwares=new Set();
   /**
@@ -35,13 +35,13 @@ var EventConfigurator=function(parentInteractor,properties){
       baseEvent.value[a]=properties.values[a];
     }
   }
-  this.addExtraValues=function(valuesList){
+  this.addextraVariables=function(valuesList){
     for(var a in valuesList){
       extraValueNames.push(a);
-      extraValues.push(valuesList[a]);
+      extraVariables.push(valuesList[a]);
     }
   }
-  if(properties.extraValues) this.addExtraValues(properties.extraValues);
+  if(properties.extraVariables) this.addextraVariables(properties.extraVariables);
   var valueChanged=function(){
     //value can change while not engaged
     for (let hardware of engagedHardwares) {
@@ -58,9 +58,9 @@ var EventConfigurator=function(parentInteractor,properties){
   var updateLeds=function(hardware){
     var selectBmp=1<<selectedValueNumber;
     var eventLengthBmp=~(0xFFFF<<baseEvent.value.length);
-    var extraValuesBmp=eventLengthBmp^~(0xFFFF<<(baseEvent.value.length+extraValueNames.length));
+    var extraVariablesBmp=eventLengthBmp^~(0xFFFF<<(baseEvent.value.length+extraValueNames.length));
 
-    hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraValuesBmp,selectBmp|eventLengthBmp|extraValuesBmp]);
+    hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraVariablesBmp,selectBmp|eventLengthBmp|extraVariablesBmp]);
   }
   var updateScreen=function(hardware){
     hardware.sendScreenA(thisInteractor.name);
@@ -73,7 +73,7 @@ var EventConfigurator=function(parentInteractor,properties){
       var selectedExtraValue=selectedValueNumber-baseEvent.value.length;
       hardware.sendScreenB(
         extraValueNames[selectedExtraValue]
-        +"="+extraValues[selectedExtraValue].value
+        +"="+extraVariables[selectedExtraValue].value
       );
 
     }
@@ -99,7 +99,7 @@ var EventConfigurator=function(parentInteractor,properties){
       baseEvent.value[selectedValueNumber]+=event.data[1];
       updateScreen(hardware);
     }else if(extraValueNames.length>selectedValueNumber-baseEvent.value.length){
-      extraValues[selectedValueNumber-baseEvent.value.length].value+=event.data[1];
+      extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.data[1];
       updateScreen(hardware);
     }
   };

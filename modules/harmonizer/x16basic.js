@@ -26,11 +26,11 @@ module.exports=function(environment){
 
     configurators.event=new EventConfigurator(this,{
       baseEvent:controlledModule.baseEventMessage,
-      extraValues:{"keyboard base":keyboardRoot/*,"keyboard chan":keyboardChan*/},
+      extraVariables:{"keyboard base":keyboardRoot/*,"keyboard chan":keyboardChan*/},
       name:"Msg & Perform",
       valueNames:["func","set chan","root n","velo"]
     });
-    // configurators.event.addExtraValues();
+    // configurators.event.addextraVariables();
     var lastEngagedConfigurator=configurators.event;
     configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
 
@@ -212,6 +212,7 @@ module.exports=function(environment){
       engagedHardwares.delete(event.hardware);
     }
     var passiveUpdateLeds=function(){
+      if(!engagedConfigurator)
       for(var hardware of engagedHardwares){
         updateLeds(hardware);
       }

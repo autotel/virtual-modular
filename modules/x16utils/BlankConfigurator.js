@@ -16,13 +16,29 @@ var BlankConfigurator=function(parentInteractor,properties){
   this.name="set";
   var thisInteractor=this;
 
+
   this.addVars=function(nvars){
+    var defaultChangeFunction=function(thisVar,delta){
+      thisVar.value+=delta;
+    }
+    var defaultSelectFunction=function(thisVar){
+    }
+    var defaultNameFunction=function(thisVar){
+      return "°"+thisVar.value
+    }
     for(var a in nvars){
+      if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultChangeFunction;
+      if(nvars[a].selectFunction===undefined) nvars[a].selectFunction=defaultSelectFunction;
+      if(nvars[a].nameFunction===undefined) nvars[a].nameFunction=defaultNameFunction;
       thisInteractor.vars[a]=nvars[a];
     }
     watchvarNames();
   }
-
+  if(properties.variables){
+    thisInteractor.addVars(properties.variables);
+  }if(properties.vars){
+    thisInteractor.addVars(properties.vars);
+  }
   function watchvarNames(){
     varNames=Object.keys(thisInteractor.vars);
   }
@@ -34,11 +50,19 @@ var BlankConfigurator=function(parentInteractor,properties){
   if(properties.values){
     this.vars=properties.values;
   }
-  watchvarNames();
 
-  var valueChanged=function(){
-    //value can change while not engaged
-    for (let hardware of engagedHardwares) {
+  // var valueChanged=function(){
+  //   //value can change while not engaged
+  //   for (let hardware of engagedHardwares) {
+  //     updateLeds(hardware);
+  //   }
+  // }
+  function getSelectedVar(){
+    return thisInteractor.vars[varNames[selectedVarNumber]]
+  }
+  function passiveUpdateHardware(){
+    for(var hardware of engagedHardwares){
+      updateScreen(hardware);
       updateLeds(hardware);
     }
   }
@@ -52,19 +76,24 @@ var BlankConfigurator=function(parentInteractor,properties){
     ]);
   }
   function updateScreen(hardware){
-    console.log(thisInteractor.vars);
-    hardware.sendScreenB(
-      thisInteractor.name
-      +":"+varNames[selectedVarNumber]
-      +"="+(thisInteractor.vars[varNames[selectedVarNumber]].value)
-    );
+    // console.log(thisInteractor.vars);
+    var selectedVar=getSelectedVar();
+    hardware.sendScreenA(thisInteractor.name+" "+varNames[selectedVarNumber]);
+    hardware.sendScreenB(selectedVar.nameFunction(selectedVar));
+  }
+  this.select=function(n,update = true){
+    selectedVarNumber=n;
+    if(update)
+    passiveUpdateHardware();
   }
   this.matrixButtonPressed=function(event){
     var hardware=event.hardware;
     if(event.data[0]<varNames.length){
       selectedVarNumber=event.data[0];
+      var selectedVar=getSelectedVar();
       updateLeds(hardware);
       updateScreen(hardware);
+      selectedVar.selectFunction(selectedVar);
     }
   };
   this.matrixButtonReleased=function(event){
@@ -78,11 +107,23 @@ var BlankConfigurator=function(parentInteractor,properties){
   };
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
-    if(thisInteractor.vars.length>selectedVarNumber){
-      thisInteractor.vars[selectedVarNumber].value+=event.data[1];
+    // console.log("a");
+    if(varNames.length>selectedVarNumber){
+      // console.log("b");
+      var thisVar=getSelectedVar();
+      // console.log(thisVar);
+      thisVar.changeFunction(thisVar,event.data[1]);
       updateScreen(hardware);
     }
   };
+  this.setCurrentVarValue=function(to){
+    if(varNames.length>selectedVarNumber){
+      var thisVar=getSelectedVar();
+      var delta=thisVar.value-to;
+      thisVar.changeFunction(thisVar,delta);
+      passiveUpdateHardware();
+    }
+  }
   this.encoderPressed=function(event){
     var hardware=event.hardware;
   };
@@ -92,6 +133,9 @@ var BlankConfigurator=function(parentInteractor,properties){
   this.engage=function(event){
     var hardware=event.hardware;
     engagedHardwares.add(hardware);
+    if(properties.engageFunction){
+      properties.engageFunction(thisInteractor);
+    }
     updateLeds(hardware);
     updateScreen(hardware);
   };
