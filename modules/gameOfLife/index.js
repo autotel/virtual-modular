@@ -47,13 +47,16 @@ module.exports=function(environment){return new (function(){
     this.interactor=myInteractor;
     this.interactor.name=this.name;
     var cells=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-    this.setStep=function(square){
+    var fixedCells=0;
+    var setStep= this.setStep=function(square){
+      console.log("st",square);
       cells[Math.floor(square/4)][square%4]=1;
     }
-    this.clearStep=function(square){
+    var clearStep= this.clearStep=function(square){
       cells[Math.floor(square/4)][square%4]=0;
     }
-    this.toggleStep=function(square){
+
+    var toggleStep= this.toggleStep=function(square){
       var x=Math.floor(square/4);
       var y=square%4;
       // console.log(x,y);
@@ -63,6 +66,27 @@ module.exports=function(environment){return new (function(){
       }else{
         myBitmap|=1<<square;
         cells[x][y]=1;
+      }
+      return myBitmap;
+    }
+
+    var setFixedStep= this.setFixedStep=function(square){
+      fixedCells|=1<<square;
+      myBitmap|=1<<square;
+      setStep(square);
+    }
+    var clearFixedStep= this.clearFixedStep=function(square){
+      fixedCells&=~(1<<square);
+      myBitmap&=~(1<<square);
+      clearStep(square);
+    }
+    var toggleFixedStep= this.toggleFixedStep=function(square){
+      var x=Math.floor(square/4);
+      var y=square%4;
+      if(cells[x][y]){
+        clearFixedStep(square);
+      }else{
+        setFixedStep(square);
       }
       return myBitmap;
     }
@@ -82,6 +106,13 @@ module.exports=function(environment){return new (function(){
           clock.subStep=0;
           cellOperation();
           this.handle('step');
+        }
+      }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
+        this.setStep(evt.EventMessage.value[2]%16);
+      }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
+        evt.EventMessage.value.shift();
+        if(evt.EventMessage.value[0]==TRIGGERONHEADER){
+          this.setStep(evt.EventMessage.value[2]%16);
         }
       }else{
       }
@@ -128,10 +159,15 @@ module.exports=function(environment){return new (function(){
           neighbours+=cells[right][y];
           neighbours+=cells[right][bott];
 
+          var linearCord=(x*4+y);
           if(neighbours<2||neighbours>3){
-            myBitmap&=~(1<<(x*4+y));
+            myBitmap&=~(1<<linearCord);
           }else if(neighbours==3){
-            myBitmap|=1<<(x*4+y);
+            myBitmap|=1<<linearCord;
+          }
+          if(fixedCells &(1<<linearCord)){
+            cells[x][y]=1;
+            myBitmap|=1<<linearCord;
           }
         }
       }

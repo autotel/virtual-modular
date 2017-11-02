@@ -32,11 +32,17 @@ module.exports=function(environment){
       if(engagedConfigurator){
         engagedConfigurator.matrixButtonPressed(event);
       }else{
-        controlledModule.toggleStep(event.button);
+        controlledModule.setFixedStep(event.button);
         updateHardware(event.hardware);
       }
     };
-    this.matrixButtonReleased=function(event){};
+    this.matrixButtonReleased=function(event){
+      if(engagedConfigurator){
+      }else{
+        controlledModule.clearFixedStep(event.button);
+        updateHardware(event.hardware);
+      }
+    };
     this.matrixButtonHold=function(event){};
     this.selectorButtonPressed=function(event){
       var hardware=event.hardware;
