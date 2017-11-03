@@ -71,6 +71,7 @@ var EventMessage=function(inputValue){
         thisEm.value[a]=otherEvent.value[a];
       }
     }
+    return thisEm;
   }
   /**apply only the characteristics of other event message if the ones in  this are transparent*/
   this.underImpose=function(otherEvent){
@@ -79,6 +80,7 @@ var EventMessage=function(inputValue){
         thisEm.value[a]=otherEvent.value[a];
       }
     }
+    return thisEm;
   }
   this.set(inputValue);
 }

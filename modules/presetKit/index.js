@@ -91,17 +91,18 @@ module.exports=function(environment){return new (function(){
       // }
     }
 
-    this.triggerOn=function(presetNumber,optionalVelocity){
+    this.triggerOn=function(presetNumber,originalMessage){
       presetNumber%=16;
       thisInstance.handle("extrigger",{preset:presetNumber});
       if(kit[presetNumber]){
+        var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
         if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
-        thisInstance.output(kit[presetNumber].on);
+        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
+        thisInstance.output(outputMessage);
       }
     }
 
-    this.triggerOff=function(presetNumber,optionalVelocity){
+    this.triggerOff=function(presetNumber){
       presetNumber%=16;
       // console.log("ntoff");
       thisInstance.handle("extrigger",{preset:presetNumber});
@@ -139,10 +140,10 @@ module.exports=function(environment){return new (function(){
         thisInstance.stepMicro(evM.value[1],evM.value[2]);
       }else if(evM.value[0]==TRIGGERONHEADER){
         //nton
-        thisInstance.triggerOn(evM.value[2],evM.value[3]);
+        thisInstance.triggerOn(evM.value[2],evM);
       }else if(evM.value[0]==TRIGGEROFFHEADER){
         //ntoff
-        thisInstance.triggerOff(evM.value[2],evM.value[3]);
+        thisInstance.triggerOff(evM.value[2]);
       }else if(evM.value[0]==RECORDINGHEADER){
         evM.value.shift();
         // console.log("rec",evm);

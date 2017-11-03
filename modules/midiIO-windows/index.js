@@ -24,7 +24,7 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 */
 module.exports=function(environment){return new (function(){
-  var defaultMessage=new EventMessage({value:[0,0,0,0]});
+  var defaultMessage=new EventMessage({value:[0,0,45,97]});
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   var instanced=0;
   var getName=function(){
