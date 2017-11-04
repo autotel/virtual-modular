@@ -40,9 +40,9 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName="game of life";
     testGetName.call(this);
-
     if(properties.name) this.name=properties.name;
 
+    var baseEventMessage=this.baseEventMessage= new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
     this.interactor.name=this.name;
@@ -93,7 +93,8 @@ module.exports=function(environment){return new (function(){
 
     this.cellOutput=function(x,y,val){
       if(val){
-        thisInstance.output(new EventMessage({value:[TRIGGERONHEADER,-1,x*4+y,-1]}));
+        baseEventMessage.value[2]=x*4+y;
+        thisInstance.output(baseEventMessage);
       }else{
 
       }

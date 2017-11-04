@@ -15,7 +15,7 @@ module.exports=function(environment){
   this.Instance=function(controlledModule){
     myInteractorBase.call(this,controlledModule);
     var configurators={};
-    configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
+    configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
     var engagedConfigurator=false;
     var lastEngagedConfigurator=configurators.event;
     var stepsBmp=0;
