@@ -48,7 +48,7 @@ module.exports=function(environment){
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
-      hardware.sendScreenA("monosequencer");
+      hardware.sendScreenA("tape");
       updateLeds(hardware);
     }
     var updateLeds=function(hardware){
