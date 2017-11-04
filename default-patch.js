@@ -23,6 +23,15 @@ module.exports=[
         [1,9,48,-1],[1,9,49,-1],[1,9,50,-1],[1,9,51,-1]
       ]
     },
-    outputs:['default midi out']
+    outputs:['default midi out','O-to DAW']
+  },{
+    type:'presetKit',
+    properties:{
+      name:'seq PresetKit',
+      kit:[
+        [1,0,0,-1]
+      ]
+    },
+    outputs:['default sequencer']
   }
 ]
