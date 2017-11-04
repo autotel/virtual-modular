@@ -48,17 +48,61 @@ module.exports=function(environment){
     var configurators={};
     configurators.event=new EventConfigurator(this,{values:[1,1,60,90]});
     var lastEngagedConfigurator=configurators.event;
-    var lookLoop={value:0};
-    var loopLength={value:0};
     var loopDisplace=controlledModule.loopDisplace;
     configurators.record=new RecordMenu(this,{environment:environment,controlledModule:controlledModule});
 
     //interaction with controlledModule
     var currentStep=controlledModule.currentStep;
     var loopLength=controlledModule.loopLength;
+    var lookLoop={value:0};
+    configurators.time=new BlankConfigurator(this,{
+      name:"",
+      vars:{
+        "loop length":loopLength,
+        "loop look":lookLoop,
+        "step div":controlledModule.stepDivide,
+        "drift substep":controlledModule.loopDisplace,
+        "microstep offset":controlledModule.microStepDisplace,
+        "playing":controlledModule.playing,
+      }
+    });
+    configurators.time.vars["loop length"].min=1;
+    configurators.time.vars["loop length"].changeFunction = function(thisVar,delta){
+      if(thisVar.value+delta>=1)
+      thisVar.value+=delta;
+    }
 
+    configurators.time.vars["loop look"].nameFunction=function(thisVar){
+      return (thisVar.value==0?"off":""+thisVar.value);
+    };
+    configurators.time.vars["loop look"].changeFunction = function(thisVar,delta){
+      if(thisVar.value+delta>=0)
+      thisVar.value+=delta;
+    }
 
+    configurators.time.vars["step div"].changeFunction = function(thisVar,delta){
+      if(thisVar.value+delta>=1)
+      thisVar.value+=delta;
+    }
 
+    configurators.time.vars["drift substep"].nameFunction=function(thisVar){
+      return (thisVar.value>0?"+":" ")+thisVar.value;
+    };
+    // configurators.time.vars["time displace"].changeFunction = function(thisVar,delta){
+    //   if(thisVar.value+delta>=0)
+    //   thisVar.value+=delta;
+    // }
+    configurators.time.vars["microstep offset"].nameFunction=function(thisVar){
+      return thisVar.value+"/"+controlledModule.microStepDivide.value;
+    };
+
+    configurators.time.vars["playing"].changeFunction = function(thisVar,delta){
+      if(delta>0){
+        thisVar.value=true;
+      }else{
+        thisVar.value=false;
+      }
+    }
 
     function eachFold(button,callback){
       var len=loopLength.value;
@@ -212,15 +256,25 @@ module.exports=function(environment){
     this.matrixButtonHold=function(event){};
     this.selectorButtonPressed=function(event){
       var hardware=event.hardware;
+
+      if(engagedConfigurator)
+      engagedConfigurator.selectorButtonPressed(event);
       // console.log(event);
       //keep trak of pressed buttons for button combinations
       configuratorsPressed[event.data[0]]=true;
       if(configuratorsPressed[2]&&configuratorsPressed[3]){
         if(lastEngagedConfigurator)
         lastEngagedConfigurator.disengage(hardware);
-        lastEngagedConfigurator=false;
+        lastEngagedConfigurator=engagedConfigurator=false;
         skipMode=true;
         hardware.sendScreenA("skip to step");
+        updateLeds(hardware);
+      }else if(configuratorsPressed[1]&&configuratorsPressed[3]){
+        if(lastEngagedConfigurator)
+        lastEngagedConfigurator.disengage(hardware);
+        lastEngagedConfigurator=engagedConfigurator=false;
+        shiftPressed=true;
+        hardware.sendScreenA("select through");
         updateLeds(hardware);
       }else if(event.data[0]==1){
         /**TODO: use configurator objects instead of their names**/
@@ -232,30 +286,25 @@ module.exports=function(environment){
         lastEngagedConfigurator=configurators.record;
         engagedConfigurator.engage(event);
       }else if(event.data[0]==3){
-        shiftPressed=true;
-        updateLeds(hardware);
+        engagedConfigurator=configurators.time;
+        lastEngagedConfigurator=configurators.time;
+        engagedConfigurator.engage(event);
       }
 
-      if(engagedConfigurator)
-      engagedConfigurator.selectorButtonPressed(event);
     };
     this.selectorButtonReleased=function(event){
       var hardware=event.hardware;
       configuratorsPressed[event.data[0]]=false;
+
       skipMode=false;
+      shiftPressed=false;
 
       if(engagedConfigurator){
         engagedConfigurator.selectorButtonReleased(event);
-      }
-      if(event.data[0]==1){
         engagedConfigurator.disengage(hardware);
         engagedConfigurator=false;
-      }else if(event.data[0]==2){
-        engagedConfigurator.disengage(hardware);
-        engagedConfigurator=false;
-      }else if(event.data[0]==3){
-        shiftPressed=false;
       }
+
       updateHardware(hardware);
     };
     this.encoderScrolled=function(event){

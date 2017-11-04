@@ -56,6 +56,7 @@ module.exports=function(environment){return new (function(){
     this.stepDivide=patchMem.stepDivide;
     this.microStep=patchMem.microStep;
     this.microStepDivide=patchMem.microStepDivide;
+    this.microStepDisplace=patchMem.microStepDisplace
     // this.eachFold=patchMem.eachFold;
     // this.getThroughfoldBoolean=patchMem.getThroughfoldBoolean;
     this.clearStepRange=patchMem.clearStepRange;
@@ -64,13 +65,21 @@ module.exports=function(environment){return new (function(){
     this.step=patchMem.step;
     this.restart=patchMem.restart;
     this.stepAbsolute=patchMem.stepAbsolute;
-    this.stepIncremental=patchMem.stepIncremental;
+    this.playing=patchMem.playing;
+    // this.stepIncremental=patchMem.stepIncremental;
     this.stepMicro=patchMem.stepMicro;
     var thisInstance=this;
 
     this.onPatchStep=function(evt){
       //console.log("MMO"+currentStep.value);
       this.handle('step',evt);
+    }
+    this.play=function(){
+      thisInstance.playing.value=true;
+      // thisInstance.restart();
+    }
+    this.stop=function(){
+      thisInstance.playing.value=false;
     }
     /**
 
@@ -97,7 +106,7 @@ module.exports=function(environment){return new (function(){
 
       if(evt.value[0]==CLOCKTICKHEADER){
         // console.log("sq:CLOCKTICKHEADER");
-        this.stepMicro(evt.value[1],evt.value[2]);
+        thisInstance.stepMicro(evt.value[1],evt.value[2]);
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
       }else if(evt.value[0]==TRIGGERONHEADER){
         // console.log("sq:TRIGGERONHEADER");
@@ -119,7 +128,7 @@ module.exports=function(environment){return new (function(){
         thisInstance.stepAbsolute(evt.value[1]);
       }else if(evt.value[0]==RECORDINGHEADER){
         // console.log("sq:RECORDINGHEADER");
-        console.log("REC");
+        // console.log("REC");
         evt.value.shift();
         if(evt.value[0]==TRIGGERONHEADER){
           recorder.recordNoteStart(evt.value[1]*evt.value[2],evt);
