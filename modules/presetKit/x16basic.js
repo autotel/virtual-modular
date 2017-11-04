@@ -23,6 +23,9 @@ module.exports=function(environment){
     configurators.util=new BlankConfigurator(this,{
       name:"utils",
       engageFunction:function(thisConfigurator){
+        // utilAction=false;
+        // thisConfigurator.select(0,false);
+      },disengageFunction:function(thisConfigurator){
         utilAction=false;
         thisConfigurator.select(0,false);
       },
@@ -52,7 +55,7 @@ module.exports=function(environment){
             return "apply:"+JSON.stringify(spv);
           },
           selectFunction:function(thisVar){
-            if(selectedPresetNumber){
+            if(selectedPresetNumber!==false){
               thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
               // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
               utilAction=function(event){
@@ -67,8 +70,62 @@ module.exports=function(environment){
               };
             }
           },
-          max:1,
-          min:0,
+          sourcePreset:false
+        },
+        "duplicate[1]++":{
+          nameFunction:function(thisVar){
+            var spv="[]";
+            if(thisVar.sourcePreset){
+              spv=thisVar.sourcePreset.on.value;
+            }
+            return "apply:"+JSON.stringify(spv);
+          },
+          selectFunction:function(thisVar){
+            console.log("selec");
+            if(selectedPresetNumber!==false){
+              thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
+              // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
+              utilAction=function(event){
+                controlledModule.kit[event.button]=new EventPattern().fromEventMessage(thisVar.sourcePreset.on);
+                // console.log(controlledModule.kit[event.button]);
+                var spv="false";
+                if(thisVar.sourcePreset){
+                  spv=thisVar.sourcePreset.on.value;
+                  spv[1]++;
+                }
+                selectedPresetNumber=event.button;
+                event.hardware.sendScreenB(""+selectedPresetNumber+"<"+JSON.stringify(spv));
+              };
+            }
+          },
+          sourcePreset:false
+        },
+        "duplicate[2]++":{
+          nameFunction:function(thisVar){
+            var spv="[]";
+            if(thisVar.sourcePreset){
+              spv=thisVar.sourcePreset.on.value;
+            }
+            return "apply:"+JSON.stringify(spv);
+          },
+          selectFunction:function(thisVar){
+            console.log("selec");
+            if(selectedPresetNumber!==false){
+              thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
+              // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
+              utilAction=function(event){
+                controlledModule.kit[event.button]=new EventPattern().fromEventMessage(thisVar.sourcePreset.on);
+                // console.log(controlledModule.kit[event.button]);
+                var spv="false";
+                if(thisVar.sourcePreset){
+                  spv=thisVar.sourcePreset.on.value;
+                  spv[2]++;
+                }
+                selectedPresetNumber=event.button;
+                event.hardware.sendScreenB(""+selectedPresetNumber+"<"+JSON.stringify(spv));
+              };
+            }
+          },
           sourcePreset:false
         }
       }
@@ -98,14 +155,13 @@ module.exports=function(environment){
     this.matrixButtonPressed=function(event){
       var hardware=event.hardware;
       if(utilAction){
-        // console.log("b");
         utilAction(event);
         updateLeds(hardware);
       }else if(engagedConfigurator){
         engagedConfigurator.matrixButtonPressed(event);
         if(engagedConfigurator==configurators.util){
           // console.log("a");
-          engagedConfigurator.disengage(event);
+          // engagedConfigurator.disengage(event);
           updateLeds(hardware);
           // console.log(utilAction);
         }else{
