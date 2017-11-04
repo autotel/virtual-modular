@@ -19,7 +19,7 @@ module.exports=function(sequencerModule){ return new(function(){
 
   //the visible step that can be divided if the user wants a slower sequence
   var substep={value:0};
-  var stepDivide={value:2}
+  var stepDivide={value:4}
   this.stepDivide=stepDivide;
 
   //the step that is used to read the pattern memory
