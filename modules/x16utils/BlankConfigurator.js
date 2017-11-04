@@ -24,7 +24,7 @@ var BlankConfigurator=function(parentInteractor,properties){
     var defaultSelectFunction=function(thisVar){
     }
     var defaultNameFunction=function(thisVar){
-      return "°"+thisVar.value
+      return "to "+thisVar.value;
     }
     for(var a in nvars){
       if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultChangeFunction;
@@ -96,15 +96,6 @@ var BlankConfigurator=function(parentInteractor,properties){
       selectedVar.selectFunction(selectedVar);
     }
   };
-  this.matrixButtonReleased=function(event){
-    var hardware=event.hardware;
-  };
-  this.selectorButtonPressed=function(event){
-    var hardware=event.hardware;
-  };
-  this.selectorButtonReleased=function(event){
-    var hardware=event.hardware;
-  };
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
     // console.log("a");
@@ -140,6 +131,9 @@ var BlankConfigurator=function(parentInteractor,properties){
     updateScreen(hardware);
   };
   this.disengage=function(event){
+    if(properties.disengageFunction){
+      properties.disengageFunction(thisInteractor);
+    }
     var hardware=event.hardware;
     engagedHardwares.delete(hardware);
   }

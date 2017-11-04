@@ -71,10 +71,12 @@ var EventConfigurator=function(parentInteractor,properties){
       );
     }else{
       var selectedExtraValue=selectedValueNumber-baseEvent.value.length;
-      hardware.sendScreenB(
-        extraValueNames[selectedExtraValue]
-        +"="+extraVariables[selectedExtraValue].value
-      );
+      if(extraValueNames[selectedExtraValue]){
+        hardware.sendScreenB(
+          extraValueNames[selectedExtraValue]
+          +"="+extraVariables[selectedExtraValue].value
+        );
+      }
 
     }
   }

@@ -96,11 +96,11 @@ var RecordMenu=function(parentInteractor,properties){
     var hardware=event.hardware;
   };
   this.encoderScrolled=function(event){
-    var hardware=event.hardware;
-    if(thisInteractor.vars.length>selectedModuleNumber){
-      thisInteractor.vars[selectedModuleNumber].value+=event.data[1];
-      updateScreen(hardware);
-    }
+    // var hardware=event.hardware;
+    // if(thisInteractor.vars.length>selectedModuleNumber){
+    //   thisInteractor.vars[selectedModuleNumber].value+=event.data[1];
+    //   updateScreen(hardware);
+    // }
   };
   this.encoderPressed=function(event){
     var hardware=event.hardware;
