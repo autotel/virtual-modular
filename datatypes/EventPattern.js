@@ -14,7 +14,7 @@ var EventPattern=function(properties){
 
 
   this.compareTo=function(other,propertyList){
-    return thisPE.on.compareTo(other.on);//& this.off.compareTo(other.off);
+    return thisPE.on.compareTo(other.on,propertyList);//& this.off.compareTo(other.off);
   }
   this.fromEventMessage=function(evMes){
     thisPE.on=new EventMessage(evMes);
