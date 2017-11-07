@@ -5,11 +5,17 @@ module.exports=[
       name:'main clock',
       bpm:120
     },
-    outputs:['default sequencer']
+    outputs:['default sequencer','learner']
   },{
     type:'sequencer',
     properties:{
       name:'default sequencer',
+    },
+    outputs:['default presetKit']
+  },{
+    type:'learner',
+    properties:{
+      name:'learner',
     },
     outputs:['default presetKit']
   },{
