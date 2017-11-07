@@ -36,8 +36,8 @@ module.exports=function(environment){return new (function(){
     var thisInstance=this;
     var myBitmap=0;
 
-    // this.network = new synaptic.Architect.Perceptron(5, 25, 5);
-    // var trainer = new Trainer(this.network);
+    var network=this.network = new synaptic.Architect.Perceptron(16, 25, 1);
+    var trainer = new synaptic.Trainer(this.network);
     var clock=this.clock={subSteps:4,subStep:0}
 
     moduleInstanceBase.call(this);
@@ -74,43 +74,29 @@ module.exports=function(environment){return new (function(){
     }
     var processFrame=function(){
       // console.log("clock");
-      var currentStep3=watching.currentStep%3;
-      var currentStep4=watching.currentStep%4;
-      var currentStep5=watching.currentStep%5;
-      var currentStep6=watching.currentStep%6;
-      var currentStep7=watching.currentStep%7;
-      var currentStep8=watching.currentStep%8;
-      if(memory[currentStep8]){
-        var mostLikelyEvent={score:-1,value:false};
-        for(var possibleEvent in memory[currentStep8]){
-          // console.log(possibleEvent+":"+memory[currentStep8][possibleEvent]);
-          if(possibleEvent!=watching.currentEvent){
-            if(mostLikelyEvent.score<memory[currentStep8][possibleEvent]){
-              mostLikelyEvent={score:memory[currentStep8][possibleEvent],value:possibleEvent}
-            }
-            if(watching.currentEvent!==false){
-              memory[currentStep8][possibleEvent]--;
-            }
-          }
-        }
-        if(mostLikelyEvent.value!==false)
-        triggerEvent(mostLikelyEvent.value);
-        if(watching.currentEvent!==false){
-          if(memory[currentStep8][watching.currentEvent]){
-            memory[currentStep8][watching.currentEvent]++;
-          }else{
-            memory[currentStep8][watching.currentEvent]=0;
-          }
-        }
-      }else{
-        if(watching.currentEvent!==false){
-
-          memory[currentStep8]={}
-          memory[currentStep8][watching.currentEvent]=0;
-          // console.log("stor"+watching.currentEvent);
-        }
-      }
+      var inputs=[
+        watching.currentStep%2/2.00,
+        watching.currentStep%3/3.00,
+        watching.currentStep%4/4.00,
+        watching.currentStep%8/8.00,
+        watching.currentStep%16/16.00,
+        watching.currentStep%32/32.00,
+        watching.currentStep%64/64.00,
+        watching.currentStep%128/128.00,
+        (watching.lastEvents[0]||0)/16.00,
+        (watching.lastEvents[1]||0)/16.00,
+        (watching.lastEvents[2]||0)/16.00,
+        (watching.lastEvents[3]||0)/16.00,
+        (watching.lastEvents[4]||0)/16.00,
+        (watching.lastEvents[5]||0)/16.00,
+        (watching.lastEvents[6]||0)/16.00,
+        (watching.lastEvents[7]||0)/16.00
+      ];
+      var result=network.activate(inputs);
+      network.propagate(0.7,[watching.currentEvent/16.00]);
       watching.currentStep++;
+      console.log(result[0]*16);
+      triggerEvent(Math.round(result[0]*16));
     }
 
     this.cellOutput=function(x,y,val){
