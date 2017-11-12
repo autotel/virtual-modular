@@ -6,6 +6,7 @@ module.exports={
   "presetKit":"./presetKit",
   "harmonizer":"./harmonizer",
   "gameOfLife":"./gameOfLife",
+  "euclides":"./euclides",
   "midiIO":"./midiIO-windows",
   "learner":"./learner",
 }

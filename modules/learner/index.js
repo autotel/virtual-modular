@@ -36,8 +36,7 @@ module.exports=function(environment){return new (function(){
     var thisInstance=this;
     var myBitmap=0;
 
-    var network=this.network = new synaptic.Architect.Perceptron(16, 25, 1);
-    var trainer = new synaptic.Trainer(this.network);
+
     var clock=this.clock={subSteps:4,subStep:0}
 
     moduleInstanceBase.call(this);
@@ -51,52 +50,85 @@ module.exports=function(environment){return new (function(){
     this.interactor.name=this.name;
     var watching={
       currentStep:0,
-      lastEvents:[],
-      currentEvent:false,
+      lastSnapshotNumbers:[],
+      currentEvents:[],
     };
     var memory={}
+    var snapshots=[];
 
     var trigger=this.trigger=function(square){
-      watching.currentEvent=square;
-      // console.log("< on "+square);
+      watching.currentEvents.push(square);
+
+
     }
     var release=this.release=function(square){
-      watching.currentEvent=false;
-      watching.lastEvents.push(square);
-      if(watching.lastEvents.length>16){
-        watching.lastEvents.shift();
-      }
-      // console.log("< off "+square);
+      // watching.currentEvent=false;
     }
     var triggerEvent=function(event){
       // console.log("< on"+event);
       thisInstance.handle('intrigger',event);
     }
     var processFrame=function(){
-      // console.log("clock");
+      var clockSnapshot=false;
+      var itExists=false;
+      watching.currentEvents.sort();
+      if(watching.currentEvents.length>0){
+        //find or create snapshot of the events on this clock
+        for(var a in snapshots){
+          if(JSON.stringify(snapshots[a])==JSON.stringify(watching.currentEvents)){
+            itExists=a;
+          }
+        }
+        if(itExists===false){
+          clockSnapshot=snapshots.length;
+          snapshots.push(watching.currentEvents);
+        }else{
+          clockSnapshot=itExists;
+        }
+        //shift a value into lastSnapshotNumbers (working like a fifo)
+        watching.lastSnapshotNumbers.push(clockSnapshot);
+        while(watching.lastSnapshotNumbers.length>16) watching.lastSnapshotNumbers.shift();
+      }
+
+
+      watching.currentEvents=[];
+
       var inputs=[
-        watching.currentStep%2/2.00,
-        watching.currentStep%3/3.00,
-        watching.currentStep%4/4.00,
-        watching.currentStep%8/8.00,
-        watching.currentStep%16/16.00,
-        watching.currentStep%32/32.00,
-        watching.currentStep%64/64.00,
-        watching.currentStep%128/128.00,
-        (watching.lastEvents[0]||0)/16.00,
-        (watching.lastEvents[1]||0)/16.00,
-        (watching.lastEvents[2]||0)/16.00,
-        (watching.lastEvents[3]||0)/16.00,
-        (watching.lastEvents[4]||0)/16.00,
-        (watching.lastEvents[5]||0)/16.00,
-        (watching.lastEvents[6]||0)/16.00,
-        (watching.lastEvents[7]||0)/16.00
+        watching.currentStep%2,
+        watching.currentStep%3,
+        watching.currentStep%4,
+        watching.currentStep%8,
+        watching.currentStep%16,
+        watching.currentStep%32,
+        watching.currentStep%64,
+        watching.currentStep%128,
+        (watching.lastSnapshotNumbers[0]||0)/16.00,
+        (watching.lastSnapshotNumbers[1]||0)/16.00,
+        (watching.lastSnapshotNumbers[2]||0)/16.00,
+        (watching.lastSnapshotNumbers[3]||0)/16.00,
+        (watching.lastSnapshotNumbers[4]||0)/16.00,
+        (watching.lastSnapshotNumbers[5]||0)/16.00,
+        (watching.lastSnapshotNumbers[6]||0)/16.00,
+        (watching.lastSnapshotNumbers[7]||0)/16.00
       ];
-      var result=network.activate(inputs);
-      network.propagate(0.7,[watching.currentEvent/16.00]);
+      // if(clockSnapshot){
+      // console.log(memory[inputs[4]]);
+        if(memory[inputs[4]]){
+          // console.log(clockSnapshot,memory[inputs[4]]);
+          for(var mem of memory[inputs[4]]){
+            for(var snapshot of snapshots[mem]){
+              triggerEvent(snapshot);
+            }
+          }
+        }else{
+          if(clockSnapshot)
+          memory[inputs[4]]=[clockSnapshot];
+        }
+      // }
+
+
       watching.currentStep++;
-      console.log(result[0]*16);
-      triggerEvent(Math.round(result[0]*16));
+
     }
 
     this.cellOutput=function(x,y,val){
