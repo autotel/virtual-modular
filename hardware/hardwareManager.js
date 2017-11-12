@@ -5,7 +5,10 @@ var baudRate= 19200;
 var SerialPort = require('serialport');
 const GETVERSION = 0x40;
 
-var hardwareDriverPrototypes={X16v0:require("./driver-X16v0.js")};
+var hardwareDriverPrototypes={
+  X16v0:require("./driver-X16v0.js"),
+  X28v0:require("./driver-X28v0.js")
+};
 
 var SerialPort = require('serialport');
 /**
@@ -42,10 +45,58 @@ Pendant: detect the hardware type
     let newPort = new SerialPort(portName, {
       baudRate: baudRate
     });
+    newPort.on('open', function() {
 
-  //  console.log("newPort",newPort);
-      console.log('creating hardware controller');
-      environment.hardwares.push(new hardwareDriverPrototypes.X16v0(environment,{serial:newPort}));
+      //now we communicate with the serial device to define what kind of hardware controller to use
+
+      var alreadyCreated=false;
+      var getVersionInterval;
+      newPort.on('data', (data) => {
+        if(!alreadyCreated){
+          if(!getVersionInterval){
+            getVersionInterval=setInterval(function(){
+              newPort.write(new Buffer([0x40]),function(error){
+                if(error){ console.log("error sending init val",error); }
+              });
+              console.log("req");
+            },500);
+          }
+
+          try{
+            var string="";
+            var started=false;
+            var finished=false;
+            for (var i = 0; i < data.length && !finished; i++) {
+              if(started){
+                string += String.fromCharCode(parseInt(data[i]));
+              }else{
+                string="";
+                started = (data[i]==0x40);
+              }
+              if(data[i]==3){
+                finished=true;
+              }
+            }
+            console.log(string);
+            if(data.indexOf("28")>-1){
+              clearInterval(getVersionInterval);
+              alreadyCreated=true;
+              console.log('creating hardware controller');
+              environment.hardwares.push(new hardwareDriverPrototypes.X28v0(environment,{serial:newPort}));
+            }else if(data.indexOf("16")>-1){
+              clearInterval(getVersionInterval);
+              alreadyCreated=true;
+              console.log('creating hardware controller');
+              environment.hardwares.push(new hardwareDriverPrototypes.X16v0(environment,{serial:newPort}));
+            }
+          }catch(e){
+            console.error(e);
+          }
+        }
+      });
+
+
+    });
 
   }
 });

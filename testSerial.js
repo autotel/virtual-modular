@@ -7,31 +7,29 @@ for (var pname of ["COM17","COM23","COM21"]){
     var count=0;
 
     port.on('open', function() {
-      port.write("Hello from usbserial", function(err) {
-        if (err) {
-          return console.log('Error on write: ', err.message);
-        }
-        /**/console.log('out');
-      });
-
+      // port.write(new Buffer([0xd]),console.log);
       var a=0;
-      var i=false;
-      port.on('data', function (data) {
-        setTimeout(function(){
-          if(!i){
-            // i=setInterval(function(){
-            //   port.write(new Buffer([2,a, a*2,a*3, a*4,a*5,a*6, 3,7,a+1,a+2,a+3,a+4,a+5,a+6,a+7 ]), function(err) {
-            //     if (err) {
-            //       return console.log('Error on write: ', err.message);
-            //     }
-            //     // console.log('out');
-            //   });
-            //   a++;
-            // },50);
+      setInterval(function(){
+        a++;
+        port.write(new Buffer([a]),function(e){
+          if(e){
+            console.log(e)
+          }else{
+            console.log(`wr${a}`);
           }
-        },500);
-        /**/console.log('in: ',data);
-      });
+        });
+      },200);
+      // port.on('data', function (data) {
+      //   if(data[0]==2||data[0]==3){
+      //     port.write(new Buffer([65,data[2],65,data[3]]), function(err) {
+      //       if (err) {
+      //         return console.log('Error on write: ', err.message);
+      //       }
+      //       console.log('out ',data[2],data[3]);
+      //     });
+      //   }
+      // /**/console.log('in: ',data);
+      // });
     });
   })();
 }
