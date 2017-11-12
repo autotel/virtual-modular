@@ -1,3 +1,13 @@
+#ifndef NAMESIGNALSH
+#define NAMESIGNALSH
+
+#define MIDI_noteOn 0x90
+#define MIDI_noteOff 0x80
+
+#endif;
+
+//computer interface related names
+//jsInterface{
 #define SOFTBAUDRATE 19200
 #define EOMessage 3
 #define unknown -1
@@ -71,3 +81,5 @@
 #define TH_comTester_len 0x1
 #define TH_version_head 0x40
 #define TH_version_len 0x00
+//}
+

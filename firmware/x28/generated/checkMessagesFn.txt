@@ -1,0 +1,116 @@
+//this part of the program is computer generated. 
+void checkMessages() {
+  while (Serial.available() && (byteNumber < serialInLength)) {
+    //delayMicroseconds(100);
+    unsigned char data_a = Serial.read();
+    if (!recordingBuffer) {
+      //we are expecting a message header, so we check what header current byte is
+      //if is successfull, we start gathering or recording a new data packet.
+      //byte  is in our header list?
+      switch (data_a) {
+case RH_null_head:
+  recordingBuffer = true;
+  expectedLength = RH_null_len;
+  break;
+  
+case RH_hello_head:
+  recordingBuffer = true;
+  expectedLength = RH_hello_len;
+  break;
+  
+case RH_setMonoMaps_head:
+  recordingBuffer = true;
+  expectedLength = RH_setMonoMaps_len;
+  break;
+  
+case RH_addRedMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_addRedMonomap_len;
+  break;
+  
+case RH_addGreenMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_addGreenMonomap_len;
+  break;
+  
+case RH_addBlueMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_addBlueMonomap_len;
+  break;
+  
+case RH_setRedMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_setRedMonomap_len;
+  break;
+  
+case RH_setGreenMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_setGreenMonomap_len;
+  break;
+  
+case RH_setBlueMonomap_head:
+  recordingBuffer = true;
+  expectedLength = RH_setBlueMonomap_len;
+  break;
+  
+case RH_setLedN_head:
+  recordingBuffer = true;
+  expectedLength = RH_setLedN_len;
+  break;
+  
+case RH_screenA_head:
+  recordingBuffer = true;
+  expectedLength = RH_screenA_len;
+  break;
+  
+case RH_screenB_head:
+  recordingBuffer = true;
+  expectedLength = RH_screenB_len;
+  break;
+  
+case RH_comTester_head:
+  recordingBuffer = true;
+  expectedLength = RH_comTester_len;
+  break;
+  
+case RH_engageControllerMode_head:
+  recordingBuffer = true;
+  expectedLength = RH_engageControllerMode_len;
+  break;
+  
+case RH_version_head:
+  recordingBuffer = true;
+  expectedLength = RH_version_len;
+  break;
+  
+      }
+    if (recordingBuffer) {
+      if (expectedLength == unknown) {
+        if (byteNumber == 0) {
+          //get header and +1
+          inBuff[byteNumber] = data_a;
+          byteNumber++;
+        } else if (byteNumber == 1) {
+          //undetermined length so byte 2 must be length
+          inBuff[byteNumber] = data_a;
+          expectedLength = data_a + 1;
+          byteNumber++;
+        }
+      } else if (byteNumber < expectedLength) {
+        //a new byte arrived and is added to the current packet
+        inBuff[byteNumber] =  data_a;
+        byteNumber++;
+      } else {
+        //a whole expected packet arrived
+        inBuff[byteNumber] = data_a;
+        recordingBuffer = false;
+        messageReceived(& inBuff, byteNumber);
+        byteNumber = 0;
+      }
+    } else {
+      //a byte arrived, but there is no packet gathering bytes
+      // lcdPrintA("inv");
+      lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
+    }
+  }
+}

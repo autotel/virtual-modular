@@ -4,7 +4,7 @@ console.log("x28v0 serial based, on ",process.platform);
 
 //TODO:cache to save startup time
 var fs = require('fs');
-var file = fs.readFileSync('./firmware/x28/com_const.h', "utf8");
+var file = fs.readFileSync('./firmware/x28/_name_signals.h', "utf8");
 
 var lines=file.split('\n');
 
