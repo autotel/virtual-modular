@@ -36,21 +36,66 @@ class ControllerMode {
       ledButtons = t_ledButtons;
       midi = t_midi;
     }
+
+    void onEncoderScrolled(int8_t delta) {
+      sendToBrainData[0] = delta;
+      sendToBrain(TH_encoderScroll_head, TH_encoderScroll_len);
+    }
+    void onEncoderPressed() {
+      sendToBrain(TH_encoderPressed_head, TH_encoderPressed_len);
+    }
+    void onEncoderReleased() {
+      sendToBrain(TH_encoderReleased_head, TH_encoderReleased_len);
+    }
     void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
+      if (button > 23) {
+        onBottomButtonPressed(button - 24);
+      } else if (button > 7) {
+        onMatrixButtonPressed(button - 8);
+      } else {
+        onSelectorButtonPressed(button);
+      }
+    }
+    void onBottomButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrainData[1] = 1;
+      sendToBrain(TH_buttonBottomPressed_head, TH_buttonBottomPressed_len);
+    }
+    void onMatrixButtonPressed(uint8_t button) {
+      sendToBrainData[0] = button;
       sendToBrain(TH_buttonMatrixPressed_head, TH_buttonMatrixPressed_len);
     }
-    void onButtonReleased(byte button) {
+    void onSelectorButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrainData[1] = 0;
+      sendToBrain(TH_selectorButtonPressed_head, TH_selectorButtonPressed_len);
+    }
+    void onButtonReleased(byte button) {
+      if (button > 23) {
+        onBottomButtonReleased(button - 24);
+      } else if (button > 7) {
+        onMatrixButtonReleased(button - 8);
+      } else {
+        onSelectorButtonReleased(button);
+      }
+    }
+    void onBottomButtonReleased(uint8_t button) {
+      sendToBrainData[0] = button;
+      sendToBrain(TH_buttonBottomReleased_head, TH_buttonBottomReleased_len);
+    }
+    void onMatrixButtonReleased(uint8_t button) {
+      sendToBrainData[0] = button;
       sendToBrain(TH_buttonMatrixReleased_head, TH_buttonMatrixReleased_len);
     }
+    void onSelectorButtonReleased(uint8_t button) {
+      sendToBrainData[0] = button;
+      sendToBrain(TH_selectorButtonReleased_head, TH_selectorButtonReleased_len);
+    }
+
     void onEncoderScroll(int absolute, int delta) {
       sendToBrainData[0] = delta;
       sendToBrain(TH_encoderScroll_head, TH_encoderScroll_len);
     }
     void onEncoderButtonPressed() {
+      sendToBrain(TH_encoderPressed_head, TH_encoderPressed_len);
     }
     void loop() {
       checkMessages();

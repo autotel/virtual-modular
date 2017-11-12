@@ -1,6 +1,7 @@
 //TODO: separate .cpp and .h
 #include "FastLED.h"
 #include "_name_signals.h"
+#include <TimerOne.h>
 #define REFRESHRATE 20
 #ifndef HARDWAREH
 #define HARDWAREH
@@ -37,14 +38,60 @@ class LedButtons {
       for (uint8_t a = 0; a < 33; a++) {
         lcdStr[a] = 0;
       }
+
+      Timer1.initialize(1500);
+      Timer1.attachInterrupt(doEncoder);
     }
     void loop() {
       readMatrixButtons();
+      doEncoderButton();
+
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
       }
 
+    }
+    uint16_t lastEncoderPressTimer = 0;
+    uint16_t debounceTime = 250;
+    void doEncoderButton() {
+      //not working
+      //set MUXBX0 low MUXAX4 to high;
+      PORTK &= ~(0x1 << 0);
+      PORTH |= 0x1 << 7;
+      if ((PINH >> 7) & 1) {
+        if (lastEncoderPressTimer >= debounceTime) {
+          onEncoderButtonPressed();
+          lastEncoderPressTimer = 0;
+        }
+      } else {
+        if (lastEncoderPressTimer <= debounceTime) {
+          lastEncoderPressTimer++;
+        }
+      }
+    }
+    void doEncoder() {
+      //encread turns around as follows: <- 0,1,3,2 ->
+      //upon conversion it will turn as: <- 0,1,2,3 ->
+      int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
+      if (enc_read != enc_last) {
+        int8_t enc_inc = enc_read - enc_last;
+
+        if (enc_inc > 2) {
+          enc_inc = -1;
+        }
+        if (enc_inc < -2) {
+          enc_inc = +1;
+        }
+
+        enc_sub += enc_inc;
+        if (abs(enc_sub) >= divideEncoderRotation) {
+          encoder0Pos += sign(enc_sub);
+          enc_sub = 0;
+          onEncoderScroll(encoder0Pos, enc_inc);
+        }
+        enc_last = enc_read;
+      }
     }
     int readMatrixButtons() {
       uint16_t i, j, currentButton;
@@ -114,6 +161,11 @@ class LedButtons {
       CB_buttonPressed = fpa;
       CB_buttonReleased = fpb;
     }
+    void setEncoderCallbacks(void (*fpa)(int8_t), void (*fpb)(), void (*fpc)()) {
+      CB_encoderRotated = fpa;
+      CB_encoderPressed = fpb;
+      CB_encoderReleased = fpc;
+    };
     void setButtonColor(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
       if (a | b | c > 0) {
         //c |= 80;
@@ -135,6 +187,7 @@ class LedButtons {
     uint8_t lcdChange = 0;
     void (*CB_buttonPressed)(byte, uint32_t) = 0;
     void (*CB_buttonReleased)(byte) = 0;
+    void (*CB_encoderRotated)(int8_t) = 0;
     uint32_t pressedButtonsBitmap = 0;
     void buttonPressedCallback(byte button, uint32_t bitmap) {
       if ( 0 != CB_buttonPressed ) {
@@ -150,6 +203,27 @@ class LedButtons {
     void buttonReleasedCallback(byte button) {
       if ( 0 != CB_buttonReleased ) {
         (*CB_buttonReleased)(button);
+      }
+      else {
+      }
+    }
+    void encoderRotatedCallback(byte delta) {
+      if ( 0 != CB_encoderRotated ) {
+        (*CB_encoderRotated)(button);
+      }
+      else {
+      }
+    }
+    void encoderPressedCallback() {
+      if ( 0 != CB_encoderPressed ) {
+        (*CB_encoderPressed)(button);
+      }
+      else {
+      }
+    }
+    void encoderReleasedCallback() {
+      if ( 0 != CB_encoderReleased ) {
+        (*CB_encoderReleased)(button);
       }
       else {
       }

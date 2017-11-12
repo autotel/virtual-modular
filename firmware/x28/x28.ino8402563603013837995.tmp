@@ -17,20 +17,20 @@ uint8_t tickLen = 12;
 LiquidCrystal lcd(49, 48, 47, 46, 45, 44);
 
 void setup() {
-  lcd.begin(16, 2);
+  lcd.begin(16,2);
   lcd.print("init");
   Serial.begin(19200);
-
+  
   ledButtons.setup();
   ledButtons.setButtonCallbacks(onButtonPressed, onButtonReleased);
-  ledButtons.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
+
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
   //mode_0.setup(& ledButtons, & midi);
   mode_1.setup(& ledButtons, & midi);
 
-
+  
 }
 
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
@@ -46,28 +46,6 @@ void onButtonReleased(byte button) {
     //mode_0.onButtonReleased(button);
   } else {
     mode_1.onButtonReleased(button);
-  }
-}
-
-void onEncoderScrolled(int8_t delta) {
-  if (engagedMode == 0) {
-    //mode_0.onEncoderScrolled(button);
-  } else {
-    mode_1.onEncoderScrolled(button);
-  }
-}
-void onEncoderPressed() {
-  if (engagedMode == 0) {
-    //mode_0.onEncoderPressed(button);
-  } else {
-    mode_1.onEncoderPressed(button);
-  }
-}
-void onEncoderReleased() {
-  if (engagedMode == 0) {
-    //mode_0.onEncoderReleased(button);
-  } else {
-    mode_1.onEncoderReleased(button);
   }
 }
 
@@ -87,7 +65,7 @@ void loop() {
 
     lcd.setCursor(0, 0);
     lcd.print("controller mode");
-
+    
     mode_1.loop();
   }
 
@@ -112,7 +90,7 @@ void microStep() {
 void midiInCallback(uint8_t a, uint8_t b, uint8_t c) {
   test_messageCounter++;
   test_lastHeader = a;
-  // mode_0.midiIn(a, b, c);
+ // mode_0.midiIn(a, b, c);
   switch (a) {
     case 250: globalMicroStep = 0; break;
 

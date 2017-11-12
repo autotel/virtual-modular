@@ -34,7 +34,7 @@ void hardware_init() {
 
   }
   Timer1.initialize(1500);
-  Timer1.attachInterrupt(doEncoder); // blinkLED to run every 0.15 seconds
+  Timer1.attachInterrupt(doEncoder);
 }
 uint32_t mxBint = 0;
 void hardware_loop() {
@@ -73,7 +73,6 @@ void doEncoderButton() {
   }
 }
 void doEncoder() {
-  //TODO: adapt code to this hardware
   //encread turns around as follows: <- 0,1,3,2 ->
   //upon conversion it will turn as: <- 0,1,2,3 ->
   int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
