@@ -37,10 +37,18 @@ class ControllerMode {
       midi = t_midi;
     }
     void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
+      sendToBrainData[0] = button;
+      sendToBrainData[1] = 1;
+      sendToBrain(TH_buttonMatrixPressed_head, TH_buttonMatrixPressed_len);
     }
     void onButtonReleased(byte button) {
+      sendToBrainData[0] = button;
+      sendToBrainData[1] = 0;
+      sendToBrain(TH_buttonMatrixReleased_head, TH_buttonMatrixReleased_len);
     }
     void onEncoderScroll(int absolute, int delta) {
+      sendToBrainData[0] = delta;
+      sendToBrain(TH_encoderScroll_head, TH_encoderScroll_len);
     }
     void onEncoderButtonPressed() {
     }

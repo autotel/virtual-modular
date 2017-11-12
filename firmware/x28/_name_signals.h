@@ -60,9 +60,9 @@
 #define TH_hello_head 0x1
 #define TH_hello_len 0x0
 #define TH_buttonMatrixPressed_head 0x2
-#define TH_buttonMatrixPressed_len 0x4
+#define TH_buttonMatrixPressed_len 0x2
 #define TH_buttonMatrixReleased_head 0x3
-#define TH_buttonMatrixReleased_len 0x4
+#define TH_buttonMatrixReleased_len 0x2
 #define TH_buttonMatrixHold_head 0x4
 #define TH_buttonMatrixHold_len 0x4
 #define TH_buttonMatrixVelocity_head 0x5
@@ -72,7 +72,7 @@
 #define TH_selectorButtonReleased_head 0x7
 #define TH_selectorButtonReleased_len 0x2
 #define TH_encoderScroll_head 0x8
-#define TH_encoderScroll_len 0x2
+#define TH_encoderScroll_len 0x1
 #define TH_encoderPressed_head 0x9
 #define TH_encoderPressed_len 0x1
 #define TH_encoderReleased_head 0xa

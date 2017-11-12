@@ -39,30 +39,20 @@ void onMatrixButtonHold(byte button, byte buttonPressure) {
 }
 //actions to take while a button is pressed
 void onMatrixButtonPressed(byte button) {
-
   pressedMatrixButtonsBitmap |= 1 << (button);
-
   sendToBrainData[0] = button;
   sendToBrainData[1] = 1;
   sendToBrainData[2] = (uint8_t)pressedMatrixButtonsBitmap & 0xff;
   sendToBrainData[3] = (uint8_t)(pressedMatrixButtonsBitmap >> 8) & 0xff;
-
-  //  lcdPrintA(String(button,HEX));
-  // layers[0]=layers[1]=layers[2]=0x1<<button;
-  //sendToBrain(TH_buttonMatrixVelocity,sendToBrainData,TH_buttonMatrixVelocity_len);
-
   sendToBrain(TH_buttonMatrixPressed, TH_buttonMatrixPressed_len);
 }
 //actions to take once a button is released
 void onMatrixButtonReleased(byte button) {
-
   pressedMatrixButtonsBitmap &= ~(1 << (button));
-  
   sendToBrainData[0] = button;
   sendToBrainData[1] = 0;
   sendToBrainData[2] = (byte)pressedMatrixButtonsBitmap;
   sendToBrainData[3] = (byte)(pressedMatrixButtonsBitmap >> 8);
-
   sendToBrain(TH_buttonMatrixReleased, TH_buttonMatrixReleased_len);
 }
 void onEncoderScroll(int absolute, int delta) {

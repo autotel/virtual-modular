@@ -11,32 +11,23 @@ var lines=file.split('\n');
 var comConsts={};
 for(var line of lines){
   var words=line.split(/ +/g);
-  // console.log(words);
   if(words[0]=="#define"){
     var subWords=words[1].split('_');
     function recurse(what,inObject,topCallback,level=0){
-      // var space="";
-      // for(var mm=0; mm<level+1; mm++){
-      //   space+=" ";
-      // }
-      // console.log(space+"recurse into"+what+"");
       if(what[level]){
         try{
           if(!inObject[what[level]])inObject[what[level]]={};
           recurse(what,inObject[what[level]],topCallback,level+1);
         }catch(e){
-          // console.log(space,e);
         }
       }
       if(!what[level+1]){
-        // console.log(space+" exec here");
         topCallback.call(inObject,what[level]);
       }
     }
     recurse(subWords,comConsts,function(topName){
       this[topName]=parseInt(words[2]);
     });
-
   }
 }
 
@@ -159,7 +150,6 @@ var DataChopper=function(){
    //console.log("newPort",newPort);
      console.log('creating hardware controller');
      environment.hardwares.push(new hardware_prototypes.x16v0(environment,{serial:newPort}));
-
  }
 
  */
@@ -170,7 +160,10 @@ var DriverX28v0=function(environment,properties){
   instances++;
   var dataChopper=new DataChopper();
   // console.log(environment.interactionMan.entryInteractors.x16basic);
+  //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
   var myInteractionPattern=environment.interactionMan.newSuperInteractor("x16basic",this);
+  myInteractionPattern.handle('serialopened');
+
   var serial=properties.serial;
   var tHardware=this;
 
@@ -258,9 +251,10 @@ var DriverX28v0=function(environment,properties){
       console.error("tried to update layer "+n+" which doesnt exist");
     }
   }
-  myInteractionPattern.handle('serialopened');
+
 
   serial.on('data', (data) => {
+    // console.log(data);
     try{
       dataChopper.incom(data);
     }catch(e){
@@ -280,6 +274,7 @@ var DriverX28v0=function(environment,properties){
         hardware:tHardware
       }
       // console.log("recv",chd);
+      console.log("interaction",event);
       myInteractionPattern.handle('interaction',event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
@@ -293,6 +288,8 @@ var DriverX28v0=function(environment,properties){
     }
   }
   setTimeout(function(){
+    // console.log(comConsts.transmits.engageControllerMode.head);
+    sendx8(comConsts.transmits.engageControllerMode.head,[comConsts.transmits.engageControllerMode.head]);
     sendScreenA("initialized n."+myInstanceNumber);
     sendScreenB("autotel x28v0");
   },2000);

@@ -18,7 +18,9 @@ LiquidCrystal lcd(49, 48, 47, 46, 45, 44);
 
 void setup() {
   lcd.begin(16,2);
+  lcd.print("init");
   Serial.begin(19200);
+  
   ledButtons.setup();
   ledButtons.setButtonCallbacks(onButtonPressed, onButtonReleased);
 
@@ -26,12 +28,13 @@ void setup() {
   midi.onMidiIn(midiInCallback);
 
   //mode_0.setup(& ledButtons, & midi);
-  //mode_1.setup(& ledButtons, & midi);
+  mode_1.setup(& ledButtons, & midi);
 
-  lcd.print("init");
+  
 }
 
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
+  
   if (engagedMode == 0) {
     //mode_0.onButtonPressed(button, pressedButtonsBitmap);
   } else {
@@ -52,13 +55,13 @@ uint8_t test_lastHeader = 0;
 void loop() {
   if (engagedMode == 0) {
     mode_1.checkMessages();
-    //if (mode_1.engagementRequested) {
-      //engagedMode = 1;
-      //lcd.setCursor(0, 0);
-      //lcd.print("controller mode");
-    //} else {
+    if (mode_1.engagementRequested) {
+      engagedMode = 1;
+      lcd.setCursor(0, 0);
+      lcd.print("controller mode");
+    } else {
       //mode_0.loop();
-    //}
+    }
   } else if (engagedMode == 1) {
 
     lcd.setCursor(0, 0);
