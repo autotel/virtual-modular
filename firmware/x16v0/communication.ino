@@ -58,6 +58,11 @@ void checkMessages() {
           recordingBuffer = true;
           expectedLength = RH_comTester_len;
           break;
+        case RH_version:
+          recordingBuffer = true;
+          expectedLength = RH_version_len;
+          break;
+
       }
     }
 

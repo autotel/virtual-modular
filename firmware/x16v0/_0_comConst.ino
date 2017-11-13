@@ -21,6 +21,7 @@
 #define RH_comTester 0x7
 #define RH_comTester_len 0x1
 #define RH_version 0x40
+#define RH_version_len 0
 
 //transmit headers
 #define TH_null 0x0
@@ -48,3 +49,4 @@
 #define TH_comTester 0xb
 #define TH_comTester_len 0x1
 #define TH_version 0x40
+#define TH_version_len 0
