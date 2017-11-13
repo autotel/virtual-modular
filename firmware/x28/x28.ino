@@ -1,4 +1,5 @@
 #include <LiquidCrystal.h>
+#include <TimerOne.h>
 #include "_name_signals.h"
 //#include "MonoSequencer.h"
 #include "ControllerMode.h"
@@ -30,6 +31,8 @@ void setup() {
   //mode_0.setup(& ledButtons, & midi);
   mode_1.setup(& ledButtons, & midi);
 
+  Timer1.initialize(1500);
+  Timer1.attachInterrupt(onInterrupt);
 
 }
 
@@ -53,21 +56,21 @@ void onEncoderScrolled(int8_t delta) {
   if (engagedMode == 0) {
     //mode_0.onEncoderScrolled(button);
   } else {
-    mode_1.onEncoderScrolled(button);
+    mode_1.onEncoderScrolled(delta);
   }
 }
 void onEncoderPressed() {
   if (engagedMode == 0) {
     //mode_0.onEncoderPressed(button);
   } else {
-    mode_1.onEncoderPressed(button);
+    mode_1.onEncoderPressed();
   }
 }
 void onEncoderReleased() {
   if (engagedMode == 0) {
     //mode_0.onEncoderReleased(button);
   } else {
-    mode_1.onEncoderReleased(button);
+    mode_1.onEncoderReleased();
   }
 }
 
@@ -120,6 +123,46 @@ void midiInCallback(uint8_t a, uint8_t b, uint8_t c) {
         microStep();
         break;
       }
+  }
+}
+
+#define divideEncoderRotation 4
+const uint8_t grayToBinary = 0b10110100;
+int8_t enc_last = 0;
+int8_t enc_sub = 0;
+unsigned int encoder0Pos = 0;
+char sign(char x) {
+  return (x > 0) - (x < 0);
+}
+//todo: encoder readout should be part of the library
+void onInterrupt() {
+  //encread turns around as follows: <- 0,1,3,2 ->
+  //upon conversion it will turn as: <- 0,1,2,3 ->
+  int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
+  if (enc_read != enc_last) {
+    int8_t enc_inc = enc_read - enc_last;
+
+    if (enc_inc > 2) {
+      enc_inc = -1;
+    }
+    if (enc_inc < -2) {
+      enc_inc = +1;
+    }
+
+    enc_sub += enc_inc;
+    if (abs(enc_sub) >= divideEncoderRotation) {
+      encoder0Pos += sign(enc_sub);
+      enc_sub = 0;
+      encoderRotatedCallback(enc_inc);
+    }
+    enc_last = enc_read;
+  }
+}
+void encoderRotatedCallback(int8_t delta) {
+  if (engagedMode == 0) {
+    //mode_0.onEncoderScrolled(button);
+  } else {
+    mode_1.onEncoderScrolled(delta);
   }
 }
 

@@ -89,14 +89,6 @@ class ControllerMode {
       sendToBrainData[0] = button;
       sendToBrain(TH_selectorButtonReleased_head, TH_selectorButtonReleased_len);
     }
-
-    void onEncoderScroll(int absolute, int delta) {
-      sendToBrainData[0] = delta;
-      sendToBrain(TH_encoderScroll_head, TH_encoderScroll_len);
-    }
-    void onEncoderButtonPressed() {
-      sendToBrain(TH_encoderPressed_head, TH_encoderPressed_len);
-    }
     void loop() {
       checkMessages();
     }
