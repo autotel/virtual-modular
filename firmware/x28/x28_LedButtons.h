@@ -19,32 +19,43 @@ class LedButtons {
     CRGB leds[NUM_LEDS];
 
 
-    char lcdStr[33];
+    char lcdBuf[33];
     void setup(LiquidCrystal* _lcd) {
       lcd = _lcd;
+      lcd->begin(16, 2);
       lcd->clear();
-      delay(1000);
       FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
-      LEDS.setBrightness(255);
+
+      //security led fadein
+      for (uint32_t t = 0; t < 0xff; t += 4) {
+        LEDS.setBrightness(floor(sin(a * t / (28000 )+0.15) * 255));
+        for (uint16_t a = 0; a < 28; a++) {
+          setButtonColor(
+            a,
+            floor(sin(a * t / (28000 )+0.15) * 255),
+            floor(sin(a * t / (28000 )+0.25) * 255),
+            floor(sin(a * t / (28000 )+0.75) * 255)
+          );
+        }
+        FastLED.show();
+      }
+
       for (uint8_t a = 0; a < 33; a++) {
-        lcdStr[a] = 0;
+        lcdBuf[a] = ' ';
       }
       //encoder pins setup
       DDRA = 0x00; //0x3<<6
       PORTA |= 3 << 6;
-      //lcd->begin(16, 2);
       //lcd->print("hello, world!");
     }
     void loop() {
       readMatrixButtons();
       doEncoderButton();
-      
+
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
-
-        //lcd->setCursor(0, 1);
-        //lcd->print(millis() / 1000);
+        refreshLcd();
       }
     }
     uint16_t lastEncoderPressTimer = 0;
@@ -160,6 +171,26 @@ class LedButtons {
         }*/
       FastLED.show();
     }
+    void refreshLcd() {
+      if (changedScreenA) {
+        lcd->setCursor(0, 0);
+        for (uint16_t c = 0; c < 16; c++) {
+          if (lcdBuf[c] == 0)lcdBuf[c] = ' ';
+          lcd->write(lcdBuf[c]);
+          lcdBuf[c] = ' ';
+        }
+        changedScreenA = false;
+      }
+      if (changedScreenB) {
+        for (uint16_t c = 16; c < 32; c++) {
+          lcd->setCursor(c-16, 1);
+          if (lcdBuf[c] == 0)lcdBuf[c] = ' ';
+          lcd->write(lcdBuf[c]);
+          lcdBuf[c] = ' ';
+        }
+        changedScreenB = false;
+      }
+    }
 
 
     void setButtonCallbacks( void (*fpa)(byte, uint32_t), void (*fpb)(byte) ) {
@@ -187,19 +218,60 @@ class LedButtons {
         leds[button] = CRGB::Black;
       }
     }
-    void lcdPrintA(String what) {
-      lcd->setCursor(0,0);
-      lcd->print(what);
-      //screenA = what;
+    void lcdPrintA(char & what) {
+      char *p_what = & what;
+      uint8_t keepGoing = 1;
+      uint8_t a = 0;
+      while (keepGoing) {
+        if (*(p_what + a) == 0)keepGoing = 0;
+        if (a > 15) keepGoing = 0;
+        lcdBuf[a] = *(p_what + a);
+        a++;
+      }
+      changedScreenA = true;
     }
-    void lcdPrintB(String what) {
-      lcd->setCursor(0,1);
-      lcd->print(what);
-      //screenChanged = true;
-      //screenB = what;
+    void lcdPrintA(char & what, uint8_t len) {
+      char *p_what = & what;
+      len = min(len, 16);
+      uint8_t keepGoing = 1;
+      uint8_t a = 0;
+      while (keepGoing) {
+        if (*(p_what + a) == 0)keepGoing = 0;
+        if (a >= len) keepGoing = 0;
+        lcdBuf[a] = *(p_what + a);
+        a++;
+      }
+      changedScreenA = true;
+    }
+    void lcdPrintB(char & what) {
+      char *p_what = & what;
+      uint8_t keepGoing = 1;
+      uint8_t a = 0;
+      while (keepGoing) {
+        if (*(p_what + a) == 0)keepGoing = 0;
+        if (a > 15) keepGoing = 0;
+        lcdBuf[a + 16] = *(p_what + a);
+        a++;
+      }
+      changedScreenB = true;
+    }
+    void lcdPrintB(char & what, uint8_t len) {
+      char *p_what = & what;
+      len = min(len, 16);
+      uint8_t keepGoing = 1;
+      uint8_t a = 0;
+      while (keepGoing) {
+        if (*(p_what + a) == 0)keepGoing = 0;
+        if (a >= len) keepGoing = 0;
+        lcdBuf[a + 16] = *(p_what + a);
+        a++;
+      }
+      changedScreenB = true;
     }
 
   private:
+    bool changedScreenA = false;
+    bool changedScreenB = true;
     long lastLedsUpdate = 0;
     uint8_t lcdChange = 0;
     void (*CB_buttonPressed)(byte, uint32_t) = 0;

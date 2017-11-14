@@ -52,7 +52,7 @@ for(var a in comConsts.transmits){
   comConsts.tLengths[comConsts.transmits[a].head] = comConsts.transmits[a].len;
 }
 
-console.log(comConsts);
+// console.log(comConsts);
 var transmits=comConsts.transmits;
 var tLengths=comConsts.tLengths;
 var receives=comConsts.receives;
@@ -164,6 +164,7 @@ var DriverX28v0=function(environment,properties){
   var myInteractionPattern=environment.interactionMan.newSuperInteractor("x28basic",this);
   myInteractionPattern.handle('serialopened');
 
+
   var serial=properties.serial;
   var tHardware=this;
 
@@ -173,7 +174,7 @@ var DriverX28v0=function(environment,properties){
         dataArray=Array.from(dataArray);
       dataArray.unshift(header&0xff);
       var buf1 = Buffer.from(dataArray);
-      console.log("wr",buf1);
+      // console.log("wr",buf1);
       serial.write(buf1);
     });
   }
@@ -190,7 +191,27 @@ var DriverX28v0=function(environment,properties){
         dataArray=Array.from(dataArray);
       arr8.unshift(header&0xff);
       var buf1 = Buffer.from(arr8);
-      console.log("wr",buf1);
+      // console.log("wr",buf1);
+      serial.write(buf1);
+
+      // console.log("sent",buf1);
+    });
+  }
+  var sendx8_32=function(header,dataArray){
+    lazyStack.enq(function(){
+      var arr8=[];
+      for(var a of dataArray){
+        arr8.push(a&0xff);
+        arr8.push((a>>8)&0xff);
+        arr8.push((a>>16)&0xff);
+        arr8.push((a>>24)&0xff);
+      }
+      // console.log("aa");
+      if(dataArray.constructor !== Array)
+        dataArray=Array.from(dataArray);
+      arr8.unshift(header&0xff);
+      var buf1 = Buffer.from(arr8);
+      // console.log("wr",buf1);
       serial.write(buf1);
 
       // console.log("sent",buf1);
@@ -213,7 +234,7 @@ var DriverX28v0=function(environment,properties){
       // console.log(arr8.length);
       // arr8.push(eoString);
       var buf1 = Buffer.from(arr8);
-      // console.log(buf1);
+      console.log(buf1);
       // console.log("string of "+buf1.length);
       // console.log("send str len"+buf1.length);
       serial.write(buf1);
@@ -231,22 +252,36 @@ var DriverX28v0=function(environment,properties){
   }
   this.sendScreenA=sendScreenA;
   this.sendScreenB=sendScreenB;
-  var updateLeds=function(bitmaps,paintSelectButtons=false){
-    console.log("upleds",bitmaps);
+  var updateLeds=function(bitmaps,paintSelectButtons=false,intensity=0xff){
+    bitmaps[3]&=0xf0;
+    bitmaps[7]&=0xf0;
+    bitmaps[11]&=0xf0;
+    bitmaps[3]|=0xf&(intensity/17);
+    bitmaps[7]|=0xf&(intensity/17);
+    bitmaps[11]|=0xf&(intensity/17);
     if(paintSelectButtons){
+      sendx8_32(transmits.setMonoMaps.head,bitmaps);
+      lastSentBitmap.bitmap=bitmaps;
     }else{
       if(!Array.isArray(bitmaps)){
-        throw "when updating the LED's, I need an array of three 32 bit ints";
+        throw "when updating the LED's, I need an array of three ints";
       }
       // tHardware.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
       sendx8_16(transmits.setMatrixMonoMap.head,bitmaps);
       lastSentBitmap.bitmap=bitmaps;
     }
   }
+  var updateSelectorLeds=function(bitmaps){
+    if(!Array.isArray(bitmaps)){
+      throw "when updating the LED's, I need an array of three ints";
+    }
+    sendx8_16(transmits.setSelectorMonoMap.head,bitmaps);
+  }
   tHardware.testByte=function(byte){
     sendx8(transmits.comTester.head,[byte]);
   }
   tHardware.draw=updateLeds;
+  tHardware.drawSelectors=updateSelectorLeds;
   // TODO: : make a function that takes shorter to communicate
   tHardware.updateLayer=function(n,to){
     if(n<3){
@@ -279,7 +314,7 @@ var DriverX28v0=function(environment,properties){
         hardware:tHardware
       }
       // console.log("recv",chd);
-      console.log("interaction",event);
+      // console.log("interaction",event);
       myInteractionPattern.handle('interaction',event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)

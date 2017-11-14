@@ -82,7 +82,8 @@ void loop() {
     mode_1.checkMessages();
     if (mode_1.engagementRequested) {
       engagedMode = 1;
-      hardware.lcdPrintA("controller mode");
+      char str[] = "controller mode";
+      hardware.lcdPrintB((char&) str[0]);
     } else {
       //mode_0.loop();
     }

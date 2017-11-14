@@ -32,17 +32,24 @@
 #define RH_setGreenMonomap_len 0x4
 #define RH_setBlueMonomap_head 0x8 //(monomap 1, monomap 2, monomap 3, monomap 4<<4 | intensity)
 #define RH_setBlueMonomap_len 0x4
-#define RH_setMatrixMonoMap_head 0x09
+#define RH_setMatrixMonoMap_head 0x9
 #define RH_setMatrixMonoMap_len 6 //like the x16 version
+#define RH_setSelectorMonoMap_head 0xa
+#define RH_setSelectorMonoMap_len 6 //like the x16 version
 //sets the color of individual leds with a greater color depth
-#define RH_setLedN_head 0xa
+#define RH_setLedN_head 0xb
 #define RH_setLedN_len -1 //(led n, r, g, b, [led n+1 r, led n+1 g, led n+1 b, ...])
-#define RH_screenA_head 0xb
+#define RH_screenA_head 0xc
 #define RH_screenA_len -1
-#define RH_screenB_head 0xc
+#define RH_screenB_head 0xd
 #define RH_screenB_len -1
-#define RH_comTester_head 0xd
+#define RH_comTester_head 0xe
 #define RH_comTester_len 0x1
+
+#define RH_engageControllerMode_head 0xf
+#define RH_engageControllerMode_len 0x0
+#define RH_disengageControllerMode_head 0x10
+#define RH_disengageControllerMode_len 0x0
 
 #define RH_version_head 0x40
 #define RH_version_len 0x00
@@ -79,10 +86,6 @@
 #define TH_version_head 0x40
 #define TH_version_len 0x00
 
-#define RH_engageControllerMode_head 0xe
-#define RH_engageControllerMode_len 0x0
-#define RH_disengageControllerMode_head 0xf
-#define RH_disengageControllerMode_len 0x0
 
 //}
 
