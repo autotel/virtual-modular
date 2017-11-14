@@ -40,13 +40,13 @@ var stringEnd="\n      }\n\
         //a whole expected packet arrived\n\
         inBuff[byteNumber] = data_a;\n\
         recordingBuffer = false;\n\
-        messageReceived(& inBuff, byteNumber);\n\
+        messageReceived( byteNumber);\n\
         byteNumber = 0;\n\
       }\n\
     } else {\n\
       //a byte arrived, but there is no packet gathering bytes\n\
       // lcdPrintA(\"inv\");\n\
-      lcdPrintB(\"i\" + String(data_a, HEX) + \"ex\" + expectedLength + \"len:\" + byteNumber);\n\
+      //lcdPrintB(\"i\" + String(data_a, HEX) + \"ex\" + expectedLength + \"len:\" + byteNumber);\n\
     }\n\
   }\n\
 }";

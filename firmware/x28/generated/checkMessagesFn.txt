@@ -53,6 +53,11 @@ case RH_setBlueMonomap_head:
   expectedLength = RH_setBlueMonomap_len;
   break;
   
+case RH_setMatrixMonoMap_head:
+  recordingBuffer = true;
+  expectedLength = RH_setMatrixMonoMap_len;
+  break;
+  
 case RH_setLedN_head:
   recordingBuffer = true;
   expectedLength = RH_setLedN_len;
@@ -73,14 +78,19 @@ case RH_comTester_head:
   expectedLength = RH_comTester_len;
   break;
   
+case RH_version_head:
+  recordingBuffer = true;
+  expectedLength = RH_version_len;
+  break;
+  
 case RH_engageControllerMode_head:
   recordingBuffer = true;
   expectedLength = RH_engageControllerMode_len;
   break;
   
-case RH_version_head:
+case RH_disengageControllerMode_head:
   recordingBuffer = true;
-  expectedLength = RH_version_len;
+  expectedLength = RH_disengageControllerMode_len;
   break;
   
       }

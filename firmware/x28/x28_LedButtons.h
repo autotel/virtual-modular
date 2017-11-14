@@ -1,16 +1,18 @@
 //TODO: separate .cpp and .h
+#include <LiquidCrystal.h>
 #include "FastLED.h"
 #include "_name_signals.h"
 #define REFRESHRATE 20
 #ifndef HARDWAREH
 #define HARDWAREH
+
+
 //useful about callback functions https://stackoverflow.com/questions/14427917/call-function-in-main-program-from-a-library-in-arduino
 //hardware controlling functions for physical modular rev 1 board
 class LedButtons {
   public:
-    LedButtons() {
-
-    };
+    LiquidCrystal* lcd;
+    LedButtons() { };
 #define NUM_LEDS 28
 #define NUM_BUTTONS 28
 #define DATA_PIN 43
@@ -18,30 +20,22 @@ class LedButtons {
 
 
     char lcdStr[33];
-    void setup() {
+    void setup(LiquidCrystal* _lcd) {
+      lcd = _lcd;
+      lcd->clear();
       delay(1000);
-
       FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
-      LEDS.setBrightness(110);
-      for (uint16_t a = 0; a < NUM_LEDS; a++) {
-        if (a == 3) {
-          leds[a] = CRGB::Orange;
-        } else if (a < 8) {
-          leds[a] = CRGB::Indigo;
-        } else if (a < 24) {
-          leds[a] = CRGB::Gray;
-        } else {
-          leds[a] = CRGB::Indigo;
-        }
-      }
-
+      LEDS.setBrightness(255);
       for (uint8_t a = 0; a < 33; a++) {
         lcdStr[a] = 0;
       }
       //encoder pins setup
       DDRA = 0x00; //0x3<<6
-      PORTA |= 3<<6;
+      PORTA |= 3 << 6;
 
+
+      lcd->begin(16, 2);
+      lcd->print("hello, world!");
     }
     void loop() {
       readMatrixButtons();
@@ -49,6 +43,9 @@ class LedButtons {
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
+
+        lcd->setCursor(0, 1);
+        lcd->print(millis() / 1000);
       }
     }
     uint16_t lastEncoderPressTimer = 0;
@@ -164,6 +161,7 @@ class LedButtons {
         }*/
       FastLED.show();
     }
+
 
     void setButtonCallbacks( void (*fpa)(byte, uint32_t), void (*fpb)(byte) ) {
       CB_buttonPressed = fpa;

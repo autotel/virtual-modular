@@ -35,11 +35,23 @@ class ControllerMode {
     void setup(LedButtons *t_ledButtons, Midi *t_midi) {
       ledButtons = t_ledButtons;
       midi = t_midi;
+
+      for (uint16_t a = 0; a < 28; a++) {
+        if (a == 3) {
+          ledButtons->setButtonColor(a, 255, 127, 0);
+        } else if (a < 8) {
+          ledButtons->setButtonColor(a, 0, 20, 255);
+        } else if (a < 24) {
+          ledButtons->setButtonColor(a, 0, 0, 0);
+        } else {
+          ledButtons->setButtonColor(a, 0, 20, 255);
+        }
+      }
     }
 
     void onEncoderScrolled(int8_t delta) {
       sendToBrainData[0] = delta;
-      sendToBrain(TH_encoderScroll_head, TH_encoderScroll_len);
+      sendToBrain(TH_encoderScrolled_head, TH_encoderScrolled_len);
     }
     void onEncoderPressed() {
       sendToBrain(TH_encoderPressed_head, TH_encoderPressed_len);
@@ -58,11 +70,11 @@ class ControllerMode {
     }
     void onBottomButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrain(TH_buttonBottomPressed_head, TH_buttonBottomPressed_len);
+      sendToBrain(TH_bottomButtonPressed_head, TH_bottomButtonPressed_len);
     }
     void onMatrixButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrain(TH_buttonMatrixPressed_head, TH_buttonMatrixPressed_len);
+      sendToBrain(TH_matrixButtonPressed_head, TH_matrixButtonPressed_len);
     }
     void onSelectorButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
@@ -79,11 +91,11 @@ class ControllerMode {
     }
     void onBottomButtonReleased(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrain(TH_buttonBottomReleased_head, TH_buttonBottomReleased_len);
+      sendToBrain(TH_bottomButtonReleased_head, TH_bottomButtonReleased_len);
     }
     void onMatrixButtonReleased(uint8_t button) {
       sendToBrainData[0] = button;
-      sendToBrain(TH_buttonMatrixReleased_head, TH_buttonMatrixReleased_len);
+      sendToBrain(TH_matrixButtonReleased_head, TH_matrixButtonReleased_len);
     }
     void onSelectorButtonReleased(uint8_t button) {
       sendToBrainData[0] = button;
@@ -114,6 +126,25 @@ class ControllerMode {
           case RH_engageControllerMode_head: {
               a += RH_engageControllerMode_len;
               engagementRequested = true;
+              break;
+            }
+          case RH_setMatrixMonoMap_head: {
+              ledButtons->setButtonColor(26, 0, 255, 255);
+              uint16_t writeColorChannels [] = {0, 0, 0};
+              writeColorChannels [0] = inBuff[a + 0] | (inBuff[a + 1] << 8);
+              writeColorChannels [1] = inBuff[a + 2] | (inBuff[a + 3] << 8);
+              writeColorChannels [2] = inBuff[a + 4] | (inBuff[a + 5] << 8);
+              for (uint8_t pixel = 0; pixel < 16; pixel++) {
+                uint8_t pxch[] = {0, 0, 0};
+                uint8_t defCol [] = {127, 130, 200};
+                for (uint8_t n = 0; n < 3; n++) {
+                  if ((writeColorChannels[n] >> pixel) & 1) {
+                    pxch[n] = defCol[n];
+                  }
+                }
+                ledButtons->setButtonColor(pixel, pxch[0], pxch[1], pxch[2]);
+              }
+              a += RH_setMatrixMonoMap_len;
               break;
             }
           case RH_version_head: {
@@ -189,6 +220,11 @@ class ControllerMode {
               expectedLength = RH_setBlueMonomap_len;
               break;
 
+            case RH_setMatrixMonoMap_head:
+              recordingBuffer = true;
+              expectedLength = RH_setMatrixMonoMap_len;
+              break;
+
             case RH_setLedN_head:
               recordingBuffer = true;
               expectedLength = RH_setLedN_len;
@@ -209,14 +245,19 @@ class ControllerMode {
               expectedLength = RH_comTester_len;
               break;
 
+            case RH_version_head:
+              recordingBuffer = true;
+              expectedLength = RH_version_len;
+              break;
+
             case RH_engageControllerMode_head:
               recordingBuffer = true;
               expectedLength = RH_engageControllerMode_len;
               break;
 
-            case RH_version_head:
+            case RH_disengageControllerMode_head:
               recordingBuffer = true;
-              expectedLength = RH_version_len;
+              expectedLength = RH_disengageControllerMode_len;
               break;
 
           }
@@ -240,7 +281,7 @@ class ControllerMode {
               //a whole expected packet arrived
               inBuff[byteNumber] = data_a;
               recordingBuffer = false;
-              messageReceived(byteNumber);
+              messageReceived( byteNumber);
               byteNumber = 0;
             }
           } else {

@@ -1,4 +1,5 @@
 #include <LiquidCrystal.h>
+
 #include <TimerOne.h>
 #include "_name_signals.h"
 //#include "MonoSequencer.h"
@@ -18,11 +19,11 @@ uint8_t tickLen = 12;
 LiquidCrystal lcd(49, 48, 47, 46, 45, 44);
 
 void setup() {
-  lcd.begin(16, 2);
-  lcd.print("init");
+  //lcd.begin(16, 2);
+  //lcd.print("init");
   Serial.begin(19200);
 
-  ledButtons.setup();
+  ledButtons.setup(&lcd);
   ledButtons.setButtonCallbacks(onButtonPressed, onButtonReleased);
   ledButtons.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
   midi.setup();
@@ -81,25 +82,25 @@ void loop() {
     mode_1.checkMessages();
     if (mode_1.engagementRequested) {
       engagedMode = 1;
-      lcd.setCursor(0, 0);
-      lcd.print("controller mode");
+      //lcd.setCursor(0, 0);
+      //lcd.print("controller mode");
     } else {
       //mode_0.loop();
     }
   } else if (engagedMode == 1) {
 
-    lcd.setCursor(0, 0);
-    lcd.print("controller mode");
+    //lcd.setCursor(0, 0);
+    //lcd.print("controller mode");
 
     mode_1.loop();
   }
 
   if (Serial.available()) {
-    lcd.setCursor(0, 0);
-    lcd.print(String(Serial.read(), HEX));
+    // lcd.setCursor(0, 0);
+    //lcd.print(String(Serial.read(), HEX));
   }
-  lcd.setCursor(0, 1);
-  lcd.print(String(engagedMode, HEX));
+  //lcd.setCursor(0, 1);
+  //lcd.print(String(engagedMode, HEX));
   ledButtons.loop();
   //midi.loop();
 }
