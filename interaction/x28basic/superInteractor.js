@@ -270,8 +270,6 @@ var X16SuperInteractorsSingleton=function(environment){
      throw "oops superInteractor must never disengage";
      engagedModule=0;
     }
-
-    //note that the module interface is added to all equal interfaces, but it wouldnt be hard to make an add that is exclusive to one hardware instance
   }
 };
 

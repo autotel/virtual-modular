@@ -332,7 +332,8 @@ var DriverX28v0=function(environment,properties){
     sendx8(comConsts.transmits.engageControllerMode.head,[comConsts.transmits.engageControllerMode.head]);
     sendScreenA("initialized n."+myInstanceNumber);
     sendScreenB("autotel x28v0");
-  },2000);
+    myInteractionPattern.engage();
+  },200);
 
   return this;
 };
