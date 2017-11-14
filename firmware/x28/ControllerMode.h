@@ -9,7 +9,7 @@ class ControllerMode {
 
   private:
     Midi *midi;
-    LedButtons *ledButtons;
+    LedButtons *hardware;
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
     byte sendToBrainData [10];
@@ -32,19 +32,19 @@ class ControllerMode {
       //Serial.begin(SOFTBAUDRATE);
       Serial.write(TH_hello_head);
     }
-    void setup(LedButtons *t_ledButtons, Midi *t_midi) {
-      ledButtons = t_ledButtons;
+    void setup(LedButtons *t_hardware, Midi *t_midi) {
+      hardware = t_hardware;
       midi = t_midi;
 
       for (uint16_t a = 0; a < 28; a++) {
         if (a == 3) {
-          ledButtons->setButtonColor(a, 255, 127, 0);
+          hardware->setButtonColor(a, 255, 127, 0);
         } else if (a < 8) {
-          ledButtons->setButtonColor(a, 0, 20, 255);
+          hardware->setButtonColor(a, 0, 20, 255);
         } else if (a < 24) {
-          ledButtons->setButtonColor(a, 0, 0, 0);
+          hardware->setButtonColor(a, 0, 0, 0);
         } else {
-          ledButtons->setButtonColor(a, 0, 20, 255);
+          hardware->setButtonColor(a, 0, 20, 255);
         }
       }
     }
@@ -101,8 +101,13 @@ class ControllerMode {
       sendToBrainData[0] = button;
       sendToBrain(TH_selectorButtonReleased_head, TH_selectorButtonReleased_len);
     }
+    //long testTimer = 0;
     void loop() {
       checkMessages();
+      /*if (millis() - testTimer > 1000) {
+        testTimer=millis();
+        //hardware->lcdPrintA(String(testTimer));
+        }*/
     }
     void microStep() {
     }
@@ -129,12 +134,11 @@ class ControllerMode {
               break;
             }
           case RH_setMatrixMonoMap_head: {
-              ledButtons->setButtonColor(26, 0, 255, 255);
               uint16_t writeColorChannels [] = {0, 0, 0};
               writeColorChannels [0] = inBuff[a + 0] | (inBuff[a + 1] << 8);
               writeColorChannels [1] = inBuff[a + 2] | (inBuff[a + 3] << 8);
               writeColorChannels [2] = inBuff[a + 4] | (inBuff[a + 5] << 8);
-              for (uint8_t pixel = 0; pixel < 16; pixel++) {
+              for (uint8_t pixel = 8; pixel < 24; pixel++) {
                 uint8_t pxch[] = {0, 0, 0};
                 uint8_t defCol [] = {127, 130, 200};
                 for (uint8_t n = 0; n < 3; n++) {
@@ -142,9 +146,27 @@ class ControllerMode {
                     pxch[n] = defCol[n];
                   }
                 }
-                ledButtons->setButtonColor(pixel, pxch[0], pxch[1], pxch[2]);
+                hardware->setButtonColor(pixel, pxch[0], pxch[1], pxch[2]);
               }
               a += RH_setMatrixMonoMap_len;
+              break;
+            }
+          case RH_screenA_head: {
+              String screenA = "";
+              for (int k = a; k < len; k++) {
+                screenA += String((char)inBuff[k]);
+              }
+              hardware->lcdPrintA(screenA);
+              break;
+            }
+          case RH_screenB_head: {
+              a++;//skip length byte
+              String screenB = "";
+              for (int k = a; k < len; k++) {
+                screenB += String((char)inBuff[k]);
+              }
+              hardware->lcdPrintB(screenB);
+              a += len;
               break;
             }
           case RH_version_head: {
@@ -261,34 +283,34 @@ class ControllerMode {
               break;
 
           }
-          if (recordingBuffer) {
-            if (expectedLength == unknown) {
-              if (byteNumber == 0) {
-                //get header and +1
-                inBuff[byteNumber] = data_a;
-                byteNumber++;
-              } else if (byteNumber == 1) {
-                //undetermined length so byte 2 must be length
-                inBuff[byteNumber] = data_a;
-                expectedLength = data_a + 1;
-                byteNumber++;
-              }
-            } else if (byteNumber < expectedLength) {
-              //a new byte arrived and is added to the current packet
-              inBuff[byteNumber] =  data_a;
-              byteNumber++;
-            } else {
-              //a whole expected packet arrived
+        }
+        if (recordingBuffer) {
+          if (expectedLength == unknown) {
+            if (byteNumber == 0) {
+              //get header and +1
               inBuff[byteNumber] = data_a;
-              recordingBuffer = false;
-              messageReceived( byteNumber);
-              byteNumber = 0;
+              byteNumber++;
+            } else if (byteNumber == 1) {
+              //undetermined length so byte 2 must be length
+              inBuff[byteNumber] = data_a;
+              expectedLength = data_a + 1;
+              byteNumber++;
             }
+          } else if (byteNumber < expectedLength) {
+            //a new byte arrived and is added to the current packet
+            inBuff[byteNumber] =  data_a;
+            byteNumber++;
           } else {
-            //a byte arrived, but there is no packet gathering bytes
-            // lcdPrintA("inv");
-            //lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
+            //a whole expected packet arrived
+            inBuff[byteNumber] = data_a;
+            recordingBuffer = false;
+            messageReceived( byteNumber);
+            byteNumber = 0;
           }
+        } else {
+          //a byte arrived, but there is no packet gathering bytes
+          hardware->lcdPrintA("!");
+          hardware->lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
         }
       }
     }

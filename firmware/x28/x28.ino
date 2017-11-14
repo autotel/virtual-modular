@@ -1,5 +1,5 @@
 #include <LiquidCrystal.h>
-
+//TODO remove all use of String
 #include <TimerOne.h>
 #include "_name_signals.h"
 //#include "MonoSequencer.h"
@@ -7,7 +7,7 @@
 #include "x28_LedButtons.h"
 #include "Midi.h"
 
-LedButtons ledButtons = LedButtons();
+LedButtons hardware = LedButtons();
 //MonoSequencer mode_0 = MonoSequencer();
 ControllerMode mode_1 = ControllerMode();
 Midi midi = Midi();
@@ -23,14 +23,14 @@ void setup() {
   //lcd.print("init");
   Serial.begin(19200);
 
-  ledButtons.setup(&lcd);
-  ledButtons.setButtonCallbacks(onButtonPressed, onButtonReleased);
-  ledButtons.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
+  hardware.setup(&lcd);
+  hardware.setButtonCallbacks(onButtonPressed, onButtonReleased);
+  hardware.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
-  //mode_0.setup(& ledButtons, & midi);
-  mode_1.setup(& ledButtons, & midi);
+  //mode_0.setup(& hardware, & midi);
+  mode_1.setup(& hardware, & midi);
 
   Timer1.initialize(1500);
   Timer1.attachInterrupt(onInterrupt);
@@ -82,27 +82,14 @@ void loop() {
     mode_1.checkMessages();
     if (mode_1.engagementRequested) {
       engagedMode = 1;
-      //lcd.setCursor(0, 0);
-      //lcd.print("controller mode");
+      hardware.lcdPrintA("controller mode");
     } else {
       //mode_0.loop();
     }
   } else if (engagedMode == 1) {
-
-    //lcd.setCursor(0, 0);
-    //lcd.print("controller mode");
-
     mode_1.loop();
   }
-
-  if (Serial.available()) {
-    // lcd.setCursor(0, 0);
-    //lcd.print(String(Serial.read(), HEX));
-  }
-  //lcd.setCursor(0, 1);
-  //lcd.print(String(engagedMode, HEX));
-  ledButtons.loop();
-  //midi.loop();
+  hardware.loop();
 }
 
 void microStep() {

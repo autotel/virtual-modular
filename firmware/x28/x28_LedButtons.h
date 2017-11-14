@@ -32,20 +32,19 @@ class LedButtons {
       //encoder pins setup
       DDRA = 0x00; //0x3<<6
       PORTA |= 3 << 6;
-
-
-      lcd->begin(16, 2);
-      lcd->print("hello, world!");
+      //lcd->begin(16, 2);
+      //lcd->print("hello, world!");
     }
     void loop() {
       readMatrixButtons();
       doEncoderButton();
+      
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
 
-        lcd->setCursor(0, 1);
-        lcd->print(millis() / 1000);
+        //lcd->setCursor(0, 1);
+        //lcd->print(millis() / 1000);
       }
     }
     uint16_t lastEncoderPressTimer = 0;
@@ -188,6 +187,18 @@ class LedButtons {
         leds[button] = CRGB::Black;
       }
     }
+    void lcdPrintA(String what) {
+      lcd->setCursor(0,0);
+      lcd->print(what);
+      //screenA = what;
+    }
+    void lcdPrintB(String what) {
+      lcd->setCursor(0,1);
+      lcd->print(what);
+      //screenChanged = true;
+      //screenB = what;
+    }
+
   private:
     long lastLedsUpdate = 0;
     uint8_t lcdChange = 0;
