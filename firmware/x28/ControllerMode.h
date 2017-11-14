@@ -9,7 +9,7 @@ class ControllerMode {
 
   private:
     Midi *midi;
-    LedButtons *ledButtons;
+    LedButtons *hardware;
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
     byte sendToBrainData [10];
@@ -32,21 +32,11 @@ class ControllerMode {
       //Serial.begin(SOFTBAUDRATE);
       Serial.write(TH_hello_head);
     }
-    void setup(LedButtons *t_ledButtons, Midi *t_midi) {
-      ledButtons = t_ledButtons;
+    void setup(LedButtons *t_hardware, Midi *t_midi) {
+      hardware = t_hardware;
       midi = t_midi;
 
-      for (uint16_t a = 0; a < 28; a++) {
-        if (a == 3) {
-          ledButtons->setButtonColor(a, 255, 127, 0);
-        } else if (a < 8) {
-          ledButtons->setButtonColor(a, 0, 20, 255);
-        } else if (a < 24) {
-          ledButtons->setButtonColor(a, 0, 0, 0);
-        } else {
-          ledButtons->setButtonColor(a, 0, 20, 255);
-        }
-      }
+
     }
 
     void onEncoderScrolled(int8_t delta) {
@@ -101,8 +91,13 @@ class ControllerMode {
       sendToBrainData[0] = button;
       sendToBrain(TH_selectorButtonReleased_head, TH_selectorButtonReleased_len);
     }
+    //long testTimer = 0;
     void loop() {
       checkMessages();
+      /*if (millis() - testTimer > 1000) {
+        testTimer=millis();
+        //hardware->lcdPrintA(String(testTimer));
+        }*/
     }
     void microStep() {
     }
@@ -121,6 +116,7 @@ class ControllerMode {
       int a = 0;
       unsigned char header = inBuff[a];
       a++;
+#define nibbleMultiplyFactor 17
       switch (header) {
           while (a < len) {
           case RH_engageControllerMode_head: {
@@ -128,11 +124,70 @@ class ControllerMode {
               engagementRequested = true;
               break;
             }
-          case RH_setMatrixMonoMap_head: {
-              ledButtons->setButtonColor(26, 0, 255, 255);
+          case RH_setMonoMaps_head: {
+              //( red monomap 0, red monomap 1, red monomap 2, red monomap 3<<4 | intensity ... )
+              //draw in bitmap the corresponding byte
+              uint32_t writeColorChannels [] = {0, 0, 0};
+              writeColorChannels [1] |= inBuff[a + 0]
+                                        | (inBuff[a + 1] << 8)
+                                        | (inBuff[a + 2] << 16)
+                                        | (inBuff[a + 3] << 24);
+              writeColorChannels [0] |= inBuff[a + 4]
+                                        | (inBuff[a + 5] << 8)
+                                        | (inBuff[a + 6] << 16)
+                                        | (inBuff[a + 7] << 24);
+              writeColorChannels [2] |= inBuff[a + 8]
+                                        | (inBuff[a + 9] << 8)
+                                        | (inBuff[a + 10] << 16)
+                                        | (inBuff[a + 11] << 24);
+
+
+              uint8_t intensities [] = {
+                (inBuff[a + 3] | 0xf) * nibbleMultiplyFactor,
+                (inBuff[a + 7] | 0xf) * nibbleMultiplyFactor,
+                (inBuff[a + 11] | 0xf) * nibbleMultiplyFactor
+              };
+
+              for (uint8_t pixel = 0; pixel < 28; pixel++) {
+                uint8_t pxch[] = {0, 0, 0};
+                uint8_t defCol [] = {127, 130, 200};
+                for (uint8_t n = 0; n < 3; n++) {
+                  if ((writeColorChannels[n] >> pixel) & 1) {
+                    pxch[n] = defCol[n];
+                  }
+                }
+                hardware->setButtonColor(pixel, pxch[0]*intensities[0], pxch[1]*intensities[1], pxch[2]*intensities[2]);
+              }
+              a += RH_setMatrixMonoMap_len;
+
+              break;
+            }
+          case RH_setSelectorMonoMap_head: {
               uint16_t writeColorChannels [] = {0, 0, 0};
-              writeColorChannels [0] = inBuff[a + 0] | (inBuff[a + 1] << 8);
-              writeColorChannels [1] = inBuff[a + 2] | (inBuff[a + 3] << 8);
+              writeColorChannels [1] = inBuff[a + 0] | (inBuff[a + 1] << 8);
+              writeColorChannels [0] = inBuff[a + 2] | (inBuff[a + 3] << 8);
+              writeColorChannels [2] = inBuff[a + 4] | (inBuff[a + 5] << 8);
+              for (uint8_t pixel = 0; pixel < 12; pixel++) {
+                uint8_t pxch[] = {0, 0, 0};
+                uint8_t defCol [] = {127, 130, 200};
+                for (uint8_t n = 0; n < 3; n++) {
+                  if ((writeColorChannels[n] >> pixel) & 1) {
+                    pxch[n] = defCol[n];
+                  }
+                }
+                if (pixel > 7) {
+                  hardware->setButtonColor(pixel + 15, pxch[0], pxch[1], pxch[2]);
+                } else {
+                  hardware->setButtonColor(pixel, pxch[0], pxch[1], pxch[2]);
+                }
+              }
+              a += RH_setSelectorMonoMap_len;
+              break;
+            }
+          case RH_setMatrixMonoMap_head: {
+              uint16_t writeColorChannels [] = {0, 0, 0};
+              writeColorChannels [1] = inBuff[a + 0] | (inBuff[a + 1] << 8);
+              writeColorChannels [0] = inBuff[a + 2] | (inBuff[a + 3] << 8);
               writeColorChannels [2] = inBuff[a + 4] | (inBuff[a + 5] << 8);
               for (uint8_t pixel = 0; pixel < 16; pixel++) {
                 uint8_t pxch[] = {0, 0, 0};
@@ -142,9 +197,21 @@ class ControllerMode {
                     pxch[n] = defCol[n];
                   }
                 }
-                ledButtons->setButtonColor(pixel, pxch[0], pxch[1], pxch[2]);
+                hardware->setButtonColor(pixel + 8, pxch[0], pxch[1], pxch[2]);
               }
               a += RH_setMatrixMonoMap_len;
+              break;
+            }
+          case RH_screenA_head: {
+              a++;
+              hardware->lcdPrintA((char&)inBuff[a], len);
+              a+=len;
+              break;
+            }
+          case RH_screenB_head: {
+              a++;
+              hardware->lcdPrintB((char&)inBuff[a], len);
+              a+=len;
               break;
             }
           case RH_version_head: {
@@ -225,6 +292,11 @@ class ControllerMode {
               expectedLength = RH_setMatrixMonoMap_len;
               break;
 
+            case RH_setSelectorMonoMap_head:
+              recordingBuffer = true;
+              expectedLength = RH_setSelectorMonoMap_len;
+              break;
+
             case RH_setLedN_head:
               recordingBuffer = true;
               expectedLength = RH_setLedN_len;
@@ -261,34 +333,34 @@ class ControllerMode {
               break;
 
           }
-          if (recordingBuffer) {
-            if (expectedLength == unknown) {
-              if (byteNumber == 0) {
-                //get header and +1
-                inBuff[byteNumber] = data_a;
-                byteNumber++;
-              } else if (byteNumber == 1) {
-                //undetermined length so byte 2 must be length
-                inBuff[byteNumber] = data_a;
-                expectedLength = data_a + 1;
-                byteNumber++;
-              }
-            } else if (byteNumber < expectedLength) {
-              //a new byte arrived and is added to the current packet
-              inBuff[byteNumber] =  data_a;
-              byteNumber++;
-            } else {
-              //a whole expected packet arrived
+        }
+        if (recordingBuffer) {
+          if (expectedLength == unknown) {
+            if (byteNumber == 0) {
+              //get header and +1
               inBuff[byteNumber] = data_a;
-              recordingBuffer = false;
-              messageReceived( byteNumber);
-              byteNumber = 0;
+              byteNumber++;
+            } else if (byteNumber == 1) {
+              //undetermined length so byte 2 must be length
+              inBuff[byteNumber] = data_a;
+              expectedLength = data_a + 1;
+              byteNumber++;
             }
+          } else if (byteNumber < expectedLength) {
+            //a new byte arrived and is added to the current packet
+            inBuff[byteNumber] =  data_a;
+            byteNumber++;
           } else {
-            //a byte arrived, but there is no packet gathering bytes
-            // lcdPrintA("inv");
-            //lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
+            //a whole expected packet arrived
+            inBuff[byteNumber] = data_a;
+            recordingBuffer = false;
+            messageReceived( byteNumber);
+            byteNumber = 0;
           }
+        } else {
+          //a byte arrived, but there is no packet gathering bytes
+          // lcdPrintA("inv");
+          //lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
         }
       }
     }

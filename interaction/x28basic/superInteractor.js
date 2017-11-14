@@ -184,7 +184,7 @@ var X16SuperInteractorsSingleton=function(environment){
     });
     this.on('selectorButtonPressed',function(event){
      //if the button is the patchMenu button
-     if(event.data[0]==0){
+     if(event.data[0]==3){
        if(engagedModule){
          engagedModule.disengage(event);
          thisInteractor.engage();
@@ -234,6 +234,7 @@ var X16SuperInteractorsSingleton=function(environment){
       }
     });
     this.engage=function(evt){
+      paintSelectButtons();
       updateHardware();
       engagedModule=false;
     }
@@ -261,12 +262,14 @@ var X16SuperInteractorsSingleton=function(environment){
       //perhaps I could make inputs green?
       myHardware.draw([selected|outputs,selected|creatorBtn,selected|(selectable^outputs)|creatorBtn]);
     }
+    function paintSelectButtons(){
+      myHardware.drawSelectors([0xFF8,0xFF0,0xFF0]);
+    }
     this.disengage=function(){
-     throw "oops";
+      console.log(this);
+     throw "oops superInteractor must never disengage";
      engagedModule=0;
     }
-
-    //note that the module interface is added to all equal interfaces, but it wouldnt be hard to make an add that is exclusive to one hardware instance
   }
 };
 

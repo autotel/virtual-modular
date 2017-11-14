@@ -19,7 +19,7 @@ void checkMessages() {\n\
       //if is successfull, we start gathering or recording a new data packet.\n\
       //byte  is in our header list?\n\
       switch (data_a) {";
-var stringEnd="\n      }\n\
+var stringEnd="\n   }   }\n\
     if (recordingBuffer) {\n\
       if (expectedLength == unknown) {\n\
         if (byteNumber == 0) {\n\

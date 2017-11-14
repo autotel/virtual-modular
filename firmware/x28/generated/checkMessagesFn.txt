@@ -58,6 +58,11 @@ case RH_setMatrixMonoMap_head:
   expectedLength = RH_setMatrixMonoMap_len;
   break;
   
+case RH_setSelectorMonoMap_head:
+  recordingBuffer = true;
+  expectedLength = RH_setSelectorMonoMap_len;
+  break;
+  
 case RH_setLedN_head:
   recordingBuffer = true;
   expectedLength = RH_setLedN_len;
@@ -93,7 +98,7 @@ case RH_disengageControllerMode_head:
   expectedLength = RH_disengageControllerMode_len;
   break;
   
-      }
+   }   }
     if (recordingBuffer) {
       if (expectedLength == unknown) {
         if (byteNumber == 0) {
@@ -114,13 +119,13 @@ case RH_disengageControllerMode_head:
         //a whole expected packet arrived
         inBuff[byteNumber] = data_a;
         recordingBuffer = false;
-        messageReceived(& inBuff, byteNumber);
+        messageReceived( byteNumber);
         byteNumber = 0;
       }
     } else {
       //a byte arrived, but there is no packet gathering bytes
       // lcdPrintA("inv");
-      lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
+      //lcdPrintB("i" + String(data_a, HEX) + "ex" + expectedLength + "len:" + byteNumber);
     }
   }
 }
