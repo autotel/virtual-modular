@@ -161,7 +161,7 @@ var DriverX28v0=function(environment,properties){
   var dataChopper=new DataChopper();
   // console.log(environment.interactionMan.entryInteractors.x16basic);
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
-  var myInteractionPattern=environment.interactionMan.newSuperInteractor("x16basic",this);
+  var myInteractionPattern=environment.interactionMan.newSuperInteractor("x28basic",this);
   myInteractionPattern.handle('serialopened');
 
   var serial=properties.serial;
@@ -173,6 +173,7 @@ var DriverX28v0=function(environment,properties){
         dataArray=Array.from(dataArray);
       dataArray.unshift(header&0xff);
       var buf1 = Buffer.from(dataArray);
+      console.log("wr",buf1);
       serial.write(buf1);
     });
   }
@@ -189,6 +190,7 @@ var DriverX28v0=function(environment,properties){
         dataArray=Array.from(dataArray);
       arr8.unshift(header&0xff);
       var buf1 = Buffer.from(arr8);
+      console.log("wr",buf1);
       serial.write(buf1);
 
       // console.log("sent",buf1);
@@ -229,14 +231,17 @@ var DriverX28v0=function(environment,properties){
   }
   this.sendScreenA=sendScreenA;
   this.sendScreenB=sendScreenB;
-  var updateLeds=function(bitmaps){
-    if(!Array.isArray(bitmaps)){
-      throw "when updating the LED's, I need an array of three 32 bit ints";
+  var updateLeds=function(bitmaps,paintSelectButtons=false){
+    console.log("upleds",bitmaps);
+    if(paintSelectButtons){
+    }else{
+      if(!Array.isArray(bitmaps)){
+        throw "when updating the LED's, I need an array of three 32 bit ints";
+      }
+      // tHardware.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
+      sendx8_16(transmits.setMatrixMonoMap.head,bitmaps);
+      lastSentBitmap.bitmap=bitmaps;
     }
-    // tHardware.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
-    sendx8_16(transmits.setMonoMaps.head,bitmaps);
-    lastSentBitmap.bitmap=bitmaps;
-    // sendx8(tHeaders.ledMatrix,bitmaps);
   }
   tHardware.testByte=function(byte){
     sendx8(transmits.comTester.head,[byte]);

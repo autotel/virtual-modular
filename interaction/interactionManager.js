@@ -2,6 +2,7 @@
 //this module handles what happen when there is a hardware event (such as pressing a button)
 let onHandlers=require('onhandlers');
 let X16bs=require('./x16basic');
+let X28bs=require('./x28basic');
 
 /**
 InteractionManager contains a list of all the running instances of {@link HardwareDriver}s and links them to instances of {@link superInteractorPrototypes} and {@link Interactor}s
@@ -17,6 +18,8 @@ var interactionManager=function(environment){ return new(function(){
   //create the interface element and register it's singleton
   interfaces.x16basic=new X16bs(environment);
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
+  interfaces.x28basic=new X28bs(environment);
+  superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
   /**
     @function
     called by a hardwareManager: when there is a new hardware connected, it is associated with a {@link superInteractor}

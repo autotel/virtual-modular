@@ -1,0 +1,355 @@
+//TODO: separate .cpp and .h
+#include "FastLED.h"
+#include "_name_signals.h"
+#define REFRESHRATE 20
+#ifndef HARDWAREH
+#define HARDWAREH
+//useful about callback functions https://stackoverflow.com/questions/14427917/call-function-in-main-program-from-a-library-in-arduino
+//hardware controlling functions for physical modular rev 1 board
+class LedButtons {
+  public:
+    LedButtons() {
+
+    };
+#define NUM_LEDS 28
+#define NUM_BUTTONS 28
+#define DATA_PIN 43
+    CRGB leds[NUM_LEDS];
+
+
+    char lcdStr[33];
+    void setup() {
+      delay(1000);
+
+      FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
+      LEDS.setBrightness(110);
+
+
+      for (uint8_t a = 0; a < 33; a++) {
+        lcdStr[a] = 0;
+      }
+      //encoder pins setup
+      DDRA = 0x00; //0x3<<6
+      PORTA |= 3 << 6;
+
+      lcdInit();
+
+    }
+    uint8_t testNum = 0;
+    void loop() {
+      readMatrixButtons();
+      doEncoderButton();
+      if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
+        refreshLeds();
+        lastLedsUpdate = millis();
+        //writeLcd(testNum);
+
+#define COMMAND LOW
+#define WRITE HIGH
+        setLcdCursor(0, 0);
+        writeLcd(testNum, WRITE);
+        testNum++;
+      }
+    }
+    uint16_t lastEncoderPressTimer = 0;
+    uint16_t debounceTime = 250;
+    void doEncoderButton() {
+      //not working
+      //set MUXBX0 low MUXAX4 to high;
+      PORTK &= ~(0x1 << 0);
+      PORTH |= 0x1 << 7;
+      if ((PINH >> 7) & 1) {
+        if (lastEncoderPressTimer >= debounceTime) {
+          encoderPressedCallback();
+          lastEncoderPressTimer = 0;
+        }
+      } else {
+        if (lastEncoderPressTimer <= debounceTime) {
+          lastEncoderPressTimer++;
+        }
+      }
+    }
+#define divideEncoderRotation 4
+    const uint8_t grayToBinary = 0b10110100;
+    int8_t enc_last = 0;
+    int8_t enc_sub = 0;
+    unsigned int encoder0Pos = 0;
+    char sign(char x) {
+      return (x > 0) - (x < 0);
+    }
+
+    void doEncoder() {
+      //encread turns around as follows: <- 0,1,3,2 ->
+      //upon conversion it will turn as: <- 0,1,2,3 ->
+      int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
+      if (enc_read != enc_last) {
+        int8_t enc_inc = enc_read - enc_last;
+
+        if (enc_inc > 2) {
+          enc_inc = -1;
+        }
+        if (enc_inc < -2) {
+          enc_inc = +1;
+        }
+
+        enc_sub += enc_inc;
+        if (abs(enc_sub) >= divideEncoderRotation) {
+          encoder0Pos += sign(enc_sub);
+          enc_sub = 0;
+          encoderRotatedCallback(encoder0Pos);
+        }
+        enc_last = enc_read;
+      }
+    }
+    int readMatrixButtons() {
+      uint16_t i, j, currentButton;
+      //POX = pin out register n., PIN= pin in register n.
+      //H, columns
+#define POX PORTH //bits 3-7, digital
+#define PIX PINH
+#define PORTXMASK 0b00000111
+      DDRH = 0xFF;
+      //K, rows
+#define POY PORTK //bits 0-6, analog
+#define PIY PINK
+      //#define YREGMASK 0b00111111
+      DDRK = 0x00;
+      POY = 0xFF;
+      // int inpinbase = 8;
+
+      for (currentButton = 0; currentButton < NUM_LEDS; currentButton++) {
+        uint16_t col = currentButton % 4;
+        uint16_t row = currentButton / 4;
+
+        POX &= PORTXMASK;
+
+        //not 1<< because starts in PH3
+        POX = ~(0b1000 << col);
+        //set test to a mask according to the row we want to check
+        uint32_t test = 1UL << row;
+        //TODO: there should be a juggling of the scan with the rest of the code ranther than a delay.
+        //delay is to avoid leaks of voltage due to capacitances?
+        delayMicroseconds(100);
+
+        uint32_t an = PIY & test;
+
+        //we checked the row, now we want to use the test to compare with the pixel number.
+        //I am recycling the variable
+        test = 1UL << currentButton;
+        //check button is pressed, but in inverted logic
+        if (!an) {
+          //button is pressed, and not the last time
+          if (!(test & pressedButtonsBitmap)) {
+
+            pressedButtonsBitmap = pressedButtonsBitmap | test;
+            CB_buttonPressed(currentButton, pressedButtonsBitmap);
+          }
+
+        } else {
+          //button is depressed, and was pressed last time
+          if (test & pressedButtonsBitmap) {
+
+            pressedButtonsBitmap = pressedButtonsBitmap & (~test);
+            CB_buttonReleased(currentButton);
+          }
+        }
+
+      }
+
+    }
+    void refreshLeds() {
+      //uint16_t a;
+      /*for (a = 0; a < strip.numPixels(); a++) {
+        strip.setPixelColor(a, strip.Color(ledColors[a], ledColors[a], ledColors[a])); //Wheel((i*1+j)
+        }*/
+      FastLED.show();
+    }
+
+    //LCD related. TODO: concurrency instead of delays
+    //bit shift for each lcd pin/function
+#define d_rs 0
+#define d_enable 1
+#define d_d0 2
+#define d_d1 3
+#define d_d2 4
+#define d_d3 5
+#define SET(x,y) x |= (1 << y)
+#define CLEAR(x,y) x &= ~(1<< y)
+    // commands
+#define LCD_CLEARDISPLAY 0x01
+#define LCD_RETURNHOME 0x02
+#define LCD_ENTRYMODESET 0x04
+#define LCD_DISPLAYCONTROL 0x08
+#define LCD_CURSORSHIFT 0x10
+#define LCD_FUNCTIONSET 0x20
+#define LCD_SETCGRAMADDR 0x40
+#define LCD_SETDDRAMADDR 0x80
+    // flags for display entry mode
+#define LCD_ENTRYRIGHT 0x00
+#define LCD_ENTRYLEFT 0x02
+#define LCD_ENTRYSHIFTINCREMENT 0x01
+#define LCD_ENTRYSHIFTDECREMENT 0x00
+    // flags for display on/off control
+#define LCD_DISPLAYON 0x04
+#define LCD_DISPLAYOFF 0x00
+#define LCD_CURSORON 0x02
+#define LCD_CURSOROFF 0x00
+#define LCD_BLINKON 0x01
+#define LCD_BLINKOFF 0x00
+#define COMMAND LOW
+#define WRITE HIGH
+    void lcdInit() {
+      //PL0-PL5
+      DDRD = 0xFF >> 2;
+      /*
+            delayMicroseconds(50000);
+            // Now we pull both RS and R/W low to begin commands
+            //digitalWrite(_rs_pin, LOW);
+            CLEAR(PORTD, d_rs);
+            //digitalWrite(_enable_pin, LOW);
+            CLEAR(PORTD, d_enable);
+
+            //d3,d2,d1,d0,enable,rs
+            writeLcd(0x03);
+            delayMicroseconds(4500); // wait min 4.1ms
+            // second try
+            writeLcd(0x03);
+            delayMicroseconds(4500); // wait min 4.1ms
+            // third go!
+            writeLcd(0x03);
+            delayMicroseconds(150);
+            // finally, set to 4-bit interface
+            writeLcd(0x02);
+            uint8_t displayMode = LCD_DISPLAYON | LCD_CURSOROFF;
+            sendLcd(displayMode, COMMAND);
+
+            sendLcd(LCD_DISPLAYCONTROL | LCD_DISPLAYON, COMMAND);
+
+
+            sendLcd(LCD_CLEARDISPLAY, COMMAND); // clear display, set cursor position to zero
+            delayMicroseconds(2000);  // this command takes a long time!
+
+            // set the entry mode
+            sendLcd(LCD_ENTRYMODESET | LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT, COMMAND);*/
+      writeLcd(0x33, 0);
+      delay(0.5);
+      writeLcd(0x32, 0);
+      delay(0.5);
+      writeLcd(0x28, 0);
+      delay(0.5);
+      writeLcd(0x0C, 0);
+      delay(0.5);
+      writeLcd(0x06, 0);
+      delay(0.5);
+      writeLcd(0x01, 0);
+      delay(0.5);
+    }
+    void writeLcd(uint8_t value, uint8_t mode) {
+      if (mode) {
+        SET(PORTD, d_rs);
+      } else {
+        CLEAR(PORTD, d_rs);
+      }
+
+      uint8_t nibbleA = (value >> 4) & 0xf;
+      uint8_t nibbleB = (value) & 0xf;
+      
+      PORTD = (value & 0xf) << d_d0;
+      CLEAR(PORTD, d_enable);
+      delayMicroseconds(1);
+      SET(PORTD, d_enable);
+      delayMicroseconds(1);    // enable pulse must be >450ns
+      CLEAR(PORTD, d_enable);
+      delayMicroseconds(100);   // commands need > 37us to settle
+      PORTD = (value & 0xf) << d_d0;
+      CLEAR(PORTD, d_enable);
+      delayMicroseconds(1);
+      SET(PORTD, d_enable);
+      delayMicroseconds(1);    // enable pulse must be >450ns
+      CLEAR(PORTD, d_enable);
+      delayMicroseconds(100);   // commands need > 37us to settle
+    }
+    void setLcdCursor(int row, int col) {
+      if (col == 0)writeLcd((row | 0x80), 0);
+      if (col == 1)writeLcd((row | 0x80) + 0x40, 0);
+      if (col == 2)writeLcd((row | 0x80) + 0x10, 0);
+      if (col == 3)writeLcd((row | 0x80) + 0x50, 0);
+      delay(0.5);
+    }
+
+    void setButtonCallbacks( void (*fpa)(byte, uint32_t), void (*fpb)(byte) ) {
+      CB_buttonPressed = fpa;
+      CB_buttonReleased = fpb;
+    }
+    void setEncoderCallbacks(void (*fpa)(int8_t), void (*fpb)(), void (*fpc)()) {
+      CB_encoderRotated = fpa;
+      CB_encoderPressed = fpb;
+      CB_encoderReleased = fpc;
+    };
+    void setButtonColor(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
+      if (a | b | c > 0) {
+        //c |= 80;
+        leds[button] = CRGB(a, b, c);//CHSV
+      } else {
+        leds[button] = CRGB::Black;
+      }
+    }
+    void setButtonColorHSV(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
+      if ( c > 0) {
+        //c |= 80;
+        leds[button] = CHSV(a, b, c);//CHSV
+      } else {
+        leds[button] = CRGB::Black;
+      }
+    }
+  private:
+    long lastLedsUpdate = 0;
+    uint8_t lcdChange = 0;
+    void (*CB_buttonPressed)(byte, uint32_t) = 0;
+    void (*CB_buttonReleased)(byte) = 0;
+    void (*CB_encoderRotated)(int8_t) = 0;
+    void (*CB_encoderPressed)() = 0;
+    void (*CB_encoderReleased)() = 0;
+    uint32_t pressedButtonsBitmap = 0;
+    void buttonPressedCallback(byte button, uint32_t bitmap) {
+      if ( 0 != CB_buttonPressed ) {
+        (*CB_buttonPressed)(button, bitmap);
+      }
+      else {
+        for (uint16_t a = 0; a < NUM_LEDS; a++) {
+          leds[button] = CRGB(a, a, a);
+          // strip.setPixelColor(a, Wheel(a * 12)); //Wheel((i*1+j)
+        }
+      }
+    }
+    void buttonReleasedCallback(byte button) {
+      if ( 0 != CB_buttonReleased ) {
+        (*CB_buttonReleased)(button);
+      }
+      else {
+      }
+    }
+    void encoderRotatedCallback(byte delta) {
+      if ( 0 != CB_encoderRotated ) {
+        (*CB_encoderRotated)(delta);
+      }
+      else {
+      }
+    }
+    void encoderPressedCallback() {
+      if ( 0 != CB_encoderPressed ) {
+        (*CB_encoderPressed)();
+      }
+      else {
+      }
+    }
+    void encoderReleasedCallback() {
+      if ( 0 != CB_encoderReleased ) {
+        (*CB_encoderReleased)();
+      }
+      else {
+      }
+    }
+};
+
+#endif
