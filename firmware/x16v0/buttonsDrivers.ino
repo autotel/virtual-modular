@@ -1,5 +1,5 @@
 //read one button behind the multiplexor to check whether is pressed or not.
-int readMatrixButton(byte currentButton) {
+uint16_t readMatrixButton(byte currentButton) {
   //nibble A is connected to the mux address for the anodes / btn inputs
   byte nibbleA = 0xF;
   //nibble B is connected to the mux for the cathodes / btn outputs
@@ -26,7 +26,7 @@ int readMatrixButton(byte currentButton) {
   pinMode(analogB, INPUT);
   digitalWrite(analogA, HIGH);
   //PORTC |= 0b10;
-  int ret = analogRead(analogB);
+  uint16_t ret = analogRead(analogB);
   pinMode(analogB, OUTPUT);
   return ret;
 }

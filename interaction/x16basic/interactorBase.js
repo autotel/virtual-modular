@@ -10,6 +10,7 @@ var x16InteractorBase=function(controlledModule){
   // console.log(".....",this.compatibilityTags);
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};
+  this.matrixButtonVelocity=function(event){};
   this.matrixButtonHold=function(event){};
   this.selectorButtonPressed=function(event){};
   this.selectorButtonReleased=function(event){};

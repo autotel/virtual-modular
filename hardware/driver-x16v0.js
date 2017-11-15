@@ -31,7 +31,7 @@ const comConsts={
         "hardwareId": 0x40
     },
     "rHNames": {},
-    "rLengths": [0, 0, 4, 4, 4, 4, 2, 2, 2, 1, 1, 1,"unknown"],
+    "rLengths": [0, 0, 4, 4, 4, 3, 2, 2, 2, 1, 1, 1,"unknown"],
     //"baudRate": 19200,
     "eoString": 3
 };
@@ -262,15 +262,33 @@ var DriverX16v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
+
+      if(event.type=="matrixButtonVelocity"){
+        event.data[1]=event.data[1]|(event.data[2]<<8);
+        event.data[1]*=0.5;
+        var bar=event.data[1]+"|";
+        for(var a=0;a<event.data[1]; a+=8){
+          bar+="#";
+        }
+        console.log(bar+"|");/**/
+      }
+      if(event.type=="matrixButtonPressed"){
+        event.data[2]=event.data[2]|(event.data[3]<<8);
+      }
+      if(event.type=="matrixButtonReleased"){
+        event.data[2]=event.data[2]|(event.data[3]<<8);
+      }
       // console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
-      // myInteractionPattern.on('interaction',console.log);
+      // console.log("interaction",event);
+      // if(event.type=="matrixButtonVelocity") console.log(event.data[1]);z
       //convert encoder scrolls to signed (it can only be -1 or -2)
       event.data=Array.from(event.data);
       if(event.type=="encoderScrolled"){
         // event.data
         event.data[1]=(event.data[1]==0xFF?-1:event.data[1]);
         event.data[1]=(event.data[1]==0xFE?-2:event.data[1]);
+        event.delta=event.data[1];
       }
       myInteractionPattern.handle(event.type,event);
     }

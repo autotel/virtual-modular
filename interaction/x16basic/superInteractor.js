@@ -164,6 +164,11 @@ var X16SuperInteractorsSingleton=function(environment){
         matrixButtonOwners[event.data[0]]=engagedModule;
       }
     });
+    this.on('matrixButtonVelocity',function(event){
+      if(engagedModule){
+        engagedModule.matrixButtonVelocity(event);
+      }
+    });
     this.on('matrixButtonReleased',function(event){
       if(firstPressedMatrixButton===event.data[0]){
        firstPressedMatrixButton=false;

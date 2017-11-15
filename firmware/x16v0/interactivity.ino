@@ -2,10 +2,10 @@
 
 //actions to take while a button is held, taking the pressure into account
 void onMatrixButtonHold(byte button, byte buttonPressure) {
-  sendToBrainData[0] = button; 
+  sendToBrainData[0] = button;
   sendToBrainData[1] = buttonPressure;
   sendToBrainData[2] = pressedMatrixButtonsBitmap;
-  sendToBrain(TH_buttonMatrixHold, TH_buttonMatrixHold_len);
+  //sendToBrain(TH_buttonMatrixHold, TH_buttonMatrixHold_len);
 }
 //actions to take while a button is pressed
 void onMatrixButtonPressed(byte button) {
@@ -20,8 +20,12 @@ void onMatrixButtonPressed(byte button) {
 
   sendToBrain(TH_buttonMatrixPressed, TH_buttonMatrixPressed_len);
 }
-
-
+void matrixButtonVelocity(uint8_t button, uint16_t velocity) {
+  sendToBrainData[0] = button;
+  sendToBrainData[1] = (uint8_t) velocity;
+  sendToBrainData[2] = (uint8_t) (velocity>>8);
+  sendToBrain(TH_buttonMatrixVelocity, TH_buttonMatrixVelocity_len);
+}
 //actions to take once a button is pressed
 
 void onMatrixButtonPressed(byte button, int buttonPressure) {

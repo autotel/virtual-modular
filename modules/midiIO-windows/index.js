@@ -24,7 +24,7 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 */
 module.exports=function(environment){return new (function(){
-  var defaultMessage=new EventMessage({value:[0,0,45,97]});
+  var defaultMessage=new EventMessage({value:[0,0,45,90]});
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   var instanced=0;
   var getName=function(){
@@ -158,7 +158,7 @@ module.exports=function(environment){return new (function(){
         midiOut[1]=eventMessage.value[2];
         midiOut[2]=0;
       }
-      // console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
+      console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
       midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
     this.remove=function(){

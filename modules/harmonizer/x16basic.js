@@ -91,7 +91,7 @@ module.exports=function(environment){
       // console.log(event.data);
       var hardware=event.hardware;
       var button=event.data[0];
-      var eventFingerMap=(event.data[2]|(event.data[3]<<8));
+      var eventFingerMap=event.data[2];
       // console.log(eventFingerMap);
       if(engagedConfigurator===false){
         if(performMode){

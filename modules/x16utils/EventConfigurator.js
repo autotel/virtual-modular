@@ -98,7 +98,9 @@ var EventConfigurator=function(parentInteractor,properties){
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
     if(baseEvent.value.length>selectedValueNumber){
-      baseEvent.value[selectedValueNumber]+=event.data[1];
+      // console.log("val:"+baseEvent.value[selectedValueNumber]);
+      baseEvent.value[selectedValueNumber]+=event.delta;
+      // console.log("->val:"+baseEvent.value[selectedValueNumber],event.data[1]);
       updateScreen(hardware);
     }else if(extraValueNames.length>selectedValueNumber-baseEvent.value.length){
       extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.data[1];

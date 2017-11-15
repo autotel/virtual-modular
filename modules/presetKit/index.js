@@ -60,17 +60,22 @@ module.exports=function(environment){return new (function(){
 
     this.noteOnTracker={}
 
-    this.uiTriggerOn=function(presetNumber){
+    this.uiTriggerOn=function(presetNumber,velo){
       // console.log("tr",kit[presetNumber]);
       // if(presetNumber!==undefined)
+      var fbVelo=100;
+      if(velo){
+        // console.log("velo");
+        fbVelo=velo;
+      }
       if(kit[presetNumber]){
         if(!kit[presetNumber].mute){
           if(thisInstance.noteOnTracker[presetNumber]===undefined) thisInstance.noteOnTracker[presetNumber]=[];
-          // console.log(thisInstance.noteOnTracker);
           thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
+          kit[presetNumber].on.value[3]=fbVelo;
           thisInstance.output(kit[presetNumber].on);
           if(thisInstance.recordingUi){
-            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,100]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
           }
         }
       }

@@ -103,7 +103,7 @@ var BlankConfigurator=function(parentInteractor,properties){
       // console.log("b");
       var thisVar=getSelectedVar();
       // console.log(thisVar);
-      thisVar.changeFunction(thisVar,event.data[1]);
+      thisVar.changeFunction(thisVar,event.delta);
       updateScreen(hardware);
     }
   };

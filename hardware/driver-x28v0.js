@@ -313,6 +313,15 @@ var DriverX28v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
+      if(event.type=="matrixButtonVelocity"){
+        event.data[1]=event.data[1]|(event.data[2]<<8);
+      }
+      if(event.type=="matrixButtonPressed"){
+        event.data[2]=event.data[2]|(event.data[3]<<8);
+      }
+      if(event.type=="matrixButtonReleased"){
+        event.data[2]=event.data[2]|(event.data[3]<<8);
+      }
       // console.log("recv",chd);
       // console.log("interaction",event);
       myInteractionPattern.handle('interaction',event);
@@ -320,10 +329,12 @@ var DriverX28v0=function(environment,properties){
       //convert encoder scrolls to signed (it can only be -1 or -2)
       event.data=Array.from(event.data);
       if(event.type=="encoderScrolled"){
-        // event.data
-        event.data[1]=(event.data[1]==0xFF?-1:event.data[1]);
-        event.data[1]=(event.data[1]==0xFE?-2:event.data[1]);
+        event.data[0]=(event.data[0]==0xFF?-1:event.data[0]);
+        event.data[0]=(event.data[0]==0xFE?-2:event.data[0]);
+        event.delta=event.data[0];
       }
+
+    // console.log(event);
       myInteractionPattern.handle(event.type,event);
     }
   }

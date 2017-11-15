@@ -14,13 +14,35 @@ void loop() {
 }
 
 
-
+uint16_t buttonsPressure [] = {
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0
+};
+long buttonsTimers [] = {
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0
+}; 
+long buttonsDeltaTimers [] = {
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0
+};
+long deltaTime = 0;
+long lastCheck = 0;
 byte cp128 = 0;
 byte cp64 = 0;
 byte cp48 = 0;
 byte cp49 = 0;
 byte cp16 = 0;
 void timedLoop() {
+  long thisCheck = micros();
+  deltaTime = thisCheck - lastCheck;
+  //see lastCheck at the end of timedloop()
   //evaluate matrix buttons
   cp128 = cp128 % 128;
   cp64 = cp128 % 64;
@@ -28,22 +50,35 @@ void timedLoop() {
   byte cp32 = cp64 % 32;
   cp48 = cp48 % 48;
   cp49 = cp49 % 49;
-  byte buttonPressure = (byte)(readMatrixButton(cp16) / 2);
-  int evaluator = 0x1 << cp16;
-  if (buttonPressure > BUTTONTRESH) {
-    //if last lap this button was not pressed, trigger on  button pressed
-    if ((evaluator & pressedMatrixButtonsBitmap) == 0) {
-      pressedMatrixButtonsBitmap |= evaluator;
-      onMatrixButtonPressed(cp16);
+  int evaluator;
+
+  uint16_t buttonPressure = (uint16_t)(readMatrixButton(cp16));
+  if (buttonsTimers[cp16] > 200) {
+    evaluator = 0x1 << cp16;
+    if (buttonPressure / 2 > BUTTONTRESH) {
+      //if for debounce
+      uint16_t velocity = (1000*(buttonPressure - buttonsPressure[cp16])) / buttonsDeltaTimers[cp16];
+      buttonsTimers[cp16] = 0;
+      //if last lap this button was not pressed, trigger on  button pressed
+      if ((evaluator & pressedMatrixButtonsBitmap) == 0) {
+        pressedMatrixButtonsBitmap |= evaluator;
+        //matrixButtonVelocity(cp16, velocity);
+        onMatrixButtonPressed(cp16);
+      } else {
+        onMatrixButtonHold(cp16, buttonPressure);
+      }
     } else {
-      onMatrixButtonHold(cp16, buttonPressure);
-    }
-  } else {
-    if ((evaluator & pressedMatrixButtonsBitmap) != 0) {
-      pressedMatrixButtonsBitmap &= ~(0x1 << cp16);
-      onMatrixButtonReleased(cp16);
+      if ((evaluator & pressedMatrixButtonsBitmap) != 0) {
+        pressedMatrixButtonsBitmap &= ~(0x1 << cp16);
+        onMatrixButtonReleased(cp16);
+      }
     }
   }
+  //for debouncing and measuring of volt. gradient on time
+  buttonsPressure[cp16] =  (buttonsPressure[cp16] + buttonPressure) / 2;
+  buttonsTimers[cp16] += deltaTime;
+  buttonsDeltaTimers[cp16] = deltaTime;
+
   updatePixel(cp49);
 
   //evaluate Selector buttons (the tact buttons on top of the matrix)
@@ -53,20 +88,20 @@ void timedLoop() {
     byte cb_5 = cp64 / 12;
     //see previous use of this var for more reference
     evaluator = 0x1 << cb_5;
-    if(cb_5==4) cb_5=8;//encoder buttn
+    if (cb_5 == 4) cb_5 = 8; //encoder buttn
     if (digitalReadMuxB(cb_5 + 4)) {
       //if last lap this button was not pressed, trigger on  button pressed
       if ((evaluator & pressedSelectorButtonsBitmap) == 0) {
         pressedSelectorButtonsBitmap |= evaluator;
-        if(cb_5<4){
+        if (cb_5 < 4) {
           onSelectorButtonPressed(cb_5);
-        }else{
+        } else {
           onEncoderButtonPressed();
         }
       } else {
-        if(cb_5<4){
+        if (cb_5 < 4) {
           onSelectorButtonHold(cb_5);
-        }else{
+        } else {
           onEncoderButtonPressed();
         }
       }
@@ -74,15 +109,15 @@ void timedLoop() {
       //if in last lap this button was pressed but in this lap is not
       if ((evaluator & pressedSelectorButtonsBitmap) != 0) {
         pressedSelectorButtonsBitmap &= ~(evaluator);
-        if(cb_5<4){
+        if (cb_5 < 4) {
           onSelectorButtonReleased(cb_5);
-        }else{
+        } else {
           onEncoderButtonPressed();
         }
       }
     }
     // if(cb_5==0)
-      // doEncoderButton();
+    // doEncoderButton();
   }
   doEncoder();
   if (cp128 == 2) {
@@ -91,6 +126,8 @@ void timedLoop() {
   cp128++;
   cp48++;
   cp49++;
+
+  lastCheck = thisCheck;
 }
 
 
