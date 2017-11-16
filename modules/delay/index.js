@@ -82,15 +82,74 @@ module.exports=function(environment){return new (function(){
     })();
 
     var recorder=new(function(){
-      //TODO: track in existing notes if there are overlaps aswell, to merge similar notes
       var trackedNotes=[];
       var currentStep=0;
       var currentMicroStep=0;
       var eventsWithNoteOn={};
       function addToMemory(eventTime,eventMessage){
+        //find if I this event needs to be merged with other
         console.log("mem",eventMessage.value,eventTime);
-        if(!memory[eventTime])memory[eventTime]=[];
-        memory[eventTime].push(eventMessage);
+        var eventMerged=false;
+        for(var memIndex in memory){
+          for(var otherEvent of memory[memIndex]){
+            if(otherEvent.compareTo(eventMessage,["value"])){
+              var otherEventStart=memIndex;
+              var thisEventStart=eventTime;
+              //by default, compare start and end by steps
+              var compareTimeindex=0;
+              //unless their step is the same, in which case we compare starts by microStep
+              if(thisEventStart==otherEventStart){
+                compareTimeindex=1;
+              }
+              //thisEvent started after the otherevent
+              if(
+                thisEventStart[compareTimeindex]
+                > otherEventStart[compareTimeindex]
+              ){
+                console.log("started after");
+                //and otherEvent length reaches this event
+                if( otherEvent.duration[compareTimeindex] + otherEventStart[compareTimeindex] >= thisEventStart[compareTimeindex] ){
+                  console.log(" >reaches");
+                  eventMerged=true;
+                  //merge the two
+                  otherEvent.duration[compareTimeindex] =Math.max(
+                    otherEvent.duration[compareTimeindex],
+                    otherEventStart[compareTimeindex] - (thisEventStart[compareTimeindex]+thisEvent.duration [compareTimeindex])
+                  );
+                  //warparound
+                  if(compareTimeindex===0){
+                    while(otherEvent.duration[0]<=compareTimeindex){
+                      otherEvent.duration[0]+=clock.steps;
+                    }
+                  }else{
+                    while(otherEvent.duration[1]<=compareTimeindex){
+                      otherEvent.duration[1]+=clock.microSteps;
+                    }
+                  }
+
+                }
+              }/*else{
+                //thisEvent started before the otherevent
+                //and reaches the other event
+                if(started[0]>=otherEvent.duration[0]+otherStep){
+                  eventMerged=true;
+                  //merge the two: enlarge duration and advance start
+                  otherEvent.duration[0]=Math.max(otherStep.duration[0],otherStep-(started[0]+duration[0]));
+                  //len warparound
+                  if(otherEvent.duration[0]<=0){
+                    otherEvent.duration=tapeLength.value;
+                  }
+                  createNewTapeEvent(otherEvent,[started]);
+                  delete tape[otherStep][otherMicroStep][n];
+                }
+              }*/
+            }
+          }
+        }
+        if(!eventMerged){
+          if(!memory[eventTime])memory[eventTime]=[];
+          memory[eventTime].push(eventMessage);
+        }
       }
       this.getEvent=function(eventMessage){
         console.log("rec",eventMessage.value);
