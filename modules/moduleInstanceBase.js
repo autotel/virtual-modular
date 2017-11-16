@@ -83,6 +83,7 @@ module.exports=function(){
       if(what.isModuleInstance){
         console.log(thisModule.name+"rec>"+what.name);
         recordOutputs.add(what);
+        thisModule.addInput(what);
       }else{
         // console.error(what);
         throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
