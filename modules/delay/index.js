@@ -31,14 +31,19 @@ module.exports=function(environment){return new (function(){
   require to moduleBase.call
   */
   this.Instance=function(properties){
+    moduleInstanceBase.call(this);
+    this.baseName="delay";
+    testGetName.call(this);
+    if(properties.name) this.name=properties.name;
+
     var noteOffSuperImpose=new EventMessage({value:[TRIGGEROFFHEADER]});
-    var thisInstance=this;
+    var thisModule=this;
     var myBitmap=0;
     //[[step,microStep]]={EventPattern:EP,age:how old}
     var memory=[];
     this.recording=true;
 
-    var clock=this.clock={steps:3,step:0,microSteps:12,microStep:0};
+    var clock=this.clock={steps:16*3,step:0,microSteps:12,microStep:0};
 
     var noteOnTracker=new(function(){
       var trackedNotes=[];
@@ -46,7 +51,8 @@ module.exports=function(environment){return new (function(){
         eventMessage.started=currentMicroStep;
         trackedNotes.push(eventMessage);
         if(eventMessage.value[0]==TRIGGERONHEADER){
-          trackedNotes[[eventMessage.value[1],eventMessage.value[2]]=eventMessage;
+          eventKey=[eventMessage.value[1],eventMessage.value[2]];
+          trackedNotes[eventKey]=eventMessage;
           if(!isNaN(eventMessage.duration)){
             callback.call(eventMessage,false);
           }else{
@@ -65,6 +71,13 @@ module.exports=function(environment){return new (function(){
           }
         }
       }
+      this.setAllOff=function(){
+        for(var a in trackedNotes){
+          if(trackedNotes.value[0]==TRIGGERONHEADER){
+            thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
+          }
+        }
+      }
       return this;
     })();
 
@@ -75,16 +88,19 @@ module.exports=function(environment){return new (function(){
       var currentMicroStep=0;
       var eventsWithNoteOn={};
       function addToMemory(eventTime,eventMessage){
+        console.log("mem",eventMessage.value,eventTime);
         if(!memory[eventTime])memory[eventTime]=[];
         memory[eventTime].push(eventMessage);
       }
       this.getEvent=function(eventMessage){
+        console.log("rec",eventMessage.value);
         var timeNow=[currentStep,currentMicroStep];
+        var eventKey=[ eventMessage.value[1],eventMessage.value[2] ];
         if(eventMessage.value[0]==TRIGGERONHEADER){
           eventMessage.started=timeNow;
-          trackedNotes[[eventMessage.value[1],eventMessage.value[2]]=eventMessage;
+          trackedNotes[eventKey]=eventMessage;
         }else if(eventMessage.value[0]==TRIGGEROFFHEADER){
-          var trackedNote=trackedNotes[[eventMessage.value[1],eventMessage.value[2]];
+          var trackedNote=trackedNotes[eventKey];
           if(trackedNote){
             //started looks like: [step,microStep]
             var started=trackedNote.started;
@@ -110,18 +126,10 @@ module.exports=function(environment){return new (function(){
       }
       return this;
     })();
-
-    moduleInstanceBase.call(this);
-    this.baseName="delay";
-    testGetName.call(this);
-    if(properties.name) this.name=properties.name;
-
     var baseEventMessage=this.baseEventMessage= new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
     this.interactor.name=this.name;
-
-
     this.memoryOutput=function(eventPattern){
       //add eventPattern to a lengthManager, play that
       noteOnTracker.trackEventMessage(eventPattern,function(error){
@@ -129,9 +137,16 @@ module.exports=function(environment){return new (function(){
         thisModule.output(eventPattern);
       });
     }
-    this.clockFunctions(){
+    var clockFunction=function(){
       recorder.clockFunction(clock.step,clock.microStep);
       noteOnTracker.clockFunction(clock.step,clock.microStep);
+      if(memory[[clock.step,clock.microStep]]){
+        console.log(`memory[${clock.step},${clock.microStep}]`);
+        for (var event of memory[[clock.step,clock.microStep]]){
+          console.log(`y:${event}`);
+          thisModule.output(event);
+        }
+      }
     }
 
     this.eventReceived=function(evt){
@@ -139,18 +154,21 @@ module.exports=function(environment){return new (function(){
         if(evt.EventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.EventMessage);
       }
       if(evt.EventMessage.value[0]==CLOCKTICKHEADER){
+        // console.log("CK");
         clock.microStep=evt.EventMessage.value[2];
         clock.microSteps=evt.EventMessage.value[1];
-        if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
+        if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
         }
-        clockFunctions();
+        clockFunction();
       }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
         recorder.getEvent(evt.EventMessage);
       }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
       }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER+1){
       }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
+        evt.EventMessage.value.shift();
+        thisModule.eventReceived(evt);
       }else{
       }
     }
@@ -160,8 +178,7 @@ module.exports=function(environment){return new (function(){
     }
     this.delete=function(){
       for(var noff of noteOnTracker){
-        thisInstance.output(noff);
-        noteOnTracker.delete(noff);
+        noteOnTracker.setAllOff(noff);
       }
     }
   }
