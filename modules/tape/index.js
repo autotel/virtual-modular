@@ -32,7 +32,7 @@ module.exports=function(environment){return new (function(){
   */
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
-    this.baseName="delay";
+    this.baseName="tape";
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
 
