@@ -6,7 +6,10 @@ module.exports=function(controlledModule){
   var noteLengthner=new NoteLengthner(controlledModule);
   var recorderDifferenciatorList={};
   var currentStep=controlledModule.currentStep;
-
+  this.recordSingularEvent=function(eventMessage){
+    console.log(controlledModule.storeNoDup(currentStep.value,new EventPattern().fromEventMessage(eventMessage)));
+    console.log("st");
+  }
   this.recordNoteStart=function(differenciator,stepOn){
     // console.log("recon",differenciator);
     // console.log("recordNoteStart",differenciator,stepOn);

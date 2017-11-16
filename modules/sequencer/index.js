@@ -127,13 +127,17 @@ module.exports=function(environment){return new (function(){
       }else if(evt.value[0]==0x04){
         thisInstance.stepAbsolute(evt.value[1]);
       }else if(evt.value[0]==RECORDINGHEADER){
-        // console.log("sq:RECORDINGHEADER");
+        console.log("sq:RECORDINGHEADER");
+        console.log(evt.value);
         // console.log("REC");
         evt.value.shift();
+        console.log(evt.value[0]);
         if(evt.value[0]==TRIGGERONHEADER){
           recorder.recordNoteStart(evt.value[1]*evt.value[2],evt);
         }else if (evt.value[0]==TRIGGEROFFHEADER) {
           recorder.recordNoteEnd(evt.value[1]*evt.value[2]);
+        }else{
+          recorder.recordSingularEvent(evt);
         }
         // thisInstance.recorder.start();
       }

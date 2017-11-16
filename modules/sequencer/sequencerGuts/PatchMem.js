@@ -36,8 +36,13 @@ module.exports=function(sequencerModule){ return new(function(){
       return data;
     }
   }
+  /**
+  store a PatternEvent in the sequencer memory ensuring that the event doesn't already exist in that step
+  @param {numbar} step the step where the PatternEvent will be stored
+  @param {PatternEvent} data the PatternEvent to store
+  @returns stored data, or false if data was already found and not stored
+  */
   var storeNoDup=function(step,data){
-    var ret=false;
     if(!patData[step]) patData[step]=[];
     if(data){
       var cancel=false;
@@ -48,13 +53,17 @@ module.exports=function(sequencerModule){ return new(function(){
             break;
           }
         }catch(e){
-          // console.log(patData[step]);
-          // console.log(e);
+          console.log(patData[step]);
+          console.log(e);
         }
       }
       if(!cancel){
-        patData[step].push(data); return data;
+        patData[step].push(data);
+        return data;
       }
+      return !cancel;
+    }else{
+      console.error("wrong storeNoDup data is ",data);
     }
   }
   var clearStepNewest=function(step){
