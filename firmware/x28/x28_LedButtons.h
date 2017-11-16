@@ -28,7 +28,7 @@ class LedButtons {
 
       //security led fadein
       for (uint32_t t = 0; t < 0xff; t += 4) {
-        LEDS.setBrightness(floor(sin(a * t / (28000 )+0.15) * 255));
+        LEDS.setBrightness(t);
         for (uint16_t a = 0; a < 28; a++) {
           setButtonColor(
             a,
@@ -38,6 +38,7 @@ class LedButtons {
           );
         }
         FastLED.show();
+        delay(5);
       }
 
       for (uint8_t a = 0; a < 33; a++) {
