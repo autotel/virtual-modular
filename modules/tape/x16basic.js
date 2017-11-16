@@ -28,7 +28,7 @@ module.exports=function(environment){
       for (let hardware of engagedHardwares) {
         updateLeds(hardware);
       }
-    },1000/90);
+    },1000/20);
     this.matrixButtonPressed=function(event){
       if(engagedConfigurator){
         engagedConfigurator.matrixButtonPressed(event);
@@ -94,6 +94,7 @@ module.exports=function(environment){
     var updateLeds=function(hardware){
       var eventsBmp=0;
       var headerBmp=1<<(controlledModule.clock.step/2);
+      //TODO: this function is taking way too much time
       controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
         console.log(timeIndex);
         eventsBmp|=1<<(timeIndex[0]/2);
