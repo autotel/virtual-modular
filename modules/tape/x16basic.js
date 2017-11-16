@@ -85,11 +85,14 @@ module.exports=function(environment){
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
-      hardware.sendScreenA(controlledModule.name);
+      updateScreen(hardware);
       updateLeds(hardware);
     }
+    var updateScreen=function(hardware){
+      hardware.sendScreenA(controlledModule.name);
+    }
     var updateLeds=function(hardware){
-      stepsBmp=controlledModule.getBitmap16();
+      controlledModule.eachMemoryEvent
       hardware.draw([0,stepsBmp,stepsBmp]);
     }
   }

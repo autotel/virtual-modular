@@ -42,8 +42,35 @@ module.exports=function(environment){return new (function(){
     //[[step,microStep]]={EventPattern:EP,age:how old}
     var memory=[];
     this.recording=true;
-
     var clock=this.clock={steps:16*3,step:0,microSteps:12,microStep:0};
+    /**
+    @param callback the function to call for each memory event. The eventMessage will be this
+    you can set the time range to take in consideration using:
+    @param {array} timeStart time of the first memory event on whom to call the callback, in [step,microStep]
+    @param {array} timeEnd time of the last memory event on whom to call the callback, in [step,microStep]
+    */
+    this.eachMemoryEvent=function(callback,timeStart,timeEnd){
+      if(!timeStart) timeStart=[0,0];
+      if(!timeEnd) timeEnd=[clock.steps,clock.microSteps];
+      if(timeStart[0]===undefined)console.warn("eachMemoryEvent timeStart parameter must be array of [step,microStep]");
+      if(timeEnd[0]===undefined)console.warn("eachMemoryEvent timeEnd parameter must be array of [step,microStep]");
+      var timeRangeStarted=false;
+      for(var timeIndex in memory){
+        if(!timeRangeStarted){
+          if(timeStart[0]<=timeIndex[0]&&timeStart[1]<=timeIndex[1]){
+            timeRangeStarted=true;
+          }
+        }
+        if(timeRangeStarted){
+          for(var eventIndex in memory[timeIndex]){
+            callback.call(memory[timeIndex][eventIndex],timeIndex,eventIndex);
+          }
+        }
+        if(timeIndex[0]>=timeEnd[0]&&timeIndex[1]>=timeEnd[1]){
+          break;
+        }
+      }
+    }
 
     var noteOnTracker=new(function(){
       var trackedNotes=[];
@@ -232,9 +259,6 @@ module.exports=function(environment){return new (function(){
       }
     }
 
-    this.getBitmap16=function(){
-      return myBitmap;
-    }
     this.delete=function(){
       for(var noff of noteOnTracker){
         noteOnTracker.setAllOff(noff);
