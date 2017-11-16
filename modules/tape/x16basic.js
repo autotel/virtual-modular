@@ -23,18 +23,18 @@ module.exports=function(environment){
       return 0!=(controlledModule.getBitmap16()&(1<<button));
     }
     var engagedHardwares=new Set();
-    controlledModule.on('step',function(){
+    setInterval(function(){
       if(!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         updateLeds(hardware);
       }
-    });
+    },1000/90);
     this.matrixButtonPressed=function(event){
       if(engagedConfigurator){
         engagedConfigurator.matrixButtonPressed(event);
       }else{
-        controlledModule.toggleStep(event.button);
-        updateHardware(event.hardware);
+        // controlledModule.toggleStep(event.button);
+        // updateHardware(event.hardware);
       }
     };
     this.matrixButtonReleased=function(event){
@@ -85,12 +85,20 @@ module.exports=function(environment){
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
-      hardware.sendScreenA(controlledModule.name);
+      updateScreen(hardware);
       updateLeds(hardware);
     }
+    var updateScreen=function(hardware){
+      hardware.sendScreenA(controlledModule.name);
+    }
     var updateLeds=function(hardware){
-      stepsBmp=controlledModule.getBitmap16();
-      hardware.draw([0,stepsBmp,stepsBmp]);
+      var eventsBmp=0;
+      var headerBmp=1<<(controlledModule.clock.step/2);
+      controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
+        console.log(timeIndex);
+        eventsBmp|=1<<(timeIndex[0]/2);
+      });
+      hardware.draw([headerBmp,headerBmp|eventsBmp,eventsBmp]);
     }
   }
 }

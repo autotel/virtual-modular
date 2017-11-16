@@ -32,7 +32,7 @@ module.exports=function(environment){return new (function(){
   */
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
-    this.baseName="delay";
+    this.baseName="tape";
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
 
@@ -42,8 +42,35 @@ module.exports=function(environment){return new (function(){
     //[[step,microStep]]={EventPattern:EP,age:how old}
     var memory=[];
     this.recording=true;
-
-    var clock=this.clock={steps:16*3,step:0,microSteps:12,microStep:0};
+    var clock=this.clock={steps:32,step:0,microSteps:12,microStep:0};
+    /**
+    @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
+    you can set the time range to take in consideration using:
+    @param {array} timeStart time of the first memory event on whom to call the callback, in [step,microStep]
+    @param {array} timeEnd time of the last memory event on whom to call the callback, in [step,microStep]
+    */
+    this.eachMemoryEvent=function(callback,timeStart,timeEnd){
+      if(!timeStart) timeStart=[0,0];
+      if(!timeEnd) timeEnd=[clock.steps,clock.microSteps];
+      if(timeStart[0]===undefined)console.warn("eachMemoryEvent timeStart parameter must be array of [step,microStep]");
+      if(timeEnd[0]===undefined)console.warn("eachMemoryEvent timeEnd parameter must be array of [step,microStep]");
+      var timeRangeStarted=false;
+      for(var timeIndex in memory){
+        if(!timeRangeStarted){
+          if(timeStart[0]<=timeIndex[0]&&timeStart[1]<=timeIndex[1]){
+            timeRangeStarted=true;
+          }
+        }
+        if(timeRangeStarted){
+          for(var eventIndex in memory[timeIndex]){
+            callback.call(memory[timeIndex][eventIndex],JSON.parse("["+timeIndex+"]"),eventIndex);
+          }
+        }
+        if(timeIndex[0]>=timeEnd[0]&&timeIndex[1]>=timeEnd[1]){
+          break;
+        }
+      }
+    }
 
     var noteOnTracker=new(function(){
       var trackedNotes=[];
@@ -82,15 +109,74 @@ module.exports=function(environment){return new (function(){
     })();
 
     var recorder=new(function(){
-      //TODO: track in existing notes if there are overlaps aswell, to merge similar notes
       var trackedNotes=[];
       var currentStep=0;
       var currentMicroStep=0;
       var eventsWithNoteOn={};
       function addToMemory(eventTime,eventMessage){
+        //find if I this event needs to be merged with other
         console.log("mem",eventMessage.value,eventTime);
-        if(!memory[eventTime])memory[eventTime]=[];
-        memory[eventTime].push(eventMessage);
+        var eventMerged=false;
+        for(var memIndex in memory){
+          for(var otherEvent of memory[memIndex]){
+            if(otherEvent.compareTo(eventMessage,["value"])){
+              var otherEventStart=memIndex;
+              var thisEventStart=eventTime;
+              //by default, compare start and end by steps
+              var compareTimeindex=0;
+              //unless their step is the same, in which case we compare starts by microStep
+              if(thisEventStart==otherEventStart){
+                compareTimeindex=1;
+              }
+              //thisEvent started after the otherevent
+              if(
+                thisEventStart[compareTimeindex]
+                > otherEventStart[compareTimeindex]
+              ){
+                console.log("started after");
+                //and otherEvent length reaches this event
+                if( otherEvent.duration[compareTimeindex] + otherEventStart[compareTimeindex] >= thisEventStart[compareTimeindex] ){
+                  console.log(" >reaches");
+                  eventMerged=true;
+                  //merge the two
+                  otherEvent.duration[compareTimeindex] =Math.max(
+                    otherEvent.duration[compareTimeindex],
+                    otherEventStart[compareTimeindex] - (thisEventStart[compareTimeindex]+thisEvent.duration [compareTimeindex])
+                  );
+                  //warparound
+                  if(compareTimeindex===0){
+                    while(otherEvent.duration[0]<=compareTimeindex){
+                      otherEvent.duration[0]+=clock.steps;
+                    }
+                  }else{
+                    while(otherEvent.duration[1]<=compareTimeindex){
+                      otherEvent.duration[1]+=clock.microSteps;
+                    }
+                  }
+
+                }
+              }/*else{
+                //thisEvent started before the otherevent
+                //and reaches the other event
+                if(started[0]>=otherEvent.duration[0]+otherStep){
+                  eventMerged=true;
+                  //merge the two: enlarge duration and advance start
+                  otherEvent.duration[0]=Math.max(otherStep.duration[0],otherStep-(started[0]+duration[0]));
+                  //len warparound
+                  if(otherEvent.duration[0]<=0){
+                    otherEvent.duration=tapeLength.value;
+                  }
+                  createNewTapeEvent(otherEvent,[started]);
+                  delete tape[otherStep][otherMicroStep][n];
+                }
+              }*/
+            }
+          }
+        }
+        if(!eventMerged){
+          if(!memory[eventTime])memory[eventTime]=[];
+          memory[eventTime].push(eventMessage);
+        }
       }
       this.getEvent=function(eventMessage){
         console.log("rec",eventMessage.value);
@@ -141,9 +227,9 @@ module.exports=function(environment){return new (function(){
       recorder.clockFunction(clock.step,clock.microStep);
       noteOnTracker.clockFunction(clock.step,clock.microStep);
       if(memory[[clock.step,clock.microStep]]){
-        console.log(`memory[${clock.step},${clock.microStep}]`);
+        // console.log(`memory[${clock.step},${clock.microStep}]`);
         for (var event of memory[[clock.step,clock.microStep]]){
-          console.log(`y:${event}`);
+          // console.log(`y:${event}`);
           thisModule.output(event);
         }
       }
@@ -160,6 +246,7 @@ module.exports=function(environment){return new (function(){
         if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
+          // thisModule.handle('step');
         }
         clockFunction();
       }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
@@ -173,9 +260,6 @@ module.exports=function(environment){return new (function(){
       }
     }
 
-    this.getBitmap16=function(){
-      return myBitmap;
-    }
     this.delete=function(){
       for(var noff of noteOnTracker){
         noteOnTracker.setAllOff(noff);

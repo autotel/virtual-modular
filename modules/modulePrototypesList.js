@@ -7,7 +7,7 @@ module.exports={
   "harmonizer":"./harmonizer",
   "gameOfLife":"./gameOfLife",
   "midiIO":"./midiIO-windows",
-  "delay":"./delay",
+  "tape":"./tape",
 }
 /*
 optional automatic:
