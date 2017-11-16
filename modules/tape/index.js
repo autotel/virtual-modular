@@ -42,9 +42,9 @@ module.exports=function(environment){return new (function(){
     //[[step,microStep]]={EventPattern:EP,age:how old}
     var memory=[];
     this.recording=true;
-    var clock=this.clock={steps:16*3,step:0,microSteps:12,microStep:0};
+    var clock=this.clock={steps:32,step:0,microSteps:12,microStep:0};
     /**
-    @param callback the function to call for each memory event. The eventMessage will be this
+    @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
     you can set the time range to take in consideration using:
     @param {array} timeStart time of the first memory event on whom to call the callback, in [step,microStep]
     @param {array} timeEnd time of the last memory event on whom to call the callback, in [step,microStep]
@@ -63,7 +63,7 @@ module.exports=function(environment){return new (function(){
         }
         if(timeRangeStarted){
           for(var eventIndex in memory[timeIndex]){
-            callback.call(memory[timeIndex][eventIndex],timeIndex,eventIndex);
+            callback.call(memory[timeIndex][eventIndex],JSON.parse("["+timeIndex+"]"),eventIndex);
           }
         }
         if(timeIndex[0]>=timeEnd[0]&&timeIndex[1]>=timeEnd[1]){
@@ -227,9 +227,9 @@ module.exports=function(environment){return new (function(){
       recorder.clockFunction(clock.step,clock.microStep);
       noteOnTracker.clockFunction(clock.step,clock.microStep);
       if(memory[[clock.step,clock.microStep]]){
-        console.log(`memory[${clock.step},${clock.microStep}]`);
+        // console.log(`memory[${clock.step},${clock.microStep}]`);
         for (var event of memory[[clock.step,clock.microStep]]){
-          console.log(`y:${event}`);
+          // console.log(`y:${event}`);
           thisModule.output(event);
         }
       }
@@ -246,6 +246,7 @@ module.exports=function(environment){return new (function(){
         if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
+          // thisModule.handle('step');
         }
         clockFunction();
       }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
