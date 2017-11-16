@@ -1,0 +1,4 @@
+{
+  "verbose": true,
+  "ignore": ["midi-options.js"]
+}
