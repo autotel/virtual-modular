@@ -23,7 +23,7 @@ module.exports=[
         [1,9,48,-1],[1,9,49,-1],[1,9,50,-1],[1,9,51,-1]
       ]
     },
-    outputs:['default midi out','O-to DAW','test tape']
+    outputs:['default midi out','O-to DAW']
   },{
     type:'presetKit',
     properties:{
@@ -38,6 +38,6 @@ module.exports=[
     properties:{
       name:'test tape',
     },
-    outputs:['default midi out','O-to DAW']
+    outputs:[]
   }
 ]
