@@ -5,7 +5,7 @@ module.exports=[
       name:'main clock',
       bpm:120
     },
-    outputs:['default sequencer','test delay']
+    outputs:['default sequencer','test tape']
   },{
     type:'sequencer',
     properties:{
@@ -23,7 +23,7 @@ module.exports=[
         [1,9,48,-1],[1,9,49,-1],[1,9,50,-1],[1,9,51,-1]
       ]
     },
-    outputs:['default midi out','O-to DAW','test delay']
+    outputs:['default midi out','O-to DAW','test tape']
   },{
     type:'presetKit',
     properties:{
@@ -34,9 +34,9 @@ module.exports=[
     },
     outputs:['default sequencer']
   },{
-    type:'delay',
+    type:'tape',
     properties:{
-      name:'test delay',
+      name:'test tape',
     },
     outputs:['default midi out','O-to DAW']
   }
