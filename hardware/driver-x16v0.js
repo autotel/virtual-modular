@@ -278,6 +278,10 @@ var DriverX16v0=function(environment,properties){
       if(event.type=="matrixButtonReleased"){
         event.data[2]=event.data[2]|(event.data[3]<<8);
       }
+      if((/button/i).test(event.type)){
+        event.button=event.data[0];
+        // console.log("buttton",event.type);
+      }
       // console.log("recv",chd);
       myInteractionPattern.handle('interaction',event);
       // console.log("interaction",event);

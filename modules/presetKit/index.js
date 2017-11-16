@@ -97,6 +97,7 @@ module.exports=function(environment){return new (function(){
     }
 
     this.triggerOn=function(presetNumber,originalMessage){
+      // console.log("ton",presetNumber,originalMessage);
       presetNumber%=16;
       thisInstance.handle("extrigger",{preset:presetNumber});
       if(kit[presetNumber]){

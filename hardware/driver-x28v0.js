@@ -234,7 +234,7 @@ var DriverX28v0=function(environment,properties){
       // console.log(arr8.length);
       // arr8.push(eoString);
       var buf1 = Buffer.from(arr8);
-      console.log(buf1);
+      // console.log(buf1);
       // console.log("string of "+buf1.length);
       // console.log("send str len"+buf1.length);
       serial.write(buf1);
@@ -301,7 +301,7 @@ var DriverX28v0=function(environment,properties){
       console.error(e);
     }
   });
-
+  var matrixButtonsBitmap=0;
   dataChopper.wholePacketReady=function(chd){
     // console.log("------------packet",chd);
     // console.log(data);
@@ -313,14 +313,22 @@ var DriverX28v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
-      if(event.type=="matrixButtonVelocity"){
-        event.data[1]=event.data[1]|(event.data[2]<<8);
-      }
+      // if(event.type=="matrixButtonVelocity"){
+      //   event.data[1]=event.data[1]|(event.data[2]<<8);
+      // }
       if(event.type=="matrixButtonPressed"){
-        event.data[2]=event.data[2]|(event.data[3]<<8);
+        matrixButtonsBitmap|=1<<event.data[0];
+        event.data[2]=matrixButtonsBitmap;
+        event.data[3]=0;
       }
       if(event.type=="matrixButtonReleased"){
-        event.data[2]=event.data[2]|(event.data[3]<<8);
+        matrixButtonsBitmap&=~(1<<event.data[0]);
+        event.data[2]=matrixButtonsBitmap;
+        event.data[3]=0;
+      }
+      if((/button/i).test(event.type)){
+        event.button=event.data[0];
+        // console.log("buttton",event.type);
       }
       // console.log("recv",chd);
       // console.log("interaction",event);

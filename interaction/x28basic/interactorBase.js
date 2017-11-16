@@ -5,6 +5,7 @@ var InteractorBase=require('../Interactor.js');
 */
 var x16InteractorBase=function(controlledModule){
   var thisInteractor=this;
+  this.controlledModule=controlledModule;
   InteractorBase.call(this,controlledModule);
   this.compatibilityTags=["x32v0"];
   // console.log(".....",this.compatibilityTags);

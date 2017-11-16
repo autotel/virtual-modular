@@ -10,7 +10,6 @@ var RECORDINGHEADER = 0xAA;
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
-var midiInstance=require('./instance');
 
 var fs=require('fs');
 var path=require('path');
@@ -66,8 +65,16 @@ module.exports=function(environment){return new (function(){
       // console.log('    -No out port '+currentPortNumber);
       midiOpenFail=true;
     }
-
-    currentPortName = midi.MidiInOpen(currentPortNumber)||currentPortName;
+    var midiInputCallbackContainer=function(a,b){
+      console.warn("midiIO input function not defined");
+    }
+    function setInputCallback(cb){
+      midiInputCallbackContainer=cb;
+    }
+    var midiInputCallbackCaller=function(t,msg){
+      midiInputCallbackContainer(t,msg);
+    }
+    currentPortName = midi.MidiInOpen(currentPortNumber,midiInputCallbackCaller)||currentPortName;
     if(currentPortName){
       midiOpenFail=false;
       if(midiOptions.inputs[currentPortName]===undefined){
@@ -77,6 +84,7 @@ module.exports=function(environment){return new (function(){
       if(midiOptions.inputs[currentPortName]===true){
         if(openedMidiPorts[currentPortName]===undefined) openedMidiPorts[currentPortName]={};
         openedMidiPorts[currentPortName].input=midi;
+        openedMidiPorts[currentPortName].input.setCallback=setInputCallback;
         console.log('     -openedMidiPorts ['+currentPortName+'].input = opened Midi port');
       }else{
         console.log('    -openedMidiPorts ['+currentPortName+'].input disabled in midi-options.json');
@@ -88,7 +96,6 @@ module.exports=function(environment){return new (function(){
     }
     currentPortNumber++;
   }
-  fs.writeFile(path.join(__dirname,'/midi-options.js'), "module.exports="+JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
 
   environment.on('created',function(){
     for(var midiItem in openedMidiPorts){
@@ -110,23 +117,96 @@ module.exports=function(environment){return new (function(){
     }
   });
 
+
+  fs.writeFile(path.join(__dirname,'/midi-options.js'), "module.exports="+JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
+
   /**
   @constructor
   the instance of the of the module, ment to be instantiated multiple times.
-  require to moduleBase.call
+  require to moduleBase.call. it is created via ModulesManager.addModule
   */
   this.Instance=function(properties){
-    //TODO: move instance to instance.js
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
     getName.call(this);
-
+    var thisModule=this;
     if(properties.name) this.name=properties.name;
-
+    var midi=properties.midiPort;
+    console.log("midi device",midi.input);
+    /*example midiInputCache={[0x80,0x01:{outputMessage:eventMessage,enabled:true}]}*/
+    var midiInputCache=this.midiInputCache={};
+    var eachMidiMapping=this.eachMidiMapping=function(callback){
+      for(var index in midiInputCache){
+        callback.call(midiInputCache[index],index,midiInputCache[index]);
+      }
+    }
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
-    var midi=properties.midiPort;
-
+    if(midi.input){
+      var inputClockCount=0;
+      midi.input.setCallback(function(t,midiMessage){
+        //midi to EventMessage conversion
+        var outputMessage=new EventMessage({
+          value:[
+            (midiMessage[0]&0xf0),
+            (midiMessage[0]&0xf),
+            midiMessage[1],
+            midiMessage[2]
+          ]
+        });
+        switch (outputMessage.value[0]){
+          case 0x90:
+            outputMessage.value[0]=TRIGGERONHEADER;
+            break;
+          case 0x80:
+            outputMessage.value[0]=TRIGGEROFFHEADER;
+            break;
+          case 0xF0:{
+            if(outputMessage.value[1]==0x8){
+              outputMessage.value[0]=CLOCKTICKHEADER;
+              outputMessage.value[1]=3;
+              outputMessage.value[2]=inputClockCount%3;
+              inputClockCount+=1;
+              break;
+            }else if(outputMessage.value[1]==0xa){
+              outputMessage.value[0]=CLOCKABSOLUTEHEADER;
+              outputMessage.value[1]=0;
+              outputMessage.value[2]=0;
+              inputClockCount=0;
+              break;
+            }else if(outputMessage.value[1]==0xb){
+              outputMessage.value[0]=TRIGGERONHEADER;
+              break;
+            }else if(outputMessage.value[1]==0xc){
+              outputMessage.value[0]=TRIGGEROFFHEADER;
+              break;
+            }
+          }
+          default:
+            // console.log("message header not transformed:",outputMessage.value);
+        }
+        // console.log(thisModule.name,outputMessage.value);
+        var msgFn=outputMessage.value[0];
+        var msgFv=outputMessage.value[1];
+        /*
+        midi input messages are converted to the internal language standards, and it is added to a cache,
+        in this way, it becomes possible to disble some messages or to change the input/output mapping
+        by altering the midiInputCache
+        */
+        if(!midiInputCache[[msgFn,msgFv]]){
+          midiInputCache[[msgFn,msgFv]]={
+              outputMessage:outputMessage.clone(),
+              enabled:true
+          };
+          midiInputCache[[msgFn,msgFv]].outputMessage.value[2]=-1;
+          midiInputCache[[msgFn,msgFv]].outputMessage.value[3]=-1;
+        }
+        if(midiInputCache[[msgFn,msgFv]].enabled){
+          thisModule.output(outputMessage.superImpose(midiInputCache[[msgFn,msgFv]].outputMessage));
+        }
+        thisModule.handle('midi in',{inputMidi:midiMessage,outputMessage:outputMessage,eventMessage:outputMessage});
+      });
+    }
     midi.out=function(a,b,c){
       if(midi.output){
         midi.output.MidiOut(a,b,c);
@@ -158,7 +238,7 @@ module.exports=function(environment){return new (function(){
         midiOut[1]=eventMessage.value[2];
         midiOut[2]=0;
       }
-      console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
+      // console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
       midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
     this.remove=function(){

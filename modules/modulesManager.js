@@ -35,6 +35,7 @@ var modulesManager=function(environment){ return new(function(){
 
   /** @function
   instanciate and register a new module.
+  Two example uses of this function are in the superinteractor, when you create a new module using the buttons, and the midi IO, which creates one module per midi input
   */
   this.addModule=function(moduleName,properties){
     console.log("instancing singleton of module: ",moduleName);
