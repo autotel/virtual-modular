@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+
 // var clockSpec=require('../standards/clock.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
@@ -40,7 +41,7 @@ module.exports=function(environment){return new (function(){
     var thisModule=this;
     var myBitmap=0;
     //[[step,microStep]]={EventPattern:EP,age:how old}
-    var memory=[];
+    var memory=this.memory=[];
     this.recording=true;
     var clock=this.clock={steps:32,step:0,microSteps:12,microStep:0};
     /**
@@ -115,7 +116,8 @@ module.exports=function(environment){return new (function(){
       var eventsWithNoteOn={};
       function addToMemory(eventTime,eventMessage){
         //find if I this event needs to be merged with other
-        console.log("mem",eventMessage.value,eventTime);
+        // console.log("mem",eventMessage.value,eventTime);
+        thisModule.handle('event recorded',eventTime,eventMessage);
         var eventMerged=false;
         for(var memIndex in memory){
           for(var otherEvent of memory[memIndex]){

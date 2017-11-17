@@ -1,6 +1,7 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
+var DataVisualizer=require('./visualizer.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -16,6 +17,7 @@ module.exports=function(environment){
     myInteractorBase.call(this,controlledModule);
     var configurators={};
     configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
+    var visualizer=new DataVisualizer(controlledModule);
     var engagedConfigurator=false;
     var lastEngagedConfigurator=configurators.event;
     var stepsBmp=0;
@@ -92,13 +94,13 @@ module.exports=function(environment){
       hardware.sendScreenA(controlledModule.name);
     }
     var updateLeds=function(hardware){
-      var eventsBmp=0;
-      var headerBmp=1<<(controlledModule.clock.step/2);
+      var eventsBmp=visualizer.eventsBitmap;
+      var headerBmp=1<<(controlledModule.clock.step/visualizer.eventsPerSquare.value);
       //TODO: this function is taking way too much time
-      controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
-        console.log(timeIndex);
-        eventsBmp|=1<<(timeIndex[0]/2);
-      });
+      // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
+      //   console.log(timeIndex);
+      //   eventsBmp|=1<<(timeIndex[0]/2);
+      // });
       hardware.draw([headerBmp,headerBmp|eventsBmp,eventsBmp]);
     }
   }
