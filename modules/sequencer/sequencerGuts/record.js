@@ -12,7 +12,7 @@ module.exports=function(controlledModule){
   }
   this.recordNoteStart=function(differenciator,stepOn){
     // console.log("recordNoteStart",differenciator,stepOn);
-    console.log("recon",differenciator,stepOn);
+    // console.log("recon",differenciator,stepOn);
     if(stepOn){
       // console.log("rec rec");
       var newStepEvent=new EventPattern().fromEventMessage(stepOn);
@@ -26,7 +26,7 @@ module.exports=function(controlledModule){
   }
   this.recordNoteEnd=function(differenciator){
     // lo
-    console.log("recoff",differenciator);
+    // console.log("recoff",differenciator);
     // console.log("noteEnd",differenciator);
     noteLengthner.finishAdding(recorderDifferenciatorList[differenciator],function(subdiff,sequencerEvent,nicCount){
       // console.log("rec",recorderDifferenciatorList[differenciator],sequencerEvent);
