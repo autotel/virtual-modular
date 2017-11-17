@@ -47,7 +47,7 @@ module.exports=function(environment){return new (function(){
       //console.log(patMem);
     }
     this.eventReceived=function(evt){
-      if(evt.EventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
+      if(evt.eventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
         for(var noff of noteOnTracker){
           thisInstance.output(noff);
           noteOnTracker.delete(noff);
@@ -67,7 +67,7 @@ module.exports=function(environment){return new (function(){
           //console.log("NS"+step.value);
         }
       }else{
-        //console.log(evt.EventMessage);
+        //console.log(evt.eventMessage);
       }
     }
     this.clearStep=function(step){

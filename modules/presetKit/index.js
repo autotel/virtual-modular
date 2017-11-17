@@ -141,7 +141,7 @@ module.exports=function(environment){return new (function(){
       }
     }
     this.eventReceived=function(event){
-      var evM=event.EventMessage;
+      var evM=event.eventMessage;
       // console.log(evM);
       thisInstance.handle('receive',event);
       if(evM.value[0]==CLOCKTICKHEADER){

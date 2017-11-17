@@ -135,7 +135,7 @@ module.exports=function(environment){return new (function(){
     }
     this.eventReceived=function(event){
       /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
-      var eventMessage=event.EventMessage
+      var eventMessage=event.eventMessage
       if(!thisInstance.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
           thisInstance.triggerOff(eventMessage.value[2]);

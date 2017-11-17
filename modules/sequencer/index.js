@@ -100,7 +100,7 @@ module.exports=function(environment){return new (function(){
 
     // x71: data response
     this.eventReceived=function(event){
-      var evt=event.EventMessage;
+      var evt=event.eventMessage;
       // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
       // console.log(evt);
 

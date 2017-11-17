@@ -237,24 +237,24 @@ module.exports=function(environment){return new (function(){
 
     this.eventReceived=function(evt){
       if(thisModule.recording){
-        if(evt.EventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.EventMessage);
+        if(evt.eventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.eventMessage);
       }
-      if(evt.EventMessage.value[0]==CLOCKTICKHEADER){
+      if(evt.eventMessage.value[0]==CLOCKTICKHEADER){
         // console.log("CK");
-        clock.microStep=evt.EventMessage.value[2];
-        clock.microSteps=evt.EventMessage.value[1];
-        if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0){
+        clock.microStep=evt.eventMessage.value[2];
+        clock.microSteps=evt.eventMessage.value[1];
+        if(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
           // thisModule.handle('step');
         }
         clockFunction();
-      }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
-        recorder.getEvent(evt.EventMessage);
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER+1){
-      }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
-        evt.EventMessage.value.shift();
+      }else if(evt.eventMessage.value[0]==TRIGGERONHEADER){
+        recorder.getEvent(evt.eventMessage);
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER+1){
+      }else if(evt.eventMessage.value[0]==RECORDINGHEADER){
+        evt.eventMessage.value.shift();
         thisModule.eventReceived(evt);
       }else{
       }
