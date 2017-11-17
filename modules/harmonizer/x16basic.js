@@ -26,7 +26,7 @@ module.exports=function(environment){
 
     configurators.event=new EventConfigurator(this,{
       baseEvent:controlledModule.baseEventMessage,
-      extraVariables:{"keyboard base":keyboardRoot/*,"keyboard chan":keyboardChan*/},
+      extraVariables:{"keyboard base":keyboardRoot,"keyboard chan":keyboardChan},
       name:"Msg & Perform",
       valueNames:["func","set chan","root n","velo"]
     });
@@ -100,7 +100,8 @@ module.exports=function(environment){
           // }
           if(event.data[0]>3){
             //scale section pressed
-            controlledModule.uiTriggerOn(event.data[0]+keyboardRoot.value-4/*, new EventMessage({value:[-1,-1,keyboardChan.value,-1]})*/);
+            var triggerKey=event.data[0]+keyboardRoot.value-4;
+            controlledModule.uiTriggerOn(triggerKey,new EventMessage({value:[-1,keyboardChan.value,triggerKey]}));
 
             // if(configurators.recorder.recording){
             //   configurators.recorder.recordUiOn(event.data[0],onEventMessage);

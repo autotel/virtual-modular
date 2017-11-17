@@ -55,28 +55,43 @@ module.exports=function(environment){return new (function(){
           ]}));
       }
     }
-
+    var uiNoteOnTracker={};
     this.uiTriggerOn=function(gradeNumber,underImpose=false){
-      thisInstance.triggerOn(gradeNumber);
+      thisInstance.triggerOn(gradeNumber,underImpose);
       if(thisInstance.recordingUi){
-        thisInstance.recordOutput(new EventMessage({
-          value:[
-            TRIGGERONHEADER,
-            thisInstance.baseEventMessage.value[1],
-            gradeNumber,100
-          ]}));
+        var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,thisInstance.baseEventMessage.value[1],gradeNumber,100 ]});
+        if(underImpose){
+          uiGeneratedEvent.underImpose(underImpose);
+        }
+        thisInstance.recordOutput(uiGeneratedEvent);
+        // console.log(uiGeneratedEvent.value);
+        uiNoteOnTracker[gradeNumber]=uiGeneratedEvent;
       }
     }
 
     this.uiTriggerOff=function(gradeNumber){
-      thisInstance.triggerOff(gradeNumber);
-      if(thisInstance.recordingUi){
-        thisInstance.recordOutput(new EventMessage({
-          value:[
-            TRIGGEROFFHEADER,
-            thisInstance.baseEventMessage.value[1],
-            gradeNumber,100
-          ]}));
+      if(uiNoteOnTracker[gradeNumber]){
+        thisInstance.triggerOff(gradeNumber);
+        if(thisInstance.recordingUi){
+          thisInstance.recordOutput(new EventMessage({
+            value:[
+              TRIGGEROFFHEADER,
+              uiNoteOnTracker[gradeNumber].value[1],
+              uiNoteOnTracker[gradeNumber].value[2],
+              uiNoteOnTracker[gradeNumber].value[3]
+            ]}));
+        }
+        delete uiNoteOnTracker[gradeNumber];
+      }else{
+        thisInstance.triggerOff(gradeNumber);
+        if(thisInstance.recordingUi){
+          thisInstance.recordOutput(new EventMessage({
+            value:[
+              TRIGGEROFFHEADER,
+              thisInstance.baseEventMessage.value[1],
+              gradeNumber,100
+            ]}));
+        }
       }
     }
 
