@@ -27,7 +27,7 @@ module.exports=function(){
   this.addOutput=function(what){
 
     if(what){
-      if(what.name===thisModule.name){
+      if(what===thisModule){
         console.error("can't patch a module to itself!");
       }else{
         if(what.isModuleInstance){

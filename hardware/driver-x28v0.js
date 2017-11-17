@@ -346,7 +346,7 @@ var DriverX28v0=function(environment,properties){
         event.delta=event.data[0];
       }
 
-      console.log(event);
+      // console.log(event);
       myInteractionPattern.handle(event.type,event);
     }
   }
