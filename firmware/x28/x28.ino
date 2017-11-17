@@ -2,14 +2,14 @@
 //TODO remove all use of String
 #include <TimerOne.h>
 #include "_name_signals.h"
-//#include "MonoSequencer.h"
-#include "ControllerMode.h"
+#include "mode_MonoSequencer.h"
+#include "mode_Controller.h"
 #include "x28_LedButtons.h"
 #include "Midi.h"
 
 LedButtons hardware = LedButtons();
-//MonoSequencer mode_0 = MonoSequencer();
-ControllerMode mode_1 = ControllerMode();
+MonoSequencer sequencerMode = MonoSequencer();
+ControllerMode controllerMode = ControllerMode();
 Midi midi = Midi();
 
 uint8_t engagedMode = 0;
@@ -29,9 +29,9 @@ void setup() {
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
-  //mode_0.setup(& hardware, & midi);
-  mode_1.setup(& hardware, & midi);
-
+  controllerMode.setup(& hardware, & midi);
+  sequencerMode.setup(& hardware, & midi);
+  
   Timer1.initialize(1500);
   Timer1.attachInterrupt(onInterrupt);
 
@@ -39,56 +39,57 @@ void setup() {
 
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
   if (engagedMode == 0) {
-    //mode_0.onButtonPressed(button, pressedButtonsBitmap);
+    sequencerMode.onButtonPressed(button, pressedButtonsBitmap);
   } else {
-    mode_1.onButtonPressed(button, pressedButtonsBitmap);
+    controllerMode.onButtonPressed(button, pressedButtonsBitmap);
   }
 }
 
 void onButtonReleased(byte button) {
   if (engagedMode == 0) {
-    //mode_0.onButtonReleased(button);
+    sequencerMode.onButtonReleased(button);
   } else {
-    mode_1.onButtonReleased(button);
+    controllerMode.onButtonReleased(button);
   }
 }
 
 void onEncoderScrolled(int8_t delta) {
   if (engagedMode == 0) {
-    //mode_0.onEncoderScrolled(button);
+    sequencerMode.onEncoderScrolled(delta);
   } else {
-    mode_1.onEncoderScrolled(delta);
+    controllerMode.onEncoderScrolled(delta);
   }
 }
 void onEncoderPressed() {
   if (engagedMode == 0) {
-    //mode_0.onEncoderPressed(button);
+    sequencerMode.onEncoderPressed();
   } else {
-    mode_1.onEncoderPressed();
+    controllerMode.onEncoderPressed();
   }
 }
 void onEncoderReleased() {
   if (engagedMode == 0) {
-    //mode_0.onEncoderReleased(button);
+    sequencerMode.onEncoderReleased();
   } else {
-    mode_1.onEncoderReleased();
+    controllerMode.onEncoderReleased();
   }
 }
 
 uint8_t test_messageCounter = 0;
 uint8_t test_lastHeader = 0;
 void loop() {
+  midi.loop();
   if (engagedMode == 0) {
-    mode_1.checkMessages();
-    if (mode_1.engagementRequested) {
+    controllerMode.checkMessages();
+    if (controllerMode.engagementRequested) {
       engagedMode = 1;
       char str[] = "controller mode";
       hardware.lcdPrintB((char&) str[0]);
     } else {
-      //mode_0.loop();
+      sequencerMode.loop();
     }
   } else if (engagedMode == 1) {
-    mode_1.loop();
+    controllerMode.loop();
   }
   hardware.loop();
 }
@@ -97,14 +98,14 @@ void microStep() {
   globalMicroStep++;
   if (globalMicroStep >= tickLen) {
     globalMicroStep = 0;
-    //mode_0.step();
+    sequencerMode.step();
   }
 }
 
 void midiInCallback(uint8_t a, uint8_t b, uint8_t c) {
   test_messageCounter++;
   test_lastHeader = a;
-  // mode_0.midiIn(a, b, c);
+  sequencerMode.midiIn(a, b, c);
   switch (a) {
     case 250: globalMicroStep = 0; break;
 
@@ -142,18 +143,12 @@ void onInterrupt() {
     if (abs(enc_sub) >= divideEncoderRotation) {
       encoder0Pos += sign(enc_sub);
       enc_sub = 0;
-      encoderRotatedCallback(enc_inc);
+      onEncoderScrolled(enc_inc);
     }
     enc_last = enc_read;
   }
 }
-void encoderRotatedCallback(int8_t delta) {
-  if (engagedMode == 0) {
-    //mode_0.onEncoderScrolled(button);
-  } else {
-    mode_1.onEncoderScrolled(delta);
-  }
-}
+
 
 
 

@@ -13,7 +13,6 @@ class ControllerMode {
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
     byte sendToBrainData [10];
-
     bool recordingBuffer = false;
     int expectedLength = 0;
     unsigned char currentHeader = 0;

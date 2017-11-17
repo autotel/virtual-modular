@@ -10,7 +10,7 @@ class MonoSequencer {
     int patMem [16][3];
     int playHead = 0;
     uint8_t microStepCount = 0;
-    uint8_t microSteps=12;
+    uint8_t microSteps = 12;
     Midi *midi;
     LedButtons *ledButtons;
   public:
@@ -44,9 +44,11 @@ class MonoSequencer {
     }
     void onButtonReleased(byte button) {
     }
-    void onEncoderScroll(int absolute, int delta) {
+    void onEncoderScrolled(int8_t delta) {
     }
-    void onEncoderButtonPressed() {
+    void onEncoderPressed() {
+    }
+    void onEncoderReleased() {
     }
     void loop() {
       for (uint16_t b = 0; b < 16; b++) {
@@ -85,7 +87,7 @@ class MonoSequencer {
     void midiIn(uint8_t a, uint8_t b, uint8_t c) {
       switch (a) {
         case 250: restart();    break;
-        //case 248: microStep();  break;
+          //case 248: microStep();  break;
 
       }
     }
