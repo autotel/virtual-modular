@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
+
 // var clockSpec=require('../standards/clock.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
@@ -40,7 +41,7 @@ module.exports=function(environment){return new (function(){
     var thisModule=this;
     var myBitmap=0;
     //[[step,microStep]]={EventPattern:EP,age:how old}
-    var memory=[];
+    var memory=this.memory=[];
     this.recording=true;
     var clock=this.clock={steps:32,step:0,microSteps:12,microStep:0};
     /**
@@ -115,7 +116,8 @@ module.exports=function(environment){return new (function(){
       var eventsWithNoteOn={};
       function addToMemory(eventTime,eventMessage){
         //find if I this event needs to be merged with other
-        console.log("mem",eventMessage.value,eventTime);
+        // console.log("mem",eventMessage.value,eventTime);
+        thisModule.handle('event recorded',eventTime,eventMessage);
         var eventMerged=false;
         for(var memIndex in memory){
           for(var otherEvent of memory[memIndex]){
@@ -237,24 +239,24 @@ module.exports=function(environment){return new (function(){
 
     this.eventReceived=function(evt){
       if(thisModule.recording){
-        if(evt.EventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.EventMessage);
+        if(evt.eventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.eventMessage);
       }
-      if(evt.EventMessage.value[0]==CLOCKTICKHEADER){
+      if(evt.eventMessage.value[0]==CLOCKTICKHEADER){
         // console.log("CK");
-        clock.microStep=evt.EventMessage.value[2];
-        clock.microSteps=evt.EventMessage.value[1];
-        if(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0){
+        clock.microStep=evt.eventMessage.value[2];
+        clock.microSteps=evt.eventMessage.value[1];
+        if(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
           // thisModule.handle('step');
         }
         clockFunction();
-      }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
-        recorder.getEvent(evt.EventMessage);
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER+1){
-      }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
-        evt.EventMessage.value.shift();
+      }else if(evt.eventMessage.value[0]==TRIGGERONHEADER){
+        recorder.getEvent(evt.eventMessage);
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER+1){
+      }else if(evt.eventMessage.value[0]==RECORDINGHEADER){
+        evt.eventMessage.value.shift();
         thisModule.eventReceived(evt);
       }else{
       }
