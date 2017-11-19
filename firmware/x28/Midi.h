@@ -86,7 +86,7 @@ class Midi {
 
       }
     }
-
+  //maybe this should accept an array instead of three params?
     void out(uint8_t a, uint8_t b, uint8_t c) {
       Serial1.write(a);
       Serial1.write(b);

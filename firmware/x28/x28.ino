@@ -6,11 +6,13 @@
 #include "mode_Controller.h"
 #include "x28_LedButtons.h"
 #include "Midi.h"
-
+#include "TBN.h"
+TBN patchBus;
 LedButtons hardware = LedButtons();
 MonoSequencer sequencerMode = MonoSequencer();
 ControllerMode controllerMode = ControllerMode();
 Midi midi = Midi();
+PatchBus patchBus=PatchBus();
 
 uint8_t engagedMode = 0;
 uint8_t globalMicroStep = 0;
@@ -29,9 +31,13 @@ void setup() {
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
-  controllerMode.setup(& hardware, & midi);
-  sequencerMode.setup(& hardware, & midi);
-  
+  controllerMode.setup(& hardware, & midi, & patchBus);
+  sequencerMode.setup(& hardware, & midi, & patchBus);
+  // patchBus.setup();
+  // patchBus.addMessageListener(onBusMessageReceived);
+  patchBus.start();
+  patchBus.onData(onBusMessageReceived);
+
   Timer1.initialize(1500);
   Timer1.attachInterrupt(onInterrupt);
 
@@ -74,11 +80,13 @@ void onEncoderReleased() {
     controllerMode.onEncoderReleased();
   }
 }
+void onBusMessageReceived(unsigned char origin,unsigned char header,unsigned char * data, unsigned char len){
+  sequencerMode.onBusMessageReceived(data,len);
+}
 
 uint8_t test_messageCounter = 0;
 uint8_t test_lastHeader = 0;
 void loop() {
-  midi.loop();
   if (engagedMode == 0) {
     controllerMode.checkMessages();
     if (controllerMode.engagementRequested) {
@@ -92,6 +100,8 @@ void loop() {
     controllerMode.loop();
   }
   hardware.loop();
+  patchBus.loop();
+  midi.loop();
 }
 
 void microStep() {

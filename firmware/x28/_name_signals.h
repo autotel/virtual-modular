@@ -6,6 +6,13 @@
 
 #endif;
 
+#define EH_CLOCKTICKHEADER 0xF
+#define EH_TRIGGERONHEADER 0x9
+#define EH_TRIGGEROFFHEADER 0x8
+#define EH_CLOCKABSOLUTEHEADER 0xA
+
+#define EH_RECORDINGHEADER 0xAA
+
 //computer interface related names
 //jsInterface{
 #define SOFTBAUDRATE 19200

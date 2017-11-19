@@ -6,10 +6,10 @@
 #define CONTROLLERMODEH
 //TODO: separate .cpp and .h,
 class ControllerMode {
-
   private:
     Midi *midi;
     LedButtons *hardware;
+    PatchBus *patchBus;
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
     byte sendToBrainData [10];
@@ -31,9 +31,10 @@ class ControllerMode {
       //Serial.begin(SOFTBAUDRATE);
       Serial.write(TH_hello_head);
     }
-    void setup(LedButtons *t_hardware, Midi *t_midi) {
+    void setup(LedButtons *t_hardware, Midi *t_midi, PatchBus *t_bus) {
       hardware = t_hardware;
       midi = t_midi;
+      patchBus = patchBus;
 
 
     }
@@ -204,13 +205,13 @@ class ControllerMode {
           case RH_screenA_head: {
               a++;
               hardware->lcdPrintA((char&)inBuff[a], len);
-              a+=len;
+              a += len;
               break;
             }
           case RH_screenB_head: {
               a++;
               hardware->lcdPrintB((char&)inBuff[a], len);
-              a+=len;
+              a += len;
               break;
             }
           case RH_version_head: {

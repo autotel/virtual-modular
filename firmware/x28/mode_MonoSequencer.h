@@ -1,50 +1,85 @@
 #include "Midi.h"
 #include "_name_signals.h"
 #include "x28_LedButtons.h"
+// #include "PatchBus.h"
 #ifndef MONOSEQUENCERH
 #define MONOSEQUENCERH
+#define BTN_eventSelector 0
+// #include "submode_eventEditor.h"
 //TODO: separate .cpp and .h, capitalize filename
 class MonoSequencer {
-
   private:
-    int patMem [16][3];
-    int playHead = 0;
+    uint8_t patMem [16][3];
     uint8_t microStepCount = 0;
     uint8_t microSteps = 12;
     Midi *midi;
     LedButtons *ledButtons;
+    // EventEditor mainEventEditor=EventEditor();
+    PatchBus *patchBus;
   public:
+    uint8_t playHead = 0;
     MonoSequencer() {
       for (uint16_t b = 0; b < 16; b++) {
         for (uint16_t a = 0; a < 3; a++) {
           patMem[b][a] = 0;
         }
       }
-
     }
-    void setup(LedButtons *t_ledButtons, Midi *t_midi) {
+    void setup(LedButtons *t_ledButtons, Midi *t_midi, PatchBus *t_bus) {
       ledButtons = t_ledButtons;
       midi = t_midi;
+      patchBus=t_bus;
     }
-
-    void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
-      button -= 8;
-      button %= 16;
-      if (patMem[button][0] == 0) {
-        patMem[button][0] = 0x90;
-        patMem[button][1] = 0x40;
-        patMem[button][2] = 80;
-      } else {
-        if (patMem[button][2] == 0x90) {
-          patMem[button][2] = 127;
-        } else {
-          patMem[button][0] = 0;
+    void onBusMessageReceived(uint8_t * message,uint8_t len){
+      char mes [6]="mes__";
+      mes[3]=(*message)+48;
+      ledButtons->lcdPrintB((char&)mes);
+    }
+    uint8_t test_count=0;
+    void onButtonPressed(uint8_t button, uint32_t pressedButtonsBitmap) {
+      if (button < 8) {
+        uint8_t selectorButton = button;
+        if (selectorButton == BTN_eventSelector) {
+          // mainEventEditor.engage();
         }
+      } else if (button < 24) {
+        // if (mainEventEditor.engaged) {
+          // mainEventEditor.selectCurrentIndex(button);
+        // } else {
+          uint8_t matrixButton = button - 8;
+          //matrixButton %= 16;
+          if (patMem[matrixButton][0] == 0) {
+            //for now I matched internal headers with midi headers to make testing easier.
+            //an internal message thus results in a valid midi message upon merging the headers
+            // patMem[matrixButton][0] = (mainEventEditor.currentEvent[0] << 4) | mainEventEditor.currentEvent[1];
+            // patMem[matrixButton][1] = mainEventEditor.currentEvent[2];
+            // patMem[matrixButton][2] = mainEventEditor.currentEvent[3];
+            patMem[matrixButton][0] = (EH_TRIGGERONHEADER<<4) | 1;
+            patMem[matrixButton][1] = test_count;
+            patMem[matrixButton][2] = 100;
+            test_count++;
+          } else {
+            patMem[matrixButton][0] = 0;
+          }
+        // }
+      } else {
+        uint8_t bottomButton = button - 24;
       }
     }
     void onButtonReleased(byte button) {
+      if (button < 8) {
+        uint8_t selectorButton = button;
+        if (selectorButton == BTN_eventSelector) {
+          // mainEventEditor.disengage();
+        }
+      } else if (button < 24) {
+        uint8_t matrixButton = button - 8;
+      } else {
+        uint8_t bottomButton = button - 24;
+      }
     }
     void onEncoderScrolled(int8_t delta) {
+      // mainEventEditor.scrollCurrentIndexValue(delta);
     }
     void onEncoderPressed() {
     }
@@ -75,9 +110,18 @@ class MonoSequencer {
     void step() {
       playHead++;
       playHead %= 16;
+
       if (patMem[playHead][0] != 0) {
+        //should do patched outputs aswell...
         midi->out(patMem[playHead][0], patMem[playHead][1], patMem[playHead][2]);
+        //and of course there should be a layer of abstraction concerning inter-module patching
+        patchBus->out(patMem[playHead]);
       }
+
+    }
+    void output() {
+      //output to each specified output. so far hardcoded, later dynamic
+
     }
     void restart() {
       playHead = 0;
@@ -92,5 +136,5 @@ class MonoSequencer {
       }
     }
 };
+#endif
 
-#endif;
