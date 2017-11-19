@@ -50,7 +50,7 @@ class LedButtons {
       //lcd->print("hello, world!");
     }
     void loop() {
-      readMatrixButtons();
+      readMatrixButtons();//this line is locking sSerial
       doEncoderButton();
 
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
@@ -116,7 +116,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF;
+      DDRH = 0xFF<<3;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK
@@ -124,7 +124,6 @@ class LedButtons {
       DDRK = 0x00;
       POY = 0xFF;
       // int inpinbase = 8;
-
       for (currentButton = 0; currentButton < NUM_LEDS; currentButton++) {
         uint16_t col = currentButton % 4;
         uint16_t row = currentButton / 4;
@@ -163,7 +162,6 @@ class LedButtons {
         }
 
       }
-
     }
     void refreshLeds() {
       //uint16_t a;
