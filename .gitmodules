@@ -1,3 +1,0 @@
-[submodule "firmware/slibs"]
-	path = firmware/slibs
-	url = https://github.com/autotel/TokenBusHomogeneousNetwork.git

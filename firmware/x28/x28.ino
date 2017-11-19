@@ -6,13 +6,14 @@
 #include "mode_Controller.h"
 #include "x28_LedButtons.h"
 #include "Midi.h"
-#include "TBN.h"
-TBN patchBus;
+#include "PatchBus.h"
+// #include <TBN.h>
+// TBN patchBus;
+PatchBus patchBus;
 LedButtons hardware = LedButtons();
 MonoSequencer sequencerMode = MonoSequencer();
 ControllerMode controllerMode = ControllerMode();
 Midi midi = Midi();
-PatchBus patchBus=PatchBus();
 
 uint8_t engagedMode = 0;
 uint8_t globalMicroStep = 0;
@@ -33,16 +34,25 @@ void setup() {
 
   controllerMode.setup(& hardware, & midi, & patchBus);
   sequencerMode.setup(& hardware, & midi, & patchBus);
-  // patchBus.setup();
-  // patchBus.addMessageListener(onBusMessageReceived);
+  patchBus.setup();
+  patchBus.addMessageListener(onBusMessageReceived);
   patchBus.start();
-  patchBus.onData(onBusMessageReceived);
+  // patchBus.onData(onBusMessageReceived);
+  patchBus.addMessageListener(onBusMessageReceived);
+  // patchBus.debug_onTip(test_onTip);
 
   Timer1.initialize(1500);
   Timer1.attachInterrupt(onInterrupt);
 
-}
 
+  char tstr[] = "Calculator";
+  hardware.lcdPrintA((char&) tstr[0]);
+
+}
+void test_onTip(){
+  char pr[4]="TIP";
+  hardware.lcdPrintA((char&)pr, 3);
+}
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
   if (engagedMode == 0) {
     sequencerMode.onButtonPressed(button, pressedButtonsBitmap);
@@ -80,7 +90,10 @@ void onEncoderReleased() {
     controllerMode.onEncoderReleased();
   }
 }
-void onBusMessageReceived(unsigned char origin,unsigned char header,unsigned char * data, unsigned char len){
+void onBusMessageReceived(uint8_t * data, uint8_t len){
+  sequencerMode.step();
+  char pr[4]="RCV";
+  hardware.lcdPrintA((char&)pr, 3);
   sequencerMode.onBusMessageReceived(data,len);
 }
 
@@ -101,6 +114,8 @@ void loop() {
   }
   hardware.loop();
   patchBus.loop();
+  lcd.setCursor(0,1);
+  lcd.write(patchBus.test_count);
   midi.loop();
 }
 

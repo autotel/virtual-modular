@@ -1,7 +1,8 @@
 #include "Midi.h"
 #include "_name_signals.h"
 #include "x28_LedButtons.h"
-// #include "PatchBus.h"
+// #include <TBN.h>
+#include "PatchBus.h"
 #ifndef MONOSEQUENCERH
 #define MONOSEQUENCERH
 #define BTN_eventSelector 0
@@ -15,6 +16,7 @@ class MonoSequencer {
     Midi *midi;
     LedButtons *ledButtons;
     // EventEditor mainEventEditor=EventEditor();
+    // TBN *patchBus;
     PatchBus *patchBus;
   public:
     uint8_t playHead = 0;
@@ -115,7 +117,7 @@ class MonoSequencer {
         //should do patched outputs aswell...
         midi->out(patMem[playHead][0], patMem[playHead][1], patMem[playHead][2]);
         //and of course there should be a layer of abstraction concerning inter-module patching
-        patchBus->out(patMem[playHead]);
+        patchBus->out(patMem[playHead],4);
       }
 
     }

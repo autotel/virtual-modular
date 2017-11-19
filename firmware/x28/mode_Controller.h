@@ -2,6 +2,9 @@
 #include "Midi.h"
 #include "_name_signals.h"
 #include "x28_LedButtons.h"
+// #include <TBN.h>
+#include "PatchBus.h"
+
 #ifndef CONTROLLERMODEH
 #define CONTROLLERMODEH
 //TODO: separate .cpp and .h,
@@ -9,6 +12,7 @@ class ControllerMode {
   private:
     Midi *midi;
     LedButtons *hardware;
+    // TBN *patchBus;
     PatchBus *patchBus;
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
