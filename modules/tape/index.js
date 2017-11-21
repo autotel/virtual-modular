@@ -18,6 +18,13 @@ http://www.synthtopia.com/content/2009/04/29/game-of-life-music-sequencer/
 http://www.synthtopia.com/content/2011/01/12/game-of-life-music-sequencer-for-ios-runxt-life/
 */
 
+/*
+TODO:
+* tape should be listening to sounds with a larger tape, and then % the step on output, in this way, if one plays a sequence that is longer than the play length, you could "unfold" it's length afterwards
+* tape should be able to hold many different simultaneous tapes, allowing to chain tapes one after another, or superimposing them.
+* this means that overlapping notes analysis goes in the output. but this is simpler: I can assign a unique ID to each event, so it is possible to identify of which event that note on belongs.  the tape waits until all the note id's are off to send the noteoff of that channel/note. It could perhaps forward notes with ID to the midi in such way that midi makes this management. This implies a slight change in the com language.
+
+*/
 module.exports=function(environment){return new (function(){
   var interactorSingleton=this.InteractorSingleton=new uix16Control(environment);
   // environment.interactionMan.registerModuleInteractor(uix16Control);
