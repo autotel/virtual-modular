@@ -104,6 +104,8 @@ module.exports=function(environment){return new (function(){
           if(trackedNotes.value[0]==TRIGGERONHEADER){
             thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
           }
+
+          delete trackedNotes[a];
         }
       }
       return this;

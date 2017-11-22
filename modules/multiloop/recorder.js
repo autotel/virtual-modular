@@ -9,13 +9,18 @@ var RECORDINGHEADER = 0xAA;
 */
 var Recorder = function(ownerModule,memoryArray){
   var trackedNotes=[];
-  var currentStep=0;
-  var currentMicroStep=0;
   var eventsWithNoteOn={};
+  var self=this;
+  this.clock = {
+    steps: 32,
+    step: 0,
+    microSteps: 12,
+    microStep: 0
+  };
   function addToMemory(eventTime,eventMessage){
     //find if I this event needs to be merged with other
     // console.log("mem",eventMessage.value,eventTime);
-    ownerModule.handle('event recorded',eventTime,eventMessage);
+    // ownerModule.handle('event recorded',eventTime,eventMessage);
     var eventMerged=false;
     for(var memIndex in memoryArray){
       for(var otherEvent of memoryArray[memIndex]){
@@ -46,11 +51,11 @@ var Recorder = function(ownerModule,memoryArray){
               //warparound
               if(compareTimeindex===0){
                 while(otherEvent.duration[0]<=compareTimeindex){
-                  otherEvent.duration[0]+=currentStep;
+                  otherEvent.duration[0]+=self.clock.steps;
                 }
               }else{
                 while(otherEvent.duration[1]<=compareTimeindex){
-                  otherEvent.duration[1]+=currentMicroStep;
+                  otherEvent.duration[1]+=self.clock.microSteps;
                 }
               }
 
@@ -79,8 +84,10 @@ var Recorder = function(ownerModule,memoryArray){
     }
   }
   this.getEvent=function(eventMessage){
-    console.log("rec",eventMessage.value);
-    var timeNow=[currentStep,currentMicroStep];
+    // console.log(memoryArray);
+
+    console.log("0rec",eventMessage.value);
+    var timeNow=[self.clock.step,self.clock.microStep];
     var eventKey=[ eventMessage.value[1],eventMessage.value[2] ];
     if(eventMessage.value[0]==TRIGGERONHEADER){
       eventMessage.started=timeNow;
@@ -90,13 +97,15 @@ var Recorder = function(ownerModule,memoryArray){
       if(trackedNote){
         //started looks like: [step,microStep]
         var started=trackedNote.started;
-        trackedNote.duration=[currentStep-started[0],currentMicroStep-started[1]];
+        trackedNote.duration=[self.clock.step-started[0],self.clock.microStep-started[1]];
         //wraparound durations
         while(trackedNote.duration[0]<1){
-          trackedNote.duration[0]+=currentStep;
+          // console.log("1rec",eventMessage.value);
+          trackedNote.duration[0]+=self.clock.steps;
         }
         while(trackedNote.duration[1]<0){
-          trackedNote.duration[1]+=currentMicroStep;
+          // console.log("2rec",eventMessage.value);
+          trackedNote.duration[1]+=self.clock.microSteps;
         }
         addToMemory(started,trackedNote);
       }else{
@@ -107,8 +116,8 @@ var Recorder = function(ownerModule,memoryArray){
     }
   }
   this.clockFunction=function(_currentStep,_currentMicroStep){
-    currentStep=_currentStep;
-    currentMicroStep=_currentMicroStep;
+    self.clock.step=_currentStep;
+    self.clock.microStep=_currentMicroStep;
   }
   return this;
 }

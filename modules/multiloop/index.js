@@ -3,6 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var moduleInstanceBase = require('../moduleInstanceBase');
 var uix16Control = require('./x16basic');
 var Recorder = require('./recorder.js');
+var NoteOnTracker = require('./NoteOnTracker.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -52,6 +53,8 @@ module.exports = function(environment) {
         microStep: 0
       };
       var recorder = new Recorder(thisModule,memory);
+      recorder.clock=this.clock;
+      var noteOnTracker = new NoteOnTracker(thisModule);
       /**
       @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
       you can set the time range to take in consideration using:
@@ -81,41 +84,6 @@ module.exports = function(environment) {
         }
       }
 
-      var noteOnTracker = new(function() {
-        var trackedNotes = [];
-        this.trackEventMessage = function(eventMessage, callback) {
-          eventMessage.started = currentMicroStep;
-          trackedNotes.push(eventMessage);
-          if (eventMessage.value[0] == TRIGGERONHEADER) {
-            eventKey = [eventMessage.value[1], eventMessage.value[2]];
-            trackedNotes[eventKey] = eventMessage;
-            if (!isNaN(eventMessage.duration)) {
-              callback.call(eventMessage, false);
-            } else {
-              callback.call(eventMessage, "error: noteon without duration");
-            }
-          } else {
-            callback.call(eventMessage, false);
-          }
-        }
-        this.clockFunction = function(currentsStep, currentMicroStep) {
-          for (var a in trackedNotes) {
-            if (trackedNotes.value[0] == TRIGGERONHEADER) {
-              if (currentMicroStep - trackedNotes[a].started > trackedNotes[a].duration) {
-                thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
-              }
-            }
-          }
-        }
-        this.setAllOff = function() {
-          for (var a in trackedNotes) {
-            if (trackedNotes.value[0] == TRIGGERONHEADER) {
-              thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
-            }
-          }
-        }
-        return this;
-      })();
 
       var baseEventMessage = this.baseEventMessage = new EventMessage({
         value: [TRIGGERONHEADER, -1, -1, -1]
