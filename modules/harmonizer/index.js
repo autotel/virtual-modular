@@ -6,7 +6,7 @@ var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
-var CHORDCHANGEHEADER = 0x02;
+var CHORDCHANGEHEADER = 0x03;
 
 var uix16Control=require('./x16basic');
 /**
@@ -55,28 +55,43 @@ module.exports=function(environment){return new (function(){
           ]}));
       }
     }
-
+    var uiNoteOnTracker={};
     this.uiTriggerOn=function(gradeNumber,underImpose=false){
-      thisInstance.triggerOn(gradeNumber);
+      thisInstance.triggerOn(gradeNumber,underImpose);
       if(thisInstance.recordingUi){
-        thisInstance.recordOutput(new EventMessage({
-          value:[
-            TRIGGERONHEADER,
-            thisInstance.baseEventMessage.value[1],
-            gradeNumber,100
-          ]}));
+        var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,thisInstance.baseEventMessage.value[1],gradeNumber,100 ]});
+        if(underImpose){
+          uiGeneratedEvent.underImpose(underImpose);
+        }
+        thisInstance.recordOutput(uiGeneratedEvent);
+        // console.log(uiGeneratedEvent.value);
+        uiNoteOnTracker[gradeNumber]=uiGeneratedEvent;
       }
     }
 
     this.uiTriggerOff=function(gradeNumber){
-      thisInstance.triggerOff(gradeNumber);
-      if(thisInstance.recordingUi){
-        thisInstance.recordOutput(new EventMessage({
-          value:[
-            TRIGGEROFFHEADER,
-            thisInstance.baseEventMessage.value[1],
-            gradeNumber,100
-          ]}));
+      if(uiNoteOnTracker[gradeNumber]){
+        thisInstance.triggerOff(gradeNumber);
+        if(thisInstance.recordingUi){
+          thisInstance.recordOutput(new EventMessage({
+            value:[
+              TRIGGEROFFHEADER,
+              uiNoteOnTracker[gradeNumber].value[1],
+              uiNoteOnTracker[gradeNumber].value[2],
+              uiNoteOnTracker[gradeNumber].value[3]
+            ]}));
+        }
+        delete uiNoteOnTracker[gradeNumber];
+      }else{
+        thisInstance.triggerOff(gradeNumber);
+        if(thisInstance.recordingUi){
+          thisInstance.recordOutput(new EventMessage({
+            value:[
+              TRIGGEROFFHEADER,
+              thisInstance.baseEventMessage.value[1],
+              gradeNumber,100
+            ]}));
+        }
       }
     }
 
@@ -135,7 +150,7 @@ module.exports=function(environment){return new (function(){
     }
     this.eventReceived=function(event){
       /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
-      var eventMessage=event.EventMessage
+      var eventMessage=event.eventMessage
       if(!thisInstance.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
           thisInstance.triggerOff(eventMessage.value[2]);

@@ -263,6 +263,7 @@ var DriverX16v0=function(environment,properties){
         hardware:tHardware
       }
 
+      event.data=Array.from(event.data);
       if(event.type=="matrixButtonVelocity"){
         event.data[1]=event.data[1]|(event.data[2]<<8);
         event.data[1]*=0.5;
@@ -287,7 +288,6 @@ var DriverX16v0=function(environment,properties){
       // console.log("interaction",event);
       // if(event.type=="matrixButtonVelocity") console.log(event.data[1]);z
       //convert encoder scrolls to signed (it can only be -1 or -2)
-      event.data=Array.from(event.data);
       if(event.type=="encoderScrolled"){
         // event.data
         event.data[1]=(event.data[1]==0xFF?-1:event.data[1]);

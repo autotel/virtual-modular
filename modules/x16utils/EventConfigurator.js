@@ -103,7 +103,7 @@ var EventConfigurator=function(parentInteractor,properties){
       // console.log("->val:"+baseEvent.value[selectedValueNumber],event.data[1]);
       updateScreen(hardware);
     }else if(extraValueNames.length>selectedValueNumber-baseEvent.value.length){
-      extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.data[1];
+      extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.delta;
       updateScreen(hardware);
     }
   };

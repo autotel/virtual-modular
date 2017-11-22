@@ -141,13 +141,14 @@ module.exports=function(environment){
     var selectedPresetNumber=false;
     controlledModule.on('extrigger',function(event){
       highlightedBitmap|=1<<event.preset;
-      passiveUpdateLeds();
       setTimeout(function(){
         var num=event.preset;
         highlightedBitmap&=~(1<<num);
-          passiveUpdateLeds();
       },500);
     });
+    setInterval(function(){
+      passiveUpdateLeds();
+    },1000/20);
     controlledModule.on('kit changed',function(){
       updateAvailablePresetsBitmap();
     });

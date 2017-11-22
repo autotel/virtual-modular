@@ -98,13 +98,15 @@ module.exports=function(environment){return new (function(){
 
     this.triggerOn=function(presetNumber,originalMessage){
       // console.log("ton",presetNumber,originalMessage);
-      presetNumber%=16;
       thisInstance.handle("extrigger",{preset:presetNumber});
+      presetNumber%=16;
       if(kit[presetNumber]){
-        var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
-        if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
-        thisInstance.output(outputMessage);
+        if(!kit[presetNumber].mute){
+          var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
+          if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
+          thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
+          thisInstance.output(outputMessage);
+        }
       }
     }
 
@@ -139,7 +141,7 @@ module.exports=function(environment){return new (function(){
       }
     }
     this.eventReceived=function(event){
-      var evM=event.EventMessage;
+      var evM=event.eventMessage;
       // console.log(evM);
       thisInstance.handle('receive',event);
       if(evM.value[0]==CLOCKTICKHEADER){

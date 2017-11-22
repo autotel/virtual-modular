@@ -25,13 +25,18 @@ module.exports=function(){
   }
 
   this.addOutput=function(what){
+
     if(what){
-      if(what.isModuleInstance){
-        console.log(thisModule.name+"--->"+what.name);
-        outputs.add(what);
+      if(what===thisModule){
+        console.error("can't patch a module to itself!");
       }else{
-        // console.error(what);
-        throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
+        if(what.isModuleInstance){
+          console.log(thisModule.name+"--->"+what.name);
+          outputs.add(what);
+        }else{
+          // console.error(what);
+          throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
+        }
       }
     }else{
       throw "Forbidden output: Attempted to connect "+thisModule.name+" to "+what;
@@ -49,9 +54,12 @@ module.exports=function(){
       console.log(e);
     }
   }
-  this.output=function(EventMessage){
-    outputs.forEach(function(tModule){
-      tModule.eventReceived({EventMessage:EventMessage.clone(),origin:thisModule});
+  this.output=function(eventMessage){
+    //outputs don't get executed right away, this avoids a crash in case there is a patching loop
+    setImmediate(function(){
+        outputs.forEach(function(tModule){
+        tModule.eventReceived({eventMessage:eventMessage.clone(),origin:thisModule});
+      })
     });
   }
   this.eventReceived=function(evt){
@@ -83,6 +91,7 @@ module.exports=function(){
       if(what.isModuleInstance){
         console.log(thisModule.name+"rec>"+what.name);
         recordOutputs.add(what);
+        thisModule.addInput(what);
       }else{
         // console.error(what);
         throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
@@ -108,7 +117,7 @@ module.exports=function(){
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(RECORDINGHEADER);
       // console.log(recordEventMessage.value);
-      tModule.eventReceived({EventMessage:recordEventMessage,origin:thisModule});
+      tModule.eventReceived({eventMessage:recordEventMessage,origin:thisModule});
     });
   }
   // this.recordEventReceived=function(evt){

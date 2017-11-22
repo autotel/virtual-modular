@@ -222,7 +222,7 @@ module.exports=function(environment){return new (function(){
 
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
-      var eventMessage=evt.EventMessage;
+      var eventMessage=evt.eventMessage;
       eventMessage.underImpose(defaultMessage);
       var midiOut=[0,0,0];
       // console.log("MIDI",evt);
