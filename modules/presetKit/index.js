@@ -91,9 +91,8 @@ module.exports=function(environment){return new (function(){
           }
         }
       }
-      // for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        delete thisInstance.noteOnTracker[presetNumber];
-      // }
+      delete thisInstance.noteOnTracker[presetNumber];
+      console.log(thisInstance.noteOnTracker);
     }
 
     this.triggerOn=function(presetNumber,originalMessage){
@@ -118,9 +117,8 @@ module.exports=function(environment){return new (function(){
         if(thisInstance.noteOnTracker[presetNumber][a])
         thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
       }
-      for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        delete thisInstance.noteOnTracker[presetNumber][a];
-      }
+
+      delete thisInstance.noteOnTracker[presetNumber];
     }
 
     this.stepMicro=function(){}
