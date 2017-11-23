@@ -2,8 +2,9 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var moduleInstanceBase = require('../moduleInstanceBase');
 var uix16Control = require('./x16basic');
-var Recorder = require('./recorder.js');
+// var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
+var NoteLogger = require('./NoteLogger.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -50,10 +51,13 @@ module.exports = function(environment) {
         steps: 32,
         step: 0,
         microSteps: 12,
-        microStep: 0
+        microStep: 0,
+        historicStep:0
       };
-      var recorder = new Recorder(thisModule,memory);
-      recorder.clock=this.clock;
+      var noteLogger=new NoteLogger(thisModule);
+      noteLogger.setExternalClock(this.clock);
+      // var recorder = new Recorder(thisModule,memory);
+      // recorder.setExternalClock(this.clock);
       var noteOnTracker = new NoteOnTracker(thisModule);
       /**
       @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
@@ -91,32 +95,51 @@ module.exports = function(environment) {
       var myInteractor = new interactorSingleton.Instance(this);
       this.interactor = myInteractor;
       this.interactor.name = this.name;
-      this.memoryOutput = function(eventPattern) {
+      this.memoryOutput = function(eventMessage) {
         //add eventPattern to a lengthManager, play that
-        noteOnTracker.trackEventMessage(eventPattern, function(error) {
+        noteOnTracker.trackEventMessage(eventMessage, function(error) {
           if (error) {
             console.error(error);
             return
           }
-          thisModule.output(eventPattern);
+          thisModule.output(eventMessage);
         });
       }
       var clockFunction = function() {
-        recorder.clockFunction(clock.step, clock.microStep);
+        // recorder.clockFunction(clock.step, clock.microStep);
         noteOnTracker.clockFunction(clock.step, clock.microStep);
+        // noteLogger.clockFunction()
         if (memory[[clock.step, clock.microStep]]) {
           // console.log(`memory[${clock.step},${clock.microStep}]`);
-          for (var event of memory[[clock.step, clock.microStep]]) {
-            // console.log(`y:${event}`);
-            thisModule.output(event);
+          for (var eventMessage of memory[[clock.step, clock.microStep]]) {
+            // console.log('y:',eventMessage);
+            thisModule.memoryOutput(eventMessage);
           }
         }
       }
+      var currentLoopEnd=[0,0];
+      var stepFunction = function(){
+        noteLogger.lastEventTime(false,function(lastEventTime){
+          // console.log("LEV",lastEventTime);
+          if(currentLoopEnd[0]!=lastEventTime[0]){
+            console.log("NNE");
+            memory=[];
+            currentLoopEnd=lastEventTime;
+            var time=[lastEventTime[0]-clock.steps,lastEventTime[1]-1];
+            // console.log("TTM",time,lastEventTime);
+            noteLogger.getLastTimeEvents(time, false,function(_eventMessage){
+              var eventMessage=_eventMessage.clone();
+              var timeIndex=eventMessage.starts;
+              timeIndex[0]%=clock.steps;
+              if(!memory[timeIndex]) memory[timeIndex]=[];
+              memory[timeIndex].push(eventMessage);
+            });
+          }
+        });
+      }
 
       this.eventReceived = function(evt) {
-        if (thisModule.recording) {
-          if (evt.eventMessage.value[0] != CLOCKTICKHEADER) recorder.getEvent(evt.eventMessage);
-        }
+
         if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
           // console.log("CK");
           clock.microStep = evt.eventMessage.value[2];
@@ -124,14 +147,22 @@ module.exports = function(environment) {
           if (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0) {
             clock.step++;
             clock.step %= clock.steps;
+            clock.historicStep++;
+            stepFunction();
             // thisModule.handle('step');
           }
           clockFunction();
         } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
-          recorder.getEvent(evt.eventMessage);
-        } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {} else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+          // recorder.addEvent(evt.eventMessage);
+          // noteLogger.addEvent(evt.eventMessage);
+
+        } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+        } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
           evt.eventMessage.value.shift();
-          thisModule.eventReceived(evt);
+          // if (thisModule.recording) {
+          // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
+            noteLogger.addEvent(evt.eventMessage);
+          // }
         } else {}
       }
 

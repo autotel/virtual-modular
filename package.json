@@ -9,6 +9,7 @@
   "author": "autotel",
   "license": "ISC",
   "dependencies": {
+    "fifo": "^2.3.0",
     "jazz-midi": "^1.5.8",
     "onhandlers": "^1.0.3",
     "serialport": "^5.0.0"

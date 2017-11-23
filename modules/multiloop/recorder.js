@@ -83,20 +83,20 @@ var Recorder = function(ownerModule,memoryArray){
       memoryArray[eventTime].push(eventMessage);
     }
   }
-  this.getEvent=function(eventMessage){
+  this.addEvent=function(eventMessage){
     // console.log(memoryArray);
 
-    console.log("0rec",eventMessage.value);
+    // console.log("0rec",eventMessage.value);
     var timeNow=[self.clock.step,self.clock.microStep];
     var eventKey=[ eventMessage.value[1],eventMessage.value[2] ];
     if(eventMessage.value[0]==TRIGGERONHEADER){
-      eventMessage.started=timeNow;
+      eventMessage.starts=timeNow;
       trackedNotes[eventKey]=eventMessage;
     }else if(eventMessage.value[0]==TRIGGEROFFHEADER){
       var trackedNote=trackedNotes[eventKey];
       if(trackedNote){
         //started looks like: [step,microStep]
-        var started=trackedNote.started;
+        var started=trackedNote.starts;
         trackedNote.duration=[self.clock.step-started[0],self.clock.microStep-started[1]];
         //wraparound durations
         while(trackedNote.duration[0]<1){
@@ -118,6 +118,11 @@ var Recorder = function(ownerModule,memoryArray){
   this.clockFunction=function(_currentStep,_currentMicroStep){
     self.clock.step=_currentStep;
     self.clock.microStep=_currentMicroStep;
+  }
+
+  this.setExternalClock=function(externalClock){
+    self.clock=externalClock;
+    self.clockFunction=function(){};
   }
   return this;
 }
