@@ -45,7 +45,39 @@ module.exports = function(environment) {
       @example [[step,microStep]]={EventPattern:eventMessage,age:how old}
       eventMessage contains additional information:  the duration of each note, in this way its easier to keep the noteoffs
       */
-      var memory = this.memory = [];
+      var tapes=[{memory:[],muted:false}];
+      var currentTape=tapes[0];
+      var currentMemory=currentTape.memory;
+      this.addNewTape=function(){
+        // console.log("nw");
+        let len=tapes.length;
+        tapes.push({memory:[],muted:false});
+        return tapes[len];
+      }
+      this.getTapeNum=function(tape){
+        return tapes.indexOf(tape);
+      }
+      this.getNumTape=function(n){
+        // console.log("tapen",n);
+        // console.log(tapes[n]);
+        if(tapes[n]){ return tapes[n] }else{ console.log("fase");return false; }
+      }
+      this.tapeCount=function(){
+        return tapes.length;
+      }
+      this.selectTape=function(tape){
+        currentTape=tape;
+        currentMemory=tape.memory;
+      }
+      this.removeTape=function(tape){
+        tapes.splice(tapes.indexOf(tape,1));
+      }
+      this.muteTape=function(tape){
+        tape.muted=true;
+      }
+      this.unmuteTape=function(tape){
+        tape.muted=false;
+      }
       this.recording = true;
       var clock = this.clock = {
         steps: 32,
@@ -71,15 +103,15 @@ module.exports = function(environment) {
         if (timeStart[0] === undefined) console.warn("eachMemoryEvent timeStart parameter must be array of [step,microStep]");
         if (timeEnd[0] === undefined) console.warn("eachMemoryEvent timeEnd parameter must be array of [step,microStep]");
         var timeRangeStarted = false;
-        for (var timeIndex in memory) {
+        for (var timeIndex in currentcurrentMemory) {
           if (!timeRangeStarted) {
             if (timeStart[0] <= timeIndex[0] && timeStart[1] <= timeIndex[1]) {
               timeRangeStarted = true;
             }
           }
           if (timeRangeStarted) {
-            for (var eventIndex in memory[timeIndex]) {
-              callback.call(memory[timeIndex][eventIndex], JSON.parse("[" + timeIndex + "]"), eventIndex);
+            for (var eventIndex in currentMemory[timeIndex]) {
+              callback.call(currentMemory[timeIndex][eventIndex], JSON.parse("[" + timeIndex + "]"), eventIndex);
             }
           }
           if (timeIndex[0] >= timeEnd[0] && timeIndex[1] >= timeEnd[1]) {
@@ -106,15 +138,19 @@ module.exports = function(environment) {
         });
       }
       var clockFunction = function() {
-        // recorder.clockFunction(clock.step, clock.microStep);
-        noteOnTracker.clockFunction(clock.step, clock.microStep);
-        // noteLogger.clockFunction()
-        if (memory[[clock.step, clock.microStep]]) {
-          // console.log(`memory[${clock.step},${clock.microStep}]`);
-          for (var eventMessage of memory[[clock.step, clock.microStep]]) {
-            // console.log('y:',eventMessage);
-            thisModule.memoryOutput(eventMessage);
+        noteOnTracker.clockFunction(clock.historicStep, clock.microStep);
+        for(var tape of tapes){
+          var memory=tape.memory;
+          // recorder.clockFunction(clock.step, clock.microStep);
+          // noteLogger.clockFunction()
+          if (memory[[clock.step, clock.microStep]]) {
+            // console.log(`memory[${clock.step},${clock.microStep}]`);
+            for (var eventMessage of memory[[clock.step, clock.microStep]]) {
+              // console.log('y:',eventMessage);
+              thisModule.memoryOutput(eventMessage);
+            }
           }
+
         }
       }
       var currentLoopEnd=[0,0];
@@ -122,8 +158,8 @@ module.exports = function(environment) {
         noteLogger.lastEventTime(false,function(lastEventTime){
           // console.log("LEV",lastEventTime);
           if(currentLoopEnd[0]!=lastEventTime[0]){
-            console.log("NNE");
-            memory=[];
+            // console.log("NNE");
+            currentMemory.splice(0);
             currentLoopEnd=lastEventTime;
             var time=[lastEventTime[0]-clock.steps,lastEventTime[1]-1];
             // console.log("TTM",time,lastEventTime);
@@ -131,11 +167,13 @@ module.exports = function(environment) {
               var eventMessage=_eventMessage.clone();
               var timeIndex=eventMessage.starts;
               timeIndex[0]%=clock.steps;
-              if(!memory[timeIndex]) memory[timeIndex]=[];
-              memory[timeIndex].push(eventMessage);
+              if(!currentMemory[timeIndex]) currentMemory[timeIndex]=[];
+              currentMemory[timeIndex].push(eventMessage);
+              // console.log("pp");
             });
           }
         });
+        // console.log(currentMemory);
       }
 
       this.eventReceived = function(evt) {

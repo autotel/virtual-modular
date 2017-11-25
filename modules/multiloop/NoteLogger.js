@@ -51,9 +51,10 @@ var NoteLogger = function(ownerModule, _settings) {
         while(trackedNote.duration[1]<=0){
           trackedNote.duration[1]+=self.clock.microSteps;
         }
+        console.log(trackedNote.duration);
         addToMemory(trackedNote);
         delete trackedNotes[eventKey];
-        console.log("TRASH",trackedNotes);
+        // console.log("TRASH",trackedNotes);
         // console.log("DURAT",trackedNote.duration);
       } else {
         console.warn("received a noteoff for a note that was not being tracked");
