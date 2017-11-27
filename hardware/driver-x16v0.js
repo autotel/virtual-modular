@@ -284,7 +284,7 @@ var DriverX16v0=function(environment,properties){
         // console.log("buttton",event.type);
       }
       // console.log("recv",chd);
-      myInteractionPattern.handle('interaction',event);
+      this.handle('interaction',event);
       // console.log("interaction",event);
       // if(event.type=="matrixButtonVelocity") console.log(event.data[1]);z
       //convert encoder scrolls to signed (it can only be -1 or -2)
