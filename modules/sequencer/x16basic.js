@@ -55,9 +55,11 @@ module.exports=function(environment){
     var currentStep=controlledModule.currentStep;
     var loopLength=controlledModule.loopLength;
     var lookLoop={value:0};
+    var currentPage={value:0};
     configurators.time=new BlankConfigurator(this,{
       name:"",
       vars:{
+        "page mode":currentPage,
         "loop length":loopLength,
         "loop look":lookLoop,
         "step div":controlledModule.stepDivide,
@@ -66,6 +68,9 @@ module.exports=function(environment){
         "playing":controlledModule.playing,
       }
     });
+
+    configurators.time.vars["page mode"].min=0;
+
     configurators.time.vars["loop length"].min=1;
     configurators.time.vars["loop length"].changeFunction = function(thisVar,delta){
       if(thisVar.value+delta>=1)
@@ -121,7 +126,13 @@ module.exports=function(environment){
       }
       return {stepFolds:stepFolds}
     }
-
+    var getButtonBoolean=function(button,filterFunction){
+      if(page!=0){
+        return getPagedBoolean(button,filterFunction);
+      }else{
+        return getThroughfoldBoolean(button,filterFunction);
+      }
+    }
     //does the event under the button repeat througout all the repetitions of lookLoop?
     var getThroughfoldBoolean=function(button,filterFunction){
       var ret=0;
@@ -144,7 +155,13 @@ module.exports=function(environment){
       // console.log("ret is "+ret);
       return ret;
     };
-
+    var getPagedBoolean=function(button,filterFunction){
+      var ret=0;
+      if(controlledModule.patData[currentPage.value*16+step]){
+        ret=controlledModule.patData[currentPage.value*16+step].length;
+      }
+      return ret;
+    }
     var getBitmapx16=function(filter, requireAllFold,representLength){
       var ret=0x0000;
       if(requireAllFold){
