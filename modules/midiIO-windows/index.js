@@ -7,6 +7,8 @@ var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
+
+
 var EventMessage=require('../../datatypes/EventMessage.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
@@ -188,21 +190,22 @@ module.exports=function(environment){return new (function(){
         // console.log(thisModule.name,outputMessage.value);
         var msgFn=outputMessage.value[0];
         var msgFv=outputMessage.value[1];
+        var cachingIndex=msgFn;//[msgFn,msgFv]
         /*
         midi input messages are converted to the internal language standards, and it is added to a cache,
         in this way, it becomes possible to disble some messages or to change the input/output mapping
         by altering the midiInputCache
         */
-        if(!midiInputCache[[msgFn,msgFv]]){
-          midiInputCache[[msgFn,msgFv]]={
+        if(!midiInputCache[cachingIndex]){
+          midiInputCache[cachingIndex]={
               outputMessage:outputMessage.clone(),
               enabled:true
           };
-          midiInputCache[[msgFn,msgFv]].outputMessage.value[2]=-1;
-          midiInputCache[[msgFn,msgFv]].outputMessage.value[3]=-1;
+          midiInputCache[cachingIndex].outputMessage.value[2]=-1;
+          midiInputCache[cachingIndex].outputMessage.value[3]=-1;
         }
-        if(midiInputCache[[msgFn,msgFv]].enabled){
-          thisModule.output(outputMessage.superImpose(midiInputCache[[msgFn,msgFv]].outputMessage));
+        if(midiInputCache[cachingIndex].enabled){
+          thisModule.output(outputMessage.superImpose(midiInputCache[cachingIndex].outputMessage));
         }
         thisModule.handle('midi in',{inputMidi:midiMessage,outputMessage:outputMessage,eventMessage:outputMessage});
       });

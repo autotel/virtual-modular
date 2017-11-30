@@ -1,5 +1,7 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
+var getHeaderName={0x03:"abs.clock",0x00:"clock tick",0x01:"on/start",0x02:"off/stop"};
+
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -37,7 +39,7 @@ module.exports=function(environment){
           selectedInputNumber=event.button;
           indexedMidiInputCache[selectedInputNumber].enabled=(indexedMidiInputCache[selectedInputNumber].enabled==false);
         }else{
-          console.log(midiInputCache,midiInputCache.length);
+          // console.log(midiInputCache,midiInputCache.length);
         }
       }else{
         if(event.button<controlledModule.outputs.size)
@@ -78,8 +80,12 @@ module.exports=function(environment){
       if(inputMode){
           // hardware.sendScreenB(JSON.stringify(event.eventMessage.value));
           // try{
-            if(selectedInputNumber!==false)
-            hardware.sendScreenB(JSON.stringify(indexedMidiInputCache[selectedInputNumber].outputMessage.value));
+            if(selectedInputNumber!==false){
+              var outputCache= indexedMidiInputCache[selectedInputNumber];
+              var state=outputCache.enabled;
+              var name= getHeaderName[outputCache.outputMessage.value[0]]||"h."+outputCache.outputMessage.value[0];
+              hardware.sendScreenB(name+" "+(state?"on":"off"));
+            }
           // }catch(e){
             // console.log("no",selectedInputNumber,indexedMidiInputCache);
           // }
