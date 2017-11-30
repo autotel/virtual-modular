@@ -9,7 +9,7 @@ var RECORDINGHEADER = 0xAA;
 
 var Fifo = require('fifo');
 
-var NoteLogger = function(ownerModule, _settings) {
+var NoteLogger = function( _settings) {
   var self = this;
   var clock = this.clock = {
     step: 0,
@@ -147,7 +147,7 @@ var NoteLogger = function(ownerModule, _settings) {
       // console.log("!BRKCON");
       if (isMemEventComplete(currNode.value)) {
         var tStart = [currNode.value.starts[0], currNode.value.starts[1]];
-        console.log("EVAL!",tStart[0],"vs",timeRangeStart[0]);
+        // console.log("EVAL!",tStart[0],"vs",timeRangeStart[0]);
         if (tStart[0] == timeRangeStart[0]) {
           breakCondition = tStart[1] < timeRangeStart[1];
         } else if (tStart[0] < timeRangeStart[0]) {

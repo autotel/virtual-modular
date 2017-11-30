@@ -5,7 +5,6 @@ var uix16Control = require('./x28basic');
 var Tape=require('./Tape.js');
 // var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
-var NoteLogger = require('./NoteLogger.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -52,7 +51,7 @@ module.exports = function(environment) {
 
       this.addNewTape=function(){
         let len=tapes.length;
-        tapes.push(new Tape({outputFunction:thisModule.memoryOutput}));
+        tapes.push(new Tape({outputFunction:thisModule.memoryOutput,clock:clock}));
         return tapes[len];
       }
       this.getTapeNum=function(tape){
@@ -103,8 +102,7 @@ module.exports = function(environment) {
         microStep: 0,
         historicStep:0
       };
-      var noteLogger=new NoteLogger(thisModule);
-      noteLogger.setExternalClock(this.clock);
+
       var noteOnTracker = new NoteOnTracker(thisModule);
       /**
       @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
@@ -158,29 +156,7 @@ module.exports = function(environment) {
           tape.clockFunction([clock.historicStep,clock.microStep]);
         }
       }
-      var currentLoopStart=[0,0];
-      //If I detect a recording or a change of length in the tape, transfer the event logger memory to the tape memory
-      var stepFunction = function(){
-        noteLogger.lastEventTime(false,function(lastEventTime){
-          // console.log("LEV",lastEventTime);
-          if(currentLoopStart[0]!=lastEventTime[0]-currentTape.steps.value){
-            currentTape.clearMemory();
-            currentMemory=currentTape.memory;
-            currentLoopStart=[lastEventTime[0]-currentTape.steps.value,lastEventTime[1]];
-            var time=[lastEventTime[0]-currentTape.steps.value,lastEventTime[1]-1];
-            // console.log("TTM",time,lastEventTime);
-            noteLogger.getLastTimeEvents(time, false,function(_eventMessage){
-              var eventMessage=_eventMessage.clone();
-              var timeIndex=eventMessage.starts;
-              timeIndex[0]%=currentTape.steps.value;
-              if(!currentMemory[timeIndex]) currentMemory[timeIndex]=[];
-              currentMemory[timeIndex].push(eventMessage);
 
-            });
-          }
-        });
-        // console.log(currentMemory);
-      }
 
       this.eventReceived = function(evt) {
 
@@ -192,8 +168,6 @@ module.exports = function(environment) {
             clock.step++;
             clock.step %= clock.steps;
             clock.historicStep++;
-            stepFunction();
-            // thisModule.handle('step');
           }
           clockFunction();
         } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
@@ -205,7 +179,7 @@ module.exports = function(environment) {
           evt.eventMessage.value.shift();
           // if (thisModule.recording) {
           // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
-            noteLogger.addEvent(evt.eventMessage);
+          currentTape.record(evt.eventMessage);
           // }
         } else {}
       }
