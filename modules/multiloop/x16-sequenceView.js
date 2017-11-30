@@ -5,7 +5,8 @@ var DataVisualizer=require('./visualizer.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports=function(controlledModule){
+module.exports=function(environment,parentInteractor){
+  var controlledModule=parentInteractor.controlledModule;
   var configurators={};
   var engagedConfigurator=false;
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
@@ -13,11 +14,12 @@ module.exports=function(controlledModule){
   var stepsBmp=0;
   var engagedHardwares=new Set();
 
-  for(var hardware of enviroment.hardwares){
-    hardaware.on('interaction',fuction(event){
+  for(var hardware of environment.hardwares){
+    hardaware.on('interaction',function(event){
       for(let view of views){
         if(this[event.type]){
-
+          console.log("sequence view, event"+event.type);
+          this[event.type](event);
         }else{
           console.log("undlandled interaction");
         }
@@ -94,10 +96,11 @@ module.exports=function(controlledModule){
     updateLeds(hardware);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(controlledModule.name);
+    hardware.sendScreenA(controlledModule.name.substring(0,5)+"> sequence");
   }
   var updateLeds=function(hardware){
     var eventsBmp=visualizer.eventsBitmap;
+    var headerBmp=1<<((controlledModule.clock.step/visualizer.eventsPerSquare)+visualizer.timeRange.start[0]);
     //TODO: this function is taking way too much time
     // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
     //   console.log(timeIndex);

@@ -2,7 +2,8 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 
-module.exports=function(controlledModule){
+module.exports=function(environment,parentInteractor){
+  var controlledModule=parentInteractor.controlledModule;
   var configurators={};
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
   var selectedTape=0;
@@ -94,7 +95,7 @@ module.exports=function(controlledModule){
     updateLeds(hardware);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(controlledModule.name);
+    hardware.sendScreenA((controlledModule.name.substring(0,5))+"> arrange");
   }
   var updateLeds=function(hardware){
     var selectedTapeBitmap=1<<selectedTape;
