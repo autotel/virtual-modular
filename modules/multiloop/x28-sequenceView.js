@@ -18,7 +18,7 @@ module.exports=function(environment,parentInteractor){
   parentInteractor.on('interaction',function(event){
     if (engagedHardwares.has(event.hardware)){
       if(typeof self[event.type]==='function'){
-        console.log("sequence view, event "+event.type);
+        // console.log("sequence view, event "+event.type);
         self[event.type](event);
       }else{
         console.log("undlandled interaction");

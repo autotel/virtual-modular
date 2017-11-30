@@ -1,7 +1,8 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var moduleInstanceBase = require('../moduleInstanceBase');
-var uix16Control = require('./x16basic');
+var uix16Control = require('./x28basic');
+var Tape=require('./Tape.js');
 // var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
 var NoteLogger = require('./NoteLogger.js');
@@ -45,22 +46,20 @@ module.exports = function(environment) {
       @example [[step,microStep]]={EventPattern:eventMessage,age:how old}
       eventMessage contains additional information:  the duration of each note, in this way its easier to keep the noteoffs
       */
-      var tapes=[{memory:[],muted:false}];
-      var currentTape=tapes[0];
-      var currentMemory=currentTape.memory;
+
+
+      var tapes=[];
+
       this.addNewTape=function(){
-        // console.log("nw");
         let len=tapes.length;
-        tapes.push({memory:[],muted:false});
+        tapes.push(new Tape({outputFunction:thisModule.memoryOutput}));
         return tapes[len];
       }
       this.getTapeNum=function(tape){
         return tapes.indexOf(tape);
       }
       this.getNumTape=function(n){
-        // console.log("tapen",n);
-        // console.log(tapes[n]);
-        if(tapes[n]){ return tapes[n] }else{ console.log("fase");return false; }
+        if(tapes[n]){ return tapes[n] }else{ console.log("false");return false; }
       }
       this.tapeCount=function(){
         return tapes.length;
@@ -73,12 +72,30 @@ module.exports = function(environment) {
         tapes.splice(tapes.indexOf(tape,1));
       }
       this.muteTape=function(tape){
-        tape.muted=true;
+        tape.muted.value=true;
       }
       this.unmuteTape=function(tape){
-        tape.muted=false;
+        tape.muted.value=false;
       }
-      this.recording = true;
+      this.muteTapeToggle=function(tape){
+        tape.muted.value=!tape.muted.value;
+      }
+      this.eachTape=function(cb){
+        for(var n in tapes){
+          cb.call(tapes[n],n);
+        }
+      }
+      var currentTape=false;
+      var currentMemory=false;
+      function setInitState(){
+        currentTape=thisModule.addNewTape();
+        currentMemory=currentTape.memory;
+        if(properties){
+          console.log("TODO:should apply",properties);
+        }
+        thisModule.recording = true;
+      }
+
       var clock = this.clock = {
         steps: 32,
         step: 0,
@@ -88,8 +105,6 @@ module.exports = function(environment) {
       };
       var noteLogger=new NoteLogger(thisModule);
       noteLogger.setExternalClock(this.clock);
-      // var recorder = new Recorder(thisModule,memory);
-      // recorder.setExternalClock(this.clock);
       var noteOnTracker = new NoteOnTracker(thisModule);
       /**
       @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
@@ -103,7 +118,7 @@ module.exports = function(environment) {
         if (timeStart[0] === undefined) console.warn("eachMemoryEvent timeStart parameter must be array of [step,microStep]");
         if (timeEnd[0] === undefined) console.warn("eachMemoryEvent timeEnd parameter must be array of [step,microStep]");
         var timeRangeStarted = false;
-        for (var timeIndex in currentcurrentMemory) {
+        for (var timeIndex in currentMemory) {
           if (!timeRangeStarted) {
             if (timeStart[0] <= timeIndex[0] && timeStart[1] <= timeIndex[1]) {
               timeRangeStarted = true;
@@ -140,36 +155,27 @@ module.exports = function(environment) {
       var clockFunction = function() {
         noteOnTracker.clockFunction(clock.historicStep, clock.microStep);
         for(var tape of tapes){
-          var memory=tape.memory;
-          // recorder.clockFunction(clock.step, clock.microStep);
-          // noteLogger.clockFunction()
-          if (memory[[clock.step, clock.microStep]]) {
-            // console.log(`memory[${clock.step},${clock.microStep}]`);
-            for (var eventMessage of memory[[clock.step, clock.microStep]]) {
-              // console.log('y:',eventMessage);
-              thisModule.memoryOutput(eventMessage);
-            }
-          }
-
+          tape.clockFunction([clock.historicStep,clock.microStep]);
         }
       }
-      var currentLoopEnd=[0,0];
+      var currentLoopStart=[0,0];
+      //If I detect a recording or a change of length in the tape, transfer the event logger memory to the tape memory
       var stepFunction = function(){
         noteLogger.lastEventTime(false,function(lastEventTime){
           // console.log("LEV",lastEventTime);
-          if(currentLoopEnd[0]!=lastEventTime[0]){
-            // console.log("NNE");
-            currentMemory.splice(0);
-            currentLoopEnd=lastEventTime;
-            var time=[lastEventTime[0]-clock.steps,lastEventTime[1]-1];
+          if(currentLoopStart[0]!=lastEventTime[0]-currentTape.steps.value){
+            currentTape.clearMemory();
+            currentMemory=currentTape.memory;
+            currentLoopStart=[lastEventTime[0]-currentTape.steps.value,lastEventTime[1]];
+            var time=[lastEventTime[0]-currentTape.steps.value,lastEventTime[1]-1];
             // console.log("TTM",time,lastEventTime);
             noteLogger.getLastTimeEvents(time, false,function(_eventMessage){
               var eventMessage=_eventMessage.clone();
               var timeIndex=eventMessage.starts;
-              timeIndex[0]%=clock.steps;
+              timeIndex[0]%=currentTape.steps.value;
               if(!currentMemory[timeIndex]) currentMemory[timeIndex]=[];
               currentMemory[timeIndex].push(eventMessage);
-              // console.log("pp");
+
             });
           }
         });
@@ -204,11 +210,14 @@ module.exports = function(environment) {
         } else {}
       }
 
+      setInitState();
+
       this.delete = function() {
         for (var noff of noteOnTracker) {
           noteOnTracker.setAllOff(noff);
         }
       }
+
     }
   })
 };

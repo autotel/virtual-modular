@@ -2,8 +2,8 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var DataVisualizer=require('./visualizer.js');
-var SequenceView=require('./x16-SequenceView.js');
-var ArragementView=require('./x16-ArrangementView.js');
+var SequenceView=require('./x28-SequenceView.js');
+var ArragementView=require('./x28-ArrangementView.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
