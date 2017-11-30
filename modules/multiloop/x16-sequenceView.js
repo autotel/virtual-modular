@@ -13,30 +13,25 @@ module.exports=function(environment,parentInteractor){
   var visualizer=new DataVisualizer(controlledModule);
   var stepsBmp=0;
   var engagedHardwares=new Set();
-
-  for(var hardware of environment.hardwares){
-    hardaware.on('interaction',function(event){
-      for(let view of views){
-        if(this[event.type]){
-          console.log("sequence view, event"+event.type);
-          this[event.type](event);
-        }else{
-          console.log("undlandled interaction");
-        }
+  var self=this;
+  var refreshInterval=false;
+  parentInteractor.on('interaction',function(event){
+    if (engagedHardwares.has(event.hardware)){
+      if(typeof self[event.type]==='function'){
+        console.log("sequence view, event "+event.type);
+        self[event.type](event);
+      }else{
+        console.log("undlandled interaction");
       }
-    });
-  }
+    }
+  });
 
   function eachEngagedHardware(cb){
     for(let hardware of engagedHardwares){
       cb(hardware);
     }
   }
-  setInterval(function(){
-    if(!engagedConfigurator){
-      eachEngagedHardware(updateLeds);
-    }
-  },1000/20);
+
   this.matrixButtonPressed=function(event){
     if(engagedConfigurator){
       engagedConfigurator.matrixButtonPressed(event);
@@ -87,9 +82,15 @@ module.exports=function(environment,parentInteractor){
   this.engage=function(event){
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
+    refreshInterval=setInterval(function(){
+      if(!engagedConfigurator){
+        eachEngagedHardware(updateLeds);
+      }
+    },1000/20);
   };
   this.disengage=function(event){
     engagedHardwares.delete(event.hardware);
+    clearInterval(refreshInterval);
   }
   var updateHardware=function(hardware){
     updateScreen(hardware);
@@ -100,7 +101,7 @@ module.exports=function(environment,parentInteractor){
   }
   var updateLeds=function(hardware){
     var eventsBmp=visualizer.eventsBitmap;
-    var headerBmp=1<<((controlledModule.clock.step/visualizer.eventsPerSquare)+visualizer.timeRange.start[0]);
+    var headerBmp=1<<((controlledModule.clock.step/visualizer.eventsPerSquare.value)+visualizer.timeRange.start[0]);
     //TODO: this function is taking way too much time
     // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
     //   console.log(timeIndex);

@@ -5,14 +5,7 @@ var EventConfigurator=require('../x16utils/EventConfigurator.js');
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
   var self=this;
-  parentInteractor.on('interaction',function(event){
-    if(typeof self[event.type]==='function'){
-      console.log("sequence view, event "+event.type);
-      self[event.type](event);
-    }else{
-      console.log("undlandled interaction");
-    }
-  });
+
   var configurators={};
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
 
@@ -29,6 +22,16 @@ module.exports=function(environment,parentInteractor){
     }
   }
 
+  parentInteractor.on('interaction',function(event){
+    if (engagedHardwares.has(event.hardware)){
+      if(typeof self[event.type]==='function'){
+        console.log("sequence view, event "+event.type);
+        self[event.type](event);
+      }else{
+        console.log("undlandled interaction");
+      }
+    }
+  });
 
   setInterval(function(){
     if(!engagedConfigurator)
@@ -109,6 +112,7 @@ module.exports=function(environment,parentInteractor){
   }
   var updateScreen=function(hardware){
     hardware.sendScreenA((controlledModule.name.substring(0,5))+"> arrange");
+    hardware.sendScreenB("tape "+selectedTape);
   }
   var updateLeds=function(hardware){
     var selectedTapeBitmap=1<<selectedTape;
