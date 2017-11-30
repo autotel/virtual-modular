@@ -61,7 +61,7 @@ module.exports=function(environment){return new (function(){
           thisInstance.output(patMem[step.value]);
           var noff=patMem[step.value].clone();
           noff.value[0]=2;
-          console.log(noff);
+          // console.log(noff);
           noteOnTracker.add(noff);
         }else{
           //console.log("NS"+step.value);

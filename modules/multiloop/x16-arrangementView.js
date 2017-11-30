@@ -4,19 +4,32 @@ var EventConfigurator=require('../x16utils/EventConfigurator.js');
 
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
+  var self=this;
+  parentInteractor.on('interaction',function(event){
+    if(typeof self[event.type]==='function'){
+      console.log("sequence view, event "+event.type);
+      self[event.type](event);
+    }else{
+      console.log("undlandled interaction");
+    }
+  });
   var configurators={};
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
+
   var selectedTape=0;
   var tapesAmount=1;
   var engagedConfigurator=false;
   var lastEngagedConfigurator=configurators.event;
 
   var engagedHardwares=new Set();
+
   function eachEngagedHardware(cb){
     for(let hardware of engagedHardwares){
       cb(hardware);
     }
   }
+
+
   setInterval(function(){
     if(!engagedConfigurator)
     for (let hardware of engagedHardwares) {

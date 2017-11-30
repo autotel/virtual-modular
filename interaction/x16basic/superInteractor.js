@@ -126,7 +126,14 @@ var X16SuperInteractorsSingleton=function(environment){
     onHandlers.call(this);
 
     var myModuleCreator=new ModuleCreator(myHardware);
-    // myHardware.on('interaction',console.log);
+
+    this.on('interaction',function(event){
+      // console.log("16 int");
+      if(engagedInterface){
+        engagedInterface.handle('interaction',event);
+      }
+    });
+
     environment.on('module created',function(evt){
       if(!(engagedInterface||myModuleCreator.engaged)){
       updateHardware();
