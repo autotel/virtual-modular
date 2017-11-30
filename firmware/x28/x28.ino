@@ -49,9 +49,11 @@ void setup() {
   hardware.lcdPrintA((char&) tstr[0]);
 
 }
-void test_onTip(){
-  char pr[4]="TIP";
-  hardware.lcdPrintA((char&)pr, 3);
+void test_onTip() {
+  if (engagedMode == 0) {
+    char pr[4] = "TIP";
+    hardware.lcdPrintA((char&)pr, 3);
+  }
 }
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
   if (engagedMode == 0) {
@@ -79,6 +81,7 @@ void onEncoderScrolled(int8_t delta) {
 void onEncoderPressed() {
   if (engagedMode == 0) {
     sequencerMode.onEncoderPressed();
+   // lcd.print("EncPr");
   } else {
     controllerMode.onEncoderPressed();
   }
@@ -90,11 +93,11 @@ void onEncoderReleased() {
     controllerMode.onEncoderReleased();
   }
 }
-void onBusMessageReceived(uint8_t * data, uint8_t len){
+void onBusMessageReceived(uint8_t * data, uint8_t len) {
   sequencerMode.step();
-  char pr[4]="RCV";
+  char pr[4] = "RCV";
   hardware.lcdPrintA((char&)pr, 3);
-  sequencerMode.onBusMessageReceived(data,len);
+  sequencerMode.onBusMessageReceived(data, len);
 }
 
 uint8_t test_messageCounter = 0;
@@ -106,6 +109,11 @@ void loop() {
       engagedMode = 1;
       char str[] = "controller mode";
       hardware.lcdPrintB((char&) str[0]);
+
+
+      lcd.setCursor(0, 1);
+      lcd.write(patchBus.test_count);
+
     } else {
       sequencerMode.loop();
     }
@@ -114,8 +122,7 @@ void loop() {
   }
   hardware.loop();
   patchBus.loop();
-  lcd.setCursor(0,1);
-  lcd.write(patchBus.test_count);
+
   midi.loop();
 }
 

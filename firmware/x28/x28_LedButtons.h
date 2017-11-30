@@ -28,17 +28,18 @@ class LedButtons {
 
       //security led fadein
       for (uint32_t t = 0; t < 0xff; t += 4) {
-        LEDS.setBrightness(t);
+        LEDS.setBrightness(t / 4);
         for (uint16_t a = 0; a < 28; a++) {
           setButtonColor(
             a,
-            floor(sin(a * t / (28000 )+0.15) * 255),
-            floor(sin(a * t / (28000 )+0.25) * 255),
-            floor(sin(a * t / (28000 )+0.75) * 255)
+            floor(sin(t / (4 ) + 0.15) * 127) + 127,
+            floor(sin(t / (3 ) + 0.25) * 127) + 127,
+            floor(sin(t / (2 ) + 0.75) * 127) + 127
           );
         }
         FastLED.show();
-        delay(4);
+        //https://www.desmos.com/calculator/zmpnfwcguf
+        delay(((t+70)/((t/44)+1))-47);
       }
 
       for (uint8_t a = 0; a < 33; a++) {
@@ -59,19 +60,29 @@ class LedButtons {
         refreshLcd();
       }
     }
+
     uint16_t lastEncoderPressTimer = 0;
     uint16_t debounceTime = 250;
+    boolean lastTimeEncoderPressed = false;
     void doEncoderButton() {
+      //PH7--[\_]--<|--PK0
+
       //not working
       //set MUXBX0 low MUXAX4 to high;
-      PORTK &= ~(0x1 << 0);
-      PORTH |= 0x1 << 7;
-      if ((PINH >> 7) & 1) {
-        if (lastEncoderPressTimer >= debounceTime) {
-          encoderPressedCallback();
-          lastEncoderPressTimer = 0;
+      DDRK &= ~1;
+      DDRH |= 1 << 7;
+      PORTK |= 0x1 << 0;
+      PORTH &= ~(0x1 << 7);
+      if ((PINK & 1) == 0) {
+        if (!lastTimeEncoderPressed) {
+          if (lastEncoderPressTimer >= debounceTime) {
+            encoderPressedCallback();
+            lastEncoderPressTimer = 0;
+          }
+          lastTimeEncoderPressed=true;
         }
       } else {
+        lastTimeEncoderPressed=false;
         if (lastEncoderPressTimer <= debounceTime) {
           lastEncoderPressTimer++;
         }
@@ -116,7 +127,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF<<3;
+      DDRH = 0xFF << 3;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK
@@ -182,7 +193,7 @@ class LedButtons {
       }
       if (changedScreenB) {
         for (uint16_t c = 16; c < 32; c++) {
-          lcd->setCursor(c-16, 1);
+          lcd->setCursor(c - 16, 1);
           if (lcdBuf[c] == 0)lcdBuf[c] = ' ';
           lcd->write(lcdBuf[c]);
           lcdBuf[c] = ' ';
