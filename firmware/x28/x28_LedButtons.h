@@ -1,4 +1,3 @@
-//TODO: separate .cpp and .h
 #include <LiquidCrystal.h>
 #include "FastLED.h"
 #include "_name_signals.h"
@@ -62,7 +61,7 @@ class LedButtons {
     }
 
     uint16_t lastEncoderPressTimer = 0;
-    uint16_t debounceTime = 250;
+    uint16_t debounceTime = 25;
     boolean lastTimeEncoderPressed = false;
     void doEncoderButton() {
       //PH7--[\_]--<|--PK0
