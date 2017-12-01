@@ -335,7 +335,7 @@ var DriverX28v0=function(environment,properties){
         // console.log("buttton",event.type);
       }
       // console.log("recv",chd);
-      // console.log("interaction",event);
+      console.log("interaction",event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
 
@@ -343,6 +343,13 @@ var DriverX28v0=function(environment,properties){
         event.data[0]=(event.data[0]==0xFF?-1:event.data[0]);
         event.data[0]=(event.data[0]==0xFE?-2:event.data[0]);
         event.delta=event.data[0];
+      }
+      if(event.type=="bottomButtonPressed"||event.type=="bottomButtonReleased"){
+        if(event.data[0]==0){
+          event.button="left";
+        }else{
+          event.button="right";
+        }
       }
       myInteractionPattern.handle('interaction',event);
       // console.log(event);

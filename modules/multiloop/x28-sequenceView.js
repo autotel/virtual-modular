@@ -17,13 +17,16 @@ module.exports=function(environment,parentInteractor){
   var self=this;
   var refreshInterval=false;
   var needUpdateSequence=false;
+
+  var momentaryBitmap=false;
+
   parentInteractor.on('interaction',function(event){
     if (engagedHardwares.has(event.hardware)){
       if(typeof self[event.type]==='function'){
         // console.log("sequence view, event "+event.type);
         self[event.type](event);
       }else{
-        console.log("undlandled interaction");
+        console.log("unhandled interaction",event);
       }
     }
   });
@@ -67,8 +70,15 @@ module.exports=function(environment,parentInteractor){
       engagedConfigurator.disengage(event);
       engagedConfigurator=false;
     }
-
   };
+  this.bottomButtonPressed=function(event){
+    momentaryBitmap=0b1000010000100100;
+  }
+  this.bottomButtonReleased=function(event){
+    console.log(event);
+    momentaryBitmap=false;
+  }
+
   this.encoderScrolled=function(event){
     if(engagedConfigurator){
       engagedConfigurator.encoderScrolled(event);
@@ -104,14 +114,18 @@ module.exports=function(environment,parentInteractor){
     hardware.sendScreenA(controlledModule.name.substring(0,5)+"> sequence");
   }
   var updateLeds=function(hardware){
-    var eventsBmp=visualizer.eventsBitmap;
-    var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);
-    //TODO: this function is taking way too much time
-    // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
-    //   console.log(timeIndex);
-    //   eventsBmp|=1<<(timeIndex[0]/2);
-    // });
-    hardware.draw([headerBmp,headerBmp|eventsBmp,eventsBmp]);
-    // hardware.draw([selectedTapeBitmap,selectedTapeBitmap|tapesBitmap,selectedTapeBitmap|tapesBitmap]);
+    if(momentaryBitmap){
+      hardware.draw([momentaryBitmap,0,0]);
+    }else{
+      var eventsBmp=visualizer.eventsBitmap;
+      var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);
+      //TODO: this function is taking way too much time
+      // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
+      //   console.log(timeIndex);
+      //   eventsBmp|=1<<(timeIndex[0]/2);
+      // });
+      hardware.draw([headerBmp,headerBmp|eventsBmp,eventsBmp]);
+      // hardware.draw([selectedTapeBitmap,selectedTapeBitmap|tapesBitmap,selectedTapeBitmap|tapesBitmap]);
+    }
   }
 }

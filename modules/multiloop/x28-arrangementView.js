@@ -85,7 +85,7 @@ module.exports=function(environment,parentInteractor){
         // console.log("sequence view, event ",event);
         self[event.type](event);
       }else{
-        console.log("undlandled interaction");
+        console.log("unhandled interaction",event);
       }
     }
   });

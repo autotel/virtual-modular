@@ -91,7 +91,7 @@ class LedButtons {
             }
           }
         } else {
-          if((otherButtonsLastPressed&(1<<a))==1){
+          if((otherButtonsLastPressed&(1<<a))!=0){
             //and was pressed the last time
             if(a==0){
               encoderReleasedCallback();
