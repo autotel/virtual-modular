@@ -5,13 +5,13 @@ var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
 var NoteOnTracker = function(ownerModule) {
-  var trackedNotes = [];
+  var trackedNotes = {};
   var currentMicroStep;
   var currentStep;
-  var noteOffSuperImpose=new EventMessage({value:[TRIGGEROFFHEADER]});
+  var noteOffSuperImpose=new EventMessage({value:[TRIGGEROFFHEADER,-1,-1,-1,-1]});
   this.trackEventMessage = function(eventMessage, callback) {
     eventMessage.started = [currentStep, currentMicroStep];
-    trackedNotes.push(eventMessage);
+    // trackedNotes.push(eventMessage);
     if (eventMessage.value[0] == TRIGGERONHEADER) {
       let eventKey = [eventMessage.value[1], eventMessage.value[2]];
       trackedNotes[eventKey] = eventMessage;
@@ -29,14 +29,19 @@ var NoteOnTracker = function(ownerModule) {
     currentMicroStep = _currentMicroStep
     for (var a in trackedNotes) {
       if (trackedNotes[a].value[0] == TRIGGERONHEADER) {
-        if (currentStep - trackedNotes[a].started[0] >= trackedNotes[a].duration[0]) {
-          if (currentMicroStep - trackedNotes[a].started[1] > trackedNotes[a].duration[1]) {
-            ownerModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
-            delete trackedNotes[a];
-          }
+        if (trackedNotes[a].started[0] + trackedNotes[a].duration[0] <= currentStep ) {
+          //TODO: microstep precise length if (currentMicroStep - trackedNotes[a].started[1] >= trackedNotes[a].duration[1]) {
+            let off=trackedNotes[a].clone().superImpose(noteOffSuperImpose);
+            // console.log("STOP",off);
+            ownerModule.output(off);
+            delete trackedNotes [a];
+          // }
+        }else{
+          // console.log("KEEP",Array.from(trackedNotes).length);
+          // console.log(`${trackedNotes[a].started[0] + trackedNotes[a].duration[0]} <= ${currentStep} `);
         }
       }else{
-        delete trackedNotes[a];
+        delete trackedNotes [a];
       }
     }
   }

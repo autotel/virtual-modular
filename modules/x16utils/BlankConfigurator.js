@@ -27,6 +27,7 @@ var BlankConfigurator=function(parentInteractor,properties){
       return "to "+thisVar.value;
     }
     for(var a in nvars){
+      if(nvars[a]==undefined) throw `error while adding vars to a BlankConfigurator: vars[${a}] is undefined`;
       if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultChangeFunction;
       if(nvars[a].selectFunction===undefined) nvars[a].selectFunction=defaultSelectFunction;
       if(nvars[a].nameFunction===undefined) nvars[a].nameFunction=defaultNameFunction;
@@ -91,9 +92,9 @@ var BlankConfigurator=function(parentInteractor,properties){
     if(event.data[0]<varNames.length){
       selectedVarNumber=event.data[0];
       var selectedVar=getSelectedVar();
+      selectedVar.selectFunction(selectedVar);
       updateLeds(hardware);
       updateScreen(hardware);
-      selectedVar.selectFunction(selectedVar);
     }
   };
   this.encoderScrolled=function(event){
@@ -127,6 +128,8 @@ var BlankConfigurator=function(parentInteractor,properties){
     if(properties.engageFunction){
       properties.engageFunction(thisInteractor);
     }
+    var svar=getSelectedVar()
+    svar.selectFunction(svar);
     updateLeds(hardware);
     updateScreen(hardware);
   };

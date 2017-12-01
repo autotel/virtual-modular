@@ -21,7 +21,7 @@ var DataVisualizer=module.exports=function(controlledTape){
         // thisV.eventsTrailBitmap=1<<
       }
     }
-    console.log(thisV.eventsBitmap);
+    // console.log(thisV.eventsBitmap);
   }
   controlledTape.on('event recorded',updateBitmap);
 }

@@ -48,7 +48,7 @@ Pendant: detect the hardware type
     newPort.on('open', function() {
 
       //now we communicate with the serial device to define what kind of hardware controller to use
-
+      //connect, request the hardware version, and expect it's response
       var alreadyCreated=false;
       var getVersionInterval;
       newPort.on('data', (data) => {
@@ -66,6 +66,7 @@ Pendant: detect the hardware type
             var string="";
             var started=false;
             var finished=false;
+            var hardwareCreated=false;
             for (var i = 0; i < data.length && !finished; i++) {
               if(started){
                 string += String.fromCharCode(parseInt(data[i]));
@@ -82,22 +83,21 @@ Pendant: detect the hardware type
               clearInterval(getVersionInterval);
               alreadyCreated=true;
               console.log('creating hardware controller');
-              environment.hardwares.push(new hardwareDriverPrototypes.X28v0(environment,{serial:newPort}));
+              hardwareCreated=new hardwareDriverPrototypes.X28v0(environment,{serial:newPort});
+              environment.hardwares.push(hardwareCreated);
             }else if(data.indexOf("16")>-1){
               clearInterval(getVersionInterval);
               alreadyCreated=true;
               console.log('creating hardware controller');
-              environment.hardwares.push(new hardwareDriverPrototypes.X16v0(environment,{serial:newPort}));
+              hardwareCreated=new hardwareDriverPrototypes.X16v0(environment,{serial:newPort});
+              environment.hardwares.push(hardwareCreated);
             }
           }catch(e){
             console.error(e);
           }
         }
       });
-
-
     });
-
   }
 });
 

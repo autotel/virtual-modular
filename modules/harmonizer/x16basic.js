@@ -111,7 +111,7 @@ module.exports=function(environment){
           }else{
             //chordSelector section pressed
             fingerMap=eventFingerMap;
-            console.log(eventFingerMap);
+            // console.log(eventFingerMap);
             selectScaleMap(eventFingerMap);
 
             var onEventMessage=new EventMessage({

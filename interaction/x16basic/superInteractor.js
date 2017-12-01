@@ -126,13 +126,20 @@ var X16SuperInteractorsSingleton=function(environment){
     onHandlers.call(this);
 
     var myModuleCreator=new ModuleCreator(myHardware);
-    // this.on('interaction',console.log);
+
+    this.on('interaction',function(event){
+      // console.log("16 int");
+      if(engagedInterface){
+        engagedInterface.handle('interaction',event);
+      }
+    });
+
     environment.on('module created',function(evt){
       if(!(engagedInterface||myModuleCreator.engaged)){
       updateHardware();
       }
     });
-    this.on('matrixButtonPressed',function(event){
+    myHardware.on('matrixButtonPressed',function(event){
       // event.button=event.data[0];
       // console.log(event);
       if(myModuleCreator.engaged){
@@ -164,12 +171,12 @@ var X16SuperInteractorsSingleton=function(environment){
         matrixButtonOwners[event.data[0]]=engagedInterface;
       }
     });
-    this.on('matrixButtonVelocity',function(event){
+    myHardware.on('matrixButtonVelocity',function(event){
       if(engagedInterface){
         engagedInterface.matrixButtonVelocity(event);
       }
     });
-    this.on('matrixButtonReleased',function(event){
+    myHardware.on('matrixButtonReleased',function(event){
       if(firstPressedMatrixButton===event.data[0]){
        firstPressedMatrixButton=false;
       }
@@ -180,14 +187,14 @@ var X16SuperInteractorsSingleton=function(environment){
       }else{
       }
     });
-    this.on('matrixButtonHold',function(event){
+    myHardware.on('matrixButtonHold',function(event){
     //  event.button=event.data[0];
      if(matrixButtonOwners[event.data[0]]){
         matrixButtonOwners[event.data[0]].matrixButtonHold(event);
      }else{
      }
     });
-    this.on('selectorButtonPressed',function(event){
+    myHardware.on('selectorButtonPressed',function(event){
      //if the button is the patchMenu button
      if(event.data[0]==0){
        if(engagedInterface){
@@ -204,7 +211,7 @@ var X16SuperInteractorsSingleton=function(environment){
        }
      }
     });
-    this.on('selectorButtonReleased',function(event){
+    myHardware.on('selectorButtonReleased',function(event){
       // event.button=event.data[0];
       if(selectorButtonOwners[event.data[0]]){
        selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
@@ -222,17 +229,17 @@ var X16SuperInteractorsSingleton=function(environment){
        }
       }
     });
-    this.on('encoderPressed',function(event){
+    myHardware.on('encoderPressed',function(event){
       if(!engagedInterface){}else{
         engagedInterface.encoderPressed(event);
       }
     });
-    this.on('encoderReleased',function(event){
+    myHardware.on('encoderReleased',function(event){
       if(!engagedInterface){}else{
         engagedInterface.encoderReleased(event);
         }
       });
-    this.on('encoderScrolled',function(event){
+    myHardware.on('encoderScrolled',function(event){
       if(!engagedInterface){
       }else{
         engagedInterface.encoderScrolled(event);

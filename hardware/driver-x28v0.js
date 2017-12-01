@@ -336,7 +336,6 @@ var DriverX28v0=function(environment,properties){
       }
       // console.log("recv",chd);
       // console.log("interaction",event);
-      myInteractionPattern.handle('interaction',event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
 
@@ -345,7 +344,7 @@ var DriverX28v0=function(environment,properties){
         event.data[0]=(event.data[0]==0xFE?-2:event.data[0]);
         event.delta=event.data[0];
       }
-
+      myInteractionPattern.handle('interaction',event);
       // console.log(event);
       myInteractionPattern.handle(event.type,event);
     }

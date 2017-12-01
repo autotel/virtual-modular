@@ -125,6 +125,12 @@ var X16SuperInteractorsSingleton=function(environment){
     var firstPressedMatrixButton=false;
     onHandlers.call(this);
     var myModuleCreator=new ModuleCreator(myHardware);
+    this.on('interaction',function(event){
+      // console.log("28 int");
+      if(engagedInterface){
+        engagedInterface.handle('interaction',event);
+      }
+    });
     // this.on('interaction',console.log);
     environment.on('module created',function(evt){
       if(!(engagedInterface||myModuleCreator.engaged)){
@@ -196,7 +202,7 @@ var X16SuperInteractorsSingleton=function(environment){
     });
     this.on('selectorButtonPressed',function(event){
      //if the button is the patchMenu button}
-     console.log(event.button);
+    //  console.log(event.button);
      if(event.button==7){
        if(engagedInterface){
          engagedInterface.disengage(event);
