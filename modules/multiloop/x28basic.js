@@ -35,13 +35,14 @@ module.exports=function(environment){
           this.disengage(event);
         }
       });
+      updateSelectorLeds(event.hardware);
     }
 
     this.selectorButtonPressed=function(event){
-      if(event.button==0){
+      if(event.button==4){
         engageView("sequencer",event);
       }
-      if(event.button==1){
+      if(event.button==5){
         engageView("arrangement",event);
       }
     }
@@ -51,9 +52,27 @@ module.exports=function(environment){
     }
     this.engage=function(event){
       engageView(lastEngagedViewName,event);
+      updateSelectorLeds(event.hardware);
     }
     this.disengage=function(event){
       engageView(null,event);
+    }
+    function updateSelectorLeds(hardware){
+      var classicbtn=0x00;
+      var sequencerbtn=1<<4;
+      var arrangerbtn=1<<5;
+      var patchmenubtn=1<<7;
+      var selectedViewBitmap=0;
+      if(views.sequencer.engagedHardwares.has(hardware)){
+        selectedViewBitmap|=sequencerbtn>>4;
+      }
+      if(views.arrangement.engagedHardwares.has(hardware)){
+        selectedViewBitmap|=arrangerbtn>>4;
+      }
+      hardware.drawSelectors([
+          selectedViewBitmap  |classicbtn  |sequencerbtn                |patchmenubtn,
+        ( selectedViewBitmap  |classicbtn  |sequencerbtn   |arrangerbtn) &~patchmenubtn,
+        ( selectedViewBitmap  |classicbtn                  |arrangerbtn) &~patchmenubtn]);
     }
     var selectedTape=0;
     var tapesAmount=1;

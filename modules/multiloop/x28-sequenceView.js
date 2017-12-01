@@ -9,12 +9,14 @@ module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
   var configurators={};
   var engagedConfigurator=false;
+  var lastEngagedConfigurator=false;
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
   var visualizer=new DataVisualizer(controlledModule);
   var stepsBmp=0;
-  var engagedHardwares=new Set();
+  var engagedHardwares=this.engagedHardwares=new Set();
   var self=this;
   var refreshInterval=false;
+  var needUpdateSequence=false;
   parentInteractor.on('interaction',function(event){
     if (engagedHardwares.has(event.hardware)){
       if(typeof self[event.type]==='function'){
@@ -24,6 +26,9 @@ module.exports=function(environment,parentInteractor){
         console.log("undlandled interaction");
       }
     }
+  });
+  controlledModule.on('event recorded',function(){
+    needUpdateSequence=true;
   });
 
   function eachEngagedHardware(cb){
@@ -50,25 +55,19 @@ module.exports=function(environment,parentInteractor){
     if(engagedConfigurator){
       engagedConfigurator.selectorButtonPressed(event);
     }else{
-      if(event.data[0]==1){
-        engagedConfigurator=configurators.event;
-        eachEngagedHardware(function(hardware){
-          configurators.event.engage({hardware:hardware});
-        });
+      if(event.button==1){
+        lastEngagedConfigurator=engagedConfigurator=configurators.event;
+        engagedConfigurator.engage(event);
       }
     }
   };
   this.selectorButtonReleased=function(event){
     var hardware=event.hardware;
-    if(event.data[0]==1){
-      if(engagedConfigurator==configurators.event){
-        lastEngagedConfigurator=engagedConfigurator;
-        engagedConfigurator=false;
-        eachEngagedHardware(function(hardware){
-          configurators.event.disengage({hardware:hardware});
-        });
-      }
+    if(engagedConfigurator){
+      engagedConfigurator.disengage(event);
+      engagedConfigurator=false;
     }
+
   };
   this.encoderScrolled=function(event){
     if(engagedConfigurator){
@@ -80,9 +79,14 @@ module.exports=function(environment,parentInteractor){
     }
   };
   this.engage=function(event){
+
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     refreshInterval=setInterval(function(){
+      if(needUpdateSequence){
+        needUpdateSequence=false;
+        visualizer.updateBitmap(controlledModule.getCurrentTape());
+      }
       if(!engagedConfigurator){
         eachEngagedHardware(updateLeds);
       }
@@ -101,7 +105,7 @@ module.exports=function(environment,parentInteractor){
   }
   var updateLeds=function(hardware){
     var eventsBmp=visualizer.eventsBitmap;
-    var headerBmp=1<<((controlledModule.clock.step/visualizer.eventsPerSquare.value)+visualizer.timeRange.start[0]);
+    var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);
     //TODO: this function is taking way too much time
     // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
     //   console.log(timeIndex);

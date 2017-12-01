@@ -1,6 +1,6 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
-var EventConfigurator=require('../x16utils/EventConfigurator.js');
+// var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
@@ -13,16 +13,18 @@ module.exports=function(environment,parentInteractor){
   var tapesAmount=1;
   var engagedConfigurator=false;
 
-  var engagedHardwares=new Set();
+  var engagedHardwares=this.engagedHardwares=new Set();
 
 
 
   var configurators={};
-  configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
+  // configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
   configurators.tapeTime=new BlankConfigurator(this,{
     name:"tape",
     vars:{
       "length":{value:0},
+      "fold":{value:1,factor:2,opDisp:" "},
+      "fold!":{value:1,factor:2,opDisp:" "},
       "quantize":{value:0},
     }
   });
@@ -33,10 +35,42 @@ module.exports=function(environment,parentInteractor){
       if(thisVar.value+delta>=1){
         thisVar.value+=delta;
         selectedTape.steps.value=thisVar.value;
+        selectedTape.refreshNewTapeLengthFromRecording=true;
       }
     }
   }
-
+  configurators.tapeTime.vars["fold!"].changeFunction=function(thisVar,delta){
+    if(selectedTape){
+      thisVar.value=selectedTape.steps.value;
+      if(delta>0){
+        thisVar.value=thisVar.factor;
+        thisVar.opDisp="*";
+      }else{
+        thisVar.value=1/thisVar.factor;
+        thisVar.opDisp="/";
+      }
+      selectedTape.fold(thisVar.value,true);
+    }
+  }
+  configurators.tapeTime.vars["fold!"].nameFunction=function(thisVar){
+    return "l"+thisVar.opDisp+thisVar.factor+"="+selectedTape.steps.value;
+  }
+  configurators.tapeTime.vars["fold"].changeFunction=function(thisVar,delta){
+    if(selectedTape){
+      thisVar.value=selectedTape.steps.value;
+      if(delta>0){
+        thisVar.value=thisVar.factor;
+        thisVar.opDisp="*";
+      }else{
+        thisVar.value=1/thisVar.factor;
+        thisVar.opDisp="/";
+      }
+      selectedTape.fold(thisVar.value,false);
+    }
+  }
+  configurators.tapeTime.vars["fold"].nameFunction=function(thisVar){
+    return "l"+thisVar.opDisp+thisVar.factor+"="+selectedTape.steps.value;
+  }
   var lastEngagedConfigurator=configurators.tapeTime;
 
   function eachEngagedHardware(cb){
@@ -98,17 +132,13 @@ module.exports=function(environment,parentInteractor){
     if(engagedConfigurator){
       engagedConfigurator.selectorButtonPressed(event);
     }else{
-      if(event.button==1){
-        // engagedConfigurator=configurators.event;
-        // configurators.event.engage({hardware:hardware});
-      }
-      if(event.button==4){
+      if(event.button==0){
         if(selectedTape){
           controlledModule.muteTapeToggle(selectedTape);
           updateHardware(hardware);
         }
       }
-      if(event.button==5){
+      if(event.button==1){
         if(selectedTape){
           engagedConfigurator=configurators.tapeTime;
           configurators.tapeTime.engage(event);

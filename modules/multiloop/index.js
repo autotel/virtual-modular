@@ -67,6 +67,9 @@ module.exports = function(environment) {
         currentTape=tape;
         currentMemory=tape.memory;
       }
+      this.getCurrentTape=function(){
+        return currentTape;
+      }
       this.removeTape=function(tape){
         tapes.splice(tapes.indexOf(tape,1));
       }
@@ -84,6 +87,9 @@ module.exports = function(environment) {
           cb.call(tapes[n],n);
         }
       }
+      // this.tapeFold=function(factor,destructive){
+      //   currentTape.fold(factor,destructive);
+      // }
       var currentTape=false;
       var currentMemory=false;
       function setInitState(){
@@ -104,34 +110,6 @@ module.exports = function(environment) {
       };
 
       var noteOnTracker = new NoteOnTracker(thisModule);
-      /**
-      @param callback the function to call for each memory event. The eventMessage will be this. Callback is called with @param-s (timeIndex,eventIndex) where timeIndex is an array containing [step,microStep] of the evenMessage caller, and eventIndex is the number of the event in that very step, since each step could contain more than one event.
-      you can set the time range to take in consideration using:
-      @param {array} timeStart time of the first memory event on whom to call the callback, in [step,microStep]
-      @param {array} timeEnd time of the last memory event on whom to call the callback, in [step,microStep]
-      */
-      this.eachMemoryEvent = function(callback, timeStart, timeEnd) {
-        if (!timeStart) timeStart = [0, 0];
-        if (!timeEnd) timeEnd = [clock.steps, clock.microSteps];
-        if (timeStart[0] === undefined) console.warn("eachMemoryEvent timeStart parameter must be array of [step,microStep]");
-        if (timeEnd[0] === undefined) console.warn("eachMemoryEvent timeEnd parameter must be array of [step,microStep]");
-        var timeRangeStarted = false;
-        for (var timeIndex in currentMemory) {
-          if (!timeRangeStarted) {
-            if (timeStart[0] <= timeIndex[0] && timeStart[1] <= timeIndex[1]) {
-              timeRangeStarted = true;
-            }
-          }
-          if (timeRangeStarted) {
-            for (var eventIndex in currentMemory[timeIndex]) {
-              callback.call(currentMemory[timeIndex][eventIndex], JSON.parse("[" + timeIndex + "]"), eventIndex);
-            }
-          }
-          if (timeIndex[0] >= timeEnd[0] && timeIndex[1] >= timeEnd[1]) {
-            break;
-          }
-        }
-      }
 
 
       var baseEventMessage = this.baseEventMessage = new EventMessage({
@@ -180,6 +158,7 @@ module.exports = function(environment) {
           // if (thisModule.recording) {
           // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
           currentTape.record(evt.eventMessage);
+          thisModule.handle('event recorded',evt);
           // }
         } else {}
       }

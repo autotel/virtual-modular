@@ -1,27 +1,32 @@
-var DataVisualizer=module.exports=function(controlledTape){
-  var thisV=this;
-  var timeRange=this.timeRange={start:[0,0],end:[controlledTape.clock.steps,controlledTape.clock.microSteps]}
-  var eventsPerSquare=this.eventsPerSquare={value:2};
+var DataVisualizer=module.exports=function(controlledModule){
+  var self=this;
+  var timeRange=this.timeRange={start:[0,0]}
+  var stepsPerButton=this.stepsPerButton={value:2};
+  var microStepBase=12;
   this.eventsBitmap=0x00;
   this.eventsTrailBitmap=0x00;
   var memKeys=[];
-  var updateBitmap=this.updateBitmap=function(){
-    memKeys=Object.keys(controlledTape.memory);
-    for(var a=timeRange.start[0]; a<=timeRange.end[0]; a++){
 
-    }
+  var updateBitmap=this.updateBitmap=function(ofTape){
+    var currentTape=ofTape;
+    self.eventsBitmap=0;
+    console.log("UPB");
+    memKeys=Object.keys(currentTape.memory);
     for(var memKey of memKeys){
-      if(eventsPerSquare.value<1){
-        var eventsPerMicroStep=controlledTape.clock.microSteps*eventsPerSquare.value;
+      if(stepsPerButton.value<1){
+        var eventsPerMicroStep=currentTape.clock.microSteps*stepsPerButton.value;
         var memKeyPart=memKey.split(",");
-        // console.log(`(${memKeyPart[0]}/${eventsPerSquare.value})+(${memKeyPart[1]}/${eventsPerMicroStep})`);
-        thisV.eventsBitmap|=1<<((memKeyPart[0]/eventsPerSquare.value)+(memKeyPart[1]/eventsPerMicroStep));
+        self.eventsBitmap|=1<<((memKeyPart[0]/stepsPerButton.value)+(memKeyPart[1]/eventsPerMicroStep));
       }else{
-        thisV.eventsBitmap|=1<<memKey.split(",")[0]/eventsPerSquare.value;
-        // thisV.eventsTrailBitmap=1<<
+        self.eventsBitmap|=1<<memKey.split(",")[0]/stepsPerButton.value;
       }
     }
-    // console.log(thisV.eventsBitmap);
   }
-  controlledTape.on('event recorded',updateBitmap);
+  var getTimeIndexOfButton=function(button){
+    ret=[button*stepsPerButton.value,0];
+    if(stepsPerButton<1){
+      ret[1]=(button%(1/stepsPerButton))*microStepBase/stepsPerButton
+    }
+    return ret;
+  }
 }
