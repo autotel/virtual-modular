@@ -29,6 +29,7 @@ void setup() {
   hardware.setup(&lcd);
   hardware.setButtonCallbacks(onButtonPressed, onButtonReleased);
   hardware.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
+  hardware.setBottomButtonsCallbacks(onBottomButtonPressed,onBottomButtonReleased);
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
@@ -55,6 +56,18 @@ void test_onTip() {
     hardware.lcdPrintA((char&)pr, 3);
   }
 }
+
+void onBottomButtonPressed(uint8_t button){
+  if(engagedMode==1){
+    controllerMode.onBottomButtonPressed(button);
+  }
+}
+void onBottomButtonReleased(uint8_t button){
+  if(engagedMode==1){
+    controllerMode.onBottomButtonReleased(button);
+  }
+}
+
 void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
   if (engagedMode == 0) {
     sequencerMode.onButtonPressed(button, pressedButtonsBitmap);

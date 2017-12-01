@@ -62,10 +62,16 @@ class ControllerMode {
         onSelectorButtonPressed(button);
       }
     }
+
     void onBottomButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
       sendToBrain(TH_bottomButtonPressed_head, TH_bottomButtonPressed_len);
     }
+    void onBottomButtonReleased(uint8_t button) {
+      sendToBrainData[0] = button;
+      sendToBrain(TH_bottomButtonReleased_head, TH_bottomButtonReleased_len);
+    }
+
     void onMatrixButtonPressed(uint8_t button) {
       sendToBrainData[0] = button;
       sendToBrain(TH_matrixButtonPressed_head, TH_matrixButtonPressed_len);
@@ -83,10 +89,7 @@ class ControllerMode {
         onSelectorButtonReleased(button);
       }
     }
-    void onBottomButtonReleased(uint8_t button) {
-      sendToBrainData[0] = button;
-      sendToBrain(TH_bottomButtonReleased_head, TH_bottomButtonReleased_len);
-    }
+
     void onMatrixButtonReleased(uint8_t button) {
       sendToBrainData[0] = button;
       sendToBrain(TH_matrixButtonReleased_head, TH_matrixButtonReleased_len);
