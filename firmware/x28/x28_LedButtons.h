@@ -66,7 +66,7 @@ class LedButtons {
         /*
         side buttons:
         mxx4				  mxy1,2
-        PH7 -[°]-<|--	PK1,2
+        PH7 -[\_]-<|--	PK1,2
         muxa4         muxbx1,2
 
         encoder:
@@ -74,14 +74,14 @@ class LedButtons {
 
       */
       //set MUXBX0 low MUXAX4 to high;
-      for(int a=0; a<3; a++){
+      for(uint8_t a=0; a<3; a++){
         DDRK &= ~(1<<a);
         DDRH |= 1 << 7;
         PORTK |= 1 << a;
         PORTH &= ~(1 << 7);
-        if (PINK & (1<<a) == 0){
+        if ((PINK & (1<<a)) == 0){
           //buttton detected pressed
-          if(otherButtonsLastPressed&(1<<a)==0){
+          if((otherButtonsLastPressed&(1<<a))==0){
             //and was not pressed the last time
             otherButtonsLastPressed|=1<<a;
             if(a==0){
@@ -91,15 +91,15 @@ class LedButtons {
             }
           }
         } else {
-          if(otherButtonsLastPressed&(1<<a)==1){
+          if((otherButtonsLastPressed&(1<<a))==1){
             //and was pressed the last time
-            otherButtonsLastPressed&=~(1<<a);
             if(a==0){
               encoderReleasedCallback();
             }else{
               bottomButtonReleasedCallback(a-1);
             }
           }
+          otherButtonsLastPressed&=~(1<<a);
         }
       }
     }
@@ -159,7 +159,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF;
+      DDRH = 0xFF << 3;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK

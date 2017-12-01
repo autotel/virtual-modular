@@ -55,11 +55,20 @@ class ControllerMode {
     }
     void onButtonPressed(byte button, uint32_t pressedButtonsBitmap) {
       if (button > 23) {
-        onBottomButtonPressed(button - 24);
+        onSelectorButtonPressed(button - 16);
       } else if (button > 7) {
         onMatrixButtonPressed(button - 8);
       } else {
         onSelectorButtonPressed(button);
+      }
+    }
+    void onButtonReleased(byte button) {
+      if (button > 23) {
+        onSelectorButtonReleased(button - 16);
+      } else if (button > 7) {
+        onMatrixButtonReleased(button - 8);
+      } else {
+        onSelectorButtonReleased(button);
       }
     }
 
@@ -80,15 +89,7 @@ class ControllerMode {
       sendToBrainData[0] = button;
       sendToBrain(TH_selectorButtonPressed_head, TH_selectorButtonPressed_len);
     }
-    void onButtonReleased(byte button) {
-      if (button > 23) {
-        onBottomButtonReleased(button - 24);
-      } else if (button > 7) {
-        onMatrixButtonReleased(button - 8);
-      } else {
-        onSelectorButtonReleased(button);
-      }
-    }
+
 
     void onMatrixButtonReleased(uint8_t button) {
       sendToBrainData[0] = button;
