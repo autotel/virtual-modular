@@ -25,7 +25,7 @@ module.exports=function(environment){
     this.selectorButtonPressed=function(event){};
     this.selectorButtonReleased=function(event){};
     this.encoderScrolled=function(event){
-      controlledModule.cpm.value+=event.data[1];
+      controlledModule.cpm.value+=event.delta;
       event.hardware.sendScreenA("CPM"+controlledModule.cpm.value);
     };
     this.encoderPressed=function(event){};

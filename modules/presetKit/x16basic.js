@@ -141,17 +141,30 @@ module.exports=function(environment){
     var selectedPresetNumber=false;
     controlledModule.on('extrigger',function(event){
       highlightedBitmap|=1<<event.preset;
-      passiveUpdateLeds();
       setTimeout(function(){
         var num=event.preset;
         highlightedBitmap&=~(1<<num);
-          passiveUpdateLeds();
       },500);
     });
+    setInterval(function(){
+      passiveUpdateLeds();
+    },1000/20);
     controlledModule.on('kit changed',function(){
       updateAvailablePresetsBitmap();
     });
-
+    /* velocity, which seems unachievable by x16's processor
+    var eventsVelocity=new Set();
+    this.matrixButtonVelocity=function(event){
+      // console.log(event);
+      //if I receive a velocity, I store it for a short time, to be appended to the matrixButtonPress that must follow right after
+      var eventVelocity={button:event.data[0],value:event.data[1]};
+      eventsVelocity.add(eventVelocity);
+      eventVelocity.timeout=setTimeout(function(){
+        var evid=eventVelocity;
+        eventsVelocity.delete(evid);
+        // console.log("del");
+      },20);
+    };*/
     this.matrixButtonPressed=function(event){
       var hardware=event.hardware;
       if(utilAction){
@@ -160,16 +173,23 @@ module.exports=function(environment){
       }else if(engagedConfigurator){
         engagedConfigurator.matrixButtonPressed(event);
         if(engagedConfigurator==configurators.util){
-          // console.log("a");
-          // engagedConfigurator.disengage(event);
           updateLeds(hardware);
-          // console.log(utilAction);
         }else{
           // engagedConfigurator.matrixButtonPressed(event);
         }
       }else{
         selectedPresetNumber=event.button;
+        /*velocity
+        if(eventsVelocity.size){
+          eventsVelocity.forEach(function(el){
+            // console.log(el);
+            if(el.button==event.data[0]){
+              controlledModule.uiTriggerOn(selectedPresetNumber,el.value);
+            }
+          });
+        }else{*/
         controlledModule.uiTriggerOn(selectedPresetNumber);
+
         if(controlledModule.kit[event.button])
         if(lastEngagedConfigurator==configurators.event){
           // configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;

@@ -60,17 +60,22 @@ module.exports=function(environment){return new (function(){
 
     this.noteOnTracker={}
 
-    this.uiTriggerOn=function(presetNumber){
+    this.uiTriggerOn=function(presetNumber,velo){
       // console.log("tr",kit[presetNumber]);
       // if(presetNumber!==undefined)
+      var fbVelo=100;
+      if(velo){
+        // console.log("velo");
+        fbVelo=velo;
+      }
       if(kit[presetNumber]){
         if(!kit[presetNumber].mute){
           if(thisInstance.noteOnTracker[presetNumber]===undefined) thisInstance.noteOnTracker[presetNumber]=[];
-          // console.log(thisInstance.noteOnTracker);
           thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
+          kit[presetNumber].on.value[3]=fbVelo;
           thisInstance.output(kit[presetNumber].on);
           if(thisInstance.recordingUi){
-            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,100]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
           }
         }
       }
@@ -86,19 +91,21 @@ module.exports=function(environment){return new (function(){
           }
         }
       }
-      // for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        delete thisInstance.noteOnTracker[presetNumber];
-      // }
+      delete thisInstance.noteOnTracker[presetNumber];
+      console.log(thisInstance.noteOnTracker);
     }
 
     this.triggerOn=function(presetNumber,originalMessage){
-      presetNumber%=16;
+      // console.log("ton",presetNumber,originalMessage);
       thisInstance.handle("extrigger",{preset:presetNumber});
+      presetNumber%=16;
       if(kit[presetNumber]){
-        var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
-        if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-        thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
-        thisInstance.output(outputMessage);
+        if(!kit[presetNumber].mute){
+          var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
+          if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
+          thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
+          thisInstance.output(outputMessage);
+        }
       }
     }
 
@@ -110,9 +117,8 @@ module.exports=function(environment){return new (function(){
         if(thisInstance.noteOnTracker[presetNumber][a])
         thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
       }
-      for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        delete thisInstance.noteOnTracker[presetNumber][a];
-      }
+
+      delete thisInstance.noteOnTracker[presetNumber];
     }
 
     this.stepMicro=function(){}
@@ -133,7 +139,7 @@ module.exports=function(environment){return new (function(){
       }
     }
     this.eventReceived=function(event){
-      var evM=event.EventMessage;
+      var evM=event.eventMessage;
       // console.log(evM);
       thisInstance.handle('receive',event);
       if(evM.value[0]==CLOCKTICKHEADER){

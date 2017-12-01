@@ -35,7 +35,7 @@
 #define TH_buttonMatrixHold 0x4
 #define TH_buttonMatrixHold_len 0x4
 #define TH_buttonMatrixVelocity 0x5
-#define TH_buttonMatrixVelocity_len 0x4
+#define TH_buttonMatrixVelocity_len 0x3
 #define TH_selectorButtonPressed 0x6
 #define TH_selectorButtonPressed_len 0x2
 #define TH_selectorButtonReleased 0x7

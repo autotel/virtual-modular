@@ -82,27 +82,27 @@ module.exports=function(environment){return new (function(){
     }
 
     this.eventReceived=function(evt){
-      if(evt.EventMessage.value[0]==CLOCKTICKHEADER&&(evt.EventMessage.value[2]%evt.EventMessage.value[1]==0)){
+      if(evt.eventMessage.value[0]==CLOCKTICKHEADER&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
         clock.subStep++;
         if(clock.subStep>=clock.subSteps){
           clock.subStep=0;
           stepOperation();
           this.handle('step');
         }
-      }else if(evt.EventMessage.value[0]==TRIGGERONHEADER){
-        // this.setFixedStep(evt.EventMessage.value[2]%16);
-        this.setStep(evt.EventMessage.value[2]%16);
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
-        // this.clearFixedStep(evt.EventMessage.value[2]%16);
-      }else if(evt.EventMessage.value[0]==TRIGGEROFFHEADER+1){
-        // this.setStep(evt.EventMessage.value[2]%16);
-      }else if(evt.EventMessage.value[0]==RECORDINGHEADER){
-        evt.EventMessage.value.shift();
+      }else if(evt.eventMessage.value[0]==TRIGGERONHEADER){
+        // this.setFixedStep(evt.eventMessage.value[2]%16);
+        this.setStep(evt.eventMessage.value[2]%16);
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
+        // this.clearFixedStep(evt.eventMessage.value[2]%16);
+      }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER+1){
+        // this.setStep(evt.eventMessage.value[2]%16);
+      }else if(evt.eventMessage.value[0]==RECORDINGHEADER){
+        evt.eventMessage.value.shift();
         thisInstance.eventReceived(evt);
-        // if(evt.EventMessage.value[0]==TRIGGERONHEADER){
-        //   this.setFixedStep(evt.EventMessage.value[2]%16);
-        // }else  if(evt.EventMessage.value[0]==TRIGGEROFFHEADER){
-        //   this.clearFixedStep(evt.EventMessage.value[2]%16);
+        // if(evt.eventMessage.value[0]==TRIGGERONHEADER){
+        //   this.setFixedStep(evt.eventMessage.value[2]%16);
+        // }else  if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
+        //   this.clearFixedStep(evt.eventMessage.value[2]%16);
         // }
       }else{
       }

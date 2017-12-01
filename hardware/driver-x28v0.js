@@ -234,7 +234,7 @@ var DriverX28v0=function(environment,properties){
       // console.log(arr8.length);
       // arr8.push(eoString);
       var buf1 = Buffer.from(arr8);
-      console.log(buf1);
+      // console.log(buf1);
       // console.log("string of "+buf1.length);
       // console.log("send str len"+buf1.length);
       serial.write(buf1);
@@ -301,7 +301,7 @@ var DriverX28v0=function(environment,properties){
       console.error(e);
     }
   });
-
+  var matrixButtonsBitmap=0;
   dataChopper.wholePacketReady=function(chd){
     // console.log("------------packet",chd);
     // console.log(data);
@@ -313,17 +313,40 @@ var DriverX28v0=function(environment,properties){
         originalMessage:chd,
         hardware:tHardware
       }
+      event.data=Array.from(event.data);
+      // if(event.type=="matrixButtonVelocity"){
+      //   event.data[1]=event.data[1]|(event.data[2]<<8);
+      // }
+      if(event.type=="matrixButtonPressed"){
+        // console.log("rr");
+        matrixButtonsBitmap|=1<<event.data[0];
+        event.data[2]=matrixButtonsBitmap;
+        event.data[3]=0;
+        // console.log(matrixButtonsBitmap);
+      }
+      if(event.type=="matrixButtonReleased"){
+        matrixButtonsBitmap&=~(1<<event.data[0]);
+        event.data[2]=matrixButtonsBitmap;
+        event.data[3]=0;
+        // console.log(matrixButtonsBitmap);
+      }
+      if((/button/i).test(event.type)){
+        event.button=event.data[0];
+        // console.log("buttton",event.type);
+      }
       // console.log("recv",chd);
       // console.log("interaction",event);
       myInteractionPattern.handle('interaction',event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
-      event.data=Array.from(event.data);
+
       if(event.type=="encoderScrolled"){
-        // event.data
-        event.data[1]=(event.data[1]==0xFF?-1:event.data[1]);
-        event.data[1]=(event.data[1]==0xFE?-2:event.data[1]);
+        event.data[0]=(event.data[0]==0xFF?-1:event.data[0]);
+        event.data[0]=(event.data[0]==0xFE?-2:event.data[0]);
+        event.delta=event.data[0];
       }
+
+      // console.log(event);
       myInteractionPattern.handle(event.type,event);
     }
   }

@@ -104,8 +104,8 @@ var X16SuperInteractorsSingleton=function(environment){
   * @returns {undefined} no return
   */
   this.SuperInteractor=function(myHardware){
-    /** @private @var engagedModule stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
-    var engagedModule=false;
+    /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
+    var engagedInterface=false;
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
     */
@@ -124,20 +124,19 @@ var X16SuperInteractorsSingleton=function(environment){
     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
     var firstPressedMatrixButton=false;
     onHandlers.call(this);
-
     var myModuleCreator=new ModuleCreator(myHardware);
     // this.on('interaction',console.log);
     environment.on('module created',function(evt){
-      if(!(engagedModule||myModuleCreator.engaged)){
+      if(!(engagedInterface||myModuleCreator.engaged)){
       updateHardware();
       }
     });
     this.on('matrixButtonPressed',function(event){
-      event.button=event.data[0];
+      // event.button=event.data[0];
       // console.log(event);
       if(myModuleCreator.engaged){
         myModuleCreator.matrixButtonPressed(event);
-      }else if(!engagedModule){
+      }else if(!engagedInterface){
         if(firstPressedMatrixButton===false){
           selectedInterface=moduleInterfaces[event.data[0]];
           firstPressedMatrixButton=event.data[0];
@@ -160,15 +159,15 @@ var X16SuperInteractorsSingleton=function(environment){
           //  console.log();
         }
       }else{
-        engagedModule.matrixButtonPressed(event);
-        matrixButtonOwners[event.data[0]]=engagedModule;
+        engagedInterface.matrixButtonPressed(event);
+        matrixButtonOwners[event.data[0]]=engagedInterface;
       }
     });
     this.on('matrixButtonReleased',function(event){
       if(firstPressedMatrixButton===event.data[0]){
        firstPressedMatrixButton=false;
       }
-      event.button=event.data[0];
+      // event.button=event.data[0];
       if(matrixButtonOwners[event.data[0]]){
        matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
        delete matrixButtonOwners[event.data[0]];
@@ -176,31 +175,45 @@ var X16SuperInteractorsSingleton=function(environment){
       }
     });
     this.on('matrixButtonHold',function(event){
-     event.button=event.data[0];
+    //  event.button=event.data[0];
      if(matrixButtonOwners[event.data[0]]){
         matrixButtonOwners[event.data[0]].matrixButtonHold(event);
      }else{
      }
     });
+    this.on('bottomButtonPressed',function(event){
+      if(engagedInterface){
+        // engagedInterface.disengage(event);
+        // console.log(engagedInterface.controlledModule.outputs[event.data[0]-8]);
+        // engagedInterface.controlledModule.inputs[event.data[0]].engage();
+      }
+    });
+    this.on('bottomButtonReleased',function(event){
+      if(engagedInterface){
+        // engagedInterface.controlledModule.outputs[event.data[0]-8].disengage();
+        // engagedInterface.engage(event);
+      }
+    });
     this.on('selectorButtonPressed',function(event){
-     //if the button is the patchMenu button
-     if(event.data[0]==3){
-       if(engagedModule){
-         engagedModule.disengage(event);
+     //if the button is the patchMenu button}
+     console.log(event.button);
+     if(event.button==7){
+       if(engagedInterface){
+         engagedInterface.disengage(event);
          thisInteractor.engage();
        }
      }else{
-       event.button=event.data[0];
-       if(engagedModule){
-         engagedModule.selectorButtonPressed(event);
-         selectorButtonOwners[event.data[0]]=engagedModule;
+      //  event.button=event.data[0];
+       if(engagedInterface){
+         engagedInterface.selectorButtonPressed(event);
+         selectorButtonOwners[event.data[0]]=engagedInterface;
        }else{
          thisInteractor.engage(event);
        }
      }
     });
     this.on('selectorButtonReleased',function(event){
-      event.button=event.data[0];
+      // event.button=event.data[0];
       if(selectorButtonOwners[event.data[0]]){
        selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
        delete selectorButtonOwners[event.data[0]];
@@ -209,8 +222,8 @@ var X16SuperInteractorsSingleton=function(environment){
        if(myModuleCreator.engaged) newCreated=myModuleCreator.disengage();
        if(newCreated) selectedInterface=newCreated;
        if(selectedInterface){
-         engagedModule=selectedInterface;
-         // console.log("engaged",engagedModule);
+         engagedInterface=selectedInterface;
+         // console.log("engaged",engagedInterface);
          selectedInterface.engage(event);
        }else{
          updateHardware();
@@ -218,25 +231,25 @@ var X16SuperInteractorsSingleton=function(environment){
       }
     });
     this.on('encoderPressed',function(event){
-      if(!engagedModule){}else{
-        engagedModule.encoderPressed(event);
+      if(!engagedInterface){}else{
+        engagedInterface.encoderPressed(event);
       }
     });
     this.on('encoderReleased',function(event){
-      if(!engagedModule){}else{
-        engagedModule.encoderReleased(event);
+      if(!engagedInterface){}else{
+        engagedInterface.encoderReleased(event);
         }
       });
     this.on('encoderScrolled',function(event){
-      if(!engagedModule){
+      if(!engagedInterface){
       }else{
-        engagedModule.encoderScrolled(event);
+        engagedInterface.encoderScrolled(event);
       }
     });
     this.engage=function(evt){
       paintSelectButtons();
       updateHardware();
-      engagedModule=false;
+      engagedInterface=false;
     }
     function updateHardware(){
      myHardware.sendScreenA("select module");
@@ -263,12 +276,12 @@ var X16SuperInteractorsSingleton=function(environment){
       myHardware.draw([selected|outputs,selected|creatorBtn,selected|(selectable^outputs)|creatorBtn]);
     }
     function paintSelectButtons(){
-      myHardware.drawSelectors([0xFF8,0xFF0,0xFF0]);
+      myHardware.drawSelectors([0xf8f,0xf0f,0xf0f]);
     }
     this.disengage=function(){
       console.log(this);
      throw "oops superInteractor must never disengage";
-     engagedModule=0;
+     engagedInterface=0;
     }
   }
 };

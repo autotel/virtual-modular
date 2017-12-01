@@ -6,11 +6,25 @@
   </head>
   <body>
 
+
+
 <pre>
+
+notes:
+  <header NOTEON> indicates the function wether it's a noteonn, noteoff or something that isn't a note
+  <data 1> in case of a note this is an identifier: all alterations to a note will be assigned to the note according to <data1> (not happening now)
+  <data 2> from this point on, info about the alteration
+
+data requests and transfers (not happening now)
+  <header DATAREQUEST>
+  <data 1> indicates the message contents or the requested data
+  <data 2>
+  <header DATATRANSFER>
+  <data 1> associative response number (associates with a request)
 
 ```
               Function header 0 (NI.! currently shares byte with submode)
-              │ <data1> submode/ voice specification (channel)
+              │ <data1> submode/ note id / data id specification
               │ | <data2> (note?)
               | | | <data3> (velocity?)
               | | | | <data4>...

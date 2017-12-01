@@ -1,3 +1,4 @@
+//TODO: separate .cpp and .h
 #include <LiquidCrystal.h>
 #include "FastLED.h"
 #include "_name_signals.h"
@@ -27,18 +28,17 @@ class LedButtons {
 
       //security led fadein
       for (uint32_t t = 0; t < 0xff; t += 4) {
-        LEDS.setBrightness(t / 4);
+        LEDS.setBrightness(t);
         for (uint16_t a = 0; a < 28; a++) {
           setButtonColor(
             a,
-            floor(sin(t / (4 ) + 0.15) * 127) + 127,
-            floor(sin(t / (3 ) + 0.25) * 127) + 127,
-            floor(sin(t / (2 ) + 0.75) * 127) + 127
+            floor(sin(a * t / (28000 )+0.15) * 255),
+            floor(sin(a * t / (28000 )+0.25) * 255),
+            floor(sin(a * t / (28000 )+0.75) * 255)
           );
         }
         FastLED.show();
-        //https://www.desmos.com/calculator/zmpnfwcguf
-        delay(((t+70)/((t/44)+1))-47);
+        delay(5);
       }
 
       for (uint8_t a = 0; a < 33; a++) {
@@ -50,7 +50,7 @@ class LedButtons {
       //lcd->print("hello, world!");
     }
     void loop() {
-      readMatrixButtons();//this line is locking sSerial
+      readMatrixButtons();
       doEncoderButton();
 
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
@@ -59,29 +59,19 @@ class LedButtons {
         refreshLcd();
       }
     }
-
     uint16_t lastEncoderPressTimer = 0;
-    uint16_t debounceTime = 25;
-    boolean lastTimeEncoderPressed = false;
+    uint16_t debounceTime = 250;
     void doEncoderButton() {
-      //PH7--[\_]--<|--PK0
-
       //not working
       //set MUXBX0 low MUXAX4 to high;
-      DDRK &= ~1;
-      DDRH |= 1 << 7;
-      PORTK |= 0x1 << 0;
-      PORTH &= ~(0x1 << 7);
-      if ((PINK & 1) == 0) {
-        if (!lastTimeEncoderPressed) {
-          if (lastEncoderPressTimer >= debounceTime) {
-            encoderPressedCallback();
-            lastEncoderPressTimer = 0;
-          }
-          lastTimeEncoderPressed=true;
+      PORTK &= ~(0x1 << 0);
+      PORTH |= 0x1 << 7;
+      if ((PINH >> 7) & 1) {
+        if (lastEncoderPressTimer >= debounceTime) {
+          encoderPressedCallback();
+          lastEncoderPressTimer = 0;
         }
       } else {
-        lastTimeEncoderPressed=false;
         if (lastEncoderPressTimer <= debounceTime) {
           lastEncoderPressTimer++;
         }
@@ -126,7 +116,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF << 3;
+      DDRH = 0xFF;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK
@@ -134,6 +124,7 @@ class LedButtons {
       DDRK = 0x00;
       POY = 0xFF;
       // int inpinbase = 8;
+
       for (currentButton = 0; currentButton < NUM_LEDS; currentButton++) {
         uint16_t col = currentButton % 4;
         uint16_t row = currentButton / 4;
@@ -172,6 +163,7 @@ class LedButtons {
         }
 
       }
+
     }
     void refreshLeds() {
       //uint16_t a;
@@ -192,7 +184,7 @@ class LedButtons {
       }
       if (changedScreenB) {
         for (uint16_t c = 16; c < 32; c++) {
-          lcd->setCursor(c - 16, 1);
+          lcd->setCursor(c-16, 1);
           if (lcdBuf[c] == 0)lcdBuf[c] = ' ';
           lcd->write(lcdBuf[c]);
           lcdBuf[c] = ' ';

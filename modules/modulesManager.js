@@ -35,6 +35,7 @@ var modulesManager=function(environment){ return new(function(){
 
   /** @function
   instanciate and register a new module.
+  Two example uses of this function are in the superinteractor, when you create a new module using the buttons, and the midi IO, which creates one module per midi input
   */
   this.addModule=function(moduleName,properties){
     console.log("instancing singleton of module: ",moduleName);
@@ -48,14 +49,18 @@ var modulesManager=function(environment){ return new(function(){
   }
   this.applyProperties=function(props){
     console.log("Creating modules net:");
-    for(var module of props){
-      thisMan.addModule(module.type,module.properties);
+    for(var n in props){
+      moduleDefinition=props[n];
+      var newModule = thisMan.addModule(moduleDefinition.type,moduleDefinition.properties);
+      if(!props[n].properties)props[n].properties={};
+      props[n].properties.name=newModule.name;
     }
-    for(var moduleDefiner of props){
-      // console.log(moduleDefiner.properties.name);
-      var module=thisMan.getModuleWithName(moduleDefiner.properties.name);
-      console.log(" - patch module \""+moduleDefiner.properties.name+"\" ("+moduleDefiner.type+") ");
-      for(var outputName of moduleDefiner.outputs){
+    console.log("patching modules net:");
+    for(var moduleDefinition of props){
+      // console.log(moduleDefinition.properties.name);
+      var module=thisMan.getModuleWithName(moduleDefinition.properties.name);
+      console.log(" - patch module \""+moduleDefinition.properties.name+"\" ("+moduleDefinition.type+") ");
+      for(var outputName of moduleDefinition.outputs){
         console.log(" - to \""+outputName+"\"");
         try{
           var output=thisMan.getModuleWithName(outputName);
@@ -63,7 +68,7 @@ var modulesManager=function(environment){ return new(function(){
           module.addOutput(output);
         }catch(e){
           // console.log(module);
-          console.error(" -could't set output of "+moduleDefiner.properties.name+" to "+outputName+": \n",e);
+          console.error(" -could't set output of "+moduleDefinition.properties.name+" to "+outputName+": \n",e);
         }
       }
     }
