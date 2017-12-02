@@ -233,7 +233,7 @@ module.exports=function(environment){
       var screenAString="";
       var screenBString="";
       var SNH=displayScaleMap^noteHiglightMap;
-      console.log("sctn",scaleNames.scaleToName);
+      // console.log("sctn",scaleNames.scaleToName);
 
       if(performMode){
         currentScaleMap=controlledModule.currentScale&0xf;

@@ -46,8 +46,11 @@ module.exports=function(environment){return new (function(){
     var noteOnTracker={}
 
     function defaultState(){
-      for(let a=0;a<16;a++)
-      thisInstance.newScaleMap(a,2741);
+      var c=0;
+      for(let scale in scaleNames.nameToScale){
+        thisInstance.newScaleMap(c,scaleNames.nameToScale[scale]);
+        if (c++>15) break;
+      }
     }
     this.uiScaleChange=function(scalen){
       thisInstance.currentScale=scalen;
