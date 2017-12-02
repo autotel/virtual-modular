@@ -3,6 +3,7 @@ var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator = require( '../x16utils/EventConfigurator.js' );
 var BlankConfigurator = require( '../x16utils/BlankConfigurator.js' );
 var RecordMenu = require( '../x16utils/RecordMenu.js' );
+var scaleNames=require('./scaleNames.js');
 // var RecordMenu=require('../x16utils/RecordMenu.js');
 /**
 definition of a harmonizer interactor for the x16basic controller hardware
@@ -234,6 +235,9 @@ module.exports=function(environment){
       var screenAString="";
       var screenBString="";
       var SNH=displayScaleMap^noteHiglightMap;
+      console.log("sctn",scaleNames.scaleToName);
+      var currentScaleName=scaleNames.scaleToName[scaleMap];
+      if(currentScaleName)screenBString=currentScaleName;
       if(performMode){
         currentScaleMap=controlledModule.currentScale&0xf;
           if(upleds)
@@ -266,7 +270,7 @@ module.exports=function(environment){
       }
       if(upscreen)
       hardware.sendScreenA(screenAString);
-      // hardware.sendScreenB(screenBString);
+      hardware.sendScreenB(screenBString);
     }
   }
 }

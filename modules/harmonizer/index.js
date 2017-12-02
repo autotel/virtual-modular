@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var patternEvent=require('../../datatypes/EventPattern.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
+var scaleNames=require('./scaleNames.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -44,6 +45,10 @@ module.exports=function(environment){return new (function(){
     this.scaleArray={};
     var noteOnTracker={}
 
+    function defaultState(){
+      for(let a=0;a<16;a++)
+      thisInstance.newScaleMap(a,2741);
+    }
     this.uiScaleChange=function(scalen){
       thisInstance.currentScale=scalen;
       if(thisInstance.recordingUi){
@@ -185,6 +190,6 @@ module.exports=function(environment){return new (function(){
       }
       var myInteractor=this.interactor=new interactorSingleton.Instance(this);
       this.interactor.name=this.name;
-
+      defaultState();
   }
 })};
