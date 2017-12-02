@@ -6,9 +6,21 @@ var DataVisualizer=module.exports=function(controlledModule){
   this.eventsBitmap=0x00;
   this.eventsTrailBitmap=0x00;
   var memKeys=[];
+  var currentTape=false;
+  var setTape=this.setTape=function(tape){
+    currentTape=tape;
+  }
 
-  var updateBitmap=this.updateBitmap=function(ofTape){
-    var currentTape=ofTape;
+  var pageRight=this.pageRight=function(){
+    timeRange.start[0]+=16*stepsPerButton.value;
+    updateBitmap();
+  }
+  var pageLeft=this.pageLeft=function(tape){
+    timeRange.start[0]-=16*stepsPerButton.value;
+    updateBitmap();
+  }
+  var updateBitmap=this.updateBitmap=function(){
+    if(!currentTape) return;
     self.eventsBitmap=0;
     console.log("UPB");
     memKeys=Object.keys(currentTape.memory);

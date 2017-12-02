@@ -72,7 +72,13 @@ module.exports=function(environment,parentInteractor){
     }
   };
   this.bottomButtonPressed=function(event){
-    momentaryBitmap=0b1000010000100100;
+    if(event.button=="right"){
+      momentaryBitmap=0b0000010010000100;
+      visualizer.pageRight();
+    }else{
+      momentaryBitmap=0b0000001000010010;
+      visualizer.pageRight();
+    }
   }
   this.bottomButtonReleased=function(event){
     console.log(event);
@@ -90,12 +96,14 @@ module.exports=function(environment,parentInteractor){
   };
   this.engage=function(event){
 
+    visualizer.setTape(controlledModule.getCurrentTape());
+
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     refreshInterval=setInterval(function(){
       if(needUpdateSequence){
         needUpdateSequence=false;
-        visualizer.updateBitmap(controlledModule.getCurrentTape());
+        visualizer.updateBitmap();
       }
       if(!engagedConfigurator){
         eachEngagedHardware(updateLeds);
