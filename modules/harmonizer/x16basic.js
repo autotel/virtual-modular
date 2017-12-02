@@ -206,8 +206,6 @@ module.exports=function(environment){
       var hardware=event.hardware;
       engagedHardwares.add(event.hardware);
       updateHardware(event.hardware);
-
-
         updateLeds(hardware);
     };
     this.disengage=function(event){
@@ -236,8 +234,7 @@ module.exports=function(environment){
       var screenBString="";
       var SNH=displayScaleMap^noteHiglightMap;
       console.log("sctn",scaleNames.scaleToName);
-      var currentScaleName=scaleNames.scaleToName[scaleMap];
-      if(currentScaleName)screenBString=currentScaleName;
+
       if(performMode){
         currentScaleMap=controlledModule.currentScale&0xf;
           if(upleds)
@@ -246,7 +243,7 @@ module.exports=function(environment){
             displayChordSelectorMap  |displayFingerMap |displayScaleMap,
             0xAB50|currentScaleMap   |displayFingerMap |displayScaleMap
           ]);
-          if(!engagedConfigurator) screenAString+="Perf "
+          if(!engagedConfigurator) screenAString+="Perform-"
         // }
       }else{
         currentScaleMap=currentScale&0xf;
@@ -264,13 +261,18 @@ module.exports=function(environment){
         if(!engagedConfigurator) screenAString+=("Edit ");
       }
       if(controlledModule.scaleArray[currentScale]){
-        screenAString+="chord "+currentScale+": "+controlledModule.scaleArray[currentScale].length;
+        var currentScaleName=scaleNames.scaleToName[scaleMap];
+        if(currentScaleName){
+          screenAString=currentScaleName+"-"+screenAString;
+        }else{
+          screenAString+="chord "+currentScale+": "+controlledModule.scaleArray[currentScale].length;
+        }
       }else{
         screenAString+="chord "+currentScale+": empty";
       }
       if(upscreen)
       hardware.sendScreenA(screenAString);
-      hardware.sendScreenB(screenBString);
+      // hardware.sendScreenB(screenBString);
     }
   }
 }

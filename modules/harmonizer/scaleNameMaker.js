@@ -89,6 +89,7 @@ for(var n in structures){
   console.log(gradesByte.toString(2));
 }
 
+var shiftedScalesArray=[];
 //search for all unnammed possible scales, and search for a scale that would fit
 for(var n = 0; n<scaleToName.length; n++){
   if(!scaleToName[n]){
@@ -104,13 +105,15 @@ for(var n = 0; n<scaleToName.length; n++){
         if(shiftedScale==n){
           scaleTitle=gradeNames[shift]+" "+scaleToName[scaleNumber];
           console.log(n.toString(2)+" = "+scaleToName[scaleNumber]+"<<"+shift+""+scaleTitle);
-          scaleToName[n]=scaleTitle;
+          shiftedScalesArray[n]=scaleTitle;
         }
       }
     }
   }
 }
-scaleToName=new Object(scaleToName);
+for(var n in shiftedScalesArray){
+  scaleToName[n]=shiftedScalesArray[n];
+}
 
 
 fs.writeFile(path.join(__dirname,'/scaleNames.js'),
