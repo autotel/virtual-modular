@@ -26,6 +26,7 @@ module.exports=function(environment,parentInteractor){
       "fold":{value:1,factor:2,opDisp:" "},
       "fold!":{value:1,factor:2,opDisp:" "},
       "quantize":{value:0},
+      "clear!":{value:0}
     }
   });
 
@@ -71,6 +72,24 @@ module.exports=function(environment,parentInteractor){
   configurators.tapeTime.vars["fold"].nameFunction=function(thisVar){
     return "l"+thisVar.opDisp+thisVar.factor+"="+selectedTape.steps.value;
   }
+  configurators.tapeTime.vars["clear!"].changeFunction=function(thisVar,delta){
+    if(selectedTape){
+      thisVar.value+=Math.abs(delta);
+      thisVar.value%=2;
+    }
+  }
+  configurators.tapeTime.vars["clear!"].selectFunction=function(thisVar){
+    thisVar.value=0;
+  }
+  configurators.tapeTime.vars["clear!"].disengageFunction=function(thisVar){
+    if(thisVar.value==1){
+      if(selectedTape)
+      controlledModule.clearTape(selectedTape);
+    }
+  }
+  configurators.tapeTime.vars["clear!"].nameFunction=function(thisVar){
+    return (thisVar.value?"Clear on release":"cancel");
+  }
   var lastEngagedConfigurator=configurators.tapeTime;
 
   function eachEngagedHardware(cb){
@@ -95,7 +114,7 @@ module.exports=function(environment,parentInteractor){
     for (let hardware of engagedHardwares) {
       updateLeds(hardware);
     }
-  },1000/20);
+  },1000/50);
   this.matrixButtonPressed=function(event){
     if(engagedConfigurator){
       engagedConfigurator.matrixButtonPressed(event);
@@ -195,11 +214,16 @@ module.exports=function(environment,parentInteractor){
     if(!engagedConfigurator){
       var selectedTapeBitmap=1<<selectedTapeNumber;
       var mutedTapesBitmap=0;
+      var excitedTapesBitmap=0;
       controlledModule.eachTape(function(n){
         if(this.muted.value) mutedTapesBitmap|=1<<n;
+        if(this.excited>0) excitedTapesBitmap|=1<<n;
       });
       var tapesBitmap=~(0xffff<<tapesAmount);
-      hardware.draw([selectedTapeBitmap|mutedTapesBitmap,selectedTapeBitmap|(tapesBitmap&~mutedTapesBitmap),(selectedTapeBitmap|tapesBitmap)&~mutedTapesBitmap]);
+      hardware.draw([
+          excitedTapesBitmap  |selectedTapeBitmap  | mutedTapesBitmap,
+          excitedTapesBitmap  |selectedTapeBitmap  |(tapesBitmap   &~mutedTapesBitmap),
+        ( selectedTapeBitmap  ^excitedTapesBitmap  | tapesBitmap)  &~mutedTapesBitmap]);
     }
   }
 }

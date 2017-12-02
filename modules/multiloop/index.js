@@ -73,6 +73,9 @@ module.exports = function(environment) {
       this.removeTape=function(tape){
         tapes.splice(tapes.indexOf(tape,1));
       }
+      this.clearTape=function(tape){
+        tape.clearMemory();
+      }
       this.muteTape=function(tape){
         tape.muted.value=true;
       }
@@ -110,7 +113,6 @@ module.exports = function(environment) {
       };
 
       var noteOnTracker = new NoteOnTracker(thisModule);
-
 
       var baseEventMessage = this.baseEventMessage = new EventMessage({
         value: [TRIGGERONHEADER, -1, -1, -1]

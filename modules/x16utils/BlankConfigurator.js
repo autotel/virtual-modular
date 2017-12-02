@@ -23,12 +23,15 @@ var BlankConfigurator=function(parentInteractor,properties){
     }
     var defaultSelectFunction=function(thisVar){
     }
+    var defaultDisengageFunction=function(thisVar){
+    }
     var defaultNameFunction=function(thisVar){
       return "to "+thisVar.value;
     }
     for(var a in nvars){
       if(nvars[a]==undefined) throw `error while adding vars to a BlankConfigurator: vars[${a}] is undefined`;
       if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultChangeFunction;
+      if(nvars[a].disengageFunction===undefined) nvars[a].disengageFunction=defaultDisengageFunction;
       if(nvars[a].selectFunction===undefined) nvars[a].selectFunction=defaultSelectFunction;
       if(nvars[a].nameFunction===undefined) nvars[a].nameFunction=defaultNameFunction;
       thisInteractor.vars[a]=nvars[a];
@@ -134,6 +137,9 @@ var BlankConfigurator=function(parentInteractor,properties){
     updateScreen(hardware);
   };
   this.disengage=function(event){
+    var svar=getSelectedVar();
+    if(svar)
+    svar.disengageFunction(svar);
     if(properties.disengageFunction){
       properties.disengageFunction(thisInteractor);
     }

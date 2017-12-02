@@ -20,6 +20,8 @@ var Tape=function(properties){
   var name=this.name="tape "+tapeCount;
   var quantize=this.quantize={value:0};
 
+  this.excited=0;
+
   var playhead=[0,0];
   var offset=[0,0];
   var lastClockFunction=[0,0];
@@ -111,6 +113,7 @@ var Tape=function(properties){
   var lastRecordedEventTime=[0,0];
   this.refreshNewTapeLengthFromRecording=false;
   var stepFunction = function(){
+    if(self.excited>0) self.excited--;
     // console.log("STPFN");
     //If I detect a recording or a change of length in the tape, transfer the event logger memory to the tape memory
     //it's not nevessary to do this process on every microStep, it happens on steps.
@@ -156,6 +159,7 @@ var Tape=function(properties){
     if(!muted.value){
       if (memory[playhead]) {
         for (var eventMessage of memory[playhead]) {
+          self.excited++;
           // console.log("TOPT",eventMessage.value);
           self.outputFunction(eventMessage);
         }
