@@ -6,8 +6,8 @@ var SerialPort = require('serialport');
 const GETVERSION = 0x40;
 
 var hardwareDriverPrototypes={
-  X16v0:require("./driver-X16v0.js"),
-  X28v0:require("./driver-X28v0.js")
+  X16v0:require("./driver-x16v0.js"),
+  X28v0:require("./driver-x28v0.js")
 };
 
 var SerialPort = require('serialport');

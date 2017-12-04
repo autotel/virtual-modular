@@ -1,5 +1,5 @@
 'use strict';
-var HardwareDriver=require('./hardwareDriver.js');
+var HardwareDriver=require('./HardwareDriver.js');
 console.log("x16v0 serial based, on ",process.platform);
 
 const comConsts={
