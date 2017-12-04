@@ -3,6 +3,7 @@
 let onHandlers=require('onhandlers');
 let X16bs=require('./x16basic');
 let X28bs=require('./x28basic');
+let DefCli=require('./defcli');
 
 /**
 InteractionManager contains a list of all the running instances of {@link HardwareDriver}s and links them to instances of {@link superInteractorPrototypes} and {@link Interactor}s
@@ -19,6 +20,8 @@ var interactionManager=function(environment){ return new(function(){
   interfaces.x16basic=new X16bs(environment);
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
   interfaces.x28basic=new X28bs(environment);
+  superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
+  interfaces.x28basic=new DefCli(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
   /**
     @function
