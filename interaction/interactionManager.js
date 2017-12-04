@@ -21,7 +21,7 @@ var interactionManager=function(environment){ return new(function(){
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
   interfaces.x28basic=new X28bs(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
-  interfaces.x28basic=new DefCli(environment);
+  interfaces.DefCli=new DefCli(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
   /**
     @function

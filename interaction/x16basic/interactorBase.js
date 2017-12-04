@@ -7,7 +7,7 @@ var x16InteractorBase=function(controlledModule){
   var thisInteractor=this;
   this.controlledModule=controlledModule;
   InteractorBase.call(this,controlledModule);
-  this.compatibilityTags=["x32v0","x16v0"];
+  this.compatibilityTags=["x28v0","x16v0"];
   // console.log(".....",this.compatibilityTags);
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};

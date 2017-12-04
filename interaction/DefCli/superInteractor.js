@@ -33,7 +33,7 @@ var DefCliSuperInteractorSingleton = function(environment) {
       if (compatible(what.compatibilityTags)) {
         moduleInterfaces.push(what);
       } else {
-        console.log(what);
+        // console.log(what);
         throw "default command line interface Superinteractor is incompatible with interface", what;
       }
     } else {
@@ -55,27 +55,25 @@ var DefCliSuperInteractorSingleton = function(environment) {
   this.SuperInteractor = function(myHardware) {
     /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
     var engagedInterface = false;
-
+    onHandlers.call(this);
     var thisInteractor = this;
 
-
+    // console.log("HWWW",myHardware);
 
     this.commandInput = function(command) {
       if (engagedInterface) {
-
+        engagedInterface.commandInput(command);
       }else{
-        help();
       }
     }
 
     environment.on('module created', function(evt) {
-      if (!(engagedInterface || myModuleCreator.engaged)) {
-        updateHardware();
-      }
+      myHardware.print("new module",evt.module.name);
     });
 
     this.engage = function(evt) {
       sayHi();
+      displayModules();
       engagedInterface = false;
     }
 
@@ -86,6 +84,7 @@ var DefCliSuperInteractorSingleton = function(environment) {
     function help() {
       myHardware.print("help:");
     }
+    return this;
   }
 };
 

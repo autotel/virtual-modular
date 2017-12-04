@@ -53,6 +53,7 @@ module.exports=(function(environment){
         //connect, request the hardware version, and expect it's response
         var alreadyCreated=false;
         var getVersionInterval;
+        //note that this data listener is only to get the version number
         newPort.on('data', (data) => {
           if(!alreadyCreated){
             if(!getVersionInterval){
