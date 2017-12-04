@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage=require('../../datatypes/eventMessage.js');
+var EventMessage=require('../../datatypes/EventMessage.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;

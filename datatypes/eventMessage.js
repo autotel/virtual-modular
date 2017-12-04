@@ -89,3 +89,4 @@ var EventMessage=function(inputValue){
   this.set(inputValue);
 }
 module.exports=EventMessage;
+/**/

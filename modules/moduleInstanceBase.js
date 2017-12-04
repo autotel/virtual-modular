@@ -1,5 +1,5 @@
 'use strict';
-var onHandlers=require('onHandlers');
+var onHandlers=require('onhandlers');
 /**
 events with header 0xAA are received as events to record.
 */
