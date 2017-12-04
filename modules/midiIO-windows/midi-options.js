@@ -14,7 +14,8 @@ module.exports={
 		"loopMIDI Port 1": true,
 		"loopMIDI Port 2": true,
 		"Maschine MK2 Out": true,
-		"2- UM-1": true
+		"2- UM-1": true,
+		"UM-1 MIDI 1 [2-0-0]": true
 	},
 	"inputs": {
 		"7- UM-1": true,
@@ -32,7 +33,8 @@ module.exports={
 		"Microsoft GS Wavetable Synth": true,
 		"Maschine MK2 In": true,
 		"Maschine MK2 Out": true,
-		"2- UM-1": true
+		"2- UM-1": true,
+		"UM-1 MIDI 1 [2-0-0]": true
 	},
 	"rename": {
 		"Microsoft GS Wavetable Synth": "default midi out"
