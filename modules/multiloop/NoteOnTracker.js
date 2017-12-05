@@ -33,7 +33,7 @@ var NoteOnTracker = function(ownerModule) {
           //TODO: microstep precise length if (currentMicroStep - trackedNotes[a].started[1] >= trackedNotes[a].duration[1]) {
             let off=trackedNotes[a].clone().superImpose(noteOffSuperImpose);
             // console.log("STOP",off);
-            ownerModule.output(off);
+            ownerModule.output(off,true);
             delete trackedNotes [a];
           // }
         }else{
@@ -49,7 +49,7 @@ var NoteOnTracker = function(ownerModule) {
     for (var a in trackedNotes) {
       // console.log("track",a);
       if (trackedNotes.value[0] == TRIGGERONHEADER) {
-        ownerModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
+        ownerModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose),true);
       }
       delete trackedNotes[a];
     }

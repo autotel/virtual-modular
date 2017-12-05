@@ -62,6 +62,7 @@ module.exports = function(environment) {
       }
 
       var generatedOutput = function(eventMessage) {
+        if(self.mute) return;
         self.output(eventMessage);
       }
       var stepFunction = function() {
@@ -118,7 +119,7 @@ module.exports = function(environment) {
       }
       this.delete = function() {
         for (var noff of noteOnTracker) {
-          self.output(noff);
+          self.output(noff,false);
           noteOnTracker.delete(noff);
         }
       }

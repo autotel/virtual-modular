@@ -131,7 +131,7 @@ module.exports=function(environment){return new (function(){
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
     getName.call(this);
-    var thisModule=this;
+    var self=this;
     if(properties.name) this.name=properties.name;
     var midi=properties.midiPort;
     console.log("midi device",midi.input);
@@ -187,7 +187,7 @@ module.exports=function(environment){return new (function(){
           default:
             // console.log("message header not transformed:",outputMessage.value);
         }
-        // console.log(thisModule.name,outputMessage.value);
+        // console.log(self.name,outputMessage.value);
         var msgFn=outputMessage.value[0];
         var msgFv=outputMessage.value[1];
         var cachingIndex=msgFn;//[msgFn,msgFv]
@@ -205,9 +205,9 @@ module.exports=function(environment){return new (function(){
           midiInputCache[cachingIndex].outputMessage.value[3]=-1;
         }
         if(midiInputCache[cachingIndex].enabled){
-          thisModule.output(outputMessage.superImpose(midiInputCache[cachingIndex].outputMessage));
+          self.output(outputMessage.superImpose(midiInputCache[cachingIndex].outputMessage));
         }
-        thisModule.handle('midi in',{inputMidi:midiMessage,outputMessage:outputMessage,eventMessage:outputMessage});
+        self.handle('midi in',{inputMidi:midiMessage,outputMessage:outputMessage,eventMessage:outputMessage});
       });
     }
     midi.out=function(a,b,c){
@@ -225,6 +225,7 @@ module.exports=function(environment){return new (function(){
 
     var baseRemove=this.remove;
     this.eventReceived=function(evt){
+      if(self.mute) return;
       var eventMessage=evt.eventMessage;
       eventMessage.underImpose(defaultMessage);
       var midiOut=[0,0,0];
@@ -245,6 +246,8 @@ module.exports=function(environment){return new (function(){
       midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
     this.remove=function(){
+      return false;
+      //for some reason app crashes deleting midi
       if(midi.input) midi.input.MidiInClose();
       if(midi.output) midi.output.MidiOutClose();
       baseRemove();

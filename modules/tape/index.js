@@ -38,7 +38,7 @@ module.exports=function(environment){return new (function(){
     if(properties.name) this.name=properties.name;
 
     var noteOffSuperImpose=new EventMessage({value:[TRIGGEROFFHEADER]});
-    var thisModule=this;
+    var self=this;
     var myBitmap=0;
     //[[step,microStep]]={EventPattern:EP,age:how old}
     var memory=this.memory=[];
@@ -91,10 +91,11 @@ module.exports=function(environment){return new (function(){
         }
       }
       this.clockFunction=function(currentsStep,currentMicroStep){
+        if(self.mute) return;
         for(var a in trackedNotes){
           if(trackedNotes.value[0]==TRIGGERONHEADER){
             if(currentMicroStep-trackedNotes[a].started>trackedNotes[a].duration){
-              thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
+              self.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
             }
           }
         }
@@ -102,7 +103,7 @@ module.exports=function(environment){return new (function(){
       this.setAllOff=function(){
         for(var a in trackedNotes){
           if(trackedNotes.value[0]==TRIGGERONHEADER){
-            thisModule.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose));
+            self.output(trackedNotes[a].clone().superImpose(noteOffSuperImpose),true);
           }
 
           delete trackedNotes[a];
@@ -119,7 +120,7 @@ module.exports=function(environment){return new (function(){
       function addToMemory(eventTime,eventMessage){
         //find if I this event needs to be merged with other
         // console.log("mem",eventMessage.value,eventTime);
-        thisModule.handle('event recorded',eventTime,eventMessage);
+        self.handle('event recorded',eventTime,eventMessage);
         var eventMerged=false;
         for(var memIndex in memory){
           for(var otherEvent of memory[memIndex]){
@@ -221,10 +222,11 @@ module.exports=function(environment){return new (function(){
     this.interactor=myInteractor;
     this.interactor.name=this.name;
     this.memoryOutput=function(eventPattern){
+      if(self.mute) return;
       //add eventPattern to a lengthManager, play that
       noteOnTracker.trackEventMessage(eventPattern,function(error){
         if(error){ console.error(error); return }
-        thisModule.output(eventPattern);
+        self.output(eventPattern);
       });
     }
     var clockFunction=function(){
@@ -234,13 +236,13 @@ module.exports=function(environment){return new (function(){
         // console.log(`memory[${clock.step},${clock.microStep}]`);
         for (var event of memory[[clock.step,clock.microStep]]){
           // console.log(`y:${event}`);
-          thisModule.output(event);
+          self.output(event);
         }
       }
     }
 
     this.eventReceived=function(evt){
-      if(thisModule.recording){
+      if(self.recording){
         if(evt.eventMessage.value[0]!=CLOCKTICKHEADER) recorder.getEvent(evt.eventMessage);
       }
       if(evt.eventMessage.value[0]==CLOCKTICKHEADER){
@@ -250,7 +252,7 @@ module.exports=function(environment){return new (function(){
         if(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0){
           clock.step++;
           clock.step%=clock.steps;
-          // thisModule.handle('step');
+          // self.handle('step');
         }
         clockFunction();
       }else if(evt.eventMessage.value[0]==TRIGGERONHEADER){
@@ -259,7 +261,7 @@ module.exports=function(environment){return new (function(){
       }else if(evt.eventMessage.value[0]==TRIGGEROFFHEADER+1){
       }else if(evt.eventMessage.value[0]==RECORDINGHEADER){
         evt.eventMessage.value.shift();
-        thisModule.eventReceived(evt);
+        self.eventReceived(evt);
       }else{
       }
     }

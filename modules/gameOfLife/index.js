@@ -92,6 +92,7 @@ module.exports=function(environment){return new (function(){
     }
 
     this.cellOutput=function(x,y,val){
+      if(self.mute) return;
       if(val){
         baseEventMessage.value[2]=x*4+y;
         thisInstance.output(baseEventMessage);
@@ -132,9 +133,10 @@ module.exports=function(environment){return new (function(){
     }
     this.delete=function(){
       for(var noff of noteOnTracker){
-        thisInstance.output(noff);
+        thisInstance.output(noff,true);
         noteOnTracker.delete(noff);
       }
+      return true;
     }
 
     function cellOperation(){

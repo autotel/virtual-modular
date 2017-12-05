@@ -10,7 +10,7 @@ module.exports=function(sequencerModule){ return new(function(){
   this.step=function(evt){
     for(var a in notesInPlay){
       if(notesInPlay[a].offInStep==stepCounter){
-        sequencerModule.output(notesInPlay[a].sequencerEvent.off);
+        sequencerModule.output(notesInPlay[a].sequencerEvent.off,true);
         notesInPlay[a]=false;
       }
     }

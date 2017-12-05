@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="preset kit";
-    var thisInstance=this;
+    var self=this;
     //get my unique name
     name.call(this);
 
@@ -55,7 +55,7 @@ module.exports=function(environment){return new (function(){
       for(var n in properties.kit){
         this.kit[n%16]=new EventPattern({on:{value:properties.kit[n]}});
       }
-      thisInstance.handle('kit changed');
+      self.handle('kit changed');
     }
 
     this.noteOnTracker={}
@@ -69,42 +69,46 @@ module.exports=function(environment){return new (function(){
         fbVelo=velo;
       }
       if(kit[presetNumber]){
+        // console.log(self.mute);
+        if(self.mute) return;
         if(!kit[presetNumber].mute){
-          if(thisInstance.noteOnTracker[presetNumber]===undefined) thisInstance.noteOnTracker[presetNumber]=[];
-          thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
+          if(self.noteOnTracker[presetNumber]===undefined) self.noteOnTracker[presetNumber]=[];
+          self.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
           kit[presetNumber].on.value[3]=fbVelo;
-          thisInstance.output(kit[presetNumber].on);
-          if(thisInstance.recordingUi){
-            thisInstance.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+          self.output(kit[presetNumber].on);
+          if(self.recordingUi){
+            self.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
           }
         }
       }
     }
 
     this.uiTriggerOff=function(presetNumber){
-      // console.log("koff=",thisInstance.noteOnTracker[presetNumber]);
-      for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        if(thisInstance.noteOnTracker[presetNumber][a]){
-          thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
-          if(thisInstance.recordingUi){
-            thisInstance.recordOutput(new EventMessage({value:[TRIGGEROFFHEADER,0,presetNumber,100]}));
+      // console.log("koff=",self.noteOnTracker[presetNumber]);
+      for(var a in self.noteOnTracker[presetNumber] ){
+        if(self.noteOnTracker[presetNumber][a]){
+          self.output(self.noteOnTracker[presetNumber][a].off,true);
+          if(self.recordingUi){
+            self.recordOutput(new EventMessage({value:[TRIGGEROFFHEADER,0,presetNumber,100]}));
           }
         }
       }
-      delete thisInstance.noteOnTracker[presetNumber];
-      console.log(thisInstance.noteOnTracker);
+      delete self.noteOnTracker[presetNumber];
+      // console.log(self.noteOnTracker);
     }
 
     this.triggerOn=function(presetNumber,originalMessage){
       // console.log("ton",presetNumber,originalMessage);
-      thisInstance.handle("extrigger",{preset:presetNumber});
+      self.handle("extrigger",{preset:presetNumber});
+      if(self.mute) return;
       presetNumber%=16;
+
       if(kit[presetNumber]){
         if(!kit[presetNumber].mute){
           var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
-          if(thisInstance.noteOnTracker[presetNumber]===undefined)thisInstance.noteOnTracker[presetNumber]=[];
-          thisInstance.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
-          thisInstance.output(outputMessage);
+          if(self.noteOnTracker[presetNumber]===undefined)self.noteOnTracker[presetNumber]=[];
+          self.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
+          self.output(outputMessage);
         }
       }
     }
@@ -112,21 +116,21 @@ module.exports=function(environment){return new (function(){
     this.triggerOff=function(presetNumber){
       presetNumber%=16;
       // console.log("ntoff");
-      thisInstance.handle("extrigger",{preset:presetNumber});
-      for(var a in thisInstance.noteOnTracker[presetNumber] ){
-        if(thisInstance.noteOnTracker[presetNumber][a])
-        thisInstance.output(thisInstance.noteOnTracker[presetNumber][a].off);
+      self.handle("extrigger",{preset:presetNumber});
+      for(var a in self.noteOnTracker[presetNumber] ){
+        if(self.noteOnTracker[presetNumber][a])
+        self.output(self.noteOnTracker[presetNumber][a].off,true);
       }
 
-      delete thisInstance.noteOnTracker[presetNumber];
+      delete self.noteOnTracker[presetNumber];
     }
 
     this.stepMicro=function(){}
     var recordHead=0;
     this.recordEvent=function(evM){
-      thisInstance.handle('kit changed');
+      self.handle('kit changed');
       kit[recordHead]=new EventPattern().fromEventMessage(evM);
-      console.log("rec",kit[recordHead]);
+      // console.log("rec",kit[recordHead]);
       recordHead++;
       recordHead%=16;
     }
@@ -141,15 +145,15 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(event){
       var evM=event.eventMessage;
       // console.log(evM);
-      thisInstance.handle('receive',event);
+      self.handle('receive',event);
       if(evM.value[0]==CLOCKTICKHEADER){
-        thisInstance.stepMicro(evM.value[1],evM.value[2]);
+        self.stepMicro(evM.value[1],evM.value[2]);
       }else if(evM.value[0]==TRIGGERONHEADER){
         //nton
-        thisInstance.triggerOn(evM.value[2],evM);
+        self.triggerOn(evM.value[2],evM);
       }else if(evM.value[0]==TRIGGEROFFHEADER){
         //ntoff
-        thisInstance.triggerOff(evM.value[2]);
+        self.triggerOff(evM.value[2]);
       }else if(evM.value[0]==RECORDINGHEADER){
         evM.value.shift();
         // console.log("rec",evm);

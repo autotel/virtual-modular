@@ -241,7 +241,7 @@ module.exports=function(environment){
           noteLengthnerStartPointsBitmap=0;
           noteLengthnerLengthsBitmap=0;
         }
-        console.log(nicCount);
+        // console.log(nicCount);
       }/*,configurators.event.getEventPattern()*/);
 
 

@@ -33,8 +33,7 @@ module.exports=function(environment){return new (function(){
     var currentStep={value:0};
     this.currentStep=currentStep;
     var recorder=new Recorder(this);
-    // /**/console.log(sequencerFunctions);
-    var thisModule=this;
+    var self=this;
     this.patData={};
     var currentModulus=16;
     this.loopLength={value:16};
@@ -131,7 +130,7 @@ module.exports=function(environment){return new (function(){
         // console.log(evt.value);
         // console.log("REC");
         evt.value.shift();
-        console.log(evt.value[0]);
+        // console.log(evt.value[0]);
         if(evt.value[0]==TRIGGERONHEADER){
           recorder.recordNoteStart(evt.value[1]*evt.value[2],evt);
         }else if (evt.value[0]==TRIGGEROFFHEADER) {

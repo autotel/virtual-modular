@@ -3,7 +3,7 @@
 let onHandlers=require('onhandlers');
 let X16bs=require('./x16basic');
 let X28bs=require('./x28basic');
-let DefCli=require('./defcli');
+let DefCli=require('./DefCli');
 
 /**
 InteractionManager contains a list of all the running instances of {@link HardwareDriver}s and links them to instances of {@link superInteractorPrototypes} and {@link Interactor}s

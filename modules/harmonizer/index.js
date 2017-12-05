@@ -33,7 +33,7 @@ module.exports=function(environment){return new (function(){
     name.call(this);
     if(properties.name) this.name=properties.name;
     /** TODO: this naming convention **/
-    var thisInstance=this;
+    var self=this;
     this.recordingUi=true;
     this.currentScale=0;
 
@@ -48,30 +48,30 @@ module.exports=function(environment){return new (function(){
     function defaultState(){
       var c=0;
       for(let scale in scaleNames.nameToScale){
-        thisInstance.newScaleMap(c,scaleNames.nameToScale[scale]);
+        self.newScaleMap(c,scaleNames.nameToScale[scale]);
         if (c++>15) break;
       }
     }
     this.uiScaleChange=function(scalen){
-      thisInstance.currentScale=scalen;
-      if(thisInstance.recordingUi){
-        thisInstance.recordOutput(new EventMessage({
+      self.currentScale=scalen;
+      if(self.recordingUi){
+        self.recordOutput(new EventMessage({
           value:[
             CHORDCHANGEHEADER,
-            thisInstance.baseEventMessage.value[1],
+            self.baseEventMessage.value[1],
             scalen,100
           ]}));
       }
     }
     var uiNoteOnTracker={};
     this.uiTriggerOn=function(gradeNumber,underImpose=false){
-      thisInstance.triggerOn(gradeNumber,underImpose);
-      if(thisInstance.recordingUi){
-        var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,thisInstance.baseEventMessage.value[1],gradeNumber,100 ]});
+      self.triggerOn(gradeNumber,underImpose);
+      if(self.recordingUi){
+        var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,self.baseEventMessage.value[1],gradeNumber,100 ]});
         if(underImpose){
           uiGeneratedEvent.underImpose(underImpose);
         }
-        thisInstance.recordOutput(uiGeneratedEvent);
+        self.recordOutput(uiGeneratedEvent);
         // console.log(uiGeneratedEvent.value);
         uiNoteOnTracker[gradeNumber]=uiGeneratedEvent;
       }
@@ -79,9 +79,9 @@ module.exports=function(environment){return new (function(){
 
     this.uiTriggerOff=function(gradeNumber){
       if(uiNoteOnTracker[gradeNumber]){
-        thisInstance.triggerOff(gradeNumber);
-        if(thisInstance.recordingUi){
-          thisInstance.recordOutput(new EventMessage({
+        self.triggerOff(gradeNumber);
+        if(self.recordingUi){
+          self.recordOutput(new EventMessage({
             value:[
               TRIGGEROFFHEADER,
               uiNoteOnTracker[gradeNumber].value[1],
@@ -91,12 +91,12 @@ module.exports=function(environment){return new (function(){
         }
         delete uiNoteOnTracker[gradeNumber];
       }else{
-        thisInstance.triggerOff(gradeNumber);
-        if(thisInstance.recordingUi){
-          thisInstance.recordOutput(new EventMessage({
+        self.triggerOff(gradeNumber);
+        if(self.recordingUi){
+          self.recordOutput(new EventMessage({
             value:[
               TRIGGEROFFHEADER,
-              thisInstance.baseEventMessage.value[1],
+              self.baseEventMessage.value[1],
               gradeNumber,100
             ]}));
         }
@@ -104,18 +104,19 @@ module.exports=function(environment){return new (function(){
     }
 
     this.triggerOn=function(gradeNumber,underImpose=false){
+      if(self.mute) return;
       var newEvent=getOutputMessageFromNumber(gradeNumber);
       if(newEvent){
         if(underImpose){
           newEvent.underImpose(underImpose);
         }
-        thisInstance.output(newEvent);
+        self.output(newEvent);
 
         // console.log(newEvent);
         //TODO: makes more sense to make a eventPattern, so then we don't need to calculate the noteoff "manually"
         if(!noteOnTracker[gradeNumber])noteOnTracker[gradeNumber]=[];
         noteOnTracker[gradeNumber].push(newEvent);
-        thisInstance.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
+        self.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
       }
     }
 
@@ -126,27 +127,27 @@ module.exports=function(environment){return new (function(){
           var newEvent=new EventMessage(a);
           newEvent.value[3]=0;
           newEvent.value[0]=2;
-          thisInstance.output(newEvent);
-          // var scaleLength=thisInstance.scaleArray[thisInstance.currentScale].length;
-          // thisInstance.handle('messagesend',{eventMessage:newEvent,sub:newEvent.value[2]%scaleLength});
+          self.output(newEvent,true);
+          // var scaleLength=self.scaleArray[self.currentScale].length;
+          // self.handle('messagesend',{eventMessage:newEvent,sub:newEvent.value[2]%scaleLength});
         }
         delete noteOnTracker[gradeNumber];
       }
     }
 
     var inputTransformNumber=function(inputNumber){
-      if(thisInstance.scaleArray[thisInstance.currentScale]){
-        var scaleLength=thisInstance.scaleArray[thisInstance.currentScale].length;
-        var noteWraped=thisInstance.scaleArray[thisInstance.currentScale][inputNumber%scaleLength];
+      if(self.scaleArray[self.currentScale]){
+        var scaleLength=self.scaleArray[self.currentScale].length;
+        var noteWraped=self.scaleArray[self.currentScale][inputNumber%scaleLength];
         var ret=noteWraped+(12*Math.floor(inputNumber/scaleLength));
-        // console.log(thisInstance.baseEventMessage);
-        return ret+thisInstance.baseEventMessage.value[2];
+        // console.log(self.baseEventMessage);
+        return ret+self.baseEventMessage.value[2];
       }else{
         return false;
       }
     }
     var getOutputMessageFromNumber=function(number){
-      var outputMessage=new EventMessage(thisInstance.baseEventMessage);
+      var outputMessage=new EventMessage(self.baseEventMessage);
       var num=inputTransformNumber(number);
       // console.log("itn",num);
       if(num){
@@ -159,19 +160,19 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(event){
       /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
       var eventMessage=event.eventMessage
-      if(!thisInstance.mute)
+      if(!self.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
-          thisInstance.triggerOff(eventMessage.value[2]);
+          self.triggerOff(eventMessage.value[2]);
         }else{
           this.handle('receive',eventMessage);
           if(eventMessage.value[0]==3){
             //header 3 is change chord
-            // if(!thisInstance.currentScale)thisInstance.cu
-            thisInstance.currentScale=eventMessage.value[2];
-            thisInstance.handle('chordchange');
+            // if(!self.currentScale)self.cu
+            self.currentScale=eventMessage.value[2];
+            self.handle('chordchange');
             // console.log("chordchange",event);
           }else if(eventMessage.value[0]==1){
-            thisInstance.triggerOn(eventMessage.value[2],eventMessage);
+            self.triggerOn(eventMessage.value[2],eventMessage);
           }else{
             console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
           }
@@ -180,11 +181,11 @@ module.exports=function(environment){return new (function(){
     this.newScaleMap=function(identifier,to){
         // console.log("scale map update "+identifier);
         scaleMap[identifier]=to;
-        thisInstance.scaleArray[identifier]=[];
+        self.scaleArray[identifier]=[];
         var count=0;
         for(var a =0; a<12; a++){
           if((scaleMap[identifier]>>a)&1){
-            thisInstance.scaleArray[identifier].push(a);
+            self.scaleArray[identifier].push(a);
           }
         }
       }

@@ -6,7 +6,7 @@ events with header 0xAA are received as events to record.
 var RECORDINGHEADER = 0xAA;
 module.exports=function(){
   onHandlers.call(this);
-  var thisModule=this;
+  var self=this;
   var outputs=this.outputs=new Set();
   var recordOutputs=this.recordOutputs=new Set();
   this.baseName="base";
@@ -17,56 +17,57 @@ module.exports=function(){
   this.toggleOutput=function(what){
     var ret=outputs.has(what);
     if(ret){
-      thisModule.removeOutput(what);
+      self.removeOutput(what);
     }else{
-      thisModule.addOutput(what);
+      self.addOutput(what);
     }
     return outputs.has(what);
   }
 
   this.addOutput=function(what){
-
     if(what){
-      if(what===thisModule){
+      if(what===self){
         console.error("can't patch a module to itself!");
       }else{
         if(what.isModuleInstance){
-          console.log(thisModule.name+"--->"+what.name);
+          console.log(self.name+"--->"+what.name);
           outputs.add(what);
         }else{
           // console.error(what);
-          throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
+          throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
         }
       }
     }else{
-      throw "Forbidden output: Attempted to connect "+thisModule.name+" to "+what;
+      throw "Forbidden output: Attempted to connect "+self.name+" to "+what;
     }
   }
   this.removeOutput=function(what){
     var rpt=outputs.delete(what);
-    console.log(thisModule.name+"-"+(rpt?"X":" ")+"->"+what.name);
+    console.log(self.name+"-"+(rpt?"X":" ")+"->"+what.name);
   }
   this.addInput=function(what){
     try{
-      what.addOutput(thisModule);
+      what.addOutput(self);
     }catch(e){
       console.error("could not add input");
       console.log(e);
     }
   }
-  this.output=function(eventMessage){
-    //outputs don't get executed right away, this avoids a crash in case there is a patching loop
-    setImmediate(function(){
-        outputs.forEach(function(tModule){
-        tModule.eventReceived({eventMessage:eventMessage.clone(),origin:thisModule});
-      })
-    });
+  this.output=function(eventMessage,overrideMute){
+    if((!self.mute)||overrideMute){
+      //outputs don't get executed right away, this avoids a crash in case there is a patching loop
+      setImmediate(function(){
+          outputs.forEach(function(tModule){
+          tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
+        })
+      });
+    }
   }
   this.eventReceived=function(evt){
     // console.log(evt);
   }
   this.removeInput=function(what){
-    what.removeOutput(thisModule)
+    what.removeOutput(self)
   }
 
   /**
@@ -79,9 +80,9 @@ module.exports=function(){
   this.toggleRecordOutput=function(what){
     var ret=recordOutputs.has(what);
     if(ret){
-      thisModule.removeRecordOutput(what);
+      self.removeRecordOutput(what);
     }else{
-      thisModule.addRecordOutput(what);
+      self.addRecordOutput(what);
     }
     return recordOutputs.has(what);
   }
@@ -89,24 +90,24 @@ module.exports=function(){
   this.addRecordOutput=function(what){
     if(what){
       if(what.isModuleInstance){
-        console.log(thisModule.name+"rec>"+what.name);
+        console.log(self.name+"rec>"+what.name);
         recordOutputs.add(what);
-        thisModule.addInput(what);
+        self.addInput(what);
       }else{
         // console.error(what);
-        throw ["Forbidden output: you tried to connect "+thisModule.name+" to a "+what,what];
+        throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
       }
     }else{
-      throw "Forbidden output: Attempted to connect "+thisModule.name+" to "+what;
+      throw "Forbidden output: Attempted to connect "+self.name+" to "+what;
     }
   }
   this.removeRecordOutput=function(what){
     var rpt=recordOutputs.delete(what);
-    console.log(thisModule.name+"r"+(rpt?"X":" ")+"c>"+what.name);
+    console.log(self.name+"r"+(rpt?"X":" ")+"c>"+what.name);
   }
   this.addRecordInput=function(what){
     try{
-      what.addRecordOutput(thisModule);
+      what.addRecordOutput(self);
     }catch(e){
       console.error("could not add input");
       console.log(e);
@@ -117,12 +118,26 @@ module.exports=function(){
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(RECORDINGHEADER);
       // console.log(recordEventMessage.value);
-      tModule.eventReceived({eventMessage:recordEventMessage,origin:thisModule});
+      tModule.eventReceived({eventMessage:recordEventMessage,origin:self});
     });
   }
   // this.recordEventReceived=function(evt){
   //   // console.log(evt);
   // }
   this.remove=function(){
+    for(let output of outputs){
+      self.removeOutput(output);
+    }
+    for(let output of recordOutputs){
+      self.removeRecordOutput(output);
+    }
+    self.eventReceived=function(evt){
+      console.log("deleted module",evt);
+      if(evt.origin) self.removeInput(evt.origin);
+    }
+    if(self.onRemove){
+      return self.onRemove();
+    }
+    return true;
   }
 }

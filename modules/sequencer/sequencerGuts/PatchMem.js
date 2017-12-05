@@ -4,11 +4,11 @@ var EventMessage=require('../../../datatypes/EventMessage.js');
 var PatternEvent=require('../../../datatypes/EventPattern.js');
 
 module.exports=function(sequencerModule){ return new(function(){
-  var thisModule=this;
+  var self=this;
   /**
   whether module is playing
   */
-  thisModule.playing={value:true};
+  self.playing={value:true};
 
   //the "invisible" sub-unit of a step, good for recording quantization and midi clock input
   var microStep={value:0};
@@ -186,12 +186,12 @@ module.exports=function(sequencerModule){ return new(function(){
   }
   this.stepMicro=function(base,number){
     microStepDivide=base;
-    microStep.value=ramp(number-thisModule.microStepDisplace.value,base);
+    microStep.value=ramp(number-self.microStepDisplace.value,base);
     // console.log(microStep.value);
       if(microStep.value==0){
-        if(thisModule.playing.value){
+        if(self.playing.value){
           // if(clockIncremental){
-          // thisModule.step();
+          // self.step();
           // console.log("incremental"+microStep.value);
           // console.log(substep);
           substep.value++;

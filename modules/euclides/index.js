@@ -113,7 +113,7 @@ module.exports=function(environment){return new (function(){
     }
     this.delete=function(){
       for(var noff of noteOnTracker){
-        thisInstance.output(noff);
+        thisInstance.output(noff,true);
         noteOnTracker.delete(noff);
       }
     }
@@ -127,12 +127,14 @@ module.exports=function(environment){return new (function(){
       return shift;
     }
     function stepOperation(){
-      var longestLayer=0;
-      for(var layer of patterns){
-        longestLayer=Math.max(getLen(layer),longestLayer);
+      if(!self.mute){
+        var longestLayer=0;
+        for(var layer of patterns){
+          longestLayer=Math.max(getLen(layer),longestLayer);
+        }
+        clock.subStep++;
+        clock.subStep%=longestLayer;
       }
-      clock.subStep++;
-      clock.subStep%=longestLayer;
     }
   }
 })};

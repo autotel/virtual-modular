@@ -40,10 +40,16 @@ module.exports = function(environment) {
     });
     configurators.time.vars["step ratio"].changeFunction=function(thisVar,delta){
       if(delta>0){
-        thisVar.value++
+        if(thisVar.value<2){
+          thisVar.value*=2;
+        }else{
+          thisVar.value++
+        }
       }else{
         if(thisVar.value<2){
           thisVar.value/=2;
+        }else{
+          thisVar.value--;
         }
       }
     };

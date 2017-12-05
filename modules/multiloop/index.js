@@ -37,7 +37,7 @@ module.exports = function(environment) {
       var noteOffSuperImpose = new EventMessage({
         value: [TRIGGEROFFHEADER]
       });
-      var thisModule = this;
+      var self = this;
       var myBitmap = 0;
       //
       /**
@@ -51,7 +51,7 @@ module.exports = function(environment) {
 
       this.addNewTape=function(){
         let len=tapes.length;
-        tapes.push(new Tape({outputFunction:thisModule.memoryOutput,clock:clock}));
+        tapes.push(new Tape({outputFunction:self.memoryOutput,clock:clock}));
         return tapes[len];
       }
       this.getTapeNum=function(tape){
@@ -96,12 +96,12 @@ module.exports = function(environment) {
       var currentTape=false;
       var currentMemory=false;
       function setInitState(){
-        currentTape=thisModule.addNewTape();
+        currentTape=self.addNewTape();
         currentMemory=currentTape.memory;
         if(properties){
           console.log("TODO:should apply",properties);
         }
-        thisModule.recording = true;
+        self.recording = true;
       }
 
       var clock = this.clock = {
@@ -112,7 +112,7 @@ module.exports = function(environment) {
         historicStep:0
       };
 
-      var noteOnTracker = new NoteOnTracker(thisModule);
+      var noteOnTracker = new NoteOnTracker(self);
 
       var baseEventMessage = this.baseEventMessage = new EventMessage({
         value: [TRIGGERONHEADER, -1, -1, -1]
@@ -121,13 +121,14 @@ module.exports = function(environment) {
       this.interactor = myInteractor;
       this.interactor.name = this.name;
       this.memoryOutput = function(eventMessage) {
+        if(self.mute) return;
         //add eventPattern to a lengthManager, play that
         noteOnTracker.trackEventMessage(eventMessage, function(error) {
           if (error) {
             console.error(error);
             return
           }
-          thisModule.output(eventMessage);
+          self.output(eventMessage);
         });
       }
       var clockFunction = function() {
@@ -157,10 +158,10 @@ module.exports = function(environment) {
         } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
         } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
           evt.eventMessage.value.shift();
-          // if (thisModule.recording) {
+          // if (self.recording) {
           // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
           currentTape.record(evt.eventMessage);
-          thisModule.handle('event recorded',evt);
+          self.handle('event recorded',evt);
           // }
         } else {}
       }

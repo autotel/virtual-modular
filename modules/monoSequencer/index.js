@@ -49,7 +49,7 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(evt){
       if(evt.eventMessage.value[0]==clockSpec[0].incrementalTick&&(evt.eventMessage.value[2]%evt.eventMessage.value[1]==0)){
         for(var noff of noteOnTracker){
-          thisInstance.output(noff);
+          thisInstance.output(noff,true);
           noteOnTracker.delete(noff);
         }
         //TODO: this is incorrect implementation of clock. The other data's shoudl be considered
@@ -58,11 +58,13 @@ module.exports=function(environment){return new (function(){
         thisInstance.handle('step',{originator:evt,step:step.value});
         if(patMem[step.value]){
           //console.log("otp");
-          thisInstance.output(patMem[step.value]);
-          var noff=patMem[step.value].clone();
-          noff.value[0]=2;
-          // console.log(noff);
-          noteOnTracker.add(noff);
+          if(!self.mute) {
+            thisInstance.output(patMem[step.value]);
+            var noff=patMem[step.value].clone();
+            noff.value[0]=2;
+            // console.log(noff);
+            noteOnTracker.add(noff);
+          }
         }else{
           //console.log("NS"+step.value);
         }
