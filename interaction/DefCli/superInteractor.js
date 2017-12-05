@@ -34,10 +34,10 @@ var DefCliSuperInteractorSingleton = function(environment) {
         moduleInterfaces.push(what);
       } else {
         // console.log(what);
-        throw "default command line interface Superinteractor is incompatible with interface", what;
+        console.error("no command line interface for "+what.name);
       }
     } else {
-      throw "tried to add an object to a SuperInteractor that is not an interactor";
+      console.error("tried to add an object to a SuperInteractor that is not an interactor");
     }
   }
   /** get the list of interactors @return array*/

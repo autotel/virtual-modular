@@ -22,7 +22,7 @@ var interactionManager=function(environment){ return new(function(){
   interfaces.x28basic=new X28bs(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
   interfaces.DefCli=new DefCli(environment);
-  superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
+  superInteractorSingletons.push(interfaces.DefCli.superInteractorSingleton);
   /**
     @function
     called by a hardwareManager: when there is a new hardware connected, it is associated with a {@link superInteractor}
@@ -46,6 +46,7 @@ var interactionManager=function(environment){ return new(function(){
   environment.on('module created',function(evt){
     var newInteractor=evt.module.interactor;
     moduleInteractorInstances.push(newInteractor);
+    // console.log("CREATEEVENT",evt.module.name);
     for(var sis of superInteractorSingletons){
       sis.appendModuleInteractor(newInteractor);
     }

@@ -18,7 +18,7 @@ var moduleInterfaces=[];
 */
 var X16SuperInteractorsSingleton=function(environment){
   /**check compatibility of a certain interactor*/
-  var compatibilityTags=["x16v0"];
+  var compatibilityTags=["x28v0"];
   var compatible=function(tagSet){
     for(var tag of tagSet){
       if(compatibilityTags.indexOf(tag)!=-1){
@@ -31,12 +31,10 @@ var X16SuperInteractorsSingleton=function(environment){
   affects all the X16SuperInteractor. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.
   */
   this.appendModuleInteractor=function(what){
+    // console.log("APPM",what.name);
     if(what.type=="interactor"){
       if(compatible(what.compatibilityTags)){
         moduleInterfaces.push(what);
-      }else{
-        console.log(what);
-          throw "x16v0 Superinteractor is incompatible with interface",what;
       }
     }else{
       throw "tried to add an object to a SuperInteractor that is not an interactor";

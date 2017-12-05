@@ -35,8 +35,8 @@ var X16SuperInteractorsSingleton=function(environment){
       if(compatible(what.compatibilityTags)){
         moduleInterfaces.push(what);
       }else{
-        console.log(what);
-          throw "x16v0 Superinteractor is incompatible with interface",what;
+        // console.log(what);
+        //   throw "x16v0 Superinteractor is incompatible with interface",what;
       }
     }else{
       throw "tried to add an object to a SuperInteractor that is not an interactor";

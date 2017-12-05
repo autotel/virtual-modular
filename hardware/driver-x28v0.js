@@ -335,7 +335,7 @@ var DriverX28v0=function(environment,properties){
         // console.log("buttton",event.type);
       }
       // console.log("recv",chd);
-      console.log("interaction",event);
+      // console.log("Iinteraction",event);
       // myInteractionPattern.on('interaction',console.log);
       //convert encoder scrolls to signed (it can only be -1 or -2)
 

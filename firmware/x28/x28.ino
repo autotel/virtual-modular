@@ -46,7 +46,7 @@ void setup() {
   Timer1.attachInterrupt(onInterrupt);
 
 
-  char tstr[] = "Calculator";
+  char tstr[] = "Calculeitor";
   hardware.lcdPrintA((char&) tstr[0]);
 
 }
