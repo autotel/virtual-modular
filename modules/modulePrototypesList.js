@@ -9,6 +9,7 @@ module.exports={
   "midiIO":"./midiIO-windows",
   "tape":"./tape",
   "multiloop":"./multiloop",
+  "narp":"./narp",
 }
 /*
 optional automatic:
