@@ -48,7 +48,9 @@ module.exports=(function(environment){
         baudRate: baudRate
       });
       newPort.on('open', function() {
-
+        newPort.write(new Buffer([0x40]),function(error){
+          if(error){ console.log("error sending init val",error); }
+        });
         //now we communicate with the serial device to define what kind of hardware controller to use
         //connect, request the hardware version, and expect it's response
         var alreadyCreated=false;
