@@ -32,7 +32,8 @@ function portInteract(port) {
   });
   newPort.on('open', function() {
     var established = false;
-
+    console.log("OPEN",port.comName);
+    newPort.write(new Buffer([0x40]),console.log);
     newPort.on('data', (data) => {
       console.log("INCOM",port.comName);
       var hiTimeout;
