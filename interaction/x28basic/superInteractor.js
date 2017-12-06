@@ -170,7 +170,7 @@ var X16SuperInteractorsSingleton = function(environment) {
             selectedInterface.controlledModule.mute=(false==selectedInterface.controlledModule.mute);
 
           }else if(deleteMode){
-            if(selectedInterface.controlledModule.remove()){
+            if(environment.modulesMan.removeModuleN(event.button)){
               moduleInterfaces.splice(event.button,1);
               selectedInterface=false;
             }
@@ -246,17 +246,16 @@ var X16SuperInteractorsSingleton = function(environment) {
     });
     this.on('selectorButtonReleased', function(event) {
       // event.button=event.data[0];
-      if (selectorButtonOwners[event.data[0]]) {
+      if(deleteMode || muteMode){
+        if(event.button==6||event.button==5){
+          deleteMode=false;
+          muteMode=false;
+        }
+      }else if (selectorButtonOwners[event.data[0]]) {
         selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
         delete selectorButtonOwners[event.data[0]];
       } else {
-        if(deleteMode || muteMode){
-          if(event.button==6||event.button==5){
-            deleteMode=false;
-            muteMode=false;
-            
-          }
-        }else{
+        {
           var newCreated = false;
           if (myModuleCreator.engaged) newCreated = myModuleCreator.disengage();
           if (newCreated) selectedInterface = newCreated;

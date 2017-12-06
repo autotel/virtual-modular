@@ -9,7 +9,7 @@ ModulesManager is a singleton that manages the pattern modifying modules.
 */
 var modulesManager=function(environment){ return new(function(){
   var thisMan=this;
-  this.moduleInstances=modules;
+  var moduleInstances=this.moduleInstances=modules;
   console.log("-modulesManager");
   this.modulePrototypesList=modulePrototypesList;
   for(var a in modulePrototypesList){
@@ -32,7 +32,14 @@ var modulesManager=function(environment){ return new(function(){
       }
     }
   }
-
+  this.removeModuleN=function(n){
+    if(moduleInstances[n].remove()){
+      moduleInstances.splice(n,1);
+      return true;
+    }else{
+      return false;
+    }
+  }
   /** @function
   instanciate and register a new module.
   Two example uses of this function are in the superinteractor, when you create a new module using the buttons, and the midi IO, which creates one module per midi input

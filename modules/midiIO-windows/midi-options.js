@@ -1,6 +1,6 @@
 module.exports={
 	"outputs": {
-		"Microsoft GS Wavetable Synth": true,
+		"Microsoft GS Wavetable Synth": false,
 		"7- UM-1": true,
 		"from maschine": true,
 		"to maschine": true,
