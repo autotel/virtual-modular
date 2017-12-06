@@ -34,6 +34,7 @@ function portInteract(port) {
     var established = false;
 
     newPort.on('data', (data) => {
+      console.log("INCOM",port.comName);
       var hiTimeout;
       var dataString=dataToString(data);
       if(state==0&&dataString.indexOf("x")!==-1){
