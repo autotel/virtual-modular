@@ -15,7 +15,7 @@ module.exports=function(environment){
     var fingerMap=0x0000;
     var scaleMap=0xAB5;//major
     var noteHiglightMap=0;
-    var performMode=false;
+    var performMode=true;
     var currentScale=0;
     var engaged=false;
     //configurators setup

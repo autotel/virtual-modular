@@ -8,6 +8,7 @@ var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
 var CHORDCHANGEHEADER = 0x03;
+var NoteOnTracker=require('../moduleUtils/NoteOnTracker.js');
 
 var uix16Control=require('./x16basic');
 /**
@@ -36,6 +37,7 @@ module.exports=function(environment){return new (function(){
     var self=this;
     this.recordingUi=true;
     this.currentScale=0;
+    var noteOnTracker=new NoteOnTracker(this);
 
     // this.baseNote={value:0};
 
@@ -43,7 +45,6 @@ module.exports=function(environment){return new (function(){
     var scaleMap={};
     //keep track of triggered notes
     this.scaleArray={};
-    var noteOnTracker={}
 
     function defaultState(){
       var c=0;
@@ -63,76 +64,53 @@ module.exports=function(environment){return new (function(){
           ]}));
       }
     }
-    var uiNoteOnTracker={};
+
     this.uiTriggerOn=function(gradeNumber,underImpose=false){
-      self.triggerOn(gradeNumber,underImpose);
-      if(self.recordingUi){
-        var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,self.baseEventMessage.value[1],gradeNumber,100 ]});
-        if(underImpose){
-          uiGeneratedEvent.underImpose(underImpose);
+      if(self.mute) return;
+      var newEvent=getOutputMessageFromNumber(gradeNumber);
+      if(newEvent){
+        if(underImpose) newEvent.underImpose(underImpose);
+        if(self.recordingUi){
+          var uiGeneratedEvent=new EventMessage({ value: [TRIGGERONHEADER,self.baseEventMessage.value[1],gradeNumber,100 ]});
+          if(underImpose){
+            uiGeneratedEvent.underImpose(underImpose);
+          }
+          noteOnTracker.add(uiGeneratedEvent,["REC",gradeNumber]);
+          self.recordOutput(uiGeneratedEvent);
         }
-        self.recordOutput(uiGeneratedEvent);
-        // console.log(uiGeneratedEvent.value);
-        uiNoteOnTracker[gradeNumber]=uiGeneratedEvent;
+        self.output(newEvent);
+        noteOnTracker.add(newEvent,["UI",gradeNumber]);
+        self.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
       }
     }
 
     this.uiTriggerOff=function(gradeNumber){
-      if(uiNoteOnTracker[gradeNumber]){
-        self.triggerOff(gradeNumber);
-        if(self.recordingUi){
-          self.recordOutput(new EventMessage({
-            value:[
-              TRIGGEROFFHEADER,
-              uiNoteOnTracker[gradeNumber].value[1],
-              uiNoteOnTracker[gradeNumber].value[2],
-              uiNoteOnTracker[gradeNumber].value[3]
-            ]}));
-        }
-        delete uiNoteOnTracker[gradeNumber];
-      }else{
-        self.triggerOff(gradeNumber);
-        if(self.recordingUi){
-          self.recordOutput(new EventMessage({
-            value:[
-              TRIGGEROFFHEADER,
-              self.baseEventMessage.value[1],
-              gradeNumber,100
-            ]}));
-        }
-      }
+      noteOnTracker.ifNoteOff(["UI",gradeNumber],function(noteOff){
+        self.output(noteOff);
+      });
+      noteOnTracker.ifNoteOff(["REC",gradeNumber],function(noteOff){
+        let nnoff=noteOff.clone();
+        nnoff.value[0]=TRIGGEROFFHEADER;
+        self.recordOutput(nnoff);
+      });
     }
 
     this.triggerOn=function(gradeNumber,underImpose=false){
       if(self.mute) return;
       var newEvent=getOutputMessageFromNumber(gradeNumber);
       if(newEvent){
-        if(underImpose){
-          newEvent.underImpose(underImpose);
-        }
+        if(underImpose) newEvent.underImpose(underImpose);
+        noteOnTracker.add(newEvent,["EX",gradeNumber,newEvent.value[1]]);
         self.output(newEvent);
-
-        // console.log(newEvent);
-        //TODO: makes more sense to make a eventPattern, so then we don't need to calculate the noteoff "manually"
-        if(!noteOnTracker[gradeNumber])noteOnTracker[gradeNumber]=[];
-        noteOnTracker[gradeNumber].push(newEvent);
         self.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
       }
     }
 
-    this.triggerOff=function(gradeNumber){
-      if(noteOnTracker[gradeNumber]){
-        for(var a of noteOnTracker[gradeNumber]){
-          // console.log("A");
-          var newEvent=new EventMessage(a);
-          newEvent.value[3]=0;
-          newEvent.value[0]=2;
-          self.output(newEvent,true);
-          // var scaleLength=self.scaleArray[self.currentScale].length;
-          // self.handle('messagesend',{eventMessage:newEvent,sub:newEvent.value[2]%scaleLength});
-        }
-        delete noteOnTracker[gradeNumber];
-      }
+    this.triggerOff=function(gradeNumber,chan){
+      noteOnTracker.ifNoteOff(["EX",gradeNumber,chan],function(noteOff){
+        // console.log("NTOFF",noteOff);
+        self.output(noteOff);
+      });
     }
 
     var inputTransformNumber=function(inputNumber){
@@ -162,7 +140,7 @@ module.exports=function(environment){return new (function(){
       var eventMessage=event.eventMessage
       if(!self.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
-          self.triggerOff(eventMessage.value[2]);
+          self.triggerOff(eventMessage.value[2],eventMessage.value[1]);
         }else{
           this.handle('receive',eventMessage);
           if(eventMessage.value[0]==3){
