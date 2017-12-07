@@ -72,8 +72,8 @@ var lazyStack=new (function(properties){
   this.enq=function(cb){
     if(stackLimit!==false)
     while(stack.length>stackLimit){
-       console.warn("removed serial event");
-       stack.pop();
+       console.warn("removed stack function",stack.pop());
+
      };
     stack.push(cb);
     setImmediate(dequeue);
@@ -86,7 +86,7 @@ var lazyStack=new (function(properties){
       setImmediate(dequeue);
     }
   };
-})({stackLimit:2});
+})({stackLimit:10});
 
 var lastSentBitmap={
   bitmap:[0,0,0],
