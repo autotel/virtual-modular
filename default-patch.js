@@ -5,7 +5,7 @@ module.exports=[
       name:'main clock',
       bpm:120
     },
-    outputs:['sequencer 0','sequencer 1','sequencer 2','sequencer 3','test multiloop']
+    outputs:['global']
   },{
     type:'harmonizer',
     outputs:['default midi out','O-to DAW']

@@ -46,7 +46,6 @@ var interactionManager=function(environment){ return new(function(){
   environment.on('module created',function(evt){
     var newInteractor=evt.module.interactor;
     moduleInteractorInstances.push(newInteractor);
-    // console.log("CREATEEVENT",evt.module.name);
     for(var sis of superInteractorSingletons){
       sis.appendModuleInteractor(newInteractor);
     }

@@ -11,6 +11,7 @@ var onHandlers = require("onhandlers");
 var patchingMenu = require("./patchingMenu");
 
 var moduleInterfaces = [];
+var incompatibleModules = [];
 /**
  * @constructor
  * singleton
@@ -30,13 +31,20 @@ var X16SuperInteractorsSingleton = function(environment) {
   /**
   affects all the X16SuperInteractor. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.
   */
-  this.appendModuleInteractor = function(what) {
-    // console.log("APPM",what.name);
-    if (what.type == "interactor") {
-      if (compatible(what.compatibilityTags)) {
+  this.appendModuleInteractor=function(what){
+    // console.log("WAT",what);
+    if(what==undefined){
+      console.log("undefined interactor");
+      incompatibleModules.push(what);
+    }else if(what.type=="interactor"){
+      if(compatible(what.compatibilityTags)){
         moduleInterfaces.push(what);
+      }else{
+        incompatibleModules.push(what);
+        // console.log(what);
+        //   throw "x16v0 Superinteractor is incompatible with interface",what;
       }
-    } else {
+    }else{
       throw "tried to add an object to a SuperInteractor that is not an interactor";
     }
   }
@@ -151,18 +159,22 @@ var X16SuperInteractorsSingleton = function(environment) {
           firstPressedMatrixButton = event.data[0];
           updateHardware();
         } else {
-          if (selectedInterface && moduleInterfaces[event.data[0]]) try {
-            var connected = selectedInterface.controlledModule.toggleOutput(moduleInterfaces[event.data[0]].controlledModule);
-            myHardware.sendScreenB((connected ? RARROW : "X") + moduleInterfaces[event.data[0]].controlledModule.name);
+          var modulea=tryGetModuleN(firstPressedMatrixButton);
+          var moduleb=tryGetModuleN(event.button);
+
+          if (modulea && moduleb) try {
+            var connected = modulea.toggleOutput(moduleb);
+            myHardware.sendScreenB((connected ? RARROW : "X") + moduleb.name);
           } catch (e) {
             console.error(e);
             myHardware.sendScreenB("X");
           }
           updateLeds();
+
         }
         if (!selectedInterface) {
           selectedInterface = false;
-          if (event.data[0] == moduleInterfaces.length) myModuleCreator.engage();
+          if (event.data[0] == moduleInterfaces.length + incompatibleModules.length) myModuleCreator.engage();
         }else{
           if(muteMode){
             selectedInterface.controlledModule.mute=(false==selectedInterface.controlledModule.mute);
@@ -318,7 +330,7 @@ var X16SuperInteractorsSingleton = function(environment) {
         }
       }
 
-      var creatorBtn = 1 << moduleInterfaces.length;
+      var creatorBtn = 1 << (moduleInterfaces.length+incompatibleModules.length);
       var selectable = ~(0xffff << moduleInterfaces.length);
       var selected = 1 << moduleInterfaces.indexOf(selectedInterface);
       //selected module is white
@@ -335,6 +347,17 @@ var X16SuperInteractorsSingleton = function(environment) {
       console.log(this);
       throw "oops superInteractor must never disengage";
       engagedInterface = 0;
+    }
+
+    function tryGetModuleN(number){
+      var ret=false;
+      if(number>=moduleInterfaces.length){
+        ret=incompatibleModules[number-moduleInterfaces.length];
+        console.log("RRRR",number-moduleInterfaces.length);
+      }else if(moduleInterfaces[number]){
+        ret=moduleInterfaces[number].controlledModule;
+      }
+      return ret;
     }
   }
 };

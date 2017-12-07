@@ -54,6 +54,10 @@ var modulesManager=function(environment){ return new(function(){
     environment.handle('module created',{module:newInstance});
     return newInstance;
   }
+
+  //add the global bus
+  this.addModule('bus',{name:"global"});
+
   this.applyProperties=function(props){
     console.log("Creating modules net:");
     for(var n in props){

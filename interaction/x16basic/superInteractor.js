@@ -31,7 +31,11 @@ var X16SuperInteractorsSingleton=function(environment){
   affects all the X16SuperInteractor. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.
   */
   this.appendModuleInteractor=function(what){
-    if(what.type=="interactor"){
+    // console.log("WAT",what);
+    if(what==undefined){
+      console.log("undefined interactor");
+      
+    }else if(what.type=="interactor"){
       if(compatible(what.compatibilityTags)){
         moduleInterfaces.push(what);
       }else{

@@ -28,16 +28,20 @@ var DefCliSuperInteractorSingleton = function(environment) {
   /**
   affects all the DefCliInteractors. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.
   */
-  this.appendModuleInteractor = function(what) {
-    if (what.type == "interactor") {
-      if (compatible(what.compatibilityTags)) {
+  this.appendModuleInteractor=function(what){
+    // console.log("WAT",what);
+    if(what==undefined){
+      console.log("undefined interactor");
+      
+    }else if(what.type=="interactor"){
+      if(compatible(what.compatibilityTags)){
         moduleInterfaces.push(what);
-      } else {
+      }else{
         // console.log(what);
-        console.error("no command line interface for "+what.name);
+        //   throw "x16v0 Superinteractor is incompatible with interface",what;
       }
-    } else {
-      console.error("tried to add an object to a SuperInteractor that is not an interactor");
+    }else{
+      throw "tried to add an object to a SuperInteractor that is not an interactor";
     }
   }
   /** get the list of interactors @return array*/

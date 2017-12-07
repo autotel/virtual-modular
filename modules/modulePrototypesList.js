@@ -1,5 +1,6 @@
 "use strict";
 module.exports={
+  "bus":"./bus",
   "sequencer":"./sequencer",
   // monoSequencer:"./monoSequencer",
   "clockGenerator":"./clockGenerator",
