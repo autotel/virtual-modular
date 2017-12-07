@@ -4,8 +4,8 @@ var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
 var EventMessage=require('../../datatypes/EventMessage.js');
-var EventPattern=require('../../datatypes/EventPattern.js');
-
+// var EventPattern=require('../../datatypes/EventPattern.js');
+var NoteOnTracker=require('../moduleUtils/NoteOnTracker.js');
 var moduleInstanceBase=require('../moduleInstanceBase');
 var uix16Control=require('./x16basic');
 
@@ -53,12 +53,12 @@ module.exports=function(environment){return new (function(){
 
     if(properties.kit){
       for(var n in properties.kit){
-        this.kit[n%16]=new EventPattern({on:{value:properties.kit[n]}});
+        this.kit[n%16]=new EventMessage({value:properties.kit[n]});
       }
       self.handle('kit changed');
     }
 
-    this.noteOnTracker={}
+    var noteOnTracker=new NoteOnTracker(this);
 
     this.uiTriggerOn=function(presetNumber,velo){
       // console.log("tr",kit[presetNumber]);
@@ -72,29 +72,24 @@ module.exports=function(environment){return new (function(){
         // console.log(self.mute);
         if(self.mute) return;
         if(!kit[presetNumber].mute){
-          if(self.noteOnTracker[presetNumber]===undefined) self.noteOnTracker[presetNumber]=[];
-          self.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(kit[presetNumber].on) );
-          kit[presetNumber].on.value[3]=fbVelo;
-          self.output(kit[presetNumber].on);
+          noteOnTracker.add(kit[presetNumber],presetNumber);
+          kit[presetNumber].value[3]=fbVelo;
+          self.output(kit[presetNumber]);
           if(self.recordingUi){
-            self.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));//(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,-1]}));
+            self.recordOutput(new EventMessage({value:[TRIGGERONHEADER,0,presetNumber,fbVelo]}));
           }
         }
       }
     }
 
     this.uiTriggerOff=function(presetNumber){
-      // console.log("koff=",self.noteOnTracker[presetNumber]);
-      for(var a in self.noteOnTracker[presetNumber] ){
-        if(self.noteOnTracker[presetNumber][a]){
-          self.output(self.noteOnTracker[presetNumber][a].off,true);
-          if(self.recordingUi){
-            self.recordOutput(new EventMessage({value:[TRIGGEROFFHEADER,0,presetNumber,100]}));
-          }
+      // console.log("koff=",noteOnTracker[presetNumber]);
+      noteOnTracker.ifNoteOff(presetNumber,function(noteOff){
+        self.output(noteOff,true);
+        if(self.recordingUi){
+          self.recordOutput(new EventMessage({value:[TRIGGEROFFHEADER,0,presetNumber,100]}));
         }
-      }
-      delete self.noteOnTracker[presetNumber];
-      // console.log(self.noteOnTracker);
+      });
     }
 
     this.triggerOn=function(presetNumber,originalMessage){
@@ -102,12 +97,10 @@ module.exports=function(environment){return new (function(){
       self.handle("extrigger",{preset:presetNumber});
       if(self.mute) return;
       presetNumber%=16;
-
       if(kit[presetNumber]){
         if(!kit[presetNumber].mute){
-          var outputMessage=kit[presetNumber].on.clone().underImpose(originalMessage);
-          if(self.noteOnTracker[presetNumber]===undefined)self.noteOnTracker[presetNumber]=[];
-          self.noteOnTracker[presetNumber].push( new EventPattern().fromEventMessage(outputMessage) );
+          var outputMessage=kit[presetNumber].clone().underImpose(originalMessage);
+          noteOnTracker.add(kit[presetNumber],presetNumber);
           self.output(outputMessage);
         }
       }
@@ -115,14 +108,10 @@ module.exports=function(environment){return new (function(){
 
     this.triggerOff=function(presetNumber){
       presetNumber%=16;
-      // console.log("ntoff");
       self.handle("extrigger",{preset:presetNumber});
-      for(var a in self.noteOnTracker[presetNumber] ){
-        if(self.noteOnTracker[presetNumber][a])
-        self.output(self.noteOnTracker[presetNumber][a].off,true);
-      }
-
-      delete self.noteOnTracker[presetNumber];
+      noteOnTracker.ifNoteOff(presetNumber,function(noteOff){
+        self.output(noteOff,true);
+      });
     }
 
     this.stepMicro=function(){}

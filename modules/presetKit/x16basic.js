@@ -1,6 +1,5 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
-var EventPattern=require('../../datatypes/EventPattern.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
 var RecordMenu=require('../x16utils/RecordMenu.js');
@@ -56,14 +55,13 @@ module.exports=function(environment){
           },
           selectFunction:function(thisVar){
             if(selectedPresetNumber!==false){
-              thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
+              thisVar.sourcePreset=new EventMessage(controlledModule.kit[selectedPresetNumber]);
               // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
               utilAction=function(event){
                 controlledModule.kit[event.button]=thisVar.sourcePreset;
-                // console.log(controlledModule.kit[event.button]);
                 var spv="false";
                 if(thisVar.sourcePreset){
-                  spv=thisVar.sourcePreset.on.value;
+                  spv=thisVar.sourcePreset.value;
                 }
                 selectedPresetNumber=event.button;
                 event.hardware.sendScreenB(""+selectedPresetNumber+"<"+JSON.stringify(spv));
@@ -76,21 +74,21 @@ module.exports=function(environment){
           nameFunction:function(thisVar){
             var spv="[]";
             if(thisVar.sourcePreset){
-              spv=thisVar.sourcePreset.on.value;
+              spv=thisVar.sourcePreset.value;
             }
             return "apply:"+JSON.stringify(spv);
           },
           selectFunction:function(thisVar){
-            console.log("selec");
+            // console.log("selec");
             if(selectedPresetNumber!==false){
-              thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
+              thisVar.sourcePreset=new EventMessage(controlledModule.kit[selectedPresetNumber]);
               // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
               utilAction=function(event){
-                controlledModule.kit[event.button]=new EventPattern().fromEventMessage(thisVar.sourcePreset.on);
+                controlledModule.kit[event.button]=new EventMessage(thisVar.sourcePreset);
                 // console.log(controlledModule.kit[event.button]);
                 var spv="false";
                 if(thisVar.sourcePreset){
-                  spv=thisVar.sourcePreset.on.value;
+                  spv=thisVar.sourcePreset.value;
                   spv[1]++;
                 }
                 selectedPresetNumber=event.button;
@@ -104,21 +102,20 @@ module.exports=function(environment){
           nameFunction:function(thisVar){
             var spv="[]";
             if(thisVar.sourcePreset){
-              spv=thisVar.sourcePreset.on.value;
+              spv=thisVar.sourcePreset.value;
             }
             return "apply:"+JSON.stringify(spv);
           },
           selectFunction:function(thisVar){
             console.log("selec");
             if(selectedPresetNumber!==false){
-              thisVar.sourcePreset=new EventPattern().fromEventMessage(controlledModule.kit[selectedPresetNumber].on);
+              thisVar.sourcePreset=new EventMessage(controlledModule.kit[selectedPresetNumber]);
               // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
               utilAction=function(event){
-                controlledModule.kit[event.button]=new EventPattern().fromEventMessage(thisVar.sourcePreset.on);
-                // console.log(controlledModule.kit[event.button]);
+                controlledModule.kit[event.button]=new EventMessage(thisVar.sourcePreset);
                 var spv="false";
                 if(thisVar.sourcePreset){
-                  spv=thisVar.sourcePreset.on.value;
+                  spv=thisVar.sourcePreset.value;
                   spv[2]++;
                 }
                 selectedPresetNumber=event.button;
@@ -152,19 +149,6 @@ module.exports=function(environment){
     controlledModule.on('kit changed',function(){
       updateAvailablePresetsBitmap();
     });
-    /* velocity, which seems unachievable by x16's processor
-    var eventsVelocity=new Set();
-    this.matrixButtonVelocity=function(event){
-      // console.log(event);
-      //if I receive a velocity, I store it for a short time, to be appended to the matrixButtonPress that must follow right after
-      var eventVelocity={button:event.data[0],value:event.data[1]};
-      eventsVelocity.add(eventVelocity);
-      eventVelocity.timeout=setTimeout(function(){
-        var evid=eventVelocity;
-        eventsVelocity.delete(evid);
-        // console.log("del");
-      },20);
-    };*/
     this.matrixButtonPressed=function(event){
       var hardware=event.hardware;
       if(utilAction){
@@ -193,7 +177,7 @@ module.exports=function(environment){
         if(controlledModule.kit[event.button])
         if(lastEngagedConfigurator==configurators.event){
           // configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;
-          configurators.event.setFromEventPattern(controlledModule.kit[selectedPresetNumber],hardware);
+          configurators.event.setFromEventMessage(controlledModule.kit[selectedPresetNumber],hardware);
         }
         updateHardware(hardware);
       }
@@ -248,7 +232,7 @@ module.exports=function(environment){
         if(lastEngagedConfigurator){
           lastEngagedConfigurator.encoderScrolled(event);
           if(lastEngagedConfigurator==configurators.event){
-            controlledModule.kit[selectedPresetNumber]=configurators.event.getEventPattern();
+            controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
             updateAvailablePresetsBitmap ();
           }
         }

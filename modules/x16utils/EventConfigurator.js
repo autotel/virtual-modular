@@ -157,13 +157,28 @@ var EventConfigurator=function(parentInteractor,properties){
     }
 
   }
+  this.setFromEventMessage=function(EvMes,hardware){
+    if(EvMes){
+      baseEvent=new EventMessage(EvMes);
+      if(hardware){
+        updateScreen(hardware);
+      }else{
+        passiveUpdateScreen();
+      }
+    }
 
+  }
   this.getEventPattern=function(){
     // if(!newDest) newDest=options[0].valueNames(0);
     var newEvPat=new EventPattern();
     newEvPat.fromEventMessage(baseEvent);
     newEvPat.stepLength=1;
     return newEvPat;
+  }
+  this.getEventMessage=function(){
+    // if(!newDest) newDest=options[0].valueNames(0);
+    var newEvMes=new EventMessage(baseEvent);
+    return newEvMes;
   }
 
 };

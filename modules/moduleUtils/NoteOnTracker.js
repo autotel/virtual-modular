@@ -26,12 +26,18 @@ var NoteOnTracker = function(controlledModule) {
   }
   var filterFunction=false;
 
+  this.ifNoteOff=function(identifier,callback){
+    if(trackedNotes[identifier]){
+      callback(trackedNotes[identifier]);
+      delete trackedNotes[identifier];
+    }
+  }
   this.noteOff=function(identifier) {
-    let ret= trackedNotes[identifier];
+    let ret=trackedNotes[identifier];
     delete trackedNotes[identifier];
     return ret;
   }
-  this.peekNoteOff=function(identifier) {
+  this.noteOffPeek=function(identifier) {
     return trackedNotes[identifier];
   }
 
