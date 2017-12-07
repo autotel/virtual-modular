@@ -63,19 +63,30 @@ var eoString=comConsts.eoString;
 
 
 
-var lazyStack=new (function(){
+var lazyStack=new (function(properties){
+  var stackLimit=false;
+  if(properties.stackLimit!==false)stackLimit=properties.stackLimit;
   var stack=[];
   var interval=1;
+
   this.enq=function(cb){
+    if(stackLimit!==false)
+    while(stack.length>stackLimit){
+       console.warn("removed serial event");
+       stack.pop();
+     };
     stack.push(cb);
+    setImmediate(dequeue);
   }
-  setInterval(function(){
+  var dequeue=function(){
+    // console.log("AA");
     if(stack.length>0){
-      stack[0]();
-      stack.splice(0,1);
+      (stack.shift())();
+      // stack.splice(0,1);
+      setImmediate(dequeue);
     }
-  },interval);
-})();
+  };
+})({stackLimit:2});
 
 var lastSentBitmap={
   bitmap:[0,0,0],
