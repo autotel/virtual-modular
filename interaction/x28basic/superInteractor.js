@@ -110,6 +110,7 @@ var X16SuperInteractorsSingleton = function(environment) {
 
     var muteMode = false;
     var deleteMode = false;
+
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
     */
@@ -162,9 +163,6 @@ var X16SuperInteractorsSingleton = function(environment) {
         if (!selectedInterface) {
           selectedInterface = false;
           if (event.data[0] == moduleInterfaces.length) myModuleCreator.engage();
-          if(deleteMode || muteMode){
-            deleteMode=muteMode=false;
-          }
         }else{
           if(muteMode){
             selectedInterface.controlledModule.mute=(false==selectedInterface.controlledModule.mute);
@@ -265,6 +263,8 @@ var X16SuperInteractorsSingleton = function(environment) {
             selectedInterface.engage(event);
           }
         }
+
+        if(!engagedInterface)
         updateHardware();
       }
     });
