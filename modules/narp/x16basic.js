@@ -35,7 +35,8 @@ module.exports = function(environment) {
               controlledModule.clearAll();
             }
           }
-        }
+        },
+        "note duration": controlledModule.noteDuration
       }
     });
     configurators.time.vars["step ratio"].changeFunction=function(thisVar,delta){
@@ -52,6 +53,13 @@ module.exports = function(environment) {
           thisVar.value--;
         }
       }
+    };
+    configurators.time.vars["note duration"].changeFunction=function(thisVar,delta){
+      delta/=12;
+      thisVar.value+=delta;
+    };
+    configurators.time.vars["note duration"].nameFunction=function(thisVar){
+      return (Math.floor(thisVar.value*100)/100)+" steps";
     };
 
     var playMode = configurators.time.vars["mode"];

@@ -1,4 +1,5 @@
 'use strict';
+var NoteOnTracker=require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../datatypes/EventMessage.js');
 var moduleInstanceBase = require('../moduleInstanceBase');
 var uix16Control = require('./x16basic');
@@ -28,13 +29,17 @@ module.exports = function(environment) {
     require to moduleBase.call
     */
     this.Instance = function(properties) {
-      var noteOnTracker = new Set();
       var self = this;
       var myBitmap = this.bitmap = 0;
       var currentStep = 0;
       var stepDivision = this.stepDivision = {
         value: 2
       }
+      var noteDuration = this.noteDuration = {
+        value:1
+      }
+
+      var noteOnTracker=new NoteOnTracker(this);
       var substep = 0;
       moduleInstanceBase.call(this);
       this.baseName = "narp";
@@ -63,8 +68,11 @@ module.exports = function(environment) {
 
       var generatedOutput = function(eventMessage) {
         if(self.mute) return;
+        eventMessage.life=Math.ceil(noteDuration.value*12);
+        noteOnTracker.add(eventMessage);
         self.output(eventMessage);
       }
+
       var stepFunction = function() {
         var active = activeNumbers();
         if (active.length) {
@@ -84,7 +92,6 @@ module.exports = function(environment) {
           }
           currentStep++;
         }
-
       }
       var activeNumbers = function() {
         var keepGoing = myBitmap;
@@ -102,14 +109,21 @@ module.exports = function(environment) {
       this.eventReceived = function(evt) {
         if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
           var clockBase = evt.eventMessage.value[1];
-          if (evt.eventMessage.value[2] / stepDivision.value % clockBase == 0) {
+          if ((evt.eventMessage.value[2] / stepDivision.value) % clockBase == 0) {
             substep++;
-            if (substep > stepDivision.value) {
+            if (substep >= stepDivision.value) {
               // console.log("AAKSKA");
               substep = 0;
               stepFunction();
             }
           }
+          noteOnTracker.each(function(noteOff,identifier){
+            noteOff.life--;
+            // console.log(noteOff.life);
+            if(noteOff.life<=0){
+              self.output(noteOnTracker.noteOff(identifier));
+            }
+          });
         } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
           this.setStep(evt.eventMessage.value[2] % 16);
         } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {} else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
@@ -117,11 +131,13 @@ module.exports = function(environment) {
       this.getBitmap16 = function() {
         return myBitmap;
       }
+
       this.delete = function() {
-        for (var noff of noteOnTracker) {
-          self.output(noff,false);
-          noteOnTracker.delete(noff);
-        }
+        noteOnTracker.each(function(noteOff,identifier){
+          self.output(noteOff,false);
+        });
+        noteOnTracker.empty();
+        return true;
       }
     }
   })
