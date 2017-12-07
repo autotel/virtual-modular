@@ -9,100 +9,17 @@ A superInteractor defines the main context for the interactors of the specific h
 module.exports = {};
 var onHandlers = require("onhandlers");
 var patchingMenu = require("./patchingMenu");
+var ModuleCreator = require('./ModuleCreator');
 
-var moduleInterfaces = [];
-var incompatibleModules = [];
 /**
  * @constructor
  * singleton
  * @param {environment} input to pass the environment. Needed to access the modulesMan, for things such as adding modules, jumping to modules, etc.
  */
-var X16SuperInteractorsSingleton = function(environment) {
-  /**check compatibility of a certain interactor*/
-  var compatibilityTags = ["x28v0"];
-  var compatible = function(tagSet) {
-    for (var tag of tagSet) {
-      if (compatibilityTags.indexOf(tag) != -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-  /**
-  affects all the X16SuperInteractor. Depending on how much sense it makes, there could be a function that adds an interactor only to a certain hardware instance.
-  */
-  this.appendModuleInteractor=function(what){
-    // console.log("WAT",what);
-    if(what==undefined){
-      console.log("undefined interactor");
-      incompatibleModules.push(what);
-    }else if(what.type=="interactor"){
-      if(compatible(what.compatibilityTags)){
-        moduleInterfaces.push(what);
-      }else{
-        incompatibleModules.push(what);
-        // console.log(what);
-        //   throw "x16v0 Superinteractor is incompatible with interface",what;
-      }
-    }else{
-      throw "tried to add an object to a SuperInteractor that is not an interactor";
-    }
-  }
-  /** get the list of interactors @return array*/
-  this.getModuleInteractors = function() {
-    return moduleInterfaces;
-  }
-  /**
-   *Tiny pseudo-interactor that is used to choose what module to isntantiate when we press on an empty slot of the "patchboard" (i.e. button that is not lid)
-   */
-  function ModuleCreator(myHardware) {
-    var possibleModules = [];
-    var possibleModulesBitmap = 0;
-    var moduleToCreateOnDisengage = false;
-    var lastMatrixButton = false;
-    this.engaged = false;
-
-    function updatePossibleModulesList() {
-      possibleModules = Object.keys(environment.modulesMan.modulePrototypesList);
-      possibleModulesBitmap = ~(0xffff << possibleModules.length);
-    }
-
-    function updateHardware() {
-      myHardware.sendScreenA("create module");
-      var head = 0;
-      if (lastMatrixButton) head = 1 << lastMatrixButton;
-      myHardware.draw([possibleModulesBitmap | head, 0 | head, possibleModulesBitmap | head]);
-    }
-    this.engage = function() {
-      if (possibleModules.length == 0) updatePossibleModulesList();
-      updateHardware();
-      this.engaged = true;
-    }
-    this.disengage = function() {
-      var ret = false;
-      this.engaged = false;
-      if (moduleToCreateOnDisengage) {
-        var defaultProps = {};
-        environment.modulesMan.addModule(moduleToCreateOnDisengage, defaultProps);
-        ret = moduleInterfaces[moduleInterfaces.length - 1];
-      }
-      return ret;
-    }
-    this.matrixButtonPressed = function(evt) {
-      /*if(evt.data[0]===lastMatrixButton){ deprecated create module on second tap.
-        this.disengage();
-      }else */
-      if (evt.data[0] < possibleModules.length) {
-        lastMatrixButton = evt.data[0];
-        moduleToCreateOnDisengage = possibleModules[evt.data[0]];
-        myHardware.sendScreenA("Release to create");
-        myHardware.sendScreenB("+" + moduleToCreateOnDisengage);
-      } else {
-        moduleToCreateOnDisengage = false;
-        this.disengage();
-      }
-    }
-    this.matrixButtonReleased = function(evt) {}
+var SuperInteractorsSingleton = function(environment) {
+  //function in deprecation
+  this.appendModuleInteractor = function(what) {
+    console.log("deprecated function, new module", what.name);
   }
 
   /**
@@ -113,16 +30,24 @@ var X16SuperInteractorsSingleton = function(environment) {
    * @returns {undefined} no return
    */
   this.SuperInteractor = function(myHardware) {
+
     /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
-    var engagedInterface = false;
 
     var muteMode = false;
     var deleteMode = false;
 
+    var modulesMan=environment.modulesMan;
+
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
     */
-    var selectedInterface = false;
+    var selectedModule = false;
+    var selectedInterface=false;
+    var selectedModuleNumber=false;
+    /**
+    keeps the interface that is currently engaged
+    */
+    var engagedInterface = false;
     var thisInteractor = this;
     /** store what are the modules over which a button was pressed
     this allows to switch to another module and still detect the
@@ -137,7 +62,7 @@ var X16SuperInteractorsSingleton = function(environment) {
     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
-    var myModuleCreator = new ModuleCreator(myHardware);
+    var myModuleCreator = new ModuleCreator(myHardware,environment);
     this.on('interaction', function(event) {
       // console.log("28 int");
       if (engagedInterface) {
@@ -155,12 +80,14 @@ var X16SuperInteractorsSingleton = function(environment) {
         myModuleCreator.matrixButtonPressed(event);
       } else if (!engagedInterface) {
         if (firstPressedMatrixButton === false) {
-          selectedInterface = moduleInterfaces[event.data[0]];
+          selectedModule = tryGetModuleN(event.button);
+          selectedInterface=tryGetInterfaceN(event.button);
+          selectedModuleNumber=(selectedModule?event.button:false);
           firstPressedMatrixButton = event.data[0];
           updateHardware();
         } else {
-          var modulea=tryGetModuleN(firstPressedMatrixButton);
-          var moduleb=tryGetModuleN(event.button);
+          var modulea = tryGetModuleN(firstPressedMatrixButton);
+          var moduleb = tryGetModuleN(event.button);
 
           if (modulea && moduleb) try {
             var connected = modulea.toggleOutput(moduleb);
@@ -174,18 +101,17 @@ var X16SuperInteractorsSingleton = function(environment) {
         }
         if (!selectedInterface) {
           selectedInterface = false;
-          if (event.data[0] == moduleInterfaces.length + incompatibleModules.length) myModuleCreator.engage();
-        }else{
-          if(muteMode){
-            selectedInterface.controlledModule.mute=(false==selectedInterface.controlledModule.mute);
+          if (event.data[0] == modulesMan.modules.length) myModuleCreator.engage();
+        } else {
+          if (muteMode) {
+            selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
 
-          }else if(deleteMode){
-            if(environment.modulesMan.removeModuleN(event.button)){
-              moduleInterfaces.splice(event.button,1);
-              selectedInterface=false;
+          } else if (deleteMode) {
+            if (environment.modulesMan.removeModuleN(event.button)) {
+              modulesMan.modules.splice(event.button, 1);
+              selectedInterface = false;
             }
-          }else{
-          }
+          } else {}
           updateLeds();
         }
       } else {
@@ -239,16 +165,16 @@ var X16SuperInteractorsSingleton = function(environment) {
         } else {
           if (event.button == 6) {
             // deleteMode=!deleteMode;
-            deleteMode=true;
+            deleteMode = true;
             // console.log("DEL",deleteMode);
             // console.log("DEL");
             updateHardware();
           } else if (event.button == 5) {
             // muteMode=!muteMode;
-            muteMode=true;
+            muteMode = true;
             // console.log("DEL");
             updateHardware();
-          } else{
+          } else {
             thisInteractor.engage(event);
           }
         }
@@ -256,19 +182,23 @@ var X16SuperInteractorsSingleton = function(environment) {
     });
     this.on('selectorButtonReleased', function(event) {
       // event.button=event.data[0];
-      if(deleteMode || muteMode){
-        if(event.button==6||event.button==5){
-          deleteMode=false;
-          muteMode=false;
+      if (deleteMode || muteMode) {
+        if (event.button == 6 || event.button == 5) {
+          deleteMode = false;
+          muteMode = false;
         }
-      }else if (selectorButtonOwners[event.data[0]]) {
+      } else if (selectorButtonOwners[event.data[0]]) {
         selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
         delete selectorButtonOwners[event.data[0]];
       } else {
         {
           var newCreated = false;
           if (myModuleCreator.engaged) newCreated = myModuleCreator.disengage();
-          if (newCreated) selectedInterface = newCreated;
+          if (newCreated){
+            selectedInterface = newCreated.interface;
+            selectedModuleNumber=newCreated.number;
+            selectedModule=newCreated.module;
+          };
           if (selectedInterface) {
             engagedInterface = selectedInterface;
             // console.log("engaged",engagedInterface);
@@ -276,8 +206,8 @@ var X16SuperInteractorsSingleton = function(environment) {
           }
         }
 
-        if(!engagedInterface)
-        updateHardware();
+        if (!engagedInterface)
+          updateHardware();
       }
     });
     this.on('encoderPressed', function(event) {
@@ -302,64 +232,70 @@ var X16SuperInteractorsSingleton = function(environment) {
     }
 
     function updateHardware() {
-      if(muteMode){
+      if (muteMode) {
         myHardware.sendScreenA("Mute module");
-      }else if(deleteMode){
+      } else if (deleteMode) {
         myHardware.sendScreenA("Delete module!");
-      }else{
+      } else {
         myHardware.sendScreenA("Select module");
       }
-      myHardware.sendScreenB((selectedInterface ? selectedInterface.name : "none") + "");
+      myHardware.sendScreenB((selectedModule ? selectedModule.name : "none") + "");
       updateLeds();
     }
 
     function updateLeds() {
       var outputsBmp = 0;
-      var mutedBitmap=0;
-      for(let a in moduleInterfaces){
-        let amodule=moduleInterfaces[a];
-        if(amodule.controlledModule.mute) mutedBitmap|=1<<a;
+      var mutedBitmap = 0;
+      //calculate bitmap for muted modules
+      for (let a in modulesMan.modules) {
+        let amodule = modulesMan.modules[a];
+        if (amodule.mute) mutedBitmap |= 1 << a;
       }
-      if (selectedInterface) {
+      if (selectedModule) {
         //displaying the selected module output is rather awkward:
         //for each output of the module that the interface controls
         // console.log(selectedInterface.controlledModule.outputs)
-        for (var siOpts of selectedInterface.controlledModule.outputs) {
+        for (var siOpts of selectedModule.outputs) {
           //we add a bit to the array position of the interactor that iterated output module has
-          outputsBmp |= 1 << moduleInterfaces.indexOf(siOpts.interactor);
+          outputsBmp |= 1 << modulesMan.modules.indexOf(siOpts);
         }
       }
 
-      var creatorBtn = 1 << (moduleInterfaces.length+incompatibleModules.length);
-      var selectable = ~(0xffff << moduleInterfaces.length);
-      var selected = 1 << moduleInterfaces.indexOf(selectedInterface);
-      //selected module is white
-      //outputs of selected modules are red
-      //selectable modules are blue
-      //perhaps I could make inputs green?
-      myHardware.draw([(selected | outputsBmp)^mutedBitmap, (selected | creatorBtn), (selected | (selectable ^ outputsBmp)) | creatorBtn]);
+      var creatorBtn = 1 << (modulesMan.modules.length);
+      var selectable = ~(0xffff << modulesMan.modules.length);
+
+      var selectedBmp = (selectedModule?1 << selectedModuleNumber:0);
+
+      myHardware.draw([
+        (selectedBmp | outputsBmp) ^ mutedBitmap,
+        (selectedBmp | creatorBtn),
+        (selectedBmp | (selectable ^ outputsBmp)) | creatorBtn
+      ]);
     }
 
     function paintSelectButtons() {
       myHardware.drawSelectors([0xf6f, 0xf2f, 0xf8f]);
     }
-    this.disengage = function() {
-      console.log(this);
-      throw "oops superInteractor must never disengage";
-      engagedInterface = 0;
-    }
 
-    function tryGetModuleN(number){
-      var ret=false;
-      if(number>=moduleInterfaces.length){
-        ret=incompatibleModules[number-moduleInterfaces.length];
-        console.log("RRRR",number-moduleInterfaces.length);
-      }else if(moduleInterfaces[number]){
-        ret=moduleInterfaces[number].controlledModule;
+    function tryGetModuleN(number) {
+      if (number < modulesMan.modules.length) {
+        return modulesMan.modules[number];
       }
-      return ret;
+      return false;
+    }
+    function tryGetInterfaceN(number) {
+      if (number < modulesMan.modules.length) {
+        if(modulesMan.modules[number].x28Interface){
+          return modulesMan.modules[number].x28Interface;
+        }else if(modulesMan.modules[number].x16Interface){
+          return modulesMan.modules[number].x16Interface;
+        }else{
+          console.log(modulesMan.modules[number].name," had no x28Interface property nor x16Interface property");
+        }
+      }
+      return false;
     }
   }
 };
 
-module.exports = X16SuperInteractorsSingleton;
+module.exports = SuperInteractorsSingleton;

@@ -39,6 +39,8 @@ module.exports=function(environment){return new (function(){
     this.step={value:0}
     var step=this.step;
     var myInteractor=new interactorSingleton.Instance(this);
+
+    this.x16Interface=myInteractor;
     this.interactor=myInteractor;
     this.interactor.name=this.name;
     var patMem={};

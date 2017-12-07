@@ -171,6 +171,8 @@ module.exports=function(environment){return new (function(){
         return scaleMap[identifier]||0x00;
       }
       var myInteractor=this.interactor=new interactorSingleton.Instance(this);
+
+      this.x16Interface=myInteractor;
       this.interactor.name=this.name;
       defaultState();
   }

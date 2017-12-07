@@ -144,6 +144,8 @@ module.exports=function(environment){return new (function(){
     }
 
     var myInteractor=new interactorSingleton.Instance(this);
+
+    this.x16Interface=myInteractor;
     this.interactor=myInteractor;
     this.interactor.name=this.name;
   }

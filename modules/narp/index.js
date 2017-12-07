@@ -51,6 +51,8 @@ module.exports = function(environment) {
       });
       var myInteractor = new interactorSingleton.Instance(this);
       this.interactor = myInteractor;
+
+      this.x16Interface=myInteractor;
       this.interactor.name = this.name;
       var setStep = this.setStep = function(square) {
         myBitmap |= 1 << square;

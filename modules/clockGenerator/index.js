@@ -24,6 +24,7 @@ module.exports=function(environment){return new (function(){
     name.call(this);
     if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
+    this.x16Interface=myInteractor;
     this.interactor.name=this.name;
     function resetInterval(){
       clearInterval(myInterval);

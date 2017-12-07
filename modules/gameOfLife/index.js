@@ -45,6 +45,9 @@ module.exports=function(environment){return new (function(){
     var baseEventMessage=this.baseEventMessage= new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;
+
+    this.x16Interface=myInteractor;
+    
     this.interactor.name=this.name;
     var cells=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
     var fixedCells=0;

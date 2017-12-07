@@ -49,6 +49,7 @@ module.exports=function(environment){return new (function(){
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
 
+    this.x16Interface=myInteractor;
     var kit= this.kit={};
 
     if(properties.kit){

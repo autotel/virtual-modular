@@ -219,6 +219,8 @@ module.exports=function(environment){return new (function(){
     })();
     var baseEventMessage=this.baseEventMessage= new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
     var myInteractor=new interactorSingleton.Instance(this);
+
+    this.x16Interface=myInteractor;
     this.interactor=myInteractor;
     this.interactor.name=this.name;
     this.memoryOutput=function(eventPattern){

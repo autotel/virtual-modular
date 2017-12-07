@@ -144,6 +144,8 @@ module.exports=function(environment){return new (function(){
     }
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);
     this.interactor.name=this.name;
+
+    this.x16Interface=myInteractor;
     if(midi.input){
       var inputClockCount=0;
       midi.input.setCallback(function(t,midiMessage){
