@@ -64,6 +64,8 @@ var DefCliSuperInteractorSingleton = function(environment) {
       if (engagedInterface) {
         engagedInterface.commandInput(command);
       }else{
+        console.log(command);
+        if(command[">"]=="exit") process.exit();
       }
     }
 
