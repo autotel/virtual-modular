@@ -8,7 +8,7 @@ A superInteractor defines the main context for the interactors of the specific h
 */
 module.exports = {};
 var onHandlers = require("onhandlers");
-var patchingMenu = require("./patchingMenu");
+
 var ModuleCreator = require('./ModuleCreator');
 
 /**
@@ -17,11 +17,6 @@ var ModuleCreator = require('./ModuleCreator');
  * @param {environment} input to pass the environment. Needed to access the modulesMan, for things such as adding modules, jumping to modules, etc.
  */
 var SuperInteractorsSingleton = function(environment) {
-  //function in deprecation
-  this.appendModuleInteractor = function(what) {
-    console.log("deprecated function, new module", what.name);
-  }
-
   /**
    * @constructor
    * Super interactor instance: one per connected ui. hardware

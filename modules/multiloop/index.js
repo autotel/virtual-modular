@@ -120,7 +120,7 @@ module.exports = function(environment) {
       var myInteractor = new interactorSingleton.Instance(this);
       this.interactor = myInteractor;
 
-      this.x16Interface=myInteractor;
+      this.x28Interface=myInteractor;
       this.interactor.name = this.name;
       this.memoryOutput = function(eventMessage) {
         if(self.mute) return;
