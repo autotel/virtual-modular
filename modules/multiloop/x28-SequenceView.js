@@ -2,6 +2,8 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var DataVisualizer=require('./visualizer.js');
+var myColor=[0,127,149];
+
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -123,7 +125,8 @@ module.exports=function(environment,parentInteractor){
   }
   var updateLeds=function(hardware){
     if(momentaryBitmap){
-      hardware.draw([momentaryBitmap,0,0]);
+      // hardware.draw([momentaryBitmap,0,0]);
+      hardware.drawColor(momentaryBitmap,myColor);
     }else{
       var eventsBmp=visualizer.eventsBitmap;
       var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);

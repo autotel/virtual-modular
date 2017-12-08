@@ -214,7 +214,7 @@ class ControllerMode {
             // colR,colG,colB,from,monomaps
               a++;
 
-              uint8_t colorValues [] = {inBuff[a], inBuff[a+1], inBuff[a+2]};
+              uint8_t colorValues [] = {inBuff[a+1], inBuff[a], inBuff[a+2]};
 
               uint8_t startPixel=inBuff[a+3];
               uint32_t writeColorChannels = 0;
@@ -236,7 +236,7 @@ class ControllerMode {
           case RH_addColorMonoMapsToColorFrom_head: {
             // colR,colG,colB,from,monomaps
               a++;
-              uint8_t colorValues [] = {inBuff[a], inBuff[a+1], inBuff[a+2]};
+              uint8_t colorValues [] = {inBuff[a+1], inBuff[a], inBuff[a+2]};
 
               uint8_t startPixel=inBuff[a+3];
               uint32_t writeColorChannels = 0;

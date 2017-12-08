@@ -2,6 +2,7 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 // var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
+var myColor=[0,127,149];
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
   var self=this;

@@ -301,7 +301,7 @@ var DriverX28v0 = function(environment, properties) {
     oparray=oparray.concat([start]);
     oparray=oparray.concat(reform);
 
-    console.log("OPRR",Buffer.from(oparray));
+    // console.log("OPRR",Buffer.from(oparray));
     if (add) {
       sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
     } else {
@@ -395,7 +395,7 @@ var DriverX28v0 = function(environment, properties) {
         event.data[2] = matrixButtonsBitmap;
         event.data[3] = 0;
         // console.log(matrixButtonsBitmap);
-      
+
 
       }
 
