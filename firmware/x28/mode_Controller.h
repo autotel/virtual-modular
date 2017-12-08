@@ -193,6 +193,7 @@ class ControllerMode {
               break;
             }
           case RH_setMatrixMonoMap_head: {
+
               uint16_t writeColorChannels [] = {0, 0, 0};
               writeColorChannels [1] = inBuff[a + 0] | (inBuff[a + 1] << 8);
               writeColorChannels [0] = inBuff[a + 2] | (inBuff[a + 3] << 8);
@@ -208,6 +209,9 @@ class ControllerMode {
                 hardware->setButtonColor(pixel + 8, pxch[0], pxch[1], pxch[2]);
               }
               a += RH_setMatrixMonoMap_len;
+
+
+
               break;
             }
             case RH_setColorMonoMapsToColorFrom_head: {
@@ -234,6 +238,10 @@ class ControllerMode {
               break;
           }
           case RH_addColorMonoMapsToColorFrom_head: {
+            #define DEBUGTIME false
+              #if DEBUGTIME
+              unsigned long started=millis();
+              #endif
             // colR,colG,colB,from,monomaps
               a++;
               uint8_t colorValues [] = {inBuff[a+1], inBuff[a], inBuff[a+2]};
@@ -252,6 +260,12 @@ class ControllerMode {
                 }
               }
               a += len;
+              #if DEBUGTIME
+              unsigned long oplen=millis()-started;
+              char screenTxt [14] = "------------";
+              sprintf(screenTxt, "%lu", oplen);
+              hardware->lcdPrintA((char&)screenTxt, 13);
+              #endif
               break;
           }
           case RH_screenA_head: {

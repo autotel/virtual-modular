@@ -32,6 +32,7 @@ module.exports = function(environment) {
     this.Instance = function(properties) {
       moduleInstanceBase.call(this);
       this.baseName = "multiloop";
+      this.color=[0,127,255];
       testGetName.call(this);
       if (properties.name) this.name = properties.name;
       var noteOffSuperImpose = new EventMessage({

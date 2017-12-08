@@ -39,6 +39,7 @@ module.exports=function(environment){return new (function(){
 
     moduleInstanceBase.call(this);
     this.baseName="game of life";
+    this.color=[0,0,233];
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
 
@@ -47,7 +48,7 @@ module.exports=function(environment){return new (function(){
     this.interactor=myInteractor;
 
     this.x16Interface=myInteractor;
-    
+
     this.interactor.name=this.name;
     var cells=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
     var fixedCells=0;

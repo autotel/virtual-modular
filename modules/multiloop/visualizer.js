@@ -22,7 +22,7 @@ var DataVisualizer=module.exports=function(controlledModule){
   var updateBitmap=this.updateBitmap=function(){
     if(!currentTape) return;
     self.eventsBitmap=0;
-    console.log("UPB");
+    // console.log("UPB");
     memKeys=Object.keys(currentTape.memory);
     for(var memKey of memKeys){
       if(stepsPerButton.value<1){

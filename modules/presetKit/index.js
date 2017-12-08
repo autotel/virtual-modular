@@ -39,6 +39,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="preset kit";
+    this.color=[0,90 ,90];
     var self=this;
     //get my unique name
     name.call(this);
@@ -119,7 +120,7 @@ module.exports=function(environment){return new (function(){
     var recordHead=0;
     this.recordEvent=function(evM){
       self.handle('kit changed');
-      kit[recordHead]=new EventPattern().fromEventMessage(evM);
+      kit[recordHead]=new eventMessage(evM);
       // console.log("rec",kit[recordHead]);
       recordHead++;
       recordHead%=16;

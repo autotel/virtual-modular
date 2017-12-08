@@ -2,12 +2,12 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 // var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
-var myColor=[0,127,149];
+
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
   var self=this;
 
-
+  var myColor=controlledModule.color;
 
   var selectedTapeNumber=0;
   var selectedTape=false;
@@ -201,7 +201,7 @@ module.exports=function(environment,parentInteractor){
   }
   var updateHardware=function(hardware){
 
-      updateScreen(hardware);
+      // updateScreen(hardware);
       updateLeds(hardware);
 
   }
@@ -225,6 +225,10 @@ module.exports=function(environment,parentInteractor){
           excitedTapesBitmap  |selectedTapeBitmap  | mutedTapesBitmap,
           excitedTapesBitmap  |selectedTapeBitmap  |(tapesBitmap   &~mutedTapesBitmap),
         ( selectedTapeBitmap  ^excitedTapesBitmap  | tapesBitmap)  &~mutedTapesBitmap]);
+        // hardware.drawColor(tapesBitmap,myColor,false);
+        // hardware.drawColor(mutedTapesBitmap,[127,126,127]);
+        // hardware.drawColor(selectedTapeBitmap&excitedTapesBitmap,[255,255,255]);
+
     }
   }
 }

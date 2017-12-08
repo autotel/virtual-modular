@@ -31,6 +31,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="harmonizer";
+    this.color=[255,255,127];
     name.call(this);
     if(properties.name) this.name=properties.name;
     /** TODO: this naming convention **/

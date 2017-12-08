@@ -130,6 +130,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
+    this.color=[127,127,127];
     getName.call(this);
     var self=this;
     if(properties.name) this.name=properties.name;

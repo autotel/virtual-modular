@@ -2,7 +2,6 @@
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var DataVisualizer=require('./visualizer.js');
-var myColor=[0,127,149];
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
@@ -21,7 +20,7 @@ module.exports=function(environment,parentInteractor){
   var needUpdateSequence=false;
 
   var momentaryBitmap=false;
-
+  var myColor=controlledModule.color;
   parentInteractor.on('interaction',function(event){
     if (engagedHardwares.has(event.hardware)){
       if(typeof self[event.type]==='function'){
@@ -83,7 +82,7 @@ module.exports=function(environment,parentInteractor){
     }
   }
   this.bottomButtonReleased=function(event){
-    console.log(event);
+    // console.log(event);
     momentaryBitmap=false;
   }
 
@@ -126,7 +125,7 @@ module.exports=function(environment,parentInteractor){
   var updateLeds=function(hardware){
     if(momentaryBitmap){
       // hardware.draw([momentaryBitmap,0,0]);
-      hardware.drawColor(momentaryBitmap,myColor);
+      hardware.drawColor(momentaryBitmap,myColor,false);
     }else{
       var eventsBmp=visualizer.eventsBitmap;
       var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);
@@ -135,7 +134,9 @@ module.exports=function(environment,parentInteractor){
       //   console.log(timeIndex);
       //   eventsBmp|=1<<(timeIndex[0]/2);
       // });
-      hardware.draw([headerBmp,headerBmp|eventsBmp,eventsBmp]);
+      hardware.drawColor(eventsBmp,myColor,false);
+      hardware.drawColor(headerBmp,[255,255,255]);
+
       // hardware.draw([selectedTapeBitmap,selectedTapeBitmap|tapesBitmap,selectedTapeBitmap|tapesBitmap]);
     }
   }

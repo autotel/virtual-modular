@@ -72,22 +72,21 @@ var lazyStack = new(function(properties) {
   this.enq = function(cb) {
     if (stackLimit !== false)
       while (stack.length > stackLimit) {
-        console.warn("removed stack function", stack.pop());
-
+        console.warn("skip stack function", stack.shift());
       };
     stack.push(cb);
-    setImmediate(dequeue);
+    // setImmediate(dequeue);
   }
-  var dequeue = function() {
+  setInterval(function(){
     // console.log("AA");
-    if (stack.length > 0) {
+    while (stack.length > 0) {
       (stack.shift())();
       // stack.splice(0,1);
-      setImmediate(dequeue);
+      // setImmediate(dequeue);
     }
-  };
+  },1);
 })({
-  stackLimit: 10
+  stackLimit: 50
 });
 
 var lastSentBitmap = {
@@ -300,6 +299,8 @@ var DriverX28v0 = function(environment, properties) {
     oparray=oparray.concat(color);
     oparray=oparray.concat([start]);
     oparray=oparray.concat(reform);
+    // if(oparray.length>=7)
+    // console.log(oparray.length);
 
     // console.log("OPRR",Buffer.from(oparray));
     if (add) {

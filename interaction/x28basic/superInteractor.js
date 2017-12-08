@@ -1,7 +1,7 @@
 "use strict";
 var RARROW = String.fromCharCode(199);
 var XMARK = String.fromCharCode(183);
-var panton=require('./panton');
+var panton = require('./panton');
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
@@ -33,14 +33,14 @@ var SuperInteractorsSingleton = function(environment) {
     var muteMode = false;
     var deleteMode = false;
 
-    var modulesMan=environment.modulesMan;
+    var modulesMan = environment.modulesMan;
 
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
     */
     var selectedModule = false;
-    var selectedInterface=false;
-    var selectedModuleNumber=false;
+    var selectedInterface = false;
+    var selectedModuleNumber = false;
     /**
     keeps the interface that is currently engaged
     */
@@ -59,7 +59,7 @@ var SuperInteractorsSingleton = function(environment) {
     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
-    var myModuleCreator = new ModuleCreator(myHardware,environment);
+    var myModuleCreator = new ModuleCreator(myHardware, environment);
     this.on('interaction', function(event) {
       // console.log("28 int");
       if (engagedInterface) {
@@ -78,8 +78,8 @@ var SuperInteractorsSingleton = function(environment) {
       } else if (!engagedInterface) {
         if (firstPressedMatrixButton === false) {
           selectedModule = tryGetModuleN(event.button);
-          selectedInterface=tryGetInterfaceN(event.button);
-          selectedModuleNumber=(selectedModule?event.button:false);
+          selectedInterface = tryGetInterfaceN(event.button);
+          selectedModuleNumber = (selectedModule ? event.button : false);
           firstPressedMatrixButton = event.data[0];
           updateHardware();
         } else {
@@ -191,10 +191,10 @@ var SuperInteractorsSingleton = function(environment) {
         {
           var newCreated = false;
           if (myModuleCreator.engaged) newCreated = myModuleCreator.disengage();
-          if (newCreated){
+          if (newCreated) {
             selectedInterface = newCreated.interface;
-            selectedModuleNumber=newCreated.number;
-            selectedModule=newCreated.module;
+            selectedModuleNumber = newCreated.number;
+            selectedModule = newCreated.module;
           };
           if (selectedInterface) {
             engagedInterface = selectedInterface;
@@ -261,20 +261,47 @@ var SuperInteractorsSingleton = function(environment) {
       var creatorBtn = 1 << (modulesMan.modules.length);
       var selectable = ~(0xffff << modulesMan.modules.length);
 
-      var selectedBmp = (selectedModule?1 << selectedModuleNumber:0);
+      var selectedBmp = (selectedModule ? 1 << selectedModuleNumber : 0);
 
-      myHardware.draw([
-        (selectedBmp | outputsBmp) & ~mutedBmp,
-        (selectedBmp | creatorBtn) & ~mutedBmp,
-        (selectedBmp | (selectable ^ outputsBmp))& ~mutedBmp | creatorBtn
-      ]);
-      myHardware.drawColor(mutedBmp,panton.disabled);
-      // myHardware.drawColor(selectable|selectedBmp,[22,10,125]);//BUG!!
-      if(selectedBmp&mutedBmp){
-        myHardware.drawColor(selectedBmp,panton.mixColors(panton.selected,[0,0,0]));
-      }else{
-        myHardware.drawColor(selectedBmp,panton.selected);
+      // myHardware.draw([
+      //   (selectedBmp | outputsBmp) & ~mutedBmp,
+      //   (selectedBmp | creatorBtn) & ~mutedBmp,
+      //   (selectedBmp | (selectable ^ outputsBmp)) & ~mutedBmp | creatorBtn
+      // ]);
+
+
+      for (let a in modulesMan.modules) {
+        var posBmp=1<<a;
+        var color=[0,0,127];
+        if(selectedModuleNumber==a){
+          color=panton.homogenize(panton.selected,(modulesMan.modules[a].mute?170:255));
+        }else{
+          if (modulesMan.modules[a].color){
+            color=modulesMan.modules[a].color;
+          }
+          // if(selectedModuleNumber==a){
+          //   color=color.map(function(c){return c*2})
+          // }else{
+          //   color=color.map(function(c){return c/2})
+          // }
+          if(modulesMan.modules[a].mute){
+            color=panton.mixColors(panton.disabled,color,0.2);
+            color=panton.homogenize(color,6);
+          }else{
+            color=panton.homogenize(color,127);
+          }
+
+          if(outputsBmp&posBmp){
+            color=panton.mixColors(panton.connected,color,0.2);
+          }
+
+
+        }
+        myHardware.drawColor(posBmp,color);
       }
+      myHardware.drawColor(1<<modulesMan.modules.length,[100,255,255]);
+
+
       // myHardware.drawColor(outputsBmp & mutedBmp,panton.mixColors(panton.disabled,panton.connected));
     }
 
@@ -288,14 +315,15 @@ var SuperInteractorsSingleton = function(environment) {
       }
       return false;
     }
+
     function tryGetInterfaceN(number) {
       if (number < modulesMan.modules.length) {
-        if(modulesMan.modules[number].x28Interface){
+        if (modulesMan.modules[number].x28Interface) {
           return modulesMan.modules[number].x28Interface;
-        }else if(modulesMan.modules[number].x16Interface){
+        } else if (modulesMan.modules[number].x16Interface) {
           return modulesMan.modules[number].x16Interface;
-        }else{
-          console.log(modulesMan.modules[number].name," had no x28Interface property nor x16Interface property");
+        } else {
+          console.log(modulesMan.modules[number].name, " had no x28Interface property nor x16Interface property");
         }
       }
       return false;

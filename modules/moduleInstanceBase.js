@@ -57,7 +57,7 @@ module.exports=function(){
     if((!self.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
       setImmediate(function(){
-          outputs.forEach(function(tModule){
+        outputs.forEach(function(tModule){
           tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
         })
       });

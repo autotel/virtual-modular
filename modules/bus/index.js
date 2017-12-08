@@ -14,6 +14,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="bus";
+    this.color=[110,120,130];
     var self=this;
     name.call(this);
     this.interactor={
