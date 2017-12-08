@@ -79,11 +79,12 @@ var lazyStack = new(function(properties) {
   }
   setInterval(function(){
     // console.log("AA");
-    while (stack.length > 0) {
+    // while (stack.length > 0) {
+    if(stack.length)
       (stack.shift())();
       // stack.splice(0,1);
       // setImmediate(dequeue);
-    }
+    // }
   },1);
 })({
   stackLimit: 50
@@ -264,6 +265,9 @@ var DriverX28v0 = function(environment, properties) {
       array.map(function(a) {
         return a & 0xFF;
       })
+
+      // array.push(0);
+
       var buf1 = Buffer.from(array);
       // console.log("OPB",buf1);
       serial.write(buf1);

@@ -92,8 +92,8 @@ var SuperInteractorsSingleton = function(environment) {
           } catch (e) {
             console.error(e);
             myHardware.sendScreenB("X");
+            updateLeds();
           }
-          updateLeds();
 
         }
         if (!selectedInterface) {
@@ -297,7 +297,7 @@ var SuperInteractorsSingleton = function(environment) {
 
 
         }
-        myHardware.drawColor(posBmp,color);
+        myHardware.drawColor(posBmp,color,a!=0);
       }
       myHardware.drawColor(1<<modulesMan.modules.length,[100,255,255]);
 
