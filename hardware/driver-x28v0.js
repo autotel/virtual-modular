@@ -252,11 +252,50 @@ var DriverX28v0=function(environment,properties){
       // console.log("sent",buf1);
     });
   }
+  var sendArray=function(header,array){
+    lazyStack.enq(function(){
+      if(tLengths[header]!==-1){
+        console.warn("warning: this header is not specified for unknown lengths");
+      }
+      array.unshift(array.length);
+      array.unshift(header);
+      array.map(function(a){
+        return a&0xFF;
+      })
+      var buf1 = Buffer.from(array);
+      console.log(buf1);
+      serial.write(buf1);
+    });
+  }
   this.lastScreenValues=[];
   var sendScreenA=function(str){
     tHardware.lastScreenValues[0]=str;
     sendString(transmits.screenA.head,str.substring(0,16));
   }
+  // var test=0;
+  //
+  // setTimeout(function(){
+  //   setInterval(function(){
+  //     sendArray(transmits.setColorMonoMapsToColorFrom.head,
+  //       [
+  //         (test+1)*16,(test+1)*16,30,
+  //         0,
+  //         1<<test,
+  //         (1<<test)|(1<<(test+1)),(1<<test)|(1<<(test+1)),
+  //         1<<(test)
+  //       ]);
+  //     test++;
+  //     test%=8;
+  //     sendArray(transmits.addColorMonoMapsToColorFrom.head,
+  //       [
+  //         (test+1)*16,(test+1)*16,30,
+  //         0,
+  //         1<<test,
+  //         (1<<test)|(1<<(test+1)),(1<<test)|(1<<(test+1)),
+  //         1<<(test)
+  //       ]);
+  //   },500);
+  // },1000);
   var sendScreenB=function(str){
     tHardware.lastScreenValues[1]=str;
     sendString(transmits.screenB.head,str.substring(0,16));

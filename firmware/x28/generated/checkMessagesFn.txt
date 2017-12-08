@@ -23,34 +23,14 @@ case RH_setMonoMaps_head:
   expectedLength = RH_setMonoMaps_len;
   break;
   
-case RH_addRedMonomap_head:
+case RH_setColorMonoMapsToColorFrom_head:
   recordingBuffer = true;
-  expectedLength = RH_addRedMonomap_len;
+  expectedLength = RH_setColorMonoMapsToColorFrom_len;
   break;
   
-case RH_addGreenMonomap_head:
+case RH_addColorMonoMapsToColorFrom_head:
   recordingBuffer = true;
-  expectedLength = RH_addGreenMonomap_len;
-  break;
-  
-case RH_addBlueMonomap_head:
-  recordingBuffer = true;
-  expectedLength = RH_addBlueMonomap_len;
-  break;
-  
-case RH_setRedMonomap_head:
-  recordingBuffer = true;
-  expectedLength = RH_setRedMonomap_len;
-  break;
-  
-case RH_setGreenMonomap_head:
-  recordingBuffer = true;
-  expectedLength = RH_setGreenMonomap_len;
-  break;
-  
-case RH_setBlueMonomap_head:
-  recordingBuffer = true;
-  expectedLength = RH_setBlueMonomap_len;
+  expectedLength = RH_addColorMonoMapsToColorFrom_len;
   break;
   
 case RH_setMatrixMonoMap_head:
@@ -83,11 +63,6 @@ case RH_comTester_head:
   expectedLength = RH_comTester_len;
   break;
   
-case RH_version_head:
-  recordingBuffer = true;
-  expectedLength = RH_version_len;
-  break;
-  
 case RH_engageControllerMode_head:
   recordingBuffer = true;
   expectedLength = RH_engageControllerMode_len;
@@ -96,6 +71,11 @@ case RH_engageControllerMode_head:
 case RH_disengageControllerMode_head:
   recordingBuffer = true;
   expectedLength = RH_disengageControllerMode_len;
+  break;
+  
+case RH_version_head:
+  recordingBuffer = true;
+  expectedLength = RH_version_len;
   break;
   
    }   }
@@ -129,3 +109,4 @@ case RH_disengageControllerMode_head:
     }
   }
 }
+//----cg. END---

@@ -210,6 +210,51 @@ class ControllerMode {
               a += RH_setMatrixMonoMap_len;
               break;
             }
+            case RH_setColorMonoMapsToColorFrom_head: {
+            // colR,colG,colB,from,monomaps
+              a++;
+
+              uint8_t colorValues [] = {inBuff[a], inBuff[a+1], inBuff[a+2]};
+
+              uint8_t startPixel=inBuff[a+3];
+              uint32_t writeColorChannels = 0;
+
+              for (uint8_t bitnum=4; bitnum<(len-1); bitnum++){
+                uint8_t mm=bitnum-4;
+                writeColorChannels |= (uint32_t) inBuff[a + bitnum] << (mm * 8);//
+              }
+              uint8_t pixelsAmount=(len-3)*8;
+              for (uint32_t readPixel = 0; readPixel < pixelsAmount; readPixel++) {
+                uint8_t pxch =(writeColorChannels>>readPixel)& 1;
+                hardware->setButtonColor(readPixel+startPixel,  pxch*colorValues[0],pxch*colorValues[1],pxch*colorValues[2]);
+              }
+
+
+              a += len;
+              break;
+          }
+          case RH_addColorMonoMapsToColorFrom_head: {
+            // colR,colG,colB,from,monomaps
+              a++;
+
+              uint8_t colorValues [] = {inBuff[a], inBuff[a+1], inBuff[a+2]};
+
+              uint8_t startPixel=inBuff[a+3];
+              uint32_t writeColorChannels = 0;
+
+              for (uint8_t bitnum=4; bitnum<(len-1); bitnum++){
+                uint8_t mm=bitnum-4;
+                writeColorChannels |= (uint32_t) inBuff[a + bitnum] << (mm * 8);//
+              }
+              uint8_t pixelsAmount=(len-3)*8;
+              for (uint32_t readPixel = 0; readPixel < pixelsAmount; readPixel++) {
+                if((writeColorChannels>>readPixel)& 1){
+                  hardware->setButtonColor(readPixel+startPixel,  colorValues[0],colorValues[1],colorValues[2]);
+                }
+              }
+              a += len;
+              break;
+          }
           case RH_screenA_head: {
               a++;
               hardware->lcdPrintA((char&)inBuff[a], len);
@@ -234,12 +279,12 @@ class ControllerMode {
               a++;
               break;
             }
+
           default:
             a++;
           }
       }
     };
-
     //this part of the program is computer generated.
     void checkMessages() {
       while (Serial.available() && (byteNumber < serialInLength)) {
@@ -250,98 +295,77 @@ class ControllerMode {
           //if is successfull, we start gathering or recording a new data packet.
           //byte  is in our header list?
           switch (data_a) {
-            case RH_null_head:
-              recordingBuffer = true;
-              expectedLength = RH_null_len;
-              break;
+    case RH_null_head:
+      recordingBuffer = true;
+      expectedLength = RH_null_len;
+      break;
 
-            case RH_hello_head:
-              recordingBuffer = true;
-              expectedLength = RH_hello_len;
-              break;
+    case RH_hello_head:
+      recordingBuffer = true;
+      expectedLength = RH_hello_len;
+      break;
 
-            case RH_setMonoMaps_head:
-              recordingBuffer = true;
-              expectedLength = RH_setMonoMaps_len;
-              break;
+    case RH_setMonoMaps_head:
+      recordingBuffer = true;
+      expectedLength = RH_setMonoMaps_len;
+      break;
 
-            case RH_addRedMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_addRedMonomap_len;
-              break;
+    case RH_setColorMonoMapsToColorFrom_head:
+      recordingBuffer = true;
+      expectedLength = RH_setColorMonoMapsToColorFrom_len;
+      break;
 
-            case RH_addGreenMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_addGreenMonomap_len;
-              break;
+    case RH_addColorMonoMapsToColorFrom_head:
+      recordingBuffer = true;
+      expectedLength = RH_addColorMonoMapsToColorFrom_len;
+      break;
 
-            case RH_addBlueMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_addBlueMonomap_len;
-              break;
+    case RH_setMatrixMonoMap_head:
+      recordingBuffer = true;
+      expectedLength = RH_setMatrixMonoMap_len;
+      break;
 
-            case RH_setRedMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_setRedMonomap_len;
-              break;
+    case RH_setSelectorMonoMap_head:
+      recordingBuffer = true;
+      expectedLength = RH_setSelectorMonoMap_len;
+      break;
 
-            case RH_setGreenMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_setGreenMonomap_len;
-              break;
+    case RH_setLedN_head:
+      recordingBuffer = true;
+      expectedLength = RH_setLedN_len;
+      break;
 
-            case RH_setBlueMonomap_head:
-              recordingBuffer = true;
-              expectedLength = RH_setBlueMonomap_len;
-              break;
+    case RH_screenA_head:
+      recordingBuffer = true;
+      expectedLength = RH_screenA_len;
+      break;
 
-            case RH_setMatrixMonoMap_head:
-              recordingBuffer = true;
-              expectedLength = RH_setMatrixMonoMap_len;
-              break;
+    case RH_screenB_head:
+      recordingBuffer = true;
+      expectedLength = RH_screenB_len;
+      break;
 
-            case RH_setSelectorMonoMap_head:
-              recordingBuffer = true;
-              expectedLength = RH_setSelectorMonoMap_len;
-              break;
+    case RH_comTester_head:
+      recordingBuffer = true;
+      expectedLength = RH_comTester_len;
+      break;
 
-            case RH_setLedN_head:
-              recordingBuffer = true;
-              expectedLength = RH_setLedN_len;
-              break;
+    case RH_engageControllerMode_head:
+      recordingBuffer = true;
+      expectedLength = RH_engageControllerMode_len;
+      break;
 
-            case RH_screenA_head:
-              recordingBuffer = true;
-              expectedLength = RH_screenA_len;
-              break;
+    case RH_disengageControllerMode_head:
+      recordingBuffer = true;
+      expectedLength = RH_disengageControllerMode_len;
+      break;
 
-            case RH_screenB_head:
-              recordingBuffer = true;
-              expectedLength = RH_screenB_len;
-              break;
+    case RH_version_head:
+      recordingBuffer = true;
+      expectedLength = RH_version_len;
+      break;
 
-            case RH_comTester_head:
-              recordingBuffer = true;
-              expectedLength = RH_comTester_len;
-              break;
-
-            case RH_version_head:
-              recordingBuffer = true;
-              expectedLength = RH_version_len;
-              break;
-
-            case RH_engageControllerMode_head:
-              recordingBuffer = true;
-              expectedLength = RH_engageControllerMode_len;
-              break;
-
-            case RH_disengageControllerMode_head:
-              recordingBuffer = true;
-              expectedLength = RH_disengageControllerMode_len;
-              break;
-
-          }
-        }
+       }   }
         if (recordingBuffer) {
           if (expectedLength == unknown) {
             if (byteNumber == 0) {
@@ -372,5 +396,7 @@ class ControllerMode {
         }
       }
     }
+    //----cg. END---
+
 };
 #endif;
