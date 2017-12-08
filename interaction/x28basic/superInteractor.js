@@ -1,5 +1,7 @@
 "use strict";
-var RARROW = String.fromCharCode(126);
+var RARROW = String.fromCharCode(199);
+var XMARK = String.fromCharCode(183);
+var panton=require('./panton');
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
@@ -86,7 +88,7 @@ var SuperInteractorsSingleton = function(environment) {
 
           if (modulea && moduleb) try {
             var connected = modulea.toggleOutput(moduleb);
-            myHardware.sendScreenB((connected ? RARROW : "X") + moduleb.name);
+            myHardware.sendScreenB((connected ? RARROW : XMARK) + moduleb.name);
           } catch (e) {
             console.error(e);
             myHardware.sendScreenB("X");
@@ -240,11 +242,11 @@ var SuperInteractorsSingleton = function(environment) {
 
     function updateLeds() {
       var outputsBmp = 0;
-      var mutedBitmap = 0;
+      var mutedBmp = 0;
       //calculate bitmap for muted modules
       for (let a in modulesMan.modules) {
         let amodule = modulesMan.modules[a];
-        if (amodule.mute) mutedBitmap |= 1 << a;
+        if (amodule.mute) mutedBmp |= 1 << a;
       }
       if (selectedModule) {
         //displaying the selected module output is rather awkward:
@@ -262,10 +264,18 @@ var SuperInteractorsSingleton = function(environment) {
       var selectedBmp = (selectedModule?1 << selectedModuleNumber:0);
 
       myHardware.draw([
-        (selectedBmp | outputsBmp) ^ mutedBitmap,
-        (selectedBmp | creatorBtn),
-        (selectedBmp | (selectable ^ outputsBmp)) | creatorBtn
+        (selectedBmp | outputsBmp) & ~mutedBmp,
+        (selectedBmp | creatorBtn) & ~mutedBmp,
+        (selectedBmp | (selectable ^ outputsBmp))& ~mutedBmp | creatorBtn
       ]);
+      myHardware.drawColor(mutedBmp,panton.disabled);
+      // myHardware.drawColor(selectable|selectedBmp,[22,10,125]);//BUG!!
+      if(selectedBmp&mutedBmp){
+        myHardware.drawColor(selectedBmp,panton.mixColors(panton.selected,[0,0,0]));
+      }else{
+        myHardware.drawColor(selectedBmp,panton.selected);
+      }
+      // myHardware.drawColor(outputsBmp & mutedBmp,panton.mixColors(panton.disabled,panton.connected));
     }
 
     function paintSelectButtons() {
