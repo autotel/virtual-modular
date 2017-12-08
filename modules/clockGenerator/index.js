@@ -17,7 +17,7 @@ module.exports=function(environment){return new (function(){
     var myInterval=false;
     var myEventMessage=new EventMessage({value:[CLOCKTICKHEADER,12/*ck per step*/,0/* step number*/]});
     moduleInstanceBase.call(this);
-    var cpm=this.cpm={value:120*16,updated:120*16};
+    var cpm=this.cpm={value:60*16,updated:60*16};
     var step=this.step={value:0,microSteps:12}
     if(properties.cpm)this.cpm.value=properties.cpm;
     this.baseName="clockGenerator";

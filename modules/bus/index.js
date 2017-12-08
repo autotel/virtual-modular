@@ -20,6 +20,11 @@ module.exports=function(environment){return new (function(){
       type:"interactor",
       compatibilityTags:[]
     }
+
+    this.eventReceived=function(evt){
+      this.output(evt.eventMessage);
+    }
+
     if(properties.name) this.name=properties.name
     environment.on('module created',function(evt){
       var module=evt.module;

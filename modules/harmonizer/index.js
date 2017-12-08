@@ -152,7 +152,7 @@ module.exports=function(environment){return new (function(){
           }else if(eventMessage.value[0]==1){
             self.triggerOn(eventMessage.value[2],eventMessage);
           }else{
-            console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
+            // console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
           }
         }
     }
