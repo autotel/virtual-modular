@@ -40,6 +40,7 @@ var SuperInteractorsSingleton = function(environment) {
     */
     var selectedModule = false;
     var selectedInterface = false;
+    var engageOnRelease = false;
     var selectedModuleNumber = false;
     /**
     keeps the interface that is currently engaged
@@ -56,6 +57,7 @@ var SuperInteractorsSingleton = function(environment) {
     */
     var matrixButtonOwners = {};
     var selectorButtonOwners = {};
+
     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
@@ -80,6 +82,7 @@ var SuperInteractorsSingleton = function(environment) {
           selectedModule = tryGetModuleN(event.button);
           selectedInterface = tryGetInterfaceN(event.button);
           selectedModuleNumber = (selectedModule ? event.button : false);
+          engageOnRelease=true;
           firstPressedMatrixButton = event.data[0];
           updateHardware();
         } else {
@@ -153,6 +156,7 @@ var SuperInteractorsSingleton = function(environment) {
         if (engagedInterface) {
           engagedInterface.disengage(event);
           thisInteractor.engage();
+          engageOnRelease=false;
         }
       } else {
         //  event.button=event.data[0];
@@ -197,11 +201,12 @@ var SuperInteractorsSingleton = function(environment) {
             selectedModuleNumber = newCreated.number;
             selectedModule = newCreated.module;
           };
-          if (selectedInterface) {
+          if (selectedInterface&&engageOnRelease) {
             engagedInterface = selectedInterface;
             // console.log("engaged",engagedInterface);
             selectedInterface.engage(event);
           }
+          engageOnRelease=true;
         }
 
         if (!engagedInterface)
