@@ -381,7 +381,75 @@ var DriverX28v0 = function(environment, properties) {
     }
   });
   var matrixButtonsBitmap = 0;
+
+  /*object that evaluates buttons whose time pressed overlap, forming a button chain*/
+  var chainedButtons=new(function(){
+    var compChain=[];
+    var chain=this.chain=[];
+    this.eval=function(evt){
+      if(evt.type){
+        if(evt.type.indexOf("Press")!==-1){
+          if(pressed(evt)) evt.chain=this.chain;
+        }
+        if(evt.type.indexOf("Release")!==-1){
+          if(released(evt)) evt.chain=this.chain;
+        }
+        // console.log(evt);
+      }
+    }
+    function pressed(event){
+      let cpev=comp(event);
+      // console.log(cpev);
+      if(cpev) chainadd(cpev,event);
+      return(cpev);
+    }
+    function released(event,identifier){
+      let cpev=comp(event);
+      // console.log(cpev);
+      if(cpev) chainrmv(cpev);
+      return(cpev);
+    }
+    //compress data into a comparable string
+    function comp(evt){
+      var ret=false;
+      if(evt.type.indexOf("selectorButton")!==-1){
+        var ret=[(0x1<<8)|(evt.data[0])];
+      }
+      if(evt.type.indexOf("matrixButton")!==-1){
+        var ret=[(0x2<<8)|(evt.data[0])];
+      }
+      if(evt.type.indexOf("bottomButton")!==-1){
+        var ret=[(0x3<<8)|(evt.data[0])];
+      }
+      // if(evt.type.match(/encoder(Pressed|Released)/).length){
+      //   var ret=[(0x4<<8)|(evt.data[0])];
+      // }
+      return ret;
+    }
+
+    function chainadd(cp,evt){
+      compChain.push(cp);
+      chain.push(evt);
+      // console.log("CHAIN",compChain.length);
+      // console.log("    +",chain.length);
+    }
+    function chainrmv(cp,evt){
+      var iof=(compChain.includes(cp));
+      // console.log("IOF",iof,cp);
+      if(iof>=0){
+        compChain.splice(iof,1);
+        chain.splice(iof,1);
+      }else{
+        console.error("released a button that was never pressed?",evt.type);
+      }
+      // console.log("CHAIN",compChain.length);
+      // console.log("    +",chain.length);
+    }
+    return this;
+  })();
+  /* when an event is received from the hardware device*/
   dataChopper.wholePacketReady = function(chd) {
+
     // console.log("------------packet",chd);
     // console.log(data);
     if (chd && chd[0] !== receives.null.head) {
@@ -393,18 +461,12 @@ var DriverX28v0 = function(environment, properties) {
         hardware: tHardware
       }
       event.data = Array.from(event.data);
-      // if(event.type=="matrixButtonVelocity"){
-      //   event.data[1]=event.data[1]|(event.data[2]<<8);
-      // }
-
       if (event.type == "matrixButtonPressed") {
         // console.log("rr");
         matrixButtonsBitmap |= 1 << event.data[0];
         event.data[2] = matrixButtonsBitmap;
         event.data[3] = 0;
         // console.log(matrixButtonsBitmap);
-
-
       }
 
       if (event.type == "matrixButtonReleased") {
@@ -416,6 +478,7 @@ var DriverX28v0 = function(environment, properties) {
       if ((/button/i).test(event.type)) {
         event.button = event.data[0];
         // console.log("buttton",event.type);
+        chainedButtons.eval(event);
       }
       // console.log("recv",chd);
       // console.log("Iinteraction",event);
