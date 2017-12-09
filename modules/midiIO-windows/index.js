@@ -132,6 +132,7 @@ module.exports=function(environment){return new (function(){
     this.baseName=(properties.name?properties.name:"Midi");
     this.color=[127,127,127];
     getName.call(this);
+    var hangingNotes={};
     var self=this;
     if(properties.name) this.name=properties.name;
     var midi=properties.midiPort;
@@ -216,8 +217,28 @@ module.exports=function(environment){return new (function(){
     midi.out=function(a,b,c){
       if(midi.output){
         midi.output.MidiOut(a,b,c);
+        var isOn=(a&0xf0)==0x90;
+        var isOff=(a&0xf0)==0x80;
+        isOff|=isOn&&(c==0);
+        if(isOn){
+          var chan=a&0x0f;
+          hangingNotes[[a,b]]=[a,b,c];
+        }
+        if(isOff){
+          // console.log("DEL hangingNotes");
+          delete hangingNotes [[a,b]];
+        }
+        // console.log("hanging notes"+self.name+":"+Object.keys(hangingNotes).length);
       }
     };
+
+    this.choke=function(){
+      // console.log("choke "+Object.keys(hangingNotes).length+" hanging notes");
+      for(var a in hangingNotes){
+        let h=hangingNotes[a];
+        midi.out((h[0]&0x0f)|0x80,h[1],h[2]);
+      }
+    }
     //todo: rename midi input listener to midi.in();
     //console.log(midi);
 

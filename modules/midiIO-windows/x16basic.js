@@ -17,7 +17,7 @@ module.exports=function(environment){
     environment.interactionMan.interfaces.x16basic.interactorBase.call(this,controlledModule);
     var engagedHardwares=new Set();
     this.name=controlledModule.name;
-
+    var chokeMode=false;
     var midiInputCache=controlledModule.midiInputCache;
     //updated on updateLeds
     var indexedMidiInputCache=[];
@@ -54,11 +54,19 @@ module.exports=function(environment){
         inputMode=false;
         updateHardware(event.hardware);
       }
+      if(event.button==1){
+        chokeMode=true;
+        controlledModule.choke();
+      }
     };
     this.selectorButtonReleased=function(event){
       if(event.button==2){
         inputMode=true;
         updateHardware(event.hardware);
+      }
+      if(event.button==1){
+        chokeMode=false;
+
       }
     };
     this.encoderScrolled=function(event){};
@@ -77,7 +85,11 @@ module.exports=function(environment){
     }
     var updateScreen=function(hardware){
       hardware.sendScreenA("Midi IO");
-      if(inputMode){
+      if(chokeMode){
+        hardware.sendScreenA("Choke");
+      }else if(inputMode){
+        hardware.sendScreenA("Inputs");
+
           // hardware.sendScreenB(JSON.stringify(event.eventMessage.value));
           // try{
             if(selectedInputNumber!==false){
@@ -90,6 +102,8 @@ module.exports=function(environment){
             // console.log("no",selectedInputNumber,indexedMidiInputCache);
           // }
       }else{
+        hardware.sendScreenA("Outputs");
+
         if(controlledModule.outputs.size<=selectedOutputNumber) selectedOutputNumber=false;
         if(selectedOutputNumber!==false){
           hardware.sendScreenB(Array.from(controlledModule.outputs)[selectedOutputNumber].name);
