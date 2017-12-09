@@ -1,179 +1,201 @@
 "use strict";
-var EventMessage=require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../datatypes/EventMessage.js');
 // var EventConfigurator=require('../x16utils/EventConfigurator.js');
-var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
+var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 
-module.exports=function(environment,parentInteractor){
-  var controlledModule=parentInteractor.controlledModule;
-  var self=this;
+module.exports = function(environment, parentInteractor) {
+  var controlledModule = parentInteractor.controlledModule;
+  var self = this;
 
-  var myColor=controlledModule.color;
+  var myColor = controlledModule.color;
 
-  var selectedTapeNumber=0;
-  var selectedTape=false;
-  var tapesAmount=1;
-  var engagedConfigurator=false;
+  var selectedTapeNumber = 0;
+  var selectedTape = false;
+  var tapesAmount = 1;
+  var engagedConfigurator = false;
 
-  var engagedHardwares=this.engagedHardwares=new Set();
+  var muteMode = false;
+
+  var engagedHardwares = this.engagedHardwares = new Set();
 
 
 
-  var configurators={};
+  var configurators = {};
   // configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
-  configurators.tapeTime=new BlankConfigurator(this,{
-    name:"tape",
-    vars:{
-      "length":{value:0},
-      "fold":{value:1,factor:2,opDisp:" "},
-      "fold!":{value:1,factor:2,opDisp:" "},
-      "quantize":{value:0},
-      "clear!":{value:0}
+  configurators.tapeTime = new BlankConfigurator(this, {
+    name: "tape",
+    vars: {
+      "length": {
+        value: 0
+      },
+      "fold": {
+        value: 1,
+        factor: 2,
+        opDisp: " "
+      },
+      "fold!": {
+        value: 1,
+        factor: 2,
+        opDisp: " "
+      },
+      "quantize": {
+        value: 0
+      },
+      "clear!": {
+        value: 0
+      }
     }
   });
 
-  configurators.tapeTime.vars["length"].changeFunction=configurators.tapeTime.vars["length"].selectFunction = function(thisVar,delta){
-    if(selectedTape){
-      thisVar.value=selectedTape.steps.value;
-      if(thisVar.value+delta>=1){
-        thisVar.value+=delta;
-        selectedTape.steps.value=thisVar.value;
-        selectedTape.refreshNewTapeLengthFromRecording=true;
+  configurators.tapeTime.vars["length"].changeFunction = configurators.tapeTime.vars["length"].selectFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value = selectedTape.steps.value;
+      if (thisVar.value + delta >= 1) {
+        thisVar.value += delta;
+        selectedTape.steps.value = thisVar.value;
+        selectedTape.refreshNewTapeLengthFromRecording = true;
       }
     }
   }
-  configurators.tapeTime.vars["fold!"].changeFunction=function(thisVar,delta){
-    if(selectedTape){
-      thisVar.value=selectedTape.steps.value;
-      if(delta>0){
-        thisVar.value=thisVar.factor;
-        thisVar.opDisp="*";
-      }else{
-        thisVar.value=1/thisVar.factor;
-        thisVar.opDisp="/";
+  configurators.tapeTime.vars["fold!"].changeFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value = selectedTape.steps.value;
+      if (delta > 0) {
+        thisVar.value = thisVar.factor;
+        thisVar.opDisp = "*";
+      } else {
+        thisVar.value = 1 / thisVar.factor;
+        thisVar.opDisp = "/";
       }
-      selectedTape.fold(thisVar.value,true);
+      selectedTape.fold(thisVar.value, true);
     }
   }
-  configurators.tapeTime.vars["fold!"].nameFunction=function(thisVar){
-    return "l"+thisVar.opDisp+thisVar.factor+"="+selectedTape.steps.value;
+  configurators.tapeTime.vars["fold!"].nameFunction = function(thisVar) {
+    return "l" + thisVar.opDisp + thisVar.factor + "=" + selectedTape.steps.value;
   }
-  configurators.tapeTime.vars["fold"].changeFunction=function(thisVar,delta){
-    if(selectedTape){
-      thisVar.value=selectedTape.steps.value;
-      if(delta>0){
-        thisVar.value=thisVar.factor;
-        thisVar.opDisp="*";
-      }else{
-        thisVar.value=1/thisVar.factor;
-        thisVar.opDisp="/";
+  configurators.tapeTime.vars["fold"].changeFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value = selectedTape.steps.value;
+      if (delta > 0) {
+        thisVar.value = thisVar.factor;
+        thisVar.opDisp = "*";
+      } else {
+        thisVar.value = 1 / thisVar.factor;
+        thisVar.opDisp = "/";
       }
-      selectedTape.fold(thisVar.value,false);
+      selectedTape.fold(thisVar.value, false);
     }
   }
-  configurators.tapeTime.vars["fold"].nameFunction=function(thisVar){
-    return "l"+thisVar.opDisp+thisVar.factor+"="+selectedTape.steps.value;
+  configurators.tapeTime.vars["fold"].nameFunction = function(thisVar) {
+    return "l" + thisVar.opDisp + thisVar.factor + "=" + selectedTape.steps.value;
   }
-  configurators.tapeTime.vars["clear!"].changeFunction=function(thisVar,delta){
-    if(selectedTape){
-      thisVar.value+=Math.abs(delta);
-      thisVar.value%=2;
+  configurators.tapeTime.vars["clear!"].changeFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value += Math.abs(delta);
+      thisVar.value %= 2;
     }
   }
-  configurators.tapeTime.vars["clear!"].selectFunction=function(thisVar){
-    thisVar.value=0;
+  configurators.tapeTime.vars["clear!"].selectFunction = function(thisVar) {
+    thisVar.value = 0;
   }
-  configurators.tapeTime.vars["clear!"].disengageFunction=function(thisVar){
-    if(thisVar.value==1){
-      if(selectedTape)
-      controlledModule.clearTape(selectedTape);
+  configurators.tapeTime.vars["clear!"].disengageFunction = function(thisVar) {
+    if (thisVar.value == 1) {
+      if (selectedTape)
+        controlledModule.clearTape(selectedTape);
     }
   }
-  configurators.tapeTime.vars["clear!"].nameFunction=function(thisVar){
-    return (thisVar.value?"Clear on release":"cancel");
+  configurators.tapeTime.vars["clear!"].nameFunction = function(thisVar) {
+    return (thisVar.value ? "Clear on release" : "cancel");
   }
-  var lastEngagedConfigurator=configurators.tapeTime;
+  var lastEngagedConfigurator = configurators.tapeTime;
 
-  function eachEngagedHardware(cb){
-    for(let hardware of engagedHardwares){
+  function eachEngagedHardware(cb) {
+    for (let hardware of engagedHardwares) {
       cb(hardware);
     }
   }
 
-  parentInteractor.on('interaction',function(event){
-    if (engagedHardwares.has(event.hardware)){
-      if(typeof self[event.type]==='function'){
+  parentInteractor.on('interaction', function(event) {
+    if (engagedHardwares.has(event.hardware)) {
+      if (typeof self[event.type] === 'function') {
         // console.log("sequence view, event ",event);
         self[event.type](event);
-      }else{
-        console.log("unhandled interaction",event);
+      } else {
+        console.log("unhandled interaction", event);
       }
     }
   });
 
-  setInterval(function(){
-    if(!engagedConfigurator)
-    for (let hardware of engagedHardwares) {
-      updateLeds(hardware);
-    }
-  },1000/50);
-  this.matrixButtonPressed=function(event){
-    if(engagedConfigurator){
+  setInterval(function() {
+    if (!engagedConfigurator)
+      for (let hardware of engagedHardwares) {
+        updateLeds(hardware);
+      }
+  }, 1000 / 50);
+  this.matrixButtonPressed = function(event) {
+    if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
-    }else{
-      if(event.button>=tapesAmount){
-        var newTape=controlledModule.addNewTape();
+    } else {
+      if (event.button >= tapesAmount) {
+        var newTape = controlledModule.addNewTape();
         controlledModule.selectTape(newTape);
-        selectedTape=newTape;
-        selectedTapeNumber=controlledModule.getTapeNum(newTape);
-        tapesAmount=controlledModule.tapeCount();
-      }else{
-        let thereIs=controlledModule.getNumTape(event.button);
+        selectedTape = newTape;
+        selectedTapeNumber = controlledModule.getTapeNum(newTape);
+        tapesAmount = controlledModule.tapeCount();
+      } else {
+        let thereIs = controlledModule.getNumTape(event.button);
         // console.log(thereIs);
-        if(thereIs){
+        if (thereIs) {
           controlledModule.selectTape(thereIs);
-          selectedTapeNumber=event.button;
-          selectedTape=thereIs;
+          selectedTapeNumber = event.button;
+          selectedTape = thereIs;
         }
+      }
+      if (muteMode && selectedTape) {
+        controlledModule.muteTapeToggle(selectedTape);
       }
       updateHardware(event.hardware);
     }
   };
-  this.matrixButtonReleased=function(event){
-    if(engagedConfigurator){
+  this.matrixButtonReleased = function(event) {
+    if (engagedConfigurator) {
       engagedConfigurator.matrixButtonReleased(event);
-    }else{
+    } else {
       // controlledModule.clearStep(event.button);
       updateHardware(event.hardware);
     }
   };
-  this.matrixButtonHold=function(event){};
-  this.selectorButtonPressed=function(event){
-    var hardware=event.hardware;
-    if(engagedConfigurator){
+  this.matrixButtonHold = function(event) {};
+  this.selectorButtonPressed = function(event) {
+    var hardware = event.hardware;
+    if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
-    }else{
-      if(event.button==0){
-        if(selectedTape){
-          controlledModule.muteTapeToggle(selectedTape);
-          updateHardware(hardware);
-        }
+    } else {
+      if (event.button == 1) {
+        muteMode = true;
+        eachEngagedHardware(updateScreen);
       }
-      if(event.button==1){
-        if(selectedTape){
-          engagedConfigurator=configurators.tapeTime;
+      if (event.button == 2) {
+        if (selectedTape) {
+          engagedConfigurator = configurators.tapeTime;
           configurators.tapeTime.engage(event);
+          eachEngagedHardware(updateScreen);
+
         }
       }
-      lastEngagedConfigurator=engagedConfigurator;
+      lastEngagedConfigurator = engagedConfigurator;
     }
   };
-  this.selectorButtonReleased=function(event){
-    var hardware=event.hardware;
-    if(engagedConfigurator){
+  this.selectorButtonReleased = function(event) {
+    var hardware = event.hardware;
+    if (engagedConfigurator) {
       engagedConfigurator.disengage(event);
-      engagedConfigurator=false;
+      engagedConfigurator = false;
     }
-
+    if (event.button == 1) {
+      muteMode = false;
+      eachEngagedHardware(updateScreen);
+    }
     // if(event.button==5){
     //   if(engagedConfigurator==configurators.tapeTime){
     //     engagedConfigurator=false;
@@ -181,53 +203,55 @@ module.exports=function(environment,parentInteractor){
     //   }
     // }
   };
-  this.encoderScrolled=function(event){
-    if(engagedConfigurator){
+  this.encoderScrolled = function(event) {
+    if (engagedConfigurator) {
       engagedConfigurator.encoderScrolled(event);
-    }else{
-      if(lastEngagedConfigurator){
+    } else {
+      if (lastEngagedConfigurator) {
         lastEngagedConfigurator.encoderScrolled(event)
       }
     }
   };
-  this.encoderPressed=function(event){};
-  this.encoderReleased=function(event){};
-  this.engage=function(event){
+  this.encoderPressed = function(event) {};
+  this.encoderReleased = function(event) {};
+  this.engage = function(event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
   };
-  this.disengage=function(event){
+  this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
   }
-  var updateHardware=function(hardware){
+  var updateHardware = function(hardware) {
 
-      // updateScreen(hardware);
-      updateLeds(hardware);
+    updateScreen(hardware);
+    updateLeds(hardware);
 
   }
-  var updateScreen=function(hardware){
-    if(!engagedConfigurator){
-      hardware.sendScreenA((controlledModule.name.substring(0,5))+"> arrange");
-      hardware.sendScreenB("tape "+selectedTapeNumber+" "+(selectedTape?(selectedTape.muted.value?"muted":"active"):""));
+  var updateScreen = function(hardware) {
+    if (!engagedConfigurator) {
+
+      hardware.sendScreenA((controlledModule.name.substring(0, 5)) + ">" + (muteMode ? "mute" : "arrange"));
+      hardware.sendScreenB("tape " + selectedTapeNumber + " " + (selectedTape ? (selectedTape.muted.value ? "muted" : "active") : ""));
     }
   }
-  var updateLeds=function(hardware){
-    if(!engagedConfigurator){
-      var selectedTapeBitmap=1<<selectedTapeNumber;
-      var mutedTapesBitmap=0;
-      var excitedTapesBitmap=0;
-      controlledModule.eachTape(function(n){
-        if(this.muted.value) mutedTapesBitmap|=1<<n;
-        if(this.excited>0) excitedTapesBitmap|=1<<n;
+  var updateLeds = function(hardware) {
+    if (!engagedConfigurator) {
+      var selectedTapeBitmap = 1 << selectedTapeNumber;
+      var mutedTapesBitmap = 0;
+      var excitedTapesBitmap = 0;
+      controlledModule.eachTape(function(n) {
+        if (this.muted.value) mutedTapesBitmap |= 1 << n;
+        if (this.excited > 0) excitedTapesBitmap |= 1 << n;
       });
-      var tapesBitmap=~(0xffff<<tapesAmount);
+      var tapesBitmap = ~(0xffff << tapesAmount);
       hardware.draw([
           excitedTapesBitmap  |selectedTapeBitmap  | mutedTapesBitmap,
           excitedTapesBitmap  |selectedTapeBitmap  |(tapesBitmap   &~mutedTapesBitmap),
         ( selectedTapeBitmap  ^excitedTapesBitmap  | tapesBitmap)  &~mutedTapesBitmap]);
-        // hardware.drawColor(tapesBitmap,myColor,false);
-        // hardware.drawColor(mutedTapesBitmap,[127,126,127]);
-        // hardware.drawColor(selectedTapeBitmap&excitedTapesBitmap,[255,255,255]);
+      // hardware.clear();
+      // hardware.drawColor(tapesBitmap&0xffff, myColor);
+      // hardware.drawColor(mutedTapesBitmap&0xffff, [127, 126, 127]);
+      // hardware.drawColor(selectedTapeBitmap & excitedTapesBitmap&0xffff, [255, 255, 255]);
 
     }
   }
