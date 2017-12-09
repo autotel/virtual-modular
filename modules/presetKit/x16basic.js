@@ -240,6 +240,9 @@ module.exports=function(environment){
 
       updateHardware(event.hardware);
     };
+    this.outsideScroll=function(event){
+      
+    }
     this.encoderPressed=function(event){
       if(engagedConfigurator){
         engagedConfigurator.encoderPressed(event);

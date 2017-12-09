@@ -224,7 +224,11 @@ var SuperInteractorsSingleton = function(environment) {
       }
     });
     this.on('encoderScrolled', function(event) {
-      if (!engagedInterface) {} else {
+      if (!engagedInterface) {
+        if(selectedInterface){
+          selectedInterface.outsideScroll(event);
+        }
+      } else {
         engagedInterface.encoderScrolled(event);
       }
     });

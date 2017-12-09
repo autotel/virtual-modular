@@ -19,5 +19,6 @@ var x16InteractorBase=function(controlledModule){
   this.encoderReleased=function(event){};
   this.engage=function(event){};
   this.disengage=function(event){}
+  this.outsideScroll=function(event){};
 }
 module.exports=x16InteractorBase;
