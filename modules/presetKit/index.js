@@ -120,7 +120,7 @@ module.exports=function(environment){return new (function(){
     var recordHead=0;
     this.recordEvent=function(evM){
       self.handle('kit changed');
-      kit[recordHead]=new eventMessage(evM);
+      kit[recordHead]=new EventMessage(evM);
       // console.log("rec",kit[recordHead]);
       recordHead++;
       recordHead%=16;

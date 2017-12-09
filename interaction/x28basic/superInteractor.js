@@ -160,13 +160,13 @@ var SuperInteractorsSingleton = function(environment) {
           engagedInterface.selectorButtonPressed(event);
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
-          if (event.button == 6) {
+          if (event.button == 2) {
             // deleteMode=!deleteMode;
             deleteMode = true;
             // console.log("DEL",deleteMode);
             // console.log("DEL");
             updateHardware();
-          } else if (event.button == 5) {
+          } else if (event.button == 1) {
             // muteMode=!muteMode;
             muteMode = true;
             // console.log("DEL");
@@ -180,10 +180,11 @@ var SuperInteractorsSingleton = function(environment) {
     this.on('selectorButtonReleased', function(event) {
       // event.button=event.data[0];
       if (deleteMode || muteMode) {
-        if (event.button == 6 || event.button == 5) {
+        if (event.button == 2 || event.button == 1) {
           deleteMode = false;
           muteMode = false;
         }
+        updateHardware();
       } else if (selectorButtonOwners[event.data[0]]) {
         selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
         delete selectorButtonOwners[event.data[0]];
@@ -268,7 +269,7 @@ var SuperInteractorsSingleton = function(environment) {
       //   (selectedBmp | creatorBtn) & ~mutedBmp,
       //   (selectedBmp | (selectable ^ outputsBmp)) & ~mutedBmp | creatorBtn
       // ]);
-
+      myHardware.clear();
 
       for (let a in modulesMan.modules) {
         var posBmp=1<<a;
@@ -297,7 +298,7 @@ var SuperInteractorsSingleton = function(environment) {
 
 
         }
-        myHardware.drawColor(posBmp,color,a!=0);
+        myHardware.drawColor(posBmp,color);
       }
       myHardware.drawColor(1<<modulesMan.modules.length,[100,255,255]);
 
@@ -306,7 +307,7 @@ var SuperInteractorsSingleton = function(environment) {
     }
 
     function paintSelectButtons() {
-      myHardware.drawSelectors([0xf6f, 0xf2f, 0xf8f]);
+      myHardware.drawSelectors([0xff6, 0xff2, 0xff8]);
     }
 
     function tryGetModuleN(number) {

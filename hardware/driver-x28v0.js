@@ -316,6 +316,9 @@ var DriverX28v0 = function(environment, properties) {
   var drawColor = this.drawColor = function(bitmap, color = [255, 0, 0],add = true) {
     setLedsToColor(bitmap,color,8,add);
   }
+  var clear=this.clear=function(){
+    tHardware.draw([0,0,0]);
+  }
   // this.drawLayers = function(layers){
   //   var resultLayer={bitmap:0,color:[0,0,0]}
   //   var n=0;
