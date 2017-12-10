@@ -3,6 +3,7 @@ var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
 var RecordMenu=require('../x16utils/RecordMenu.js');
+var SQUARE=String.fromCharCode(252);
 /**
 definition of a presetkit interactor for the x16basic controller hardware
 */
@@ -135,7 +136,13 @@ module.exports=function(environment){
     // });
     var availablePresetsBitmap=0;
     var highlightedBitmap=0;
-    var selectedPresetNumber=false;
+    var selectedPresetNumbers=[];
+    function eachSelectedPresetNumber(cb){
+      selectedPresetNumbers.map(cb);
+    }
+    function lastSelectedPresetNumber=function(cb){
+      cb(selectedPresetNumbers[selectedPresetNumbers.length-1],selectedPresetNumbers.length-1);
+    }
     controlledModule.on('extrigger',function(event){
       highlightedBitmap|=1<<event.preset;
       setTimeout(function(){
@@ -162,22 +169,20 @@ module.exports=function(environment){
           // engagedConfigurator.matrixButtonPressed(event);
         }
       }else{
-        selectedPresetNumber=event.button;
-        /*velocity
-        if(eventsVelocity.size){
-          eventsVelocity.forEach(function(el){
-            // console.log(el);
-            if(el.button==event.data[0]){
-              controlledModule.uiTriggerOn(selectedPresetNumber,el.value);
-            }
-          });
-        }else{*/
-        controlledModule.uiTriggerOn(selectedPresetNumber);
+
+        if(event.tied){
+          selectedPresetNumbers.push(event.button);
+        }else{
+          selectedPresetNumbers=[event.button];
+        }
+        controlledModule.uiTriggerOn(event.button);
 
         if(controlledModule.kit[event.button])
         if(lastEngagedConfigurator==configurators.event){
           // configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;
-          configurators.event.setFromEventMessage(controlledModule.kit[selectedPresetNumber],hardware);
+          lastSelectedPresetNumber(function(num){
+            configurators.event.setFromEventMessage(controlledModule.kit[num],hardware);
+          }
         }
         updateHardware(hardware);
       }
@@ -232,14 +237,48 @@ module.exports=function(environment){
         if(lastEngagedConfigurator){
           lastEngagedConfigurator.encoderScrolled(event);
           if(lastEngagedConfigurator==configurators.event){
-            controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
+            eachSelectedPresetNumber(function(selectedPresetNumber){
+              controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
+            });
             updateAvailablePresetsBitmap ();
           }
         }
       }
-
       updateHardware(event.hardware);
     };
+    let outsideScrollHeader=0;
+    let outsideScrollMutingUp=true;
+    this.outsideScroll=function(event){
+      let delta=event.delta;
+      let kit=controlledModule.kit;
+
+      // console.log(outsideScrollHeader);
+
+      kit[outsideScrollHeader].mute=(outsideScrollMutingUp?(delta>0):(delta<0));
+      // console.log(`(${outsideScrollMutingUp}?(${delta>0}):(${delta<0}))=${(outsideScrollMutingUp?(delta>0):(delta<0))}`);
+
+      if( kit[outsideScrollHeader].mute){
+        muteBmp|=1<<outsideScrollHeader;
+      }else{
+        muteBmp&=~(1<<outsideScrollHeader);
+      }
+
+      outsideScrollHeader+=delta;
+      if(outsideScrollHeader>=16){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=0;
+      }
+      if(outsideScrollHeader<0){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=15;
+      }
+      let ret="";
+      for(let a=0; a<16; a++){
+        ret+=(kit[a].mute?" ":SQUARE)
+      }
+
+      return (ret);
+    }
     this.encoderPressed=function(event){
       if(engagedConfigurator){
         engagedConfigurator.encoderPressed(event);
@@ -257,6 +296,7 @@ module.exports=function(environment){
       updateHardware(event.hardware);
     };
     this.disengage=function(event){
+      outsideScrollHeader=0;
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
@@ -270,7 +310,10 @@ module.exports=function(environment){
       }
     }
     var updateLeds=function(hardware){
-      var selectedPresetBitmap=1<<selectedPresetNumber;
+      var selectedPresetBitmap=0;
+      eachSelectedPresetNumber(function(selectedPresetNumber){
+        selectedPresetBitmap|=1<<selectedPresetNumber;
+      });
       hardware.draw([
         highlightedBitmap | selectedPresetBitmap,
         (highlightedBitmap | selectedPresetBitmap | availablePresetsBitmap) ^ muteBmp,
