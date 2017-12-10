@@ -5,14 +5,15 @@ var RECORDINGHEADER = 0xAA;
 var EventMessage = require('../../datatypes/EventMessage.js');
 var NoteOnTracker = function(controlledModule) {
   var self=this;
-  var checkMem=true;
+  var checkMem=5;
   var trackedNotes = [];
   function transformToNoteOff(identifier) {
     trackedNotes[identifier].value[0]=TRIGGEROFFHEADER;
   }
-  this.checkMem=function(){
-    checkMem=true;
+  this.checkMem=function(val=16){
+    checkMem=val;
   }
+
   this.add = function(noteOn, identifier = false) {
     if (noteOn.value[0] != TRIGGERONHEADER) console.warn("noteonTracker: tracking notes that are not a noteon is likely to give you headaches", noteOn);
     if (identifier === false) identifier = [noteOn.value[1], noteOn.value[0]];
@@ -20,7 +21,7 @@ var NoteOnTracker = function(controlledModule) {
     transformToNoteOff(identifier);
     if(checkMem){
       let amount=self.list().length;
-      if(amount>30) console.log(controlledModule.name+"'s trackedNotes length "+amount);
+      if(amount>checkMem) console.log(controlledModule.name+"'s trackedNotes length "+amount);
     }
     return identifier;
   }

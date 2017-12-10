@@ -101,14 +101,16 @@ module.exports=function(environment){return new (function(){
       var newEvent=getOutputMessageFromNumber(gradeNumber);
       if(newEvent){
         if(underImpose) newEvent.underImpose(underImpose);
-        noteOnTracker.add(newEvent,["EX",gradeNumber,newEvent.value[1]]);
+        noteOnTracker.add(newEvent,["EX",gradeNumber,underImpose.value[1]]);
         self.output(newEvent);
         self.handle('note played',{triggeredGrade:gradeNumber,triggeredNote:newEvent.value[2]});
       }
     }
 
-    this.triggerOff=function(gradeNumber,chan){
-      noteOnTracker.ifNoteOff(["EX",gradeNumber,chan],function(noteOff){
+    this.triggerOff=function(gradeNumber,underImpose){
+      // var newEvent=self.baseEventMessage.clone();
+      // if(underImpose) newEvent.underImpose(underImpose);
+      noteOnTracker.ifNoteOff(["EX",gradeNumber,underImpose.value[1]],function(noteOff){
         // console.log("NTOFF",noteOff);
         self.output(noteOff);
       });
@@ -141,7 +143,7 @@ module.exports=function(environment){return new (function(){
       var eventMessage=event.eventMessage
       if(!self.mute)
         if(eventMessage.value[0]==2||eventMessage.value[3]==0){
-          self.triggerOff(eventMessage.value[2],eventMessage.value[1]);
+          self.triggerOff(eventMessage.value[2],eventMessage);
         }else{
           this.handle('receive',eventMessage);
           if(eventMessage.value[0]==3){

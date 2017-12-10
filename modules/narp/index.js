@@ -72,6 +72,7 @@ module.exports = function(environment) {
         if(self.mute) return;
         eventMessage.life=Math.ceil(noteDuration.value*12);
         noteOnTracker.add(eventMessage);
+        
         self.output(eventMessage);
       }
 
