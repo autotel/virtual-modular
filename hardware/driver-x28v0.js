@@ -389,10 +389,14 @@ var DriverX28v0 = function(environment, properties) {
     this.eval=function(evt){
       if(evt.type){
         if(evt.type.indexOf("Press")!==-1){
-          if(pressed(evt)) evt.chain=this.chain;
+          if(pressed(evt))
+            if(chain.length>1)
+              evt.tied=chain;
         }
         if(evt.type.indexOf("Release")!==-1){
-          if(released(evt)) evt.chain=this.chain;
+          if(released(evt))
+            if(chain.length>1)
+              evt.tied=chain;
         }
         // console.log(evt);
       }
