@@ -1,44 +1,11 @@
 module.exports={
 	"outputs": {
 		"Microsoft GS Wavetable Synth": false,
-		"7- UM-1": true,
-		"from maschine": true,
-		"to maschine": true,
-		"from reaper": true,
-		"to reaper": true,
-		"from modular": true,
-		"to modular": true,
-		"CVpal": true,
 		"to DAW": true,
-		"loopMIDI Port": true,
-		"loopMIDI Port 1": true,
-		"loopMIDI Port 2": true,
-		"Maschine MK2 Out": true,
-		"2- UM-1": true,
-		"UM-1 MIDI 1 [2-0-0]": true,
-		"to sequencer": true
+		"to sequencer": false
 	},
 	"inputs": {
-		"7- UM-1": true,
-		"from maschine": true,
-		"to maschine": true,
-		"from reaper": true,
-		"to reaper": true,
-		"from modular": true,
-		"to modular": true,
-		"CVpal": true,
 		"to DAW": false,
-		"loopMIDI Port": true,
-		"loopMIDI Port 1": true,
-		"loopMIDI Port 2": true,
-		"Microsoft GS Wavetable Synth": true,
-		"Maschine MK2 In": true,
-		"Maschine MK2 Out": true,
-		"2- UM-1": true,
-		"UM-1 MIDI 1 [2-0-0]": true,
 		"to sequencer": true
-	},
-	"rename": {
-		"Microsoft GS Wavetable Synth": "default midi out"
 	}
 }

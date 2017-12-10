@@ -39,10 +39,10 @@ module.exports=function(environment){return new (function(){
   var currentPortNumber=0;
   var openedMidiPorts=[];
 
-  if(midiOptions.outputs===undefined){
+  if(!midiOptions.outputs){
     midiOptions.outputs={};
   }
-  if(midiOptions.inputs===undefined){
+  if(!midiOptions.inputs){
     midiOptions.inputs={}
   }
   var keepScanning=40;
@@ -98,6 +98,7 @@ module.exports=function(environment){return new (function(){
     }
     currentPortNumber++;
   }
+  fs.writeFile(path.join(__dirname,'/midi-options.js'), "module.exports="+JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
 
   environment.on('created',function(){
     for(var midiItem in openedMidiPorts){
@@ -105,6 +106,7 @@ module.exports=function(environment){return new (function(){
       var ioString="";
       if(openedMidiPorts[midiItem].input!==undefined) ioString+="I";
       if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";
+      if(midiOptions.rename)
       if(midiOptions.rename[midiItem]){
         environment.modulesMan.addModule("midiIO",{
           midiPort:openedMidiPorts[midiItem],
@@ -118,10 +120,6 @@ module.exports=function(environment){return new (function(){
       }
     }
   });
-
-
-  fs.writeFile(path.join(__dirname,'/midi-options.js'), "module.exports="+JSON.stringify(midiOptions, null, "\t")  , 'utf8', console.log);
-
   /**
   @constructor
   the instance of the of the module, ment to be instantiated multiple times.

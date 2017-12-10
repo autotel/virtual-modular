@@ -131,6 +131,9 @@ module.exports=function(){
     for(let output of outputs){
       self.removeOutput(output);
     }
+    self.eventReceived=function(evt){
+      evt.origin.removeOutput(self);
+    }
     for(let output of recordOutputs){
       self.removeRecordOutput(output);
     }
@@ -141,6 +144,7 @@ module.exports=function(){
     if(self.onRemove){
       return self.onRemove();
     }
+
     return true;
   }
 }

@@ -29,23 +29,28 @@ var modulesManager=function(environment){ return new(function(){
     var stack = [];
     var interval = 1;
     var tPerStep=50;
+    var dequeuing=false;
 
     this.enq = function(cb) {
-      if(!stack.length)
-        setImmediate(deq);
-      stack.push(cb);
-      if(stack.length>tPerStep){
-        console.warn("! EVENTS STACK: "+stack.length+"");
+      if(!dequeuing){
+        deq();
       }
+      stack.push(cb);
     }
     function deq(){
+      dequeuing=true;
       let count=0;
       while(stack.length && count<tPerStep){
         (stack.shift())();
         count++
       }
-      if(stack.length)
+      if(stack.length){
         setImmediate(deq);
+        console.warn("! EVENTS STACK: "+stack.length+"");
+
+      }else{
+        dequeuing=false;
+      }
     };
   })();
 

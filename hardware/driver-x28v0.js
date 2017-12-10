@@ -68,7 +68,7 @@ var lazyStack = new(function(properties) {
   if (properties.stackLimit !== false) stackLimit = properties.stackLimit;
   var stack = [];
   var interval = 1;
-  let tasksPerStep=10;
+  let tasksPerStep=20;
 
   this.enq = function(cb) {
     if(!stack.length)
