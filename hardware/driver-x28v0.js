@@ -68,24 +68,29 @@ var lazyStack = new(function(properties) {
   if (properties.stackLimit !== false) stackLimit = properties.stackLimit;
   var stack = [];
   var interval = 1;
+  let tasksPerStep=10;
 
   this.enq = function(cb) {
+    if(!stack.length)
+    setImmediate(deq);
     if (stackLimit !== false)
       while (stack.length > stackLimit) {
         console.warn("skip stack function", stack.shift());
       };
     stack.push(cb);
-    // setImmediate(dequeue);
   }
-  setInterval(function(){
+  function deq(){
     // console.log("AA");
-    // while (stack.length > 0) {
-    if(stack.length)
+    let count=0;
+    while (stack.length && count<tasksPerStep) {
       (stack.shift())();
-      // stack.splice(0,1);
-      // setImmediate(dequeue);
-    // }
-  },1);
+      count++;
+    }
+    if(stack.length){
+      deq();
+      console.warn("communication stack too long");
+    }
+  }
 })({
   stackLimit: 50
 });

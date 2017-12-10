@@ -23,6 +23,31 @@ var modulesManager=function(environment){ return new(function(){
       console.error('\x1b[33m - "'+a+'" module is not valid:\x1b[0m\n',e);
     }
   }
+  //this prevents the program from freezing in a case of extreme module feedback
+  var lazyStack = new(function() {
+    var stackLimit = false;
+    var stack = [];
+    var interval = 1;
+    var tPerStep=50;
+
+    this.enq = function(cb) {
+      if(!stack.length)
+        setImmediate(deq);
+      stack.push(cb);
+      if(stack.length>tPerStep){
+        console.warn("! EVENTS STACK: "+stack.length+"");
+      }
+    }
+    function deq(){
+      let count=0;
+      while(stack.length && count<tPerStep){
+        (stack.shift())();
+        count++
+      }
+      if(stack.length)
+        setImmediate(deq);
+    };
+  })();
 
   this.getModuleWithName=function(name){
     // console.log(modules);
@@ -50,6 +75,7 @@ var modulesManager=function(environment){ return new(function(){
     if(!properties) properties={};
     if(!moduleSingletons[moduleName] ) {console.error("module named "+moduleName+" is registered");}
     var newInstance=new moduleSingletons[moduleName].Instance(properties);
+    newInstance.enqueue=lazyStack.enq;
     modules.push(newInstance);
     environment.handle('module created',{module:newInstance});
     return newInstance;

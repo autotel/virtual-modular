@@ -53,10 +53,13 @@ module.exports=function(){
       console.log(e);
     }
   }
+
+  this.enqueue=setImmediate;
+
   this.output=function(eventMessage,overrideMute){
     if((!self.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
-      setImmediate(function(){
+      self.enqueue(function(){
         outputs.forEach(function(tModule){
           tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
         })

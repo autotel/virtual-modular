@@ -5,7 +5,7 @@ var RECORDINGHEADER = 0xAA;
 var EventMessage = require('../../datatypes/EventMessage.js');
 var NoteOnTracker = function(controlledModule) {
   var self=this;
-  var checkMem=5;
+  var checkMem=false;
   var trackedNotes = [];
   function transformToNoteOff(identifier) {
     trackedNotes[identifier].value[0]=TRIGGEROFFHEADER;
