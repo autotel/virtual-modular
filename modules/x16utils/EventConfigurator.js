@@ -106,6 +106,7 @@ var EventConfigurator=function(parentInteractor,properties){
       extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.delta;
       updateScreen(hardware);
     }
+    return {currentEvent:baseEvent,selectedValueNumber:selectedValueNumber,selectedValueValue:baseEvent.value[selectedValueNumber]}
   };
   this.encoderPressed=function(event){
     var hardware=event.hardware;
