@@ -90,7 +90,7 @@ module.exports=function(environment){return new (function(){
         console.log('     -openedMidiPorts ['+currentPortName+'].input = opened Midi port');
       }else{
         console.log('    -openedMidiPorts ['+currentPortName+'].input disabled in midi-options.json');
-        if(midi) midi.MidiInClose();
+        // if(midi) midi.MidiInClose();
       }
     } else {
       // console.log('    -No in port '+currentPortNumber);
