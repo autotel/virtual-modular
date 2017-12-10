@@ -4,6 +4,7 @@ var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var DataVisualizer=require('./visualizer.js');
 var SequenceView=require('./x28-SequenceView.js');
 var ArragementView=require('./x28-ArrangementView.js');
+var SQUARE=String.fromCharCode(252);
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
@@ -45,6 +46,39 @@ module.exports=function(environment){
       if(event.button==5){
         engageView("arrangement",event);
       }
+    }
+    var outsideScrollHeader=0;
+    var outsideScrollMutingUp=true;
+    this.outsideScroll=function(event){
+      let delta=event.delta;
+      let kit=controlledModule.getTapes();
+
+      // console.log(outsideScrollHeader);
+
+      kit[outsideScrollHeader].muted.value=(outsideScrollMutingUp?(delta>0):(delta<0));
+      // console.log(`(${outsideScrollMutingUp}?(${delta>0}):(${delta<0}))=${(outsideScrollMutingUp?(delta>0):(delta<0))}`);
+
+      // if( kit[outsideScrollHeader].muted){
+      //   muteBmp|=1<<outsideScrollHeader;
+      // }else{
+      //   muteBmp&=~(1<<outsideScrollHeader);
+      // }
+
+      outsideScrollHeader+=delta;
+      if(outsideScrollHeader>=kit.length){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=0;
+      }
+      if(outsideScrollHeader<0){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=kit.length-1;
+      }
+      let ret="";
+      for(let a=0; a<kit.length; a++){
+        ret+=(kit[a].muted.value?" ":SQUARE)
+      }
+
+      return (ret);
     }
 
     this.selectorButtonReleased=function(event){

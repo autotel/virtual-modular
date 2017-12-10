@@ -49,7 +49,9 @@ module.exports = function(environment) {
 
 
       var tapes=[];
-
+      this.getTapes=function(){
+        return tapes;
+      }
       this.addNewTape=function(){
         let len=tapes.length;
         tapes.push(new Tape({outputFunction:self.memoryOutput,clock:clock}));

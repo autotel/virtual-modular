@@ -226,7 +226,10 @@ var SuperInteractorsSingleton = function(environment) {
     this.on('encoderScrolled', function(event) {
       if (!engagedInterface) {
         if(selectedInterface){
-          selectedInterface.outsideScroll(event);
+          let str=selectedInterface.outsideScroll(event);
+          if(str){
+            myHardware.sendScreenB(str);
+          }
         }
       } else {
         engagedInterface.encoderScrolled(event);

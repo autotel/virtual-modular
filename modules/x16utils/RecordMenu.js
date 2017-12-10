@@ -69,8 +69,10 @@ var RecordMenu=function(parentInteractor,properties){
     ]);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA("Rec dest");
-    hardware.sendScreenB(">"+moduleInstancesArray[selectedModuleNumber].name);
+    if(moduleInstancesArray[selectedModuleNumber].name)}
+      hardware.sendScreenA("Rec dest");
+      hardware.sendScreenB(">"+moduleInstancesArray[selectedModuleNumber].name);
+    }
   }
   this.matrixButtonPressed=function(event){
     refreshModuleInstanceNames();

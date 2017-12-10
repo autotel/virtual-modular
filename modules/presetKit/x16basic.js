@@ -3,6 +3,7 @@ var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var BlankConfigurator=require('../x16utils/BlankConfigurator.js');
 var RecordMenu=require('../x16utils/RecordMenu.js');
+var SQUARE=String.fromCharCode(252);
 /**
 definition of a presetkit interactor for the x16basic controller hardware
 */
@@ -240,8 +241,38 @@ module.exports=function(environment){
 
       updateHardware(event.hardware);
     };
+    let outsideScrollHeader=0;
+    let outsideScrollMutingUp=true;
     this.outsideScroll=function(event){
-      
+      let delta=event.delta;
+      let kit=controlledModule.kit;
+
+      // console.log(outsideScrollHeader);
+
+      kit[outsideScrollHeader].mute=(outsideScrollMutingUp?(delta>0):(delta<0));
+      // console.log(`(${outsideScrollMutingUp}?(${delta>0}):(${delta<0}))=${(outsideScrollMutingUp?(delta>0):(delta<0))}`);
+
+      if( kit[outsideScrollHeader].mute){
+        muteBmp|=1<<outsideScrollHeader;
+      }else{
+        muteBmp&=~(1<<outsideScrollHeader);
+      }
+
+      outsideScrollHeader+=delta;
+      if(outsideScrollHeader>=16){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=0;
+      }
+      if(outsideScrollHeader<0){
+        outsideScrollMutingUp=!outsideScrollMutingUp;
+        outsideScrollHeader=15;
+      }
+      let ret="";
+      for(let a=0; a<16; a++){
+        ret+=(kit[a].mute?" ":SQUARE)
+      }
+
+      return (ret);
     }
     this.encoderPressed=function(event){
       if(engagedConfigurator){
@@ -260,6 +291,7 @@ module.exports=function(environment){
       updateHardware(event.hardware);
     };
     this.disengage=function(event){
+      outsideScrollHeader=0;
       engagedHardwares.delete(event.hardware);
     }
     var updateHardware=function(hardware){
