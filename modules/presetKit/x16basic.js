@@ -136,7 +136,13 @@ module.exports=function(environment){
     // });
     var availablePresetsBitmap=0;
     var highlightedBitmap=0;
-    var selectedPresetNumber=false;
+    var selectedPresetNumbers=[];
+    function eachSelectedPresetNumber(cb){
+      selectedPresetNumbers.map(cb);
+    }
+    function lastSelectedPresetNumber=function(cb){
+      cb(selectedPresetNumbers[selectedPresetNumbers.length-1],selectedPresetNumbers.length-1);
+    }
     controlledModule.on('extrigger',function(event){
       highlightedBitmap|=1<<event.preset;
       setTimeout(function(){
@@ -163,22 +169,20 @@ module.exports=function(environment){
           // engagedConfigurator.matrixButtonPressed(event);
         }
       }else{
-        selectedPresetNumber=event.button;
-        /*velocity
-        if(eventsVelocity.size){
-          eventsVelocity.forEach(function(el){
-            // console.log(el);
-            if(el.button==event.data[0]){
-              controlledModule.uiTriggerOn(selectedPresetNumber,el.value);
-            }
-          });
-        }else{*/
-        controlledModule.uiTriggerOn(selectedPresetNumber);
+
+        if(event.tied){
+          selectedPresetNumbers.push(event.button);
+        }else{
+          selectedPresetNumbers=[event.button];
+        }
+        controlledModule.uiTriggerOn(event.button);
 
         if(controlledModule.kit[event.button])
         if(lastEngagedConfigurator==configurators.event){
           // configurators.event.baseEvent=controlledModule.kit[selectedPresetNumber].on;
-          configurators.event.setFromEventMessage(controlledModule.kit[selectedPresetNumber],hardware);
+          lastSelectedPresetNumber(function(num){
+            configurators.event.setFromEventMessage(controlledModule.kit[num],hardware);
+          }
         }
         updateHardware(hardware);
       }
@@ -233,12 +237,13 @@ module.exports=function(environment){
         if(lastEngagedConfigurator){
           lastEngagedConfigurator.encoderScrolled(event);
           if(lastEngagedConfigurator==configurators.event){
-            controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
+            eachSelectedPresetNumber(function(selectedPresetNumber){
+              controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
+            });
             updateAvailablePresetsBitmap ();
           }
         }
       }
-
       updateHardware(event.hardware);
     };
     let outsideScrollHeader=0;
@@ -305,7 +310,10 @@ module.exports=function(environment){
       }
     }
     var updateLeds=function(hardware){
-      var selectedPresetBitmap=1<<selectedPresetNumber;
+      var selectedPresetBitmap=0;
+      eachSelectedPresetNumber(function(selectedPresetNumber){
+        selectedPresetBitmap|=1<<selectedPresetNumber;
+      });
       hardware.draw([
         highlightedBitmap | selectedPresetBitmap,
         (highlightedBitmap | selectedPresetBitmap | availablePresetsBitmap) ^ muteBmp,
