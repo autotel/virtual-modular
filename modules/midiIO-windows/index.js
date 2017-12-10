@@ -234,10 +234,20 @@ module.exports=function(environment){return new (function(){
 
     this.choke=function(){
       // console.log("choke "+Object.keys(hangingNotes).length+" hanging notes");
+      let choked=false;
       for(var a in hangingNotes){
+        choked=true;
         let h=hangingNotes[a];
         midi.out((h[0]&0x0f)|0x80,h[1],h[2]);
       }
+      if(!choked){
+        for(let a=0; a<16; a++){
+          for(let b=0; b<127; b++){
+            midi.out(0x80|a,b,0);
+          }
+        }
+      }
+      return choked;
     }
     //todo: rename midi input listener to midi.in();
     //console.log(midi);

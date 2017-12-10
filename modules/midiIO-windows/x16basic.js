@@ -27,11 +27,11 @@ module.exports=function(environment){
     //
     // });
     //this because on midi in could become too frequent
-    setInterval(function(){
-      for(var hardware of engagedHardwares){
-        updateHardware(hardware);
-      }
-    },30);
+    // setInterval(function(){
+    //   for(var hardware of engagedHardwares){
+    //     updateHardware(hardware);
+    //   }
+    // },30);
     this.matrixButtonPressed=function(event){
       if(inputMode){
         if(event.button<indexedMidiInputCache.length){
@@ -57,6 +57,7 @@ module.exports=function(environment){
       if(event.button==1){
         chokeMode=true;
         controlledModule.choke();
+        updateHardware(event.hardware);
       }
     };
     this.selectorButtonReleased=function(event){
@@ -68,6 +69,15 @@ module.exports=function(environment){
         chokeMode=false;
 
       }
+    };
+    this.outsideScroll=function(event){
+      var ret="choke ";
+      if(controlledModule.choke()){
+        ret+="hanging";
+      }else{
+        ret+="scan";
+      };
+      return ret;
     };
     this.encoderScrolled=function(event){};
     this.encoderPressed=function(event){};
@@ -103,7 +113,6 @@ module.exports=function(environment){
           // }
       }else{
         hardware.sendScreenA("Outputs");
-
         if(controlledModule.outputs.size<=selectedOutputNumber) selectedOutputNumber=false;
         if(selectedOutputNumber!==false){
           hardware.sendScreenB(Array.from(controlledModule.outputs)[selectedOutputNumber].name);
