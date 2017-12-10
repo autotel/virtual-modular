@@ -3,6 +3,14 @@ console.log("-----------start-------------");
 var onHandlers=require('onhandlers');
 /** Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others */
 var environment={};
+
+environment.vars={
+  light:56,
+  messagePriority:50,
+  interfacePriority:70,
+  interfaceMaxStack:5
+}
+
 onHandlers.call(environment);
 /** hardwareMan is responsible for the connected user-interaction hardware  */
 environment.hardwareMan=require("./hardware/hardwareManager.js")(environment);

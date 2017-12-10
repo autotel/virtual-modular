@@ -2,6 +2,8 @@
 var RARROW = String.fromCharCode(199);
 var XMARK = String.fromCharCode(183);
 var panton = require('./panton');
+var BlankConfigurator = require( '../../modules/x16utils/BlankConfigurator.js' );
+
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
@@ -47,6 +49,7 @@ var SuperInteractorsSingleton = function(environment) {
     */
     var engagedInterface = false;
     var thisInteractor = this;
+
     /** store what are the modules over which a button was pressed
     this allows to switch to another module and still detect the
     release in the module where the button was pressed. Furthermore,
@@ -62,6 +65,29 @@ var SuperInteractorsSingleton = function(environment) {
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
     var myModuleCreator = new ModuleCreator(myHardware, environment);
+
+
+    let enviroVars={}
+    for(var a in environment.vars){
+      enviroVars[a]={
+        enviroVarName:a,
+        value: environment.vars[a]
+      }
+      let thisEnviroVar=enviroVars[a];
+      thisEnviroVar.selectFunction=thisEnviroVar.changeFunction=function(thisVar,delta){
+        let envarn=thisEnviroVar.enviroVarName;
+        if(delta)
+        environment.vars[envarn]+=delta;
+        thisVar.value=environment.vars[envarn];
+        updateLeds();
+      }
+    }
+    var enviroVarConfig = new BlankConfigurator(this, {
+      name: "",
+      vars: enviroVars
+    });
+    let lCompConfigurator= enviroVarConfig.vars["ambt. light"];
+
     this.on('interaction', function(event) {
       // console.log("28 int");
       if (engagedInterface) {
@@ -164,7 +190,10 @@ var SuperInteractorsSingleton = function(environment) {
           engagedInterface.selectorButtonPressed(event);
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
-          if (event.button == 2) {
+          if(event.button==0){
+            engagedInterface=enviroVarConfig;
+            engagedInterface.engage(event);
+          }else if (event.button == 2) {
             // deleteMode=!deleteMode;
             deleteMode = true;
             // console.log("DEL",deleteMode);
@@ -182,8 +211,12 @@ var SuperInteractorsSingleton = function(environment) {
       }
     });
     this.on('selectorButtonReleased', function(event) {
-      // event.button=event.data[0];
-      if (deleteMode || muteMode) {
+      // event.button=event.data[0]
+      if(engagedInterface==enviroVarConfig){
+        if(event.button==0){
+          enviroVarConfig.disengage(event);
+        }
+      }else if (deleteMode || muteMode) {
         if (event.button == 2 || event.button == 1) {
           deleteMode = false;
           muteMode = false;
@@ -193,21 +226,19 @@ var SuperInteractorsSingleton = function(environment) {
         selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
         delete selectorButtonOwners[event.data[0]];
       } else {
-        {
-          var newCreated = false;
-          if (myModuleCreator.engaged) newCreated = myModuleCreator.disengage();
-          if (newCreated) {
-            selectedInterface = newCreated.interface;
-            selectedModuleNumber = newCreated.number;
-            selectedModule = newCreated.module;
-          };
-          if (selectedInterface&&engageOnRelease) {
-            engagedInterface = selectedInterface;
-            // console.log("engaged",engagedInterface);
-            selectedInterface.engage(event);
-          }
-          engageOnRelease=true;
+        var newCreated = false;
+        if (myModuleCreator.engaged) newCreated = myModuleCreator.disengage();
+        if (newCreated) {
+          selectedInterface = newCreated.interface;
+          selectedModuleNumber = newCreated.number;
+          selectedModule = newCreated.module;
+        };
+        if (selectedInterface&&engageOnRelease) {
+          engagedInterface = selectedInterface;
+          // console.log("engaged",engagedInterface);
+          selectedInterface.engage(event);
         }
+        engageOnRelease=true;
 
         if (!engagedInterface)
           updateHardware();
@@ -282,13 +313,13 @@ var SuperInteractorsSingleton = function(environment) {
       //   (selectedBmp | (selectable ^ outputsBmp)) & ~mutedBmp | creatorBtn
       // ]);
       myHardware.clear();
-
+      let lowLight=environment.vars.light;
       for (let a in modulesMan.modules) {
         var posBmp=1<<a;
         var color=[0,0,127];
-        if(selectedModuleNumber==a){
-          color=panton.homogenize(panton.selected,(modulesMan.modules[a].mute?170:255));
-        }else{
+        /*if(selectedModuleNumber==a){
+          color=panton.homogenize(panton.selected,(modulesMan.modules[a].mute?lowLight:255));
+        }else*/{
           if (modulesMan.modules[a].color){
             color=modulesMan.modules[a].color;
           }
@@ -299,15 +330,17 @@ var SuperInteractorsSingleton = function(environment) {
           // }
           if(modulesMan.modules[a].mute){
             color=panton.mixColors(panton.disabled,color,0.4);
-            color=panton.homogenize(color,6);
+            color=panton.homogenize(color,lowLight/16);
           }else{
-            color=panton.homogenize(color,16);
+            color=panton.homogenize(color,lowLight);
           }
 
           if(outputsBmp&posBmp){
             color=panton.mixColors(panton.connected,color,0.2);
           }
-
+          if(selectedModuleNumber==a){
+            color=panton.homogenize(color,Math.min((lowLight<<2),0xff));
+          }
 
         }
         myHardware.drawColor(posBmp,color);

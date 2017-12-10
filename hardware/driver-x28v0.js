@@ -63,37 +63,33 @@ var eoString = comConsts.eoString;
 
 
 
-var lazyStack = new(function(properties) {
-  var stackLimit = false;
-  if (properties.stackLimit !== false) stackLimit = properties.stackLimit;
+var LazyStack = function(environment) {
   var stack = [];
-  var interval = 1;
-  let tasksPerStep=20;
-
+  var dequeuing=false;
   this.enq = function(cb) {
-    if(!stack.length)
-    setImmediate(deq);
-    if (stackLimit !== false)
-      while (stack.length > stackLimit) {
-        console.warn("skip stack function", stack.shift());
-      };
     stack.push(cb);
+    if(environment.vars.interfaceMaxStack<0) environment.vars.interfaceMaxStack=0;
+    while (stack.length > environment.vars.interfaceMaxStack) {//
+      console.warn("skip stack function", stack.shift());
+    };
+    if(!dequeuing)
+      deq();
   }
   function deq(){
-    // console.log("AA");
+    dequeuing=true;
     let count=0;
-    while (stack.length && count<tasksPerStep) {
+    while (stack.length && count<environment.vars.interfacePriority) {//
       (stack.shift())();
       count++;
     }
     if(stack.length){
-      deq();
-      console.warn("communication stack too long");
+      console.warn("communication stack too long",stack.length);
+      setImmediate(deq);
+    }else{
+      dequeuing=false;
     }
   }
-})({
-  stackLimit: 50
-});
+};
 
 var lastSentBitmap = {
   bitmap: [0, 0, 0],
@@ -182,7 +178,7 @@ var DriverX28v0 = function(environment, properties) {
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
   var myInteractionPattern = environment.interactionMan.newSuperInteractor("x28basic", this);
   myInteractionPattern.handle('serialopened');
-
+  var lazyStack=new LazyStack(environment);
 
   var serial = properties.serial;
   var tHardware = this;

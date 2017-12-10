@@ -40,7 +40,7 @@ var modulesManager=function(environment){ return new(function(){
     function deq(){
       dequeuing=true;
       let count=0;
-      while(stack.length && count<tPerStep){
+      while(stack.length && count<environment.vars.messagePriority){
         (stack.shift())();
         count++
       }
