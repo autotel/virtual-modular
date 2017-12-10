@@ -20,7 +20,8 @@ panton.mixColors = function(cola, colb, lerp = 0.5) {
 }
 panton.homogenize = function(color, targetValue) {
   var ret = [];
-  var currentValue = ((color[0]*0.36) + (color[1]*0.54) + (color[2]*0.1));
+  var values=[0.26,0.39,0.45];
+  var currentValue = ((color[0]*values[0]) + (color[1]*values[1]) + (color[2]*values[2]));
   var factor = targetValue/currentValue;
   for(var a in color){
     ret[a]=color[a]*factor;

@@ -257,10 +257,10 @@ var SuperInteractorsSingleton = function(environment) {
       var outputsBmp = 0;
       var mutedBmp = 0;
       //calculate bitmap for muted modules
-      for (let a in modulesMan.modules) {
-        let amodule = modulesMan.modules[a];
-        if (amodule.mute) mutedBmp |= 1 << a;
-      }
+      // for (let a in modulesMan.modules) {
+      //   let amodule = modulesMan.modules[a];
+      //   if (amodule.mute) mutedBmp |= 1 << a;
+      // }
       if (selectedModule) {
         //displaying the selected module output is rather awkward:
         //for each output of the module that the interface controls
@@ -298,10 +298,10 @@ var SuperInteractorsSingleton = function(environment) {
           //   color=color.map(function(c){return c/2})
           // }
           if(modulesMan.modules[a].mute){
-            color=panton.mixColors(panton.disabled,color,0.2);
+            color=panton.mixColors(panton.disabled,color,0.4);
             color=panton.homogenize(color,6);
           }else{
-            color=panton.homogenize(color,127);
+            color=panton.homogenize(color,16);
           }
 
           if(outputsBmp&posBmp){
