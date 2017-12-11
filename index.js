@@ -7,8 +7,8 @@ var environment={};
 environment.vars={
   light:56,
   messagePriority:50,
-  interfacePriority:70,
-  interfaceMaxStack:5
+  interfacePriority:15,
+  interfaceMaxStack:15
 }
 
 onHandlers.call(environment);

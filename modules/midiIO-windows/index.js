@@ -79,19 +79,31 @@ module.exports=function(environment){return new (function(){
     currentPortName = midi.MidiInOpen(currentPortNumber,midiInputCallbackCaller)||currentPortName;
     if(currentPortName){
       midiOpenFail=false;
-      if(midiOptions.inputs[currentPortName]===undefined){
-        midiOptions.inputs[currentPortName]=true;
-        console.log("     -"+currentPortName +" has no config. Setting to true");
+      try{
+        if(midiOptions.inputs[currentPortName]===undefined){
+          midiOptions.inputs[currentPortName]=true;
+          console.log("     -"+currentPortName +" has no config. Setting to true");
+        }
+        if(midiOptions.inputs[currentPortName]===true){
+          if(openedMidiPorts[currentPortName]===undefined) openedMidiPorts[currentPortName]={};
+          openedMidiPorts[currentPortName].input=midi;
+          openedMidiPorts[currentPortName].input.setCallback=setInputCallback;
+          console.log('     -openedMidiPorts ['+currentPortName+'].input = opened Midi port');
+        }else{
+          console.log('    -openedMidiPorts ['+currentPortName+'].input disabled in midi-options.json');
+          // try {
+          // if(midi) midi.MidiInClose();
+          //} catch(e){
+          //   console.console.error("couldnt close midi",midi);
+          //   console.error(e);
+          // }
+        }
       }
-      if(midiOptions.inputs[currentPortName]===true){
-        if(openedMidiPorts[currentPortName]===undefined) openedMidiPorts[currentPortName]={};
-        openedMidiPorts[currentPortName].input=midi;
-        openedMidiPorts[currentPortName].input.setCallback=setInputCallback;
-        console.log('     -openedMidiPorts ['+currentPortName+'].input = opened Midi port');
-      }else{
-        console.log('    -openedMidiPorts ['+currentPortName+'].input disabled in midi-options.json');
-        // if(midi) midi.MidiInClose();
+      catch(e){
+          midiOpenFail=true;
+          console.error(e);
       }
+
     } else {
       // console.log('    -No in port '+currentPortNumber);
       if(midiOpenFail) midiOpenFail=true;
@@ -106,7 +118,7 @@ module.exports=function(environment){return new (function(){
       var ioString="";
       if(openedMidiPorts[midiItem].input!==undefined) ioString+="I";
       if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";
-      if(midiOptions.rename)
+      if(! midiOptions.rename) midiOptions.rename={};
       if(midiOptions.rename[midiItem]){
         environment.modulesMan.addModule("midiIO",{
           midiPort:openedMidiPorts[midiItem],
@@ -211,6 +223,8 @@ module.exports=function(environment){return new (function(){
         }
         self.handle('midi in',{inputMidi:midiMessage,outputMessage:outputMessage,eventMessage:outputMessage});
       });
+    }else{
+      // console.log(this.name,"no callback");
     }
     midi.out=function(a,b,c){
       if(midi.output){
@@ -277,11 +291,11 @@ module.exports=function(environment){return new (function(){
       // console.log("  midi.out("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
       midi.out(midiOut[0],midiOut[1],midiOut[2]);
     };
-    this.remove=function(){
-      return false;
+    this.onRemove=function(){
+      return true;
       //for some reason app crashes deleting midi
-      if(midi.input) midi.input.MidiInClose();
-      if(midi.output) midi.output.MidiOutClose();
+      // if(midi.input) midi.input.MidiInClose();
+      // if(midi.output) midi.output.MidiOutClose();
       baseRemove();
     }
   }

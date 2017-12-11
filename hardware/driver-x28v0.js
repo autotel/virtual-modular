@@ -72,22 +72,25 @@ var LazyStack = function(environment) {
     while (stack.length > environment.vars.interfaceMaxStack) {//
       console.warn("skip stack function", stack.shift());
     };
+    // console.log("STKLEN",stack.length);
     if(!dequeuing)
       deq();
   }
   function deq(){
     dequeuing=true;
-    let count=0;
-    while (stack.length && count<environment.vars.interfacePriority) {//
-      (stack.shift())();
-      count++;
-    }
-    if(stack.length){
-      console.warn("communication stack too long",stack.length);
-      setImmediate(deq);
-    }else{
-      dequeuing=false;
-    }
+    // setTimeout(function(){
+      let count=0;
+      while (stack.length && count<environment.vars.interfacePriority) {//
+        (stack.shift())();
+        count++;
+      }
+      if(stack.length){
+        console.warn("communication stack too long",stack.length);
+        setImmediate(deq);
+      }else{
+        dequeuing=false;
+      }
+    // },1);
   }
 };
 
