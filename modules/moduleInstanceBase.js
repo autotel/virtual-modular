@@ -131,8 +131,12 @@ module.exports=function(){
     for(let output of outputs){
       self.removeOutput(output);
     }
+    for(let recoutput of recordOutputs){
+      self.removeRecordOutput(recoutput);
+    }
     self.eventReceived=function(evt){
       evt.origin.removeOutput(self);
+      evt.origin.removeRecordOutput(self);
     }
     for(let output of recordOutputs){
       self.removeRecordOutput(output);

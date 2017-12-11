@@ -180,8 +180,8 @@ module.exports=function(environment){return new (function(){
           case 0xF0:{
             if(outputMessage.value[1]==0x8){
               outputMessage.value[0]=CLOCKTICKHEADER;
-              outputMessage.value[1]=3;
-              outputMessage.value[2]=inputClockCount%3;
+              outputMessage.value[1]=12;
+              outputMessage.value[2]=inputClockCount%12;
               inputClockCount+=1;
               break;
             }else if(outputMessage.value[1]==0xa){
