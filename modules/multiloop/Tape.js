@@ -17,6 +17,11 @@ var Tape=function(properties){
   var memory=this.memory=[];
   var muted=this.muted={value:false};
   var steps=this.steps={value:32};
+  var overdub=this.overdub={value:false}
+  var silentOnInput=this.silentOnInput={
+    value:true,
+    onInput:false,
+  }
   var name=this.name="tape "+tapeCount;
   var quantize=this.quantize={value:0};
 
@@ -71,6 +76,9 @@ var Tape=function(properties){
   }
   this.record=function(eventMessage){
     noteLogger.addEvent(eventMessage);
+    if(silentOnInput.value){
+      silentOnInput.onInput=11;
+    }
   }
 
 
@@ -112,7 +120,7 @@ var Tape=function(properties){
 
   var lastRecordedEventTime=[0,0];
   this.refreshNewTapeLengthFromRecording=false;
-  var stepFunction = function(){
+  var evaluateNewRecording = function(){
     if(self.excited>0) self.excited--;
     // console.log("STPFN");
     //If I detect a recording or a change of length in the tape, transfer the event logger memory to the tape memory
@@ -121,8 +129,9 @@ var Tape=function(properties){
       // console.log("LEV",lastEventTime);
       if((lastRecordedEventTime[0]!=lastEventTime[0])||self.refreshNewTapeLengthFromRecording){
         self.refreshNewTapeLengthFromRecording=false;
-        console.log("LRTTRU");
-        self.clearMemory();
+        // console.log("LRTTRU");
+        if(!overdub.value)
+          self.clearMemory();
         // memory=self.memory;
         lastRecordedEventTime=[lastEventTime[0],lastEventTime[1]];
         var time=[lastEventTime[0]-self.steps.value,lastEventTime[1]-1];
@@ -148,7 +157,15 @@ var Tape=function(properties){
 
     //this over-complicated way of transfering the clock from the outside is because it allows keeping the tapes on sync, and apply displacements over that.
     var clockDelta=[timeIndex[0]-lastClockFunction[0],timeIndex[1]-lastClockFunction[1]];
+    if(clockDelta[1]<0){
+      clockDelta[1]+=12;
+    }
 
+    if(silentOnInput.onInput){
+      silentOnInput.onInput -= clockDelta[1];
+      console.log(silentOnInput.onInput);
+      if(silentOnInput.onInput<=0) silentOnInput.onInput=false;
+    }
 
 
     playhead[0]+=clockDelta[0];
@@ -157,6 +174,7 @@ var Tape=function(properties){
     playhead[1]%=lastMicroStepBase;
 
     if(!muted.value){
+      if(overdub.value?true:(silentOnInput.value?!silentOnInput.onInput:true))
       if (memory[playhead]) {
         for (var eventMessage of memory[playhead]) {
           self.excited++;
@@ -166,7 +184,7 @@ var Tape=function(properties){
       }
     }
 
-    if(clockDelta[0]>=1) stepFunction();
+    if(clockDelta[0]>=1) evaluateNewRecording();
 
     lastClockFunction=timeIndex;
   }
