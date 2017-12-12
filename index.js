@@ -6,9 +6,10 @@ var environment={};
 
 environment.vars={
   light:56,
+  advancedRecording:false,
   messagePriority:50,
   interfacePriority:15,
-  interfaceMaxStack:15
+  interfaceMaxStack:15,
 }
 
 onHandlers.call(environment);

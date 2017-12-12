@@ -28,6 +28,16 @@ var RecordMenu = function(parentInteractor, properties) {
   }
   // watchvarNames();
 
+  var limitOptions=function(){
+    modules=[];
+    for(var tmodule of environment.modulesMan.modules){
+      if(tmodule.outputs.has(controlledModule)){
+        modules.push(tmodule);
+      }
+    }
+
+  }
+
   var valueChanged = function() {
     //value can change while not engaged
     for (let hardware of engagedHardwares) {
@@ -36,6 +46,7 @@ var RecordMenu = function(parentInteractor, properties) {
   }
   var updateLeds = function(hardware) {
     var eventLengthBmp = ~(0xFFFF << modules.length);
+
     hardware.draw([
       recordingOuptutsBitmap | eventLengthBmp,
       eventLengthBmp ^ recordingOuptutsBitmap,
@@ -84,6 +95,7 @@ var RecordMenu = function(parentInteractor, properties) {
     var hardware = event.hardware;
   };
   this.engage = function(event) {
+    if(!environment.vars.advancedRecording) limitOptions();
     var hardware = event.hardware;
     engagedHardwares.add(hardware);
     updateLeds(hardware);
