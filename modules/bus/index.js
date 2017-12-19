@@ -25,13 +25,14 @@ module.exports=function(environment){return new (function(){
     this.eventReceived=function(evt){
       this.output(evt.eventMessage);
     }
-
+    this.preventBus=true;
     if(properties.name) this.name=properties.name
     environment.on('module created',function(evt){
       var module=evt.module;
-
-      if(module.baseName!=="bus"){
-        self.addOutput(module);
+      if(!module.preventBus){
+        if(module.baseName!=="bus"){
+          self.addOutput(module);
+        }
       }
     });
   }

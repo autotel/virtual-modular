@@ -22,7 +22,7 @@ module.exports=function(environment){
     var engagedConfigurator=false;
     var configurators={};
 
-    var keyboardRoot={value:20};
+    var keyboardRoot={value:0};
     var keyboardChan={value:0};
 
     configurators.event=new EventConfigurator(this,{

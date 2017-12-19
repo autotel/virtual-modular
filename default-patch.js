@@ -13,15 +13,6 @@ module.exports=[
     type:'sequencer',
     outputs:[]
   },{
-    type:'sequencer',
-    outputs:[]
-  },{
-    type:'sequencer',
-    outputs:[]
-  },{
-    type:'sequencer',
-    outputs:[]
-  },{
     type:'presetKit',
     properties:{
       name:'nu presetKit',
@@ -64,12 +55,6 @@ module.exports=[
         [1,12,44,-1],[1,12,45,-1],[1,12,46,-1],[1,12,47,-1],
         [1,12,48,-1],[1,12,49,-1],[1,12,50,-1],[1,12,51,-1]
       ]
-    },
-    outputs:[]
-  },{
-    type:'multiloop',
-    properties:{
-      name:'test multiloop',
     },
     outputs:[]
   }

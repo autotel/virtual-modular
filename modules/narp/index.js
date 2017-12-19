@@ -68,32 +68,39 @@ module.exports = function(environment) {
         myBitmap = 0;
       }
 
-      var generatedOutput = function(eventMessage) {
+      var generatedOutput = function(eventMessage,buttonNumber) {
+        // console.log("GENO");
         if(self.mute) return;
         eventMessage.life=Math.ceil(noteDuration.value*12);
         noteOnTracker.add(eventMessage);
-        
         self.output(eventMessage);
       }
-
+      var headerBmp=0;
       var stepFunction = function() {
         var active = activeNumbers();
         if (active.length) {
           currentStep %= active.length;
           var loneBit = myBitmap & (1 << active[currentStep]);
+          headerBmp=loneBit;
           // console.log(currentStep);
           // console.log(loneBit.toString(2));
           if (loneBit) {
             var op = Math.log2(loneBit);
             // console.log(op);
-            baseEventMessage.value[2] = op;
-            generatedOutput(baseEventMessage);
+
+            let outputMessage=baseEventMessage.clone();
+            outputMessage.value[2] = baseEventMessage.value[2]+op;
+
+            generatedOutput(outputMessage,op);
+
             self.handle('step', {
               step: currentStep,
               generated: op
             });
           }
           currentStep++;
+        }else{
+          headerBmp=0;
         }
       }
       var activeNumbers = function() {
@@ -115,14 +122,12 @@ module.exports = function(environment) {
           if ((evt.eventMessage.value[2] / stepDivision.value) % clockBase == 0) {
             substep++;
             if (substep >= stepDivision.value) {
-              // console.log("AAKSKA");
               substep = 0;
               stepFunction();
             }
           }
           noteOnTracker.each(function(noteOff,identifier){
             noteOff.life--;
-            // console.log(noteOff.life);
             if(noteOff.life<=0){
               self.output(noteOnTracker.noteOff(identifier));
             }
@@ -131,8 +136,8 @@ module.exports = function(environment) {
           this.setStep(evt.eventMessage.value[2] % 16);
         } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {} else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
       }
-      this.getBitmap16 = function() {
-        return myBitmap;
+      this.getBitmaps16 = function() {
+        return {steps:myBitmap,header:headerBmp&myBitmap};
       }
 
       this.delete = function() {
