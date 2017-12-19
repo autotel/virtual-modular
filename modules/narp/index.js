@@ -38,6 +38,7 @@ module.exports = function(environment) {
       var noteDuration = this.noteDuration = {
         value:1
       }
+      this.color=[255,0,255];
 
       var noteOnTracker=new NoteOnTracker(this);
       var substep = 0;

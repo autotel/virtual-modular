@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
 
     moduleInstanceBase.call(this);
     this.baseName="game of life";
-    this.color=[0,0,233];
+    this.color=[255,0,233];
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
     var self=this;
