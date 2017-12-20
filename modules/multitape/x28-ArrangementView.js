@@ -57,6 +57,15 @@ module.exports = function(environment, parentInteractor) {
       }
     }
   }
+  configurators.tapeTime.vars["quantize"].changeFunction = configurators.tapeTime.vars["quantize"].selectFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value = selectedTape.quantize.value;
+      if (thisVar.value + delta >= 1) {
+        thisVar.value += delta;
+        selectedTape.quantize.value = thisVar.value;
+      }
+    }
+  }
   configurators.tapeTime.vars["fold!"].changeFunction = function(thisVar, delta) {
     if (selectedTape) {
       thisVar.value = selectedTape.steps.value;
