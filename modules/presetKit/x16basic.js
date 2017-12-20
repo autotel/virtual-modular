@@ -3,6 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 var RecordMenu = require('../x16utils/RecordMenu.js');
+var RecorderModuleWindow = require('../x28utils/RecorderModuleWindow.js');
 var SQUARE = String.fromCharCode(252);
 /**
 definition of a presetkit interactor for the x16basic controller hardware
@@ -148,6 +149,8 @@ module.exports = function(environment) {
     var highlightedBitmap = 0;
     var selectedPresetNumbers = [];
 
+    let recorderModuleWindow=new RecorderModuleWindow(controlledModule,environment);
+
     function eachSelectedPresetNumber(cb) {
       selectedPresetNumbers.map(cb);
     }
@@ -224,6 +227,10 @@ module.exports = function(environment) {
         } else if (event.button == 3) {
           lastEngagedConfigurator = engagedConfigurator = configurators.util;
           engagedConfigurator.engage(event);
+        } else if (event.button >= 8) {
+          let wevent={type:event.type, originalMessage:event.originalMessage, button:event.button, hardware:event.hardware};
+          wevent.button-=8;
+          recorderModuleWindow.windowButtonPressed(wevent);
         }
       }
     };
@@ -302,6 +309,7 @@ module.exports = function(environment) {
     this.engage = function(event) {
       engagedHardwares.add(event.hardware);
       updateHardware(event.hardware);
+      recorderModuleWindow.engage(event);
     };
     this.disengage = function(event) {
       outsideScrollHeader = 0;

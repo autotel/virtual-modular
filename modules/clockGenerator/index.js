@@ -21,7 +21,7 @@ module.exports=function(environment){return new (function(){
     var step=this.step={value:0,microSteps:12}
     if(properties.cpm)this.cpm.value=properties.cpm;
     this.baseName="clockGenerator";
-    this.color=[30,100,100];
+    this.color=[60,100,100];
     name.call(this);
     if(properties.name) this.name=properties.name;
     var myInteractor=this.interactor=new interactorSingleton.Instance(this);

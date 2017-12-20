@@ -9,7 +9,7 @@ module.exports={
   "gameOfLife":"./gameOfLife",
   "midiIO":"./midiIO-windows",
   "tape":"./tape",
-  "multiloop":"./multiloop",
+  "multitape":"./multitape",
   "narp":"./narp",
 }
 /*

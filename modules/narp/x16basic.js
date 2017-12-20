@@ -22,7 +22,7 @@ module.exports = function(environment) {
       vars: {
         "step ratio": controlledModule.stepDivision,
         "mode": {
-          value: "momentary",
+          value: "toggle",
           changeFunction: function(thisVar, delta) {
             if (thisVar.value == "momentary") {
               thisVar.value = "toggle"
@@ -158,12 +158,8 @@ module.exports = function(environment) {
       // hardware.sendScreenB("n:"+currentStep);
     }
     var updateLeds = function(hardware) {
-      stepsBmp = controlledModule.getBitmap16();
-      var headerBmp=0;
-      if(stepsBmp>0){
-        headerBmp=1<<controlledModule.baseEventMessage.value[2];
-      }
-      hardware.draw([headerBmp|stepsBmp, headerBmp, headerBmp|stepsBmp]);
+      let bmp=controlledModule.getBitmaps16();
+      hardware.draw([bmp.header|bmp.steps, bmp.header, bmp.header|bmp.steps]);
     }
   }
 }

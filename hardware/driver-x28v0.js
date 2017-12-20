@@ -177,7 +177,6 @@ var DriverX28v0 = function(environment, properties) {
   var myInstanceNumber = instances;
   instances++;
   var dataChopper = new DataChopper();
-  // console.log(environment.interactionMan.entryInteractors.x16basic);
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
   var myInteractionPattern = environment.interactionMan.newSuperInteractor("x28basic", this);
   myInteractionPattern.handle('serialopened');
@@ -319,6 +318,9 @@ var DriverX28v0 = function(environment, properties) {
   }
   var drawColor = this.drawColor = function(bitmap, color = [255, 0, 0],add = true) {
     setLedsToColor(bitmap,color,8,add);
+  }
+  var drawLowerSelectorButtonsColor = this.drawLowerSelectorButtonsColor = function(bitmap, color = [255, 0, 0],add = true) {
+    setLedsToColor(bitmap,color,24,add);
   }
   var clear=this.clear=function(){
     tHardware.draw([0,0,0]);

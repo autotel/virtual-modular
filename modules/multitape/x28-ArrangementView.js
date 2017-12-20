@@ -132,28 +132,35 @@ module.exports = function(environment, parentInteractor) {
         updateLeds(hardware);
       }
   }, 1000 / 50);
+  this.windowButtonPressed = function(event){
+    if (event.button >= tapesAmount) {
+      var newTape = controlledModule.addNewTape();
+      controlledModule.selectTape(newTape);
+      selectedTape = newTape;
+      // selectedTapeNumber = controlledModule.getTapeNum(newTape);
+      selectedTapeNumber=controlledModule.getCurrentTapeNumber();
+      tapesAmount = controlledModule.tapeCount();
+    } else {
+      let thereIs = controlledModule.getNumTape(event.button);
+      // console.log(thereIs);
+      if (thereIs) {
+        controlledModule.selectTape(thereIs);
+        selectedTapeNumber = event.button;
+        selectedTape = thereIs;
+      }
+    }
+    if (muteMode && selectedTape) {
+      controlledModule.muteTapeToggle(selectedTape);
+    }
+  }
+  this.windowButtonReleased = function(event){
+
+  }
   this.matrixButtonPressed = function(event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
-      if (event.button >= tapesAmount) {
-        var newTape = controlledModule.addNewTape();
-        controlledModule.selectTape(newTape);
-        selectedTape = newTape;
-        selectedTapeNumber = controlledModule.getTapeNum(newTape);
-        tapesAmount = controlledModule.tapeCount();
-      } else {
-        let thereIs = controlledModule.getNumTape(event.button);
-        // console.log(thereIs);
-        if (thereIs) {
-          controlledModule.selectTape(thereIs);
-          selectedTapeNumber = event.button;
-          selectedTape = thereIs;
-        }
-      }
-      if (muteMode && selectedTape) {
-        controlledModule.muteTapeToggle(selectedTape);
-      }
+      self.windowButtonPressed(event);
       updateHardware(event.hardware);
     }
   };

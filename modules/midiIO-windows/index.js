@@ -138,6 +138,9 @@ module.exports=function(environment){return new (function(){
   require to moduleBase.call. it is created via ModulesManager.addModule
   */
   this.Instance=function(properties){
+
+    this.preventBus=true;
+    
     moduleInstanceBase.call(this);
     this.baseName=(properties.name?properties.name:"Midi");
     this.color=[127,127,127];
@@ -180,8 +183,8 @@ module.exports=function(environment){return new (function(){
           case 0xF0:{
             if(outputMessage.value[1]==0x8){
               outputMessage.value[0]=CLOCKTICKHEADER;
-              outputMessage.value[1]=12;
-              outputMessage.value[2]=inputClockCount%12;
+              outputMessage.value[1]=6;
+              outputMessage.value[2]=inputClockCount%6;
               inputClockCount+=1;
               break;
             }else if(outputMessage.value[1]==0xa){

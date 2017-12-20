@@ -39,10 +39,10 @@ module.exports=function(environment){return new (function(){
 
     moduleInstanceBase.call(this);
     this.baseName="game of life";
-    this.color=[0,0,233];
+    this.color=[255,0,233];
     testGetName.call(this);
     if(properties.name) this.name=properties.name;
-
+    var self=this;
     var baseEventMessage=this.baseEventMessage= new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
     var myInteractor=new interactorSingleton.Instance(this);
     this.interactor=myInteractor;

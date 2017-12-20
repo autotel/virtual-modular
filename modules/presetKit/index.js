@@ -39,7 +39,7 @@ module.exports=function(environment){return new (function(){
   this.Instance=function(properties){
     moduleInstanceBase.call(this);
     this.baseName="preset kit";
-    this.color=[0,90 ,90];
+    this.color=[90,70 ,30];
     var self=this;
     //get my unique name
     name.call(this);

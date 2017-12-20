@@ -42,7 +42,7 @@ module.exports=function(environment){return new (function(){
 
     // this.baseNote={value:0};
 
-    this.baseEventMessage=new EventMessage({value:[1,-1,0,90]});
+    this.baseEventMessage=new EventMessage({value:[1,-1,20,90]});
     var scaleMap={};
     //keep track of triggered notes
     this.scaleArray={};
