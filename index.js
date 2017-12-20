@@ -27,3 +27,4 @@ try{
 }catch(e){
   console.error("error while loading default patch: ",e);
 }
+module.exports=environment;

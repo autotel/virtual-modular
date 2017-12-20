@@ -80,6 +80,8 @@ module.exports=function(environment){
 
       return (ret);
     }
+    this.windowButtonPressed=views.arrangement.windowButtonPressed;
+    this.windowButtonReleased=views.arrangement.windowButtonReleased;
 
     this.selectorButtonReleased=function(event){
 

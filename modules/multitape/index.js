@@ -31,7 +31,7 @@ module.exports = function(environment) {
     */
     this.Instance = function(properties) {
       moduleInstanceBase.call(this);
-      this.baseName = "multiloop";
+      this.baseName = "multitape";
       this.color=[0,127,255];
       testGetName.call(this);
       if (properties.name) this.name = properties.name;
@@ -62,6 +62,10 @@ module.exports = function(environment) {
       }
       this.getNumTape=function(n){
         if(tapes[n]){ return tapes[n] }else{ console.log("false");return false; }
+      }
+      this.getCurrentTapeNumber=function(){
+        let ret=tapes.indexOf(currentTape);
+        return ret!=-1?ret:false;
       }
       this.tapeCount=function(){
         return tapes.length;
