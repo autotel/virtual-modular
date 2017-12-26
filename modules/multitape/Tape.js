@@ -23,7 +23,7 @@ var Tape=function(properties){
     onInput:false,
   }
   var name=this.name="tape "+tapeCount;
-  var quantize=this.quantize={value:0};
+  var quantize=this.quantize={grid:0,currentStep:0,microDisplacement:0};
 
   this.excited=0;
 
@@ -148,12 +148,29 @@ var Tape=function(properties){
   }
 
   this.clockFunction=function(timeIndex,microStepBase){
+    if(!muted.value){
+      quantize.currentStep++;
+      if(quantize.currentStep<quantize.grid){
+        // console.log(quantize.currentStep);
+        if(quantize.microDisplacement===false){
+          quantize.microDisplacement=quantize.currentStep-timeIndex[1];
+        }
+      }else{
+        // console.log("TI",timeIndex);
+        // console.log(`${quantize.currentStep}<${quantize.grid}`)
+        catchUpEventsToClock(timeIndex,microStepBase);
+        quantize.currentStep=0;
+      }
+    }
+
     if(microStepBase!==undefined){
       if(microStepBase!=lastMicroStepBase){
         lastMicroStepBase=microStepBase;
         console.log("micro step base changed in tape");
       }
     }
+
+
 
     //this over-complicated way of transfering the clock from the outside is because it allows keeping the tapes on sync, and apply displacements over that.
     var clockDelta=[timeIndex[0]-lastClockFunction[0],timeIndex[1]-lastClockFunction[1]];
@@ -167,27 +184,43 @@ var Tape=function(properties){
       if(silentOnInput.onInput<=0) silentOnInput.onInput=false;
     }
 
-
-    playhead[0]+=clockDelta[0];
-    playhead[1]+=clockDelta[1];
-    playhead[0]%=steps.value;
-    playhead[1]%=lastMicroStepBase;
-
-    if(!muted.value){
-      if(overdub.value?true:(silentOnInput.value?!silentOnInput.onInput:true))
-      if (memory[playhead]) {
-        for (var eventMessage of memory[playhead]) {
-          self.excited++;
-          // console.log("TOPT",eventMessage.value);
-          self.outputFunction(eventMessage);
-        }
-      }
+    if(overdub.value?true:(silentOnInput.value?!silentOnInput.onInput:true)){
+      if(clockDelta[0]>=1) evaluateNewRecording();
     }
-
-    if(clockDelta[0]>=1) evaluateNewRecording();
 
     lastClockFunction=timeIndex;
   }
+  let catchupHead=[0,0];
+  function catchUpEventsToClock(timeIndex){
+    while(catchupHead[0]<timeIndex[0] || catchupHead[1]!=timeIndex[1]){
+
+      // console.log(`${catchupHead[0]}<${timeIndex[0]} || ${catchupHead[1]}<${timeIndex[1]}`);
+      // console.log("CU",playhead);
+      if (memory[playhead]) {
+        for (var eventMessage of memory[playhead]) {
+          self.excited++;
+          self.outputFunction(eventMessage);
+        }
+      }
+
+      // playhead[0]++;
+      playhead[1]++;
+      while(playhead[1]>=lastMicroStepBase){
+        playhead[0]++;
+        playhead[1]-=lastMicroStepBase;
+      }
+      playhead[0]%=steps.value;
+
+      // catchupHead[0]++;
+      catchupHead[1]++;
+      while(catchupHead[1]>=lastMicroStepBase){
+        catchupHead[0]++;
+        catchupHead[1]-=lastMicroStepBase;
+      }
+
+    }
+  }
+
   tapeCount++;
   propertiesApplicator.call(this,properties);
 }
