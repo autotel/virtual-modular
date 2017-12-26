@@ -65,6 +65,7 @@ var modulesManager=function(environment){ return new(function(){
   this.removeModuleN=function(n){
     if(moduleInstances[n].remove()){
       moduleInstances.splice(n,1);
+      console.log("SPLICE ",n);
       return true;
     }else{
       return false;

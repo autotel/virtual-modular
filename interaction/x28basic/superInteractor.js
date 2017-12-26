@@ -134,7 +134,6 @@ var SuperInteractorsSingleton = function(environment) {
 
           } else if (deleteMode) {
             if (environment.modulesMan.removeModuleN(event.button)) {
-              modulesMan.modules.splice(event.button, 1);
               selectedInterface = false;
             }
           } else {}
