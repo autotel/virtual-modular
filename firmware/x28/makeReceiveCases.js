@@ -49,7 +49,7 @@ var stringEnd="\n   }   }\n\
       //lcdPrintB(\"i\" + String(data_a, HEX) + \"ex\" + expectedLength + \"len:\" + byteNumber);\n\
     }\n\
   }\n\
-}";
+}\n//----cg. END---";
 var cache={};
 var comConsts={};
 for(var line of lines){

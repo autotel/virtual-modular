@@ -3,6 +3,7 @@
 let onHandlers=require('onhandlers');
 let X16bs=require('./x16basic');
 let X28bs=require('./x28basic');
+let DefCli=require('./DefCli');
 
 /**
 InteractionManager contains a list of all the running instances of {@link HardwareDriver}s and links them to instances of {@link superInteractorPrototypes} and {@link Interactor}s
@@ -14,12 +15,14 @@ var interactionManager=function(environment){ return new(function(){
   var superInteractorSingletons=[];
   var superInteractorInstances=[];
   var moduleInteractorSingletons=[];
-  var moduleInteractorInstances=[];
+  // var moduleInteractorInstances=[];
   //create the interface element and register it's singleton
   interfaces.x16basic=new X16bs(environment);
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
   interfaces.x28basic=new X28bs(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
+  interfaces.DefCli=new DefCli(environment);
+  superInteractorSingletons.push(interfaces.DefCli.superInteractorSingleton);
   /**
     @function
     called by a hardwareManager: when there is a new hardware connected, it is associated with a {@link superInteractor}
@@ -40,13 +43,13 @@ var interactionManager=function(environment){ return new(function(){
     moduleInteractorSingletons.push(interactorSingleton);
   }
 
-  environment.on('module created',function(evt){
-    var newInteractor=evt.module.interactor;
-    moduleInteractorInstances.push(newInteractor);
-    for(var sis of superInteractorSingletons){
-      sis.appendModuleInteractor(newInteractor);
-    }
-  })
+  // environment.on('module created',function(evt){
+    // var newInteractor=evt.module.interactor;
+    // moduleInteractorInstances.push(newInteractor);
+    // for(var sis of superInteractorSingletons){
+    //   sis.appendModuleInteractor(newInteractor);
+    // }
+  // })
   return this;
 })};
 module.exports=interactionManager;

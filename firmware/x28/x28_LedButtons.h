@@ -28,17 +28,18 @@ class LedButtons {
 
       //security led fadein
       for (uint32_t t = 0; t < 0xff; t += 4) {
-        LEDS.setBrightness(t);
+        LEDS.setBrightness(t / 4);
         for (uint16_t a = 0; a < 28; a++) {
           setButtonColor(
             a,
-            floor(sin(a * t / (28000 )+0.15) * 255),
-            floor(sin(a * t / (28000 )+0.25) * 255),
-            floor(sin(a * t / (28000 )+0.75) * 255)
+            floor(sin(t / (4 ) + 0.15) * 127) + 127,
+            floor(sin(t / (3 ) + 0.25) * 127) + 127,
+            floor(sin(t / (2 ) + 0.75) * 127) + 127
           );
         }
         FastLED.show();
-        delay(5);
+        //https://www.desmos.com/calculator/zmpnfwcguf
+        delay(((t+70)/((t/44)+1))-47);
       }
 
       for (uint8_t a = 0; a < 33; a++) {
@@ -51,7 +52,7 @@ class LedButtons {
     }
     void loop() {
       readMatrixButtons();
-      doEncoderButton();
+      doOtherButtons();
 
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
@@ -59,24 +60,66 @@ class LedButtons {
         refreshLcd();
       }
     }
-    uint16_t lastEncoderPressTimer = 0;
-    uint16_t debounceTime = 250;
-    void doEncoderButton() {
-      //not working
+
+    uint8_t otherButtonsLastPressed=0;
+    void doOtherButtons(){
+        /*
+        side buttons:
+        mxx4				  mxy1,2
+        PH7 -[\_]-<|--	PK1,2
+        muxa4         muxbx1,2
+
+        encoder:
+        PH7--[\_]--<|--PK0
+
+      */
       //set MUXBX0 low MUXAX4 to high;
-      PORTK &= ~(0x1 << 0);
-      PORTH |= 0x1 << 7;
-      if ((PINH >> 7) & 1) {
-        if (lastEncoderPressTimer >= debounceTime) {
-          encoderPressedCallback();
-          lastEncoderPressTimer = 0;
-        }
-      } else {
-        if (lastEncoderPressTimer <= debounceTime) {
-          lastEncoderPressTimer++;
+      for(uint8_t a=0; a<3; a++){
+        DDRK &= ~(1<<a);
+        DDRH |= 1 << 7;
+        PORTK |= 1 << a;
+        PORTH &= ~(1 << 7);
+        if ((PINK & (1<<a)) == 0){
+          //buttton detected pressed
+          if((otherButtonsLastPressed&(1<<a))==0){
+            //and was not pressed the last time
+            otherButtonsLastPressed|=1<<a;
+            if(a==0){
+              encoderPressedCallback();
+            }else{
+              bottomButtonPressedCallback(a-1);
+            }
+          }
+        } else {
+          if((otherButtonsLastPressed&(1<<a))!=0){
+            //and was pressed the last time
+            if(a==0){
+              encoderReleasedCallback();
+            }else{
+              bottomButtonReleasedCallback(a-1);
+            }
+          }
+          otherButtonsLastPressed&=~(1<<a);
         }
       }
     }
+    // uint16_t lastEncoderPressTimer = 0;
+    // uint16_t debounceTime = 250;
+    // void doEncoderButton() {
+    //   //set MUXBX0 low MUXAX4 to high;
+    //   PORTK &= ~(0x1 << 0);
+    //   PORTH |= 0x1 << 7;
+    //   if ((PINH >> 7) & 1) {
+    //     if (lastEncoderPressTimer >= debounceTime) {
+    //       encoderPressedCallback();
+    //       lastEncoderPressTimer = 0;
+    //     }
+    //   } else {
+    //     if (lastEncoderPressTimer <= debounceTime) {
+    //       lastEncoderPressTimer++;
+    //     }
+    //   }
+    // }
 #define divideEncoderRotation 4
     const uint8_t grayToBinary = 0b10110100;
     int8_t enc_last = 0;
@@ -116,7 +159,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF;
+      DDRH = 0xFF << 3;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK
@@ -203,6 +246,10 @@ class LedButtons {
       CB_encoderPressed = fpb;
       CB_encoderReleased = fpc;
     };
+    void setBottomButtonsCallbacks(void (*fpa)(uint8_t), void (*fpb)(uint8_t)) {
+      CB_botomButtonPressed = fpa;
+      CB_botomButtonReleased = fpb;
+    };
     void setButtonColor(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
       if (a | b | c > 0) {
         //c |= 80;
@@ -280,6 +327,8 @@ class LedButtons {
     void (*CB_encoderRotated)(int8_t) = 0;
     void (*CB_encoderPressed)() = 0;
     void (*CB_encoderReleased)() = 0;
+    void (*CB_botomButtonPressed)(uint8_t) = 0;
+    void (*CB_botomButtonReleased)(uint8_t) = 0;
     uint32_t pressedButtonsBitmap = 0;
     void buttonPressedCallback(byte button, uint32_t bitmap) {
       if ( 0 != CB_buttonPressed ) {
@@ -302,6 +351,20 @@ class LedButtons {
     void encoderRotatedCallback(byte delta) {
       if ( 0 != CB_encoderRotated ) {
         (*CB_encoderRotated)(delta);
+      }
+      else {
+      }
+    }
+    void bottomButtonPressedCallback(uint8_t button) {
+      if ( 0 != CB_botomButtonPressed ) {
+        (*CB_botomButtonPressed)(button);
+      }
+      else {
+      }
+    }
+    void bottomButtonReleasedCallback(uint8_t button) {
+      if ( 0 != CB_botomButtonReleased ) {
+        (*CB_botomButtonReleased)(button);
       }
       else {
       }

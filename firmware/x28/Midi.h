@@ -53,6 +53,8 @@ class Midi {
     void loop() {
       //this reception algorhithm doesn't work well yet.|
       while (Serial1.available()) {
+        //Serial.println("--");
+        //Serial.print(Serial1.peek());
         uint8_t inbuf [] = {0,0,0};
         if (expectedMessageLength == 0) {
           expectedMessageLength = getMessageExpectedLength(Serial1.peek());
@@ -84,13 +86,17 @@ class Midi {
 
       }
     }
-
+  //maybe this should accept an array instead of three params?
     void out(uint8_t a, uint8_t b, uint8_t c) {
       Serial1.write(a);
       Serial1.write(b);
       Serial1.write(c);
     }
     void in(uint8_t a, uint8_t b, uint8_t c) {
+      /*Serial.println("--");
+      Serial.print(a);
+      Serial.print(b);
+      Serial.print(c);*/
       midiInCallback(a, b, c);
     }
 
