@@ -1,19 +1,19 @@
 module.exports=[
   {
-    type:'clockGenerator',
+    type:'ClockGenerator',
     properties:{
       name:'main clock',
       bpm:120
     },
     outputs:[]
   },{
-    type:'harmonizer',
+    type:'Harmonizer',
     outputs:['default midi out','O-to DAW']
   },{
-    type:'sequencer',
+    type:'Sequencer',
     outputs:[]
   },{
-    type:'presetKit',
+    type:'PresetKit',
     properties:{
       name:'nu presetKit',
       kit:[
@@ -25,7 +25,7 @@ module.exports=[
     },
     outputs:['default midi out','O-to DAW']
   },{
-    type:'presetKit',
+    type:'PresetKit',
     properties:{
       kit:[
         [1,10,36,-1],[1,10,37,-1],[1,10,38,-1],[1,10,39,-1],
@@ -36,7 +36,7 @@ module.exports=[
     },
     outputs:['default midi out','O-to DAW']
   },{
-    type:'presetKit',
+    type:'PresetKit',
     properties:{
       kit:[
         [1,11,36,-1],[1,11,37,-1],[1,11,38,-1],[1,11,39,-1],
@@ -47,7 +47,7 @@ module.exports=[
     },
     outputs:['default midi out','O-to DAW']
   },{
-    type:'presetKit',
+    type:'PresetKit',
     properties:{
       kit:[
         [1,12,36,-1],[1,12,37,-1],[1,12,38,-1],[1,12,39,-1],

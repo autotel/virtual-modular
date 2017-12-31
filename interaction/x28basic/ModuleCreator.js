@@ -7,7 +7,7 @@ function ModuleCreator(myHardware,environment) {
   var possibleModulesBitmap = 0;
   var moduleToCreateOnDisengage = false;
   var lastMatrixButton = false;
-  var modulesMan=environment.modulesMan;
+  var modulesMan=environment.modules;
   this.engaged = false;
 
   function updatePossibleModulesList() {

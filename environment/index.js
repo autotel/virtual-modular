@@ -5,6 +5,7 @@ var ModulesManager=require('./ModulesManager');
 
 var Environment=function(){
   Observable.call(this);
+  var self=this;
   this.on('a',console.log)
   function requireProperties(propList){
     var missing={};
@@ -34,6 +35,9 @@ var Environment=function(){
       return;
     }else{
       console.log("added module",Constructor.name);
+    }
+    if(typeof Constructor.initialization==="function"){
+      Constructor.initialization(self);
     }
     modules.addConstructor(Constructor);
   }

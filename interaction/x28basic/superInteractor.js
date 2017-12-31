@@ -364,12 +364,12 @@ var SuperInteractorsSingleton = function(environment) {
 
     function tryGetInterfaceN(number) {
       if (number < modules.list.length) {
-        if (modules.list[number].x28Interface) {
-          return modules.list[number].x28Interface;
-        } else if (modules.list[number].x16Interface) {
-          return modules.list[number].x16Interface;
+        if (modules.list[number].interfaces.X28) {
+          return modules.list[number].interfaces.X28;
+        } else if (modules.list[number].interfaces.X16) {
+          return modules.list[number].interfaces.X16;
         } else {
-          console.log(modules.list[number].name, " had no x28Interface property nor x16Interface property");
+          console.log(modules.list[number].name, " had no interfaces.X28 property nor interfaces.X16 property");
         }
       }
       return false;

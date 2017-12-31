@@ -275,10 +275,10 @@ var SuperInteractorsSingleton = function(environment) {
     }
     function tryGetInterfaceN(number) {
       if (number < modules.list.length) {
-        if(modules.list[number].x16Interface){
-          return modules.list[number].x16Interface;
+        if(modules.list[number].interfaces.X16){
+          return modules.list[number].interfaces.X16;
         }else{
-          console.log(modules.list[number].name," had no x16Interface property");
+          console.log(modules.list[number].name," had no interfaces.X16 property");
         }
       }
       return false;

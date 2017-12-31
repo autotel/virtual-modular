@@ -1,7 +1,7 @@
 "use strict";
 // var modulePrototypesList=require('./modulePrototypesList');
 var utils=require('./utils');
-
+var ModuleInstanceBase=require('./ModuleInstanceBase');
 /**
 @constructor
 ModulesManager manages the pattern modifying modules.
@@ -52,10 +52,12 @@ var ModulesManager=function(environment){
   this.instantiate=function(moduleName,properties){
     var newInstance=false;
     try{
-      newInstance=new constructors[moduleName](properties,environment);
+      newInstance=new ModuleInstanceBase(properties,environment)
+      constructors[moduleName].call(newInstance,properties,environment);
       environment.handle('module created',{module:newInstance});
       newInstance.enqueue=lazyStack.enq;
       modules.push(newInstance);
+      
     }catch(e){
       console.error("error instantiating module ",moduleName,e);
     }
