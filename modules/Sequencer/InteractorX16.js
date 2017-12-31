@@ -20,7 +20,7 @@ module.exports = function(controlledModule, environment) {
 
   base.call(this, controlledModule);
   var thisInterface = this;
-  var currentViewPage=0;
+  var currentViewStartStep=0;
   var engagedHardwares = new Set();
 
   //tracking vars
@@ -125,7 +125,8 @@ module.exports = function(controlledModule, environment) {
   configurators.time.vars["page"].changeFunction = function(thisVar, delta) {
     if (thisVar.value + delta >= 0)
       thisVar.value += delta;
-    currentViewPage=thisVar.value;
+    thisVar.value=thisVar.value%controlledModule.loopLength.value;
+    currentViewStartStep=thisVar.value*16;
   }
 
   configurators.time.vars["step div"].changeFunction = function(thisVar, delta) {
@@ -197,7 +198,7 @@ module.exports = function(controlledModule, environment) {
 
   var getBitmapx16 = function(filter, requireAllFold, representLength) {
     var ret = 0x0000;
-    let buttonStart=currentViewPage*16;
+    let buttonStart=currentViewStartStep;
     if (requireAllFold) {
       for (var button = 0; button < 16; button++)
         if (getThroughfoldBoolean(button+buttonStart, filter) === requireAllFold) ret |= 0x1 << button;
@@ -243,15 +244,16 @@ module.exports = function(controlledModule, environment) {
 
   this.matrixButtonPressed = function(event) {
     // console.log(event.data);
+    var button = event.button;
+    var targetButton=button+currentViewStartStep;
     var hardware = event.hardware;
     if (skipMode) {
-      controlledModule.restart(event.data[0]);
+      controlledModule.restart(targetButton);
 
     } else if (engagedConfigurator === false) {
-      var button = event.data[0];
       var currentFilter = shiftPressed ? moreBluredFilter : focusedFilter;
-      var throughfold = getThroughfoldBoolean(button, currentFilter);
-      var targetButton=button+(currentViewPage*16);
+      var throughfold = getThroughfoldBoolean(targetButton, currentFilter);
+      console.log("THEREIS",throughfold);
       //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
       if (shiftPressed) {
         if (throughfold !== true) throughfold = throughfold > 0;
@@ -286,7 +288,7 @@ module.exports = function(controlledModule, environment) {
   };
   this.matrixButtonReleased = function(event) {
     var hardware = event.hardware;
-    var targetButton=event.button+(currentViewPage*16);
+    var targetButton=event.button+currentViewStartStep;
     noteLengthner.finishAdding(targetButton, function(differenciator, sequencerEvent, nicCount) {
       eachFold(differenciator, function(step) {
         /*var added=*/
@@ -437,7 +439,7 @@ module.exports = function(controlledModule, environment) {
     } else {
       //otherwise, normal one header
       drawStep = currentStep.value % loopLength.value;
-      var playHeadBmp = 0x1 << (drawStep+(currentViewPage*16));
+      var playHeadBmp = 0x1 << (drawStep+currentViewStartStep);
     }
 
     hardware.draw([
