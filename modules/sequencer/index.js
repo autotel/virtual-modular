@@ -132,9 +132,12 @@ var Sequencer = function(properties,environment) {
       evt.value.shift();
       // console.log(evt.value[0]);
       if (evt.value[0] == TRIGGERONHEADER) {
-        recorder.recordNoteStart(evt.value[1] * evt.value[2], evt);
+        recorder.recordNoteStart([evt.value[1],evt.value[2]], evt);
+        // console.log("ON",[evt.value[1],evt.value[2]]);
       } else if (evt.value[0] == TRIGGEROFFHEADER) {
-        recorder.recordNoteEnd(evt.value[1] * evt.value[2]);
+        recorder.recordNoteEnd([evt.value[1],evt.value[2]]);
+        // console.log("OFF",[evt.value[1],evt.value[2]]);
+
       } else {
         recorder.recordSingularEvent(evt);
       }

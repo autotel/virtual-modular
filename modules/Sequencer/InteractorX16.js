@@ -6,6 +6,10 @@ var RecordMenu = require('../x16utils/RecordMenu.js');
 var NoteLengthner = require('./sequencerGuts/NoteLengthner.js');
 
 var base = require('../../interaction/x16basic/interactorBase.js');
+
+function log(b, n) {
+  return Math.log(n) / Math.log(b);
+}
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -16,7 +20,7 @@ module.exports = function(controlledModule, environment) {
 
   base.call(this, controlledModule);
   var thisInterface = this;
-
+  var currentViewPage=0;
   var engagedHardwares = new Set();
 
   //tracking vars
@@ -62,7 +66,10 @@ module.exports = function(controlledModule, environment) {
     name: "",
     vars: {
       "loop length": loopLength,
+      "fold": {value:controlledModule.loopLength.value,base:2},
+      "fold!": {value:controlledModule.loopLength.value,base:2},
       "loop look": lookLoop,
+      "page": {value:0},
       "step div": controlledModule.stepDivide,
       "drift substep": controlledModule.loopDisplace,
       "microstep offset": controlledModule.microStepDisplace,
@@ -75,12 +82,50 @@ module.exports = function(controlledModule, environment) {
       thisVar.value += delta;
   }
 
+  configurators.time.vars["fold"].nameFunction=configurators.time.vars["fold!"].nameFunction=function(thisVar){
+    //TODO: ensure that the thisVar.value ends up being the actual length
+    return `${thisVar.base}^${Math.round(thisVar.power*100)/100}>${Math.round(thisVar.value)}`;
+
+  }
+  configurators.time.vars["fold"].selectFunction = configurators.time.vars["fold!"].selectFunction = function(thisVar){
+    thisVar.value = controlledModule.loopLength.value;
+    thisVar.power = log(thisVar.base,thisVar.value);
+  }
+  configurators.time.vars["fold!"].changeFunction = function(thisVar, delta) {
+    var oldLength = thisVar.value;
+    if (shiftPressed) {
+      thisVar.base += delta;
+    } else {
+      thisVar.power += delta;
+    }
+    thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
+    console.log("FOLD",thisVar.value);
+    controlledModule.duplicateSequence(0, oldLength, thisVar.value / oldLength);
+    controlledModule.loopLength.value = thisVar.value;
+  }
+  configurators.time.vars["fold"].changeFunction = function(thisVar, delta) {
+    var oldLength = thisVar.value;
+    if (shiftPressed) {
+      thisVar.base += delta;
+    } else {
+      thisVar.power += delta;
+    }
+    thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
+    console.log("FOLD",thisVar.value);
+    controlledModule.loopLength.value = thisVar.value;
+  }
+
   configurators.time.vars["loop look"].nameFunction = function(thisVar) {
     return (thisVar.value == 0 ? "off" : "" + thisVar.value);
   };
   configurators.time.vars["loop look"].changeFunction = function(thisVar, delta) {
     if (thisVar.value + delta >= 0)
       thisVar.value += delta;
+  }
+  configurators.time.vars["page"].changeFunction = function(thisVar, delta) {
+    if (thisVar.value + delta >= 0)
+      thisVar.value += delta;
+    currentViewPage=thisVar.value;
   }
 
   configurators.time.vars["step div"].changeFunction = function(thisVar, delta) {
@@ -152,14 +197,15 @@ module.exports = function(controlledModule, environment) {
 
   var getBitmapx16 = function(filter, requireAllFold, representLength) {
     var ret = 0x0000;
+    let buttonStart=currentViewPage*16;
     if (requireAllFold) {
       for (var button = 0; button < 16; button++)
-        if (getThroughfoldBoolean(button, filter) === requireAllFold) ret |= 0x1 << button;
+        if (getThroughfoldBoolean(button+buttonStart, filter) === requireAllFold) ret |= 0x1 << button;
     } else {
       if (filter) {
         for (var button = 0; button < 16; button++)
-          if (controlledModule.patData[button])
-            for (var stepData of controlledModule.patData[button])
+          if (controlledModule.patData[button+buttonStart])
+            for (var stepData of controlledModule.patData[button+buttonStart])
               if (filter(stepData)) {
                 /*  if(representLength){
                     ret|=~(0xffff<<stepData.stepLength)<<button;
@@ -170,8 +216,8 @@ module.exports = function(controlledModule, environment) {
               }
       } else {
         for (var button = 0; button < 16; button++)
-          if (controlledModule.patData[button])
-            for (var stepData of controlledModule.patData[button])
+          if (controlledModule.patData[button+buttonStart])
+            for (var stepData of controlledModule.patData[button+buttonStart])
               if (stepData) {
                 ret |= 0x1 << button;
               }
@@ -205,7 +251,7 @@ module.exports = function(controlledModule, environment) {
       var button = event.data[0];
       var currentFilter = shiftPressed ? moreBluredFilter : focusedFilter;
       var throughfold = getThroughfoldBoolean(button, currentFilter);
-
+      var targetButton=button+(currentViewPage*16);
       //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
       if (shiftPressed) {
         if (throughfold !== true) throughfold = throughfold > 0;
@@ -215,7 +261,7 @@ module.exports = function(controlledModule, environment) {
       // console.log(throughfold);
       if (throughfold) {
         //there is an event on every fold of the lookloop
-        eachFold(button, function(step) {
+        eachFold(targetButton, function(step) {
           controlledModule.clearStepByFilter(step, currentFilter)
         });
       }
@@ -228,7 +274,7 @@ module.exports = function(controlledModule, environment) {
               }*/
       else {
         //on every repetition is empty
-        noteLengthner.startAdding(button, configurators.event.getEventPattern());
+        noteLengthner.startAdding(targetButton, configurators.event.getEventPattern());
         noteLengthnerStartPointsBitmap |= 0x1 << button;
         noteLengthnerLengthsBitmap = noteLengthnerStartPointsBitmap;
       }
@@ -240,7 +286,8 @@ module.exports = function(controlledModule, environment) {
   };
   this.matrixButtonReleased = function(event) {
     var hardware = event.hardware;
-    noteLengthner.finishAdding(event.data[0], function(differenciator, sequencerEvent, nicCount) {
+    var targetButton=event.button+(currentViewPage*16);
+    noteLengthner.finishAdding(targetButton, function(differenciator, sequencerEvent, nicCount) {
       eachFold(differenciator, function(step) {
         /*var added=*/
         controlledModule.storeNoDup(step, sequencerEvent);
@@ -390,7 +437,7 @@ module.exports = function(controlledModule, environment) {
     } else {
       //otherwise, normal one header
       drawStep = currentStep.value % loopLength.value;
-      var playHeadBmp = 0x1 << drawStep;
+      var playHeadBmp = 0x1 << (drawStep+(currentViewPage*16));
     }
 
     hardware.draw([

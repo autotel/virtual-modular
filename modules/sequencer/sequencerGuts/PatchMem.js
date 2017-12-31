@@ -1,7 +1,7 @@
 
 'use strict';
 var EventMessage=require('../../../datatypes/EventMessage.js');
-var PatternEvent=require('../../../datatypes/EventPattern.js');
+var EventPattern=require('../../../datatypes/EventPattern.js');
 
 module.exports=function(sequencerModule){ return new(function(){
   var self=this;
@@ -37,9 +37,10 @@ module.exports=function(sequencerModule){ return new(function(){
     }
   }
   /**
-  store a PatternEvent in the sequencer memory ensuring that the event doesn't already exist in that step
-  @param {numbar} step the step where the PatternEvent will be stored
-  @param {PatternEvent} data the PatternEvent to store
+
+  store a EventPattern in the sequencer memory ensuring that the event doesn't already exist in that step
+  @param {numbar} step the step where the EventPattern will be stored
+  @param {EventPattern} data the EventPattern to store
   @returns stored data, or false if data was already found and not stored
   */
   var storeNoDup=function(step,data){
@@ -122,6 +123,7 @@ module.exports=function(sequencerModule){ return new(function(){
       clearStepRange(originalEndingStep+1,initialStepSize*(multiplyFactor-1));
       //starts in 1 because the 0 is the currently existing one
       for(var duplicationNumber=1; duplicationNumber<multiplyFactor; duplicationNumber++){
+        console.log("DUPOP",duplicationNumber);
         for(var step=startingStep; step<originalEndingStep; step++){
           // var testc=0;
           if(patData[step])
@@ -132,7 +134,7 @@ module.exports=function(sequencerModule){ return new(function(){
             // TODO: in many places I create these sequencer memory events, they should be
             //instances of the same class, to avoid easter egg bugs
             if(!patData[targetStep]) patData[targetStep]=[];
-            patData[targetStep].push(new patternEvent({
+            patData[targetStep].push(new EventPattern({
               on:new EventMessage(patData[step][a].on),
               off:new EventMessage(patData[step][a].off),
               stepLength:patData[step][a].stepLength,
