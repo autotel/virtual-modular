@@ -6,11 +6,13 @@ var getHeaderName = {
   0x01: "on/start",
   0x02: "off/stop"
 };
+var base = require('../../interaction/x16basic/interactorBase.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
 module.exports = function(controlledModule) {
+  base.call(this);
   /**
   plan for the midi io module:
   you can select each one of the outputs, and then select a filter function that dictates what midi input events are routed to each output.

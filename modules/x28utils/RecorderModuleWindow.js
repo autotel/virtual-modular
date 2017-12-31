@@ -22,7 +22,7 @@ var RecorderModuleWindow=function(controlledModule,environment){
           newName+=c.substr(0, 2);
         }
         //create a new multitape to use
-        self.recorder=environment.modules.instantiate('multitape',{name:newName});
+        self.recorder=environment.modules.instantiate('MultiTape',{name:newName});
         //set this module record outut to that multitape (patch should happen auto)
         controlledModule.addRecordOutput(self.recorder);
         recording=true;

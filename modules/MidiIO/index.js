@@ -49,7 +49,7 @@ if (!midiOptions.inputs) {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call. it is created via ModulesManager.addModule
 */
-var MidiIO = function(properties) {
+var MidiIO = function(properties,environment) {
   this.preventBus = true;
   this.baseName = (properties.name ? properties.name : "Midi");
   this.color = [127, 127, 127];
@@ -70,14 +70,13 @@ var MidiIO = function(properties) {
       callback.call(midiInputCache[index], index, midiInputCache[index]);
     }
   }
-  var myInteractor = this.interactor = new interactorSingleton.Instance(this);
-  this.interactor.name = this.name;
 
-  this.x16Interface = myInteractor;
+
+  this.interfaces.X16 = new InteractorX16(this,environment);
   if (midi.input) {
     var inputClockCount = 0;
     midi.input.setCallback(function(t, midiMessage) {
-      console.log("SET CB");
+      // console.log("SET CB");
       //midi to EventMessage conversion
       var outputMessage = new EventMessage({
         value: [
@@ -231,26 +230,29 @@ MidiIO.initialization=function(environment){
   while (keepScanning) {
     keepScanning--;
     var midi = new jazz.MIDI();
-    var currentPortName = midi.MidiOutOpen(currentPortNumber);
-    if (currentPortName) {
-      if (midiOptions.outputs[currentPortName] === undefined) {
-        midiOptions.outputs[currentPortName] = true;
-        console.log("       -" + currentPortName + " has no config. Setting to true");
+
+    var outPortName = midi.MidiOutOpen(currentPortNumber);
+    if (outPortName) {
+      if (midiOptions.outputs[outPortName] === undefined) {
+        midiOptions.outputs[outPortName] = true;
+        console.log("       -" + outPortName + " has no config. Setting to true");
       }
-      if (midiOptions.outputs[currentPortName] === true) {
-        if (openedMidiPorts[currentPortName] === undefined) openedMidiPorts[currentPortName] = {};
-        openedMidiPorts[currentPortName].output = midi;
-        console.log('     -openedMidiPorts [' + currentPortName + '].output = opened Midi port');
+      if (midiOptions.outputs[outPortName] === true) {
+        if (openedMidiPorts[outPortName] === undefined) openedMidiPorts[outPortName] = {};
+        openedMidiPorts[outPortName].output = midi;
+
+        console.log('     -openedMidiPorts [' + outPortName + '].output = opened Midi port');
       } else {
-        console.log('    -openedMidiPorts [' + currentPortName + '].output disabled in midi-options.json');
+        console.log('    -openedMidiPorts [' + outPortName + '].output disabled in midi-options.json');
         if (midi) midi.MidiOutClose();
       }
+
     } else {
       // console.log('    -No out port '+currentPortNumber);
       midiOpenFail = true;
     }
     var midiInputCallbackContainer = function(a, b) {
-      console.warn("midiIO input function not defined");
+      // console.warn("midiIO input function not defined");
     }
 
     function setInputCallback(cb) {
@@ -259,21 +261,21 @@ MidiIO.initialization=function(environment){
     var midiInputCallbackCaller = function(t, msg) {
       midiInputCallbackContainer(t, msg);
     }
-    currentPortName = midi.MidiInOpen(currentPortNumber, midiInputCallbackCaller) || currentPortName;
-    if (currentPortName) {
+    var inPortName = midi.MidiInOpen(currentPortNumber, midiInputCallbackCaller) || outPortName;
+    if (inPortName) {
       midiOpenFail = false;
       try {
-        if (midiOptions.inputs[currentPortName] === undefined) {
-          midiOptions.inputs[currentPortName] = true;
-          console.log("     -" + currentPortName + " has no config. Setting to true");
+        if (midiOptions.inputs[inPortName] === undefined) {
+          midiOptions.inputs[inPortName] = true;
+          console.log("     -" + inPortName + " has no config. Setting to true");
         }
-        if (midiOptions.inputs[currentPortName] === true) {
-          if (openedMidiPorts[currentPortName] === undefined) openedMidiPorts[currentPortName] = {};
-          openedMidiPorts[currentPortName].input = midi;
-          openedMidiPorts[currentPortName].input.setCallback = setInputCallback;
-          console.log('     -openedMidiPorts [' + currentPortName + '].input = opened Midi port');
+        if (midiOptions.inputs[inPortName] === true) {
+          if (openedMidiPorts[inPortName] === undefined) openedMidiPorts[inPortName] = {};
+          openedMidiPorts[inPortName].input = midi;
+          openedMidiPorts[inPortName].input.setCallback = setInputCallback;
+          console.log('     -openedMidiPorts [' + inPortName + '].input = opened Midi port');
         } else {
-          console.log('    -openedMidiPorts [' + currentPortName + '].input disabled in midi-options.json');
+          console.log('    -openedMidiPorts [' + inPortName + '].input disabled in midi-options.json');
           // try {
           // if(midi) midi.MidiInClose();
           //} catch(e){
@@ -303,12 +305,12 @@ MidiIO.initialization=function(environment){
       if (openedMidiPorts[midiItem].output !== undefined) ioString += "O";
       if (!midiOptions.rename) midiOptions.rename = {};
       if (midiOptions.rename[midiItem]) {
-        environment.modules.instantiate("midiIO", {
+        environment.modules.instantiate("MidiIO", {
           midiPort: openedMidiPorts[midiItem],
           name: midiOptions.rename[midiItem]
         });
       } else {
-        environment.modules.instantiate("midiIO", {
+        environment.modules.instantiate("MidiIO", {
           midiPort: openedMidiPorts[midiItem],
           name: ioString + "-" + midiItem
         });

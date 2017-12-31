@@ -133,7 +133,7 @@ var SuperInteractorsSingleton = function(environment) {
             selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
 
           } else if (deleteMode) {
-            if (environment.modulesMan.removeModuleN(event.button)) {
+            if (environment.modules.removeModuleN(event.button)) {
               modules.list.splice(event.button, 1);
               selectedInterface = false;
             }
@@ -367,6 +367,7 @@ var SuperInteractorsSingleton = function(environment) {
         if (modules.list[number].interfaces.X28) {
           return modules.list[number].interfaces.X28;
         } else if (modules.list[number].interfaces.X16) {
+          // console.log("GET INTERFACE",modules.list[number].interfaces.X16);
           return modules.list[number].interfaces.X16;
         } else {
           console.log(modules.list[number].name, " had no interfaces.X28 property nor interfaces.X16 property");

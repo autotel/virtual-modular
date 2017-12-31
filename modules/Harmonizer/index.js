@@ -21,13 +21,13 @@ var name = function() {
   this.name = this.baseName + " " + instanced;
   instanced++;
 }
+var baseName = "harmonizer";
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var Harmonizer = function(properties,environment) {
-  this.baseName = "harmonizer";
   this.color = [255, 255, 127];
   name.call(this);
   if (properties.name) this.name = properties.name;

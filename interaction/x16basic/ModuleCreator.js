@@ -11,7 +11,7 @@ function ModuleCreator(myHardware,environment) {
   this.engaged = false;
 
   function updatePossibleModulesList() {
-    possibleModules = Object.keys(environment.modulesMan.modulePrototypesList);
+    possibleModules = possibleModules = environment.modules.getRegistered();
     possibleModulesBitmap = ~(0xffff << possibleModules.length);
   }
 

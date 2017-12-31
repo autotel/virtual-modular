@@ -30,7 +30,7 @@ var SuperInteractorsSingleton = function(environment) {
     var muteMode = false;
     var deleteMode = false;
 
-    var modulesMan=environment.modulesMan;
+    var modulesMan=environment.modules;
 
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
@@ -101,7 +101,7 @@ var SuperInteractorsSingleton = function(environment) {
             selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
 
           } else if (deleteMode) {
-            if (environment.modulesMan.removeModuleN(event.button)) {
+            if (environment.modules.removeModuleN(event.button)) {
               modules.list.splice(event.button, 1);
               selectedInterface = false;
             }

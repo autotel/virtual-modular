@@ -25,6 +25,9 @@ var ModulesManager=function(environment){
     }
     constructors[Constructor.name]=Constructor;
   }
+  this.getRegistered=function(){
+    return Object.keys(constructors);
+  }
 
   //this prevents the program from freezing in a case of extreme module feedback
   var lazyStack = new utils.LazyStack();
@@ -49,15 +52,15 @@ var ModulesManager=function(environment){
   instanciate and register a new module.
   Two example uses of this function are in the superinteractor, when you create a new module using the buttons, and the midi IO, which creates one module per midi input
   */
-  this.instantiate=function(moduleName,properties){
+  this.instantiate=function(moduleName,properties={}){
     var newInstance=false;
     try{
+      console.log("+"+moduleName);
       newInstance=new ModuleInstanceBase(properties,environment)
       constructors[moduleName].call(newInstance,properties,environment);
       environment.handle('module created',{module:newInstance});
       newInstance.enqueue=lazyStack.enq;
       modules.push(newInstance);
-      
     }catch(e){
       console.error("error instantiating module ",moduleName,e);
     }
