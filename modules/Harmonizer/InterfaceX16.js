@@ -4,6 +4,8 @@ var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 var RecordMenu = require('../x16utils/RecordMenu.js');
 var scaleNames = require('./scaleNames.js');
+var RecorderModuleWindow = require('../x28utils/RecorderModuleWindow.js');
+
 /**
 TODO: interfaces should be extended by the environment, instead of being required on each module,
 in the same way how modules are extended.
@@ -49,6 +51,7 @@ module.exports = function(controlledModule,environment) {
     environment: environment,
     controlledModule: controlledModule
   });
+  let recorderModuleWindow = new RecorderModuleWindow(controlledModule, environment);
 
   //interaction with controlledModule
   var currentStep = controlledModule.currentStep;
@@ -190,6 +193,15 @@ module.exports = function(controlledModule,environment) {
     } else if (event.data[0] == 3) {
       performMode = !performMode;
       updateHardware(hardware);
+    }else if (event.button >= 8) {
+      let wevent = {
+        type: event.type,
+        originalMessage: event.originalMessage,
+        button: event.button,
+        hardware: event.hardware
+      };
+      wevent.button -= 8;
+      recorderModuleWindow.windowButtonPressed(wevent);
     }
 
     if (engagedConfigurator)
@@ -223,6 +235,8 @@ module.exports = function(controlledModule,environment) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     updateLeds(hardware);
+    recorderModuleWindow.engage(event);
+
   };
   this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
