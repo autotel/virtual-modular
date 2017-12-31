@@ -25,14 +25,27 @@ environment.vars = {
   interfacePriority: 15,
   interfaceMaxStack: 15,
 }
+/**
+TODO:
+hardwaremanager should be part of environment and should in index like:
 
+var environment=require('./environment');
+var SerialHardware=require('SerialHardware');
+SerialHardware.add(require('./SerialHardware-x16'));
+SerialHardware.add(require('./SerialHardware-x28'));
+CLI=require('CLI');
+
+environment.useHardware(SerialHardware);
+environment.useHardware(CLI);
+
+*/
 /** hardwareMan is responsible for the connected user-interaction hardware  */
 environment.hardwareMan = require("./hardware/hardwareManager.js")(environment);
 /** interactionMan is responsible for relating hardware events to actions in the modular environment */
 environment.interactionMan = require("./interaction/interactionManager.js")(environment);
 /** modulesMan is responsible for the modular environment */
 // environment.modulesMan=require("./modules/modulesManager.js")(environment);
-environment.handle('created');
+
 for (var a in modulesToLoad) {
   environment.module(modulesToLoad[a]);
   //add the global bus

@@ -50,6 +50,8 @@ var Environment=function(){
       console.log("added module",Module.name);
     }
   }
+  this.handle('created');
+
   return this;
 }
 
