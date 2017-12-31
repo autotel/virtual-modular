@@ -120,12 +120,12 @@ module.exports=function(environment){return new (function(){
       if(openedMidiPorts[midiItem].output!==undefined) ioString+="O";
       if(! midiOptions.rename) midiOptions.rename={};
       if(midiOptions.rename[midiItem]){
-        environment.modulesMan.addModule("midiIO",{
+        environment.modules.instantiate("midiIO",{
           midiPort:openedMidiPorts[midiItem],
           name:midiOptions.rename[midiItem]
         });
       }else{
-        environment.modulesMan.addModule("midiIO",{
+        environment.modules.instantiate("midiIO",{
           midiPort:openedMidiPorts[midiItem],
           name:ioString+"-"+midiItem
         });

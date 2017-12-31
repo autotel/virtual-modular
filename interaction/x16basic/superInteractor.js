@@ -95,14 +95,14 @@ var SuperInteractorsSingleton = function(environment) {
         }
         if (!selectedInterface) {
           selectedInterface = false;
-          if (event.data[0] == modulesMan.modules.length) myModuleCreator.engage();
+          if (event.data[0] == modules.list.length) myModuleCreator.engage();
         } else {
           if (muteMode) {
             selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
 
           } else if (deleteMode) {
             if (environment.modulesMan.removeModuleN(event.button)) {
-              modulesMan.modules.splice(event.button, 1);
+              modules.list.splice(event.button, 1);
               selectedInterface = false;
             }
           } else {}
@@ -240,8 +240,8 @@ var SuperInteractorsSingleton = function(environment) {
       var outputsBmp = 0;
       var mutedBitmap = 0;
       //calculate bitmap for muted modules
-      for (let a in modulesMan.modules) {
-        let amodule = modulesMan.modules[a];
+      for (let a in modules.list) {
+        let amodule = modules.list[a];
         if (amodule.mute) mutedBitmap |= 1 << a;
       }
       if (selectedModule) {
@@ -250,12 +250,12 @@ var SuperInteractorsSingleton = function(environment) {
         // console.log(selectedInterface.controlledModule.outputs)
         for (var siOpts of selectedModule.outputs) {
           //we add a bit to the array position of the interactor that iterated output module has
-          outputsBmp |= 1 << modulesMan.modules.indexOf(siOpts);
+          outputsBmp |= 1 << modules.list.indexOf(siOpts);
         }
       }
 
-      var creatorBtn = 1 << (modulesMan.modules.length);
-      var selectable = ~(0xffff << modulesMan.modules.length);
+      var creatorBtn = 1 << (modules.list.length);
+      var selectable = ~(0xffff << modules.list.length);
 
       var selectedBmp = (selectedModule?1 << selectedModuleNumber:0);
 
@@ -268,17 +268,17 @@ var SuperInteractorsSingleton = function(environment) {
 
 
     function tryGetModuleN(number) {
-      if (number < modulesMan.modules.length) {
-        return modulesMan.modules[number];
+      if (number < modules.list.length) {
+        return modules.list[number];
       }
       return false;
     }
     function tryGetInterfaceN(number) {
-      if (number < modulesMan.modules.length) {
-        if(modulesMan.modules[number].x16Interface){
-          return modulesMan.modules[number].x16Interface;
+      if (number < modules.list.length) {
+        if(modules.list[number].x16Interface){
+          return modules.list[number].x16Interface;
         }else{
-          console.log(modulesMan.modules[number].name," had no x16Interface property");
+          console.log(modules.list[number].name," had no x16Interface property");
         }
       }
       return false;

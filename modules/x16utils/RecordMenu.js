@@ -12,7 +12,7 @@ var RecordMenu = function(parentInteractor, properties) {
   if (!properties.controlledModule) throw "RecordMenu needs you to pass the controlledModule in the properties";
   var environment = properties.environment;
   var controlledModule = properties.controlledModule;
-  var modules = environment.modulesMan.modules;
+  var modules = environment.modules.list;
   var recordingOuptutsBitmap = 0;
 
   if (properties === undefined) properties = {};
@@ -30,7 +30,7 @@ var RecordMenu = function(parentInteractor, properties) {
 
   var limitOptions=function(){
     modules=[];
-    for(var tmodule of environment.modulesMan.modules){
+    for(var tmodule of environment.modules.list){
       if(tmodule.outputs.has(controlledModule)){
         modules.push(tmodule);
       }

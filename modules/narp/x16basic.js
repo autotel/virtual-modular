@@ -8,10 +8,10 @@ definition of a monoSequencer interactor for the x16basic controller hardware
 module.exports = function(environment) {
   //singleton section
   var myInteractorBase = environment.interactionMan.interfaces.x16basic.interactorBase;
-  var currentStep = 0;
 
   //instance section
   this.Instance = function(controlledModule) {
+    var currentStep = 0;
     myInteractorBase.call(this, controlledModule);
     var configurators = {};
     configurators.event = new EventConfigurator(this, {

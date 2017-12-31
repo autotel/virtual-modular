@@ -31,12 +31,12 @@ function ModuleCreator(myHardware,environment) {
     this.engaged = false;
     if (moduleToCreateOnDisengage) {
       var defaultProps = {};
-      environment.modulesMan.addModule(moduleToCreateOnDisengage, defaultProps);
-      var nMod=modulesMan.modules[modulesMan.modules.length - 1];
+      environment.modules.instantiate(moduleToCreateOnDisengage, defaultProps);
+      var nMod=modules.list[modules.list.length - 1];
       ret = {
         module:nMod,
         interface:nMod.interface,
-        number:modulesMan.modules.length - 1
+        number:modules.list.length - 1
       };
     }
     return ret;
