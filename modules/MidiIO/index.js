@@ -221,7 +221,10 @@ var MidiIO = function(properties) {
     baseRemove();
   }
 }
+/**
+environment will call the static initialization function when it registers a new module; if such function is present.
 
+*/
 MidiIO.initialization=function(environment){
 
   var keepScanning = 40;
