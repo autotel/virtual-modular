@@ -259,7 +259,12 @@ module.exports = function(controlledModule, environment) {
         let configuratorResponse = lastEngagedConfigurator.encoderScrolled(event);
         if (configuratorResponse) {
           eachSelectedPresetNumber(function(selectedPresetNumber) {
+            if (!controlledModule.kit[selectedPresetNumber]) {
+              controlledModule.kit[selectedPresetNumber]=configurators.event.getEventMessage();
+            }
             controlledModule.kit[selectedPresetNumber].value[configuratorResponse.selectedValueNumber] = configuratorResponse.selectedValueValue;
+
+
           });
           updateAvailablePresetsBitmap();
         };
