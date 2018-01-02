@@ -6,6 +6,7 @@ module.exports.LazyStack=function(properties) {
   // this.tPerStep=50;
   this.dequeuing=false;
   this.messagePriority=50;
+  this.maxStack=false;
   for(var a in properties){
     this[a]=properties[a];
   }
@@ -16,6 +17,12 @@ module.exports.LazyStack=function(properties) {
       deq();
     }
     stack.push(cb);
+    if(self.maxStack){
+      if(stack.length>self.maxStack){
+        stack.splice(0,self.maxStack-stack.length);
+        console.log(`stack.splice(0,${self.maxStack-stack.length});`);
+      }
+    }
   }
   function deq(){
     self.dequeuing=true;

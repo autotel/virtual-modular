@@ -132,10 +132,10 @@ var DriverX28v0 = function(properties, environment) {
         sh++;
       }
     }
-
     oparray=oparray.concat(color);
     oparray=oparray.concat([start]);
     oparray=oparray.concat(reform);
+
     // if(oparray.length>=7)
     // console.log(oparray.length);
 
@@ -147,6 +147,7 @@ var DriverX28v0 = function(properties, environment) {
     }
   }
   var drawColor = this.drawColor = function(bitmap, color = [255, 0, 0],add = true) {
+
     setLedsToColor(bitmap,color,8,add);
   }
   var drawLowerSelectorButtonsColor = this.drawLowerSelectorButtonsColor = function(bitmap, color = [255, 0, 0],add = true) {

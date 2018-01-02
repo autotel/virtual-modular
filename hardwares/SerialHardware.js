@@ -69,7 +69,7 @@ var SerialHardware = function(properties, environment) {
 
   var dataChopper = new DataChopper(rLengths);
 
-  var lazyStack = new LazyStack(/*environment*/);
+  var lazyStack = new LazyStack({messagePriority:15,maxStack:15});
 
   var serial = properties.serial;
   var self = this;

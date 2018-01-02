@@ -346,6 +346,7 @@ var SuperInteractorsSingleton = function(environment) {
         myHardware.drawColor(posBmp,color);
       }
       myHardware.drawColor(1<<modules.list.length,[100,255,255]);
+      // myHardware.drawColor(1<<modules.list.length,[100,255,255]);
 
 
       // myHardware.drawColor(outputsBmp & mutedBmp,panton.mixColors(panton.disabled,panton.connected));

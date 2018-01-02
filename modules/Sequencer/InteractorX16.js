@@ -253,7 +253,7 @@ module.exports = function(controlledModule, environment) {
     } else if (engagedConfigurator === false) {
       var currentFilter = shiftPressed ? moreBluredFilter : focusedFilter;
       var throughfold = getThroughfoldBoolean(targetButton, currentFilter);
-      console.log("THEREIS",throughfold);
+      // console.log("THEREIS",throughfold);
       //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
       if (shiftPressed) {
         if (throughfold !== true) throughfold = throughfold > 0;

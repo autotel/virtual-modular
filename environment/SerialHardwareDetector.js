@@ -76,7 +76,7 @@ var SerialHardwareDetector = function(properties,environment) {
                   finished = true;
                 }
               }
-              console.log("RESP",data);
+              // console.log("RESP",data);
               // console.log(string);
               var success=properties.onSerialResponse({response:data,serialPort:newPort});
               if(success){
