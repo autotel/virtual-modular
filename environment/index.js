@@ -2,29 +2,15 @@ var Observable=require('onhandlers');
 
 var ModulesManager=require('./ModulesManager');
 
+var HardwareManager=require("./HardwareManager.js");
+var utils=require('./utils.js');
+var requireProperties=utils.requireProperties;
 
 var Environment=function(){
   Observable.call(this);
   var self=this;
   this.on('a',console.log)
-  function requireProperties(propList){
-    var missing={};
-    for(var a in propList){
-      if(typeof propList[a] === 'function'){
-        let eval=propList[a](this[a]);
-        if(!eval){
-          missing[a]=eval;
-        }
-      }else{
-        if(!this[propList[a]]){
-          missing[propList[a]]="is "+missing[a];
-        }else{
-        }
-      }
-    }
-    if(Object.keys(missing).length==0) missing=false;
-    return missing;
-  }
+
 
   var modules=this.modules=new ModulesManager(this);
 
@@ -40,18 +26,25 @@ var Environment=function(){
       Constructor.initialization(self);
     }
     modules.addConstructor(Constructor);
+    return this;
   }
 
-  this.useHardware=function(hardware){
-    var fails=requireProperties.call(Module,['name','constructor']);
+  var hardwares=this.hardwares= new HardwareManager(this);
+
+  this.useHardware=function(Constructor){
+    var fails=requireProperties.call(Constructor,['name','constructor']);
     if(fails){
       console.error("a module couldn't be added because of problems the properties:",fails);
+      return;
     }else{
-      console.log("added module",Module.name);
+      console.log("added hardware",Constructor.name);
     }
+    if(typeof Constructor.initialization==="function"){
+      Constructor.initialization(self);
+    }
+    hardwares.addConstructor(Constructor);
+    return this;
   }
-
-  return this;
 }
 
 

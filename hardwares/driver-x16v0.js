@@ -1,5 +1,4 @@
 'use strict';
-var HardwareDriver=require('./HardwareDriver.js');
 console.log("x16v0 serial based, on ",process.platform);
 
 const comConsts={
@@ -142,8 +141,8 @@ var DataChopper=function(){
 
  */
  var instances=0;
-var DriverX16v0=function(environment,properties){
-  HardwareDriver.call(this);
+var DriverX16v0=function(properties,environment){
+  
   var myInstanceNumber=instances;
   instances++;
   var dataChopper=new DataChopper();

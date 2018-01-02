@@ -1,11 +1,11 @@
 'use strict';
 console.log("-----------start-------------");
 
-
+var X28Hardware=require('./hardwares/DriverX28v0.js');
 
 /** Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others */
 var environment = new(require('./environment'))();
-
+environment.useHardware(X28Hardware);
 
 /**
 TODO:
@@ -20,9 +20,10 @@ CLI=require('CLI');
 environment.useHardware(SerialHardware);
 environment.useHardware(CLI);
 
+also interactionManager
+
 */
-/** hardwareMan is responsible for the connected user-interaction hardware  */
-environment.hardwareMan = require("./hardware/hardwareManager.js")(environment);
+
 /** interactionMan is responsible for relating hardware events to actions in the modular environment */
 environment.interactionMan = require("./interaction/interactionManager.js")(environment);
 

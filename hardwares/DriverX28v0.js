@@ -1,7 +1,8 @@
 'use strict';
+var SerialHardware=require('./SerialHardware.js');
 
-var HardwareDriver = require('./HardwareDriver.js');
 console.log("x28v0 serial based, on ", process.platform);
+
 //TODO:cache to save startup time
 var fs = require('fs');
 var file = fs.readFileSync('./firmware/x28/_name_signals.h', "utf8");
@@ -63,36 +64,6 @@ var eoString = comConsts.eoString;
 
 
 
-var LazyStack = function(environment) {
-  var stack = [];
-  var dequeuing=false;
-  this.enq = function(cb) {
-    stack.push(cb);
-    if(environment.vars.interfaceMaxStack<0) environment.vars.interfaceMaxStack=0;
-    while (stack.length > environment.vars.interfaceMaxStack) {//
-      console.warn("skip stack function", stack.shift());
-    };
-    // console.log("STKLEN",stack.length);
-    if(!dequeuing)
-      deq();
-  }
-  function deq(){
-    dequeuing=true;
-    // setTimeout(function(){
-      let count=0;
-      while (stack.length && count<environment.vars.interfacePriority) {//
-        (stack.shift())();
-        count++;
-      }
-      if(stack.length){
-        console.warn("communication stack too long",stack.length);
-        setImmediate(deq);
-      }else{
-        dequeuing=false;
-      }
-    // },1);
-  }
-};
 
 var lastSentBitmap = {
   bitmap: [0, 0, 0],
@@ -101,57 +72,6 @@ var lastSentBitmap = {
 };
 
 // console.log(comConsts);
-
-var DataChopper = function() {
-  var inBuff;
-  var expectedLength;
-  var byteNumber = 0;
-  var recordingBuffer = false;
-  this.wholePacketReady = function(packet) {
-    // console.log("packet ready",packet);
-  }
-  this.incom = function(data) {
-    for (var a = 0; a < data.length; a++) {
-      if (!recordingBuffer) {
-        //we are expecting a message header, so we check what header current byte is
-        //if is successfull, we start gathering or recording a new data packet.
-
-        //byte  is in our header list?
-        recordingBuffer = rLengths[data[a]] !== undefined;
-        if (recordingBuffer) {
-          // console.log(rLengths[data[a]]);
-          expectedLength = rLengths[data[a]];
-          if (rLengths[data[a]] != -1)
-            expectedLength += 1;
-          inBuff = new Buffer(expectedLength);
-          byteNumber = 0;
-        }
-        if (expectedLength == -1 && a > 0) {
-          expectedLength = data[a];
-        }
-      }
-      if (recordingBuffer) {
-        if (byteNumber < expectedLength - 1) {
-          //a new byte arrived and is added to the current packet
-          inBuff[byteNumber] = data[a];
-          byteNumber++;
-        } else {
-          //a whole expected packet arrived
-          inBuff[byteNumber] = data[a];
-          this.wholePacketReady(inBuff);
-          recordingBuffer = false;
-          // console.log(inBuff);
-          byteNumber = 0;
-        }
-      } else {
-        //a byte arrived, but there is no packet gathering bytes
-        /**/
-        console.log("invalid byte: ", data[a], "in the context of: ", data);
-      }
-    }
-  }
-  return this;
-};
 
 /**
  * @type {HardwareDriver};
@@ -171,120 +91,29 @@ var DataChopper = function() {
  }
 
  */
+
+
 var instances = 0;
-var DriverX28v0 = function(environment, properties) {
-  HardwareDriver.call(this);
+var DriverX28v0 = function(properties, environment) {
+  properties.rLengths=rLengths;
+  properties.tLengths=tLengths;
+
+  SerialHardware.call(this,properties,environment);
   var myInstanceNumber = instances;
   instances++;
-  var dataChopper = new DataChopper();
+  var self=this;
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
   var myInteractionPattern = environment.interactionMan.newSuperInteractor("x28basic", this);
   myInteractionPattern.handle('serialopened');
-  var lazyStack=new LazyStack(environment);
-
-  var serial = properties.serial;
-  var tHardware = this;
-
-  var sendx8 = function(header, dataArray) {
-    lazyStack.enq(function() {
-      if (dataArray.constructor !== Array)
-        dataArray = Array.from(dataArray);
-      dataArray.unshift(header & 0xff);
-      var buf1 = Buffer.from(dataArray);
-      // console.log("wr",buf1);
-      serial.write(buf1);
-    });
-  }
-
-  var sendx8_16 = function(header, dataArray) {
-    lazyStack.enq(function() {
-      var arr8 = [];
-      for (var a of dataArray) {
-        arr8.push(a & 0xff);
-        arr8.push((a >> 8) & 0xff);
-      }
-      // console.log("aa");
-      if (dataArray.constructor !== Array)
-        dataArray = Array.from(dataArray);
-      arr8.unshift(header & 0xff);
-      var buf1 = Buffer.from(arr8);
-      // console.log("wr",buf1);
-      serial.write(buf1);
-
-      // console.log("sent",buf1);
-    });
-  }
-  var sendx8_32 = function(header, dataArray) {
-    lazyStack.enq(function() {
-      var arr8 = [];
-      for (var a of dataArray) {
-        arr8.push(a & 0xff);
-        arr8.push((a >> 8) & 0xff);
-        arr8.push((a >> 16) & 0xff);
-        arr8.push((a >> 24) & 0xff);
-      }
-      // console.log("aa");
-      if (dataArray.constructor !== Array)
-        dataArray = Array.from(dataArray);
-      arr8.unshift(header & 0xff);
-      var buf1 = Buffer.from(arr8);
-      // console.log("wr",buf1);
-      serial.write(buf1);
-
-      // console.log("sent",buf1);
-    });
-  }
-  var sendString = function(header, string) {
-    lazyStack.enq(function() {
-      // console.log(header,string);
-      if (tLengths[header] !== -1) {
-        console.warn("warning: this header is not specified for unknown lengths");
-      }
-      var arr8 = [];
-      for (var a in string) {
-        arr8.push(string.charCodeAt(a));
-        // console.log(string.charCodeAt(a));
-      }
-      arr8.push('\0');
-      arr8.unshift(0xff & arr8.length);
-      arr8.unshift(header & 0xff);
-      // console.log(arr8.length);
-      // arr8.push(eoString);
-      var buf1 = Buffer.from(arr8);
-      // console.log(buf1);
-      // console.log("string of "+buf1.length);
-      // console.log("send str len"+buf1.length);
-      serial.write(buf1);
-      // console.log("sent",buf1);
-    });
-  }
-  var sendArray = function(header, array) {
-    lazyStack.enq(function() {
-      if (tLengths[header] !== -1) {
-        console.warn("warning: this header is not specified for unknown lengths");
-      }
-      array.unshift(array.length);
-      array.unshift(header);
-      array.map(function(a) {
-        return a & 0xFF;
-      })
-
-      // array.push(0);
-
-      var buf1 = Buffer.from(array);
-      // console.log("OPB",buf1);
-      serial.write(buf1);
-    });
-  }
   this.lastScreenValues = [];
   var sendScreenA = function(str) {
-    tHardware.lastScreenValues[0] = str;
-    sendString(transmits.screenA.head, str.substring(0, 16));
+    self.lastScreenValues[0] = str;
+    self.sendString(transmits.screenA.head, str.substring(0, 16));
   }
 
   var sendScreenB = function(str) {
-    tHardware.lastScreenValues[1] = str;
-    sendString(transmits.screenB.head, str.substring(0, 16));
+    self.lastScreenValues[1] = str;
+    self.sendString(transmits.screenB.head, str.substring(0, 16));
   }
   this.sendScreenA = sendScreenA;
   this.sendScreenB = sendScreenB;
@@ -311,9 +140,9 @@ var DriverX28v0 = function(environment, properties) {
 
     // console.log("OPRR",Buffer.from(oparray));
     if (add) {
-      sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
+      self.sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
     } else {
-      sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
+      self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
     }
   }
   var drawColor = this.drawColor = function(bitmap, color = [255, 0, 0],add = true) {
@@ -323,7 +152,7 @@ var DriverX28v0 = function(environment, properties) {
     setLedsToColor(bitmap,color,24,add);
   }
   var clear=this.clear=function(){
-    tHardware.draw([0,0,0]);
+    self.draw([0,0,0]);
   }
   // this.drawLayers = function(layers){
   //   var resultLayer={bitmap:0,color:[0,0,0]}
@@ -345,14 +174,14 @@ var DriverX28v0 = function(environment, properties) {
     bitmaps[7] |= 0xf & (intensity / 17);
     bitmaps[11] |= 0xf & (intensity / 17);
     if (paintSelectButtons) {
-      sendx8_32(transmits.setMonoMaps.head, bitmaps);
+      self.sendx8_32(transmits.setMonoMaps.head, bitmaps);
       lastSentBitmap.bitmap = bitmaps;
     } else {
       if (!Array.isArray(bitmaps)) {
         throw "when updating the LED's, I need an array of three ints";
       }
-      // tHardware.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
-      sendx8_16(transmits.setMatrixMonoMap.head, bitmaps);
+      // self.sendx8_16(tHeaders.ledMatrix,[0xff,0xff,1,1,0xff,0xff]);
+      self.sendx8_16(transmits.setMatrixMonoMap.head, bitmaps);
       lastSentBitmap.bitmap = bitmaps;
     }
   }
@@ -360,15 +189,15 @@ var DriverX28v0 = function(environment, properties) {
     if (!Array.isArray(bitmaps)) {
       throw "when updating the LED's, I need an array of three ints";
     }
-    sendx8_16(transmits.setSelectorMonoMap.head, bitmaps);
+    self.sendx8_16(transmits.setSelectorMonoMap.head, bitmaps);
   }
-  tHardware.testByte = function(byte) {
-    sendx8(transmits.comTester.head, [byte]);
+  self.testByte = function(byte) {
+    self.sendx8(transmits.comTester.head, [byte]);
   }
-  tHardware.draw = updateLeds;
-  tHardware.drawSelectors = updateSelectorLeds;
+  self.draw = updateLeds;
+  self.drawSelectors = updateSelectorLeds;
   // TODO: : make a function that takes shorter to communicate
-  tHardware.updateLayer = function(n, to) {
+  self.updateLayer = function(n, to) {
     if (n < 3) {
       lastSentBitmap[n] = to & 0xffff;
       updateLeds(bitmaps);
@@ -378,14 +207,6 @@ var DriverX28v0 = function(environment, properties) {
   }
 
 
-  serial.on('data', (data) => {
-    // console.log(data);
-    try {
-      dataChopper.incom(data);
-    } catch (e) {
-      console.error(e);
-    }
-  });
   var matrixButtonsBitmap = 0;
 
   /*object that evaluates buttons whose time pressed overlap, forming a button chain*/
@@ -457,8 +278,9 @@ var DriverX28v0 = function(environment, properties) {
     }
     return this;
   })();
+
   /* when an event is received from the hardware device*/
-  dataChopper.wholePacketReady = function(chd) {
+  this.onDataReceived = function(chd) {
 
     // console.log("------------packet",chd);
     // console.log(data);
@@ -468,7 +290,7 @@ var DriverX28v0 = function(environment, properties) {
         type: rHNames[chd[0]],
         data: chd.slice(1),
         originalMessage: chd,
-        hardware: tHardware
+        hardware: self
       }
       event.data = Array.from(event.data);
       if (event.type == "matrixButtonPressed") {
@@ -511,9 +333,10 @@ var DriverX28v0 = function(environment, properties) {
       myInteractionPattern.handle(event.type, event);
     }
   }
+
   setTimeout(function() {
     // console.log(comConsts.transmits.engageControllerMode.head);
-    sendx8(comConsts.transmits.engageControllerMode.head, [comConsts.transmits.engageControllerMode.head]);
+    self.sendx8(comConsts.transmits.engageControllerMode.head, [comConsts.transmits.engageControllerMode.head]);
     sendScreenA("initialized n." + myInstanceNumber);
     sendScreenB("autotel x28v0");
     myInteractionPattern.engage();
