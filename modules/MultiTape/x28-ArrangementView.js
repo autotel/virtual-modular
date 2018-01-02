@@ -175,14 +175,19 @@ module.exports = function(environment, parentInteractor) {
   this.matrixButtonHold = function(event) {};
   this.selectorButtonPressed = function(event) {
     var hardware = event.hardware;
+
+    if(!selectedTape){
+      selectedTape=controlledModule.getNumTape(selectedTapeNumber);
+    }
+
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.button == 1) {
+      if (event.button == 7) {
         muteMode = true;
         eachEngagedHardware(updateScreen);
       }
-      if (event.button == 2) {
+      if (event.button == 1) {
         if (selectedTape) {
           engagedConfigurator = configurators.tapeTime;
           configurators.tapeTime.engage(event);
@@ -199,7 +204,7 @@ module.exports = function(environment, parentInteractor) {
       engagedConfigurator.disengage(event);
       engagedConfigurator = false;
     }
-    if (event.button == 1) {
+    if (event.button == 7) {
       muteMode = false;
       eachEngagedHardware(updateScreen);
     }

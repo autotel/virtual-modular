@@ -120,7 +120,7 @@ module.exports=function(environment,parentInteractor){
     updateLeds(hardware);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(controlledModule.name.substring(0,5)+"> sequence");
+    hardware.sendScreenA(controlledModule.name.substring(0,5)+">sequence");
   }
   var updateLeds=function(hardware){
     if(momentaryBitmap){

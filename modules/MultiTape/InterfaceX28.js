@@ -29,7 +29,7 @@ module.exports = function(controlledModule, environment) {
   function engageView(nameString, event) {
     eachView(function(n) {
       if (n == nameString) {
-        lastEngagedViewName = nameString;
+        lastEngagedViewName = n;
         this.engage(event);
       } else {
         this.disengage(event);
@@ -37,13 +37,28 @@ module.exports = function(controlledModule, environment) {
     });
     updateSelectorLeds(event.hardware);
   }
+  function switchView(event){
+    var found=false;
+    eachView(function(n) {
+      if(!found){
+        if (n === lastEngagedViewName) {
+          this.disengage(event);
+        } else {
+          console.log("S"+n);
+          this.engage(event);
+          lastEngagedViewName = n;
+          found=true;
+        }
+      }else{
+        this.disengage(event);
+      }
+    });
+    updateSelectorLeds(event.hardware);
+  }
 
   this.selectorButtonPressed = function(event) {
-    if (event.button == 4) {
-      engageView("sequencer", event);
-    }
-    if (event.button == 5) {
-      engageView("arrangement", event);
+    if (event.button == 0) {
+      switchView(event);
     }
   }
   var outsideScrollHeader = 0;
