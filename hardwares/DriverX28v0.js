@@ -1,7 +1,7 @@
 'use strict';
 var SerialHardware=require('./SerialHardware.js');
 
-console.log("x28v0 serial based, on ", process.platform);
+console.log("x28v0 serial on ", process.platform);
 
 //TODO:cache to save startup time
 var fs = require('fs');
@@ -74,6 +74,7 @@ var lastSentBitmap = {
 // console.log(comConsts);
 
 /**
+DEPRECATED DOC
  * @type {HardwareDriver};
  * Prototype of a DriverX16v0. Instanced for every hardware of this type that is connected. It handles communication with the hardware. It creates events for every hardware event. These events are forwarded to the corresponding  hardwareInteractor
  * @param {environment} input needed to create it's own interactor instance
