@@ -10,6 +10,7 @@ var CHORDCHANGEHEADER = 0x03;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
 var InterfaceX16 = require('./InterfaceX16');
+var InterfaceX28 = require('./InterfaceX28');
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
@@ -17,11 +18,11 @@ every module needs to run at the beginning of the runtime to register it's inter
 */
 
 var instanced = 0;
+var baseName = "harmonizer";
 var name = function() {
-  this.name = this.baseName + " " + instanced;
+  this.name = baseName + " " + instanced;
   instanced++;
 }
-var baseName = "harmonizer";
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -29,8 +30,11 @@ require to moduleBase.call
 */
 var Harmonizer = function(properties,environment) {
   this.color = [255, 255, 127];
-  name.call(this);
-  if (properties.name) this.name = properties.name;
+  if (properties.name){
+    this.name = properties.name;
+  }else{
+    name.call(this);
+  };
   /** TODO: this naming convention **/
   var self = this;
   this.recordingUi = true;
@@ -181,7 +185,10 @@ var Harmonizer = function(properties,environment) {
   this.getScaleMap = function(identifier) {
     return scaleMap[identifier] || 0x00;
   }
+  //TODO: there should be no need to isntantiate every interface for each module. most of them will probably not be used. maybe each interface is a function that gets called by the module creator or hardware manager.
   this.interfaces.X16 = new InterfaceX16(this,environment);
+  this.interfaces.X28 = new InterfaceX28(this,environment);
+
   defaultState();
 }
 module.exports = Harmonizer;

@@ -6,6 +6,19 @@ var scaleToName=[];
 var gradeNames=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
 gradeNames=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 var structures={
+  "maj*":"C; E; G;",
+  "maj1*":"C; D; G; Bb;",
+  "maj6*":"C; E; G; A;",
+  "maj7*":"C; E; G; B;",
+  "maj9*":"C; D; G; Bb; D;",
+  "min*":"C; D#/Eb; G;",
+  "min6*":"C; D#/Eb; G; A;",
+  "min7*":"C; D#/Eb; G; Bb;",
+  "min9*":"C; D#/Eb; G; Bb; D;",
+  "dim*":"C; D#/Eb; F#/Gb",
+  "dim*":"C; D#/Eb; F#/Gb",
+  "aug*":"C; E; G#/Ab;",
+  "sus4*":"C; F; G;",
   "major":"C; D; E; F; G; A; B; C;",
   "melodic minor":"C; D; D#/Eb; F; G; A; B; C;",
   "ionian":"C; D; E; F; G; A; B; C;",

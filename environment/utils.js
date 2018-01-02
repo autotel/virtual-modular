@@ -13,7 +13,6 @@ module.exports.LazyStack=function(properties) {
 
 
   this.enq = function(cb) {
-
     stack.push(cb);
     if(self.maxStack){
       if(stack.length>self.maxStack){

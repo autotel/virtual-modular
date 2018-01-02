@@ -178,7 +178,7 @@ var SuperInteractorsSingleton = function(environment) {
     this.on('selectorButtonPressed', function(event) {
       //if the button is the patchMenu button}
       //  console.log(event.button);
-      if (event.button == 7) {
+      if (event.button == 3) {
         if (engagedInterface) {
           engagedInterface.disengage(event);
           thisInteractor.engage();
@@ -351,9 +351,21 @@ var SuperInteractorsSingleton = function(environment) {
 
       // myHardware.drawColor(outputsBmp & mutedBmp,panton.mixColors(panton.disabled,panton.connected));
     }
+    var bpaint={
+      patching:1<<3,
+      events:1<<1,
+      config:1<<2,
+      shift:1,
+      whites:0xf<<4
+    }
+    bpaint.result=[
+      bpaint.patching | bpaint.events                 | bpaint.whites,
+      bpaint.patching                 | bpaint.shift  | bpaint.whites,
+      bpaint.config   | bpaint.events | bpaint.shift  | bpaint.whites
 
+    ];
     function paintSelectButtons() {
-      myHardware.drawSelectors([0xff6, 0xff2, 0xff8]);
+      myHardware.drawSelectors(bpaint.result);
     }
 
     function tryGetModuleN(number) {
