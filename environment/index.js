@@ -11,6 +11,12 @@ var Environment=function(){
   var self=this;
   this.on('a',console.log)
 
+  /**
+  TODO:
+  interactionMan is not yet re-structured. do a project search of interactionmanager and see how to get nobody to depend on it.
+
+   interactionMan is responsible for relating hardware events to actions in the modular environment */
+  this.interactionMan = require("../interaction/interactionManager.js")(this);
 
   var modules=this.modules=new ModulesManager(this);
 

@@ -8,25 +8,6 @@ var X16Hardware=require('./hardwares/DriverX16v0.js');
 var environment = new(require('./environment'))();
 environment.useHardware(X28Hardware);
 
-/**
-TODO:
-hardwaremanager should be part of environment and should in index like:
-
-var environment=require('./environment');
-var SerialHardware=require('SerialHardware');
-SerialHardware.add(require('./SerialHardware-x16'));
-SerialHardware.add(require('./SerialHardware-x28'));
-CLI=require('CLI');
-
-environment.useHardware(SerialHardware);
-environment.useHardware(CLI);
-
-also interactionManager
-
-*/
-
-/** interactionMan is responsible for relating hardware events to actions in the modular environment */
-environment.interactionMan = require("./interaction/interactionManager.js")(environment);
 
 
 
