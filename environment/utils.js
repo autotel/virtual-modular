@@ -13,15 +13,16 @@ module.exports.LazyStack=function(properties) {
 
 
   this.enq = function(cb) {
-    if(!self.dequeuing){
-      deq();
-    }
+
     stack.push(cb);
     if(self.maxStack){
       if(stack.length>self.maxStack){
         stack.splice(0,self.maxStack-stack.length);
         console.log(`stack.splice(0,${self.maxStack-stack.length});`);
       }
+    }
+    if(!self.dequeuing){
+      deq();
     }
   }
   function deq(){
