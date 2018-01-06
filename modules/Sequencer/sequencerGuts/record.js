@@ -10,19 +10,16 @@ module.exports=function(controlledModule){
     console.log(controlledModule.storeNoDup(currentStep.value,new EventPattern().fromEventMessage(eventMessage)));
     // console.log("st");
   }
-  this.recordNoteStart=function(differenciator,stepOn){
-    // console.log("recordNoteStart",differenciator,stepOn);
-    // console.log("recon",differenciator,stepOn);
-    if(stepOn){
-      // console.log("rec rec");
-      var newStepEvent=new EventPattern().fromEventMessage(stepOn);
+  this.recordNoteStart=function(differenciator,eventOn){
+    if(eventOn){
+      var newStepEvent=new EventPattern().fromEventMessage(eventOn);
       lastRecordedNote=newStepEvent;
       recorderDifferenciatorList[differenciator]=currentStep.value;
       //recording is destructively quantized. here we apply a filter that forgives early notes
-      if(controlledModule.microStep.value<6)recorderDifferenciatorList[differenciator]--;
+      if(controlledModule.microStep.value<(controlledModule.lastMicroStepBase/2))recorderDifferenciatorList[differenciator]--;
       noteLengthner.startAdding(differenciator,newStepEvent);
     }
-    controlledModule.handle('noteOnRecorded',{eventMessage:stepOn,eventPattern:newStepEvent});
+    controlledModule.handle('noteOnRecorded',{eventMessage:eventOn,eventPattern:newStepEvent});
   }
   this.recordNoteEnd=function(differenciator){
     // lo

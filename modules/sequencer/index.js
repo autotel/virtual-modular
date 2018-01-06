@@ -107,6 +107,7 @@ var Sequencer = function(properties,environment) {
     if (evt.value[0] == CLOCKTICKHEADER) {
       // console.log("sq:CLOCKTICKHEADER");
       thisInstance.stepMicro(evt.value[1], evt.value[2]);
+      thisInstance.lastMicroStepBase=evt.value[1];
       // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
     } else if (evt.value[0] == TRIGGERONHEADER) {
       // console.log("sq:TRIGGERONHEADER");

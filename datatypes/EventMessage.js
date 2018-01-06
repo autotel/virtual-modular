@@ -58,7 +58,7 @@ var EventMessage=function(inputValue){
   }
   this.compareTo=function(otherEvent,propertyList){
     for(var a of propertyList){
-      if(JSON.parse(JSON.stringify(this[a]))!=JSON.parse(JSON.stringify(otherEvent[a])))
+      if(JSON.stringify(this[a])!=JSON.stringify(otherEvent[a]))
       return false;
     }
     return true;
