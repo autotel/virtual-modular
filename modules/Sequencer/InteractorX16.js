@@ -319,19 +319,12 @@ module.exports = function(controlledModule, environment) {
     // console.log(event);
     //keep trak of pressed buttons for button combinations
     configuratorsPressed[event.data[0]] = true;
-    if (configuratorsPressed[2] && configuratorsPressed[3]) {
+    if (configuratorsPressed[0] && configuratorsPressed[1]||configuratorsPressed[3] && configuratorsPressed[1]) {
       if (lastEngagedConfigurator)
         lastEngagedConfigurator.disengage(hardware);
       lastEngagedConfigurator = engagedConfigurator = false;
       skipMode = true;
       hardware.sendScreenA("skip to step");
-      updateLeds(hardware);
-    } else if (configuratorsPressed[1] && configuratorsPressed[3]) {
-      if (lastEngagedConfigurator)
-        lastEngagedConfigurator.disengage(hardware);
-      lastEngagedConfigurator = engagedConfigurator = false;
-      shiftPressed = true;
-      hardware.sendScreenA("select through");
       updateLeds(hardware);
     } else if (event.data[0] == 1) {
       /**TODO: use configurator objects instead of their names**/
@@ -339,12 +332,33 @@ module.exports = function(controlledModule, environment) {
       lastEngagedConfigurator = configurators.event;
       configurators.event.engage(event);
     } else if (event.data[0] == 2) {
-      engagedConfigurator = configurators.record;
-      lastEngagedConfigurator = configurators.record;
-      engagedConfigurator.engage(event);
-    } else if (event.data[0] == 3) {
       engagedConfigurator = configurators.time;
       lastEngagedConfigurator = configurators.time;
+      engagedConfigurator.engage(event);
+    } else if (event.data[0] == 0 || event.data[0] == 3) {
+      if (lastEngagedConfigurator)
+        lastEngagedConfigurator.disengage(hardware);
+      lastEngagedConfigurator = engagedConfigurator = false;
+      shiftPressed = true;
+      hardware.sendScreenA("select through");
+      updateLeds(hardware);
+    } else if (event.data[0] >= 4){
+      var wouldPage=(event.data[0]-4)*16;
+      //pressed the same button for a second time, and is one of both extreme buttons
+      // if(currentViewStartStep==wouldPage){
+      //   if(event.data[0]==7){
+      //     currentViewStartStep+=16;
+      //   }else if(event.data[0]==4){
+      //     if (currentViewStartStep>=0){
+      //       currentViewStartStep-=16;
+      //     }
+      //   }
+      // }else{
+        currentViewStartStep=wouldPage;
+      // }
+    } else if (event.data[0] >= 8){
+      engagedConfigurator = configurators.record;
+      lastEngagedConfigurator = configurators.record;
       engagedConfigurator.engage(event);
     }
 
