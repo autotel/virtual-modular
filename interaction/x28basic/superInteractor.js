@@ -130,7 +130,8 @@ var SuperInteractorsSingleton = function(environment) {
           if (event.data[0] == modules.list.length) myModuleCreator.engage();
         } else {
           if (muteMode) {
-            selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
+            selectedModule.mute = (false == selectedModule.mute);
+            myHardware.sendScreenA(selectedModule.mute?"MUTED":"Active");
 
           } else if (deleteMode) {
             if (environment.modules.removeModuleN(event.button)) {
