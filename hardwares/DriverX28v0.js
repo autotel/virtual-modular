@@ -118,7 +118,7 @@ var DriverX28v0 = function(properties, environment) {
   }
   this.sendScreenA = sendScreenA;
   this.sendScreenB = sendScreenB;
-  var setLedsToColor = function(bitmaps, color = [255, 0, 0], start = 0, add = true) {
+  var setLedsToColor = this.paintColorFromLedN = function(bitmaps, color = [255, 0, 0], start = 0, add = true) {
     var oparray=[];
 
     var reform=[];
