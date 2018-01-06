@@ -225,8 +225,10 @@ module.exports = function(controlledModule,environment) {
     SNN|=SNN<<12;
     SNH|=SNH<<12;
 
-    var selScaleMap = (controlledModule.currentScale & 0xf)<<4;
-    hardware.drawSelectors([selScaleMap,selScaleMap,selScaleMap|(0xF<<4)]);
+    var selScaleMap = (controlledModule.currentScale & 0xf);
+
+    hardware.paintColorFromLedN(selScaleMap,[255,255,255],4,false);
+
     if (performMode) {
       hardware.draw([SNH,SNN,noteHiglightMap]);
     }else{

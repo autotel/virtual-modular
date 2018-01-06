@@ -31,7 +31,7 @@ var RecorderModuleWindow=function(controlledModule,environment){
         recording=true;
 
         // console.log("RECOO",self.recorder);
-        self.recorder.x28Interface.windowButtonPressed(event);
+        self.recorder.interfaces.X28.windowButtonPressed(event);
         //if self.recoorder.taapes [windowButton]
           //select tape
         //else
