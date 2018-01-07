@@ -1,7 +1,7 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
-var DataVisualizer=require('./visualizer.js');
+var TapeCanvas=require('./TapeCanvas.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
@@ -12,7 +12,7 @@ module.exports=function(environment,parentInteractor){
   var engagedConfigurator=false;
   var lastEngagedConfigurator=false;
   configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
-  var visualizer=new DataVisualizer(controlledModule);
+  var tapeCanvas=new TapeCanvas(controlledModule);
   var stepsBmp=0;
   var engagedHardwares=this.engagedHardwares=new Set();
   var self=this;
@@ -75,10 +75,10 @@ module.exports=function(environment,parentInteractor){
   this.bottomButtonPressed=function(event){
     if(event.button=="right"){
       momentaryBitmap=0b0000010010000100;
-      visualizer.pageRight();
+      tapeCanvas.pageRight();
     }else{
       momentaryBitmap=0b0000001000010010;
-      visualizer.pageRight();
+      tapeCanvas.pageRight();
     }
   }
   this.bottomButtonReleased=function(event){
@@ -97,14 +97,14 @@ module.exports=function(environment,parentInteractor){
   };
   this.engage=function(event){
 
-    visualizer.setTape(controlledModule.getCurrentTape());
+    tapeCanvas.setTape(controlledModule.getCurrentTape());
 
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     refreshInterval=setInterval(function(){
       if(needUpdateSequence){
         needUpdateSequence=false;
-        visualizer.updateBitmap();
+        tapeCanvas.updateBitmap();
       }
       if(!engagedConfigurator){
         eachEngagedHardware(updateLeds);
@@ -127,8 +127,8 @@ module.exports=function(environment,parentInteractor){
       // hardware.draw([momentaryBitmap,0,0]);
       hardware.drawColor(momentaryBitmap,myColor,false);
     }else{
-      var eventsBmp=visualizer.eventsBitmap;
-      var headerBmp=1<<((controlledModule.clock.step/visualizer.stepsPerButton.value)+visualizer.timeRange.start[0]);
+      var eventsBmp=tapeCanvas.eventsBitmap;
+      var headerBmp=1<<((controlledModule.clock.step/tapeCanvas.stepsPerButton.value)+tapeCanvas.timeRange.start[0]);
       //TODO: this function is taking way too much time
       // controlledModule.eachMemoryEvent(function(timeIndex,eventIndex){
       //   console.log(timeIndex);

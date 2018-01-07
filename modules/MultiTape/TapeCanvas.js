@@ -1,4 +1,4 @@
-var DataVisualizer=module.exports=function(controlledModule){
+var TapeCanvas=module.exports=function(controlledModule){
   var self=this;
   var timeRange=this.timeRange={start:[0,0]}
   var stepsPerButton=this.stepsPerButton={value:2};
