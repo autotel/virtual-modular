@@ -57,6 +57,20 @@ module.exports = function(environment, parentInteractor) {
       }
     }
   }
+  configurators.tapeTime.vars["quantize"].changeFunction = configurators.tapeTime.vars["quantize"].selectFunction = function(thisVar, delta) {
+    if (selectedTape) {
+      thisVar.value = selectedTape.quantize.grid;
+      thisVar.microDisplacement = selectedTape.quantize.microDisplacement;
+      if (thisVar.value + delta >= 0) {
+        thisVar.value += delta;
+        selectedTape.quantize.grid = thisVar.value;
+        thisVar.microDisplacement = false;
+      }
+    }
+  }
+  configurators.tapeTime.vars["quantize"].nameFunction=function(thisVar){
+    return "Grid: "+(Math.floor(thisVar.value/0.12)/100)+"d"+selectedTape.quantize.microDisplacement;
+  }
   configurators.tapeTime.vars["fold!"].changeFunction = function(thisVar, delta) {
     if (selectedTape) {
       thisVar.value = selectedTape.steps.value;

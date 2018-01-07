@@ -17,8 +17,13 @@ var Tape=function(properties){
   var memory=this.memory=[];
   var muted=this.muted={value:false};
   var steps=this.steps={value:32};
+  var overdub=this.overdub={value:false}
+  var silentOnInput=this.silentOnInput={
+    value:true,
+    onInput:false,
+  }
   var name=this.name="tape "+tapeCount;
-  var quantize=this.quantize={value:0};
+  var quantize=this.quantize={grid:0,currentStep:0,microDisplacement:0};
 
   this.excited=0;
 
@@ -71,6 +76,9 @@ var Tape=function(properties){
   }
   this.record=function(eventMessage){
     noteLogger.addEvent(eventMessage);
+    if(silentOnInput.value){
+      silentOnInput.onInput=11;
+    }
   }
 
 
@@ -112,7 +120,7 @@ var Tape=function(properties){
 
   var lastRecordedEventTime=[0,0];
   this.refreshNewTapeLengthFromRecording=false;
-  var stepFunction = function(){
+  var evaluateNewRecording = function(){
     if(self.excited>0) self.excited--;
     // console.log("STPFN");
     //If I detect a recording or a change of length in the tape, transfer the event logger memory to the tape memory
@@ -121,8 +129,9 @@ var Tape=function(properties){
       // console.log("LEV",lastEventTime);
       if((lastRecordedEventTime[0]!=lastEventTime[0])||self.refreshNewTapeLengthFromRecording){
         self.refreshNewTapeLengthFromRecording=false;
-        console.log("LRTTRU");
-        self.clearMemory();
+        // console.log("LRTTRU");
+        if(!overdub.value)
+          self.clearMemory();
         // memory=self.memory;
         lastRecordedEventTime=[lastEventTime[0],lastEventTime[1]];
         var time=[lastEventTime[0]-self.steps.value,lastEventTime[1]-1];
@@ -139,6 +148,21 @@ var Tape=function(properties){
   }
 
   this.clockFunction=function(timeIndex,microStepBase){
+    if(!muted.value){
+      quantize.currentStep++;
+      if(quantize.currentStep<quantize.grid){
+        // console.log(quantize.currentStep);
+        if(quantize.microDisplacement===false){
+          quantize.microDisplacement=quantize.currentStep-timeIndex[1];
+        }
+      }else{
+        // console.log("TI",timeIndex);
+        // console.log(`${quantize.currentStep}<${quantize.grid}`)
+        catchUpEventsToClock(timeIndex,microStepBase);
+        quantize.currentStep=0;
+      }
+    }
+
     if(microStepBase!==undefined){
       if(microStepBase!=lastMicroStepBase){
         lastMicroStepBase=microStepBase;
@@ -146,30 +170,57 @@ var Tape=function(properties){
       }
     }
 
+
+
     //this over-complicated way of transfering the clock from the outside is because it allows keeping the tapes on sync, and apply displacements over that.
     var clockDelta=[timeIndex[0]-lastClockFunction[0],timeIndex[1]-lastClockFunction[1]];
-
-
-
-    playhead[0]+=clockDelta[0];
-    playhead[1]+=clockDelta[1];
-    playhead[0]%=steps.value;
-    playhead[1]%=lastMicroStepBase;
-
-    if(!muted.value){
-      if (memory[playhead]) {
-        for (var eventMessage of memory[playhead]) {
-          self.excited++;
-          // console.log("TOPT",eventMessage.value);
-          self.outputFunction(eventMessage);
-        }
-      }
+    if(clockDelta[1]<0){
+      clockDelta[1]+=12;
     }
 
-    if(clockDelta[0]>=1) stepFunction();
+    if(silentOnInput.onInput){
+      silentOnInput.onInput -= clockDelta[1];
+      console.log(silentOnInput.onInput);
+      if(silentOnInput.onInput<=0) silentOnInput.onInput=false;
+    }
+
+    if(overdub.value?true:(silentOnInput.value?!silentOnInput.onInput:true)){
+      if(clockDelta[0]>=1) evaluateNewRecording();
+    }
 
     lastClockFunction=timeIndex;
   }
+  let catchupHead=[0,0];
+  function catchUpEventsToClock(timeIndex){
+    while(catchupHead[0]<timeIndex[0] || catchupHead[1]!=timeIndex[1]){
+
+      // console.log(`${catchupHead[0]}<${timeIndex[0]} || ${catchupHead[1]}<${timeIndex[1]}`);
+      // console.log("CU",playhead);
+      if (memory[playhead]) {
+        for (var eventMessage of memory[playhead]) {
+          self.excited++;
+          self.outputFunction(eventMessage);
+        }
+      }
+
+      // playhead[0]++;
+      playhead[1]++;
+      while(playhead[1]>=lastMicroStepBase){
+        playhead[0]++;
+        playhead[1]-=lastMicroStepBase;
+      }
+      playhead[0]%=steps.value;
+
+      // catchupHead[0]++;
+      catchupHead[1]++;
+      while(catchupHead[1]>=lastMicroStepBase){
+        catchupHead[0]++;
+        catchupHead[1]-=lastMicroStepBase;
+      }
+
+    }
+  }
+
   tapeCount++;
   propertiesApplicator.call(this,properties);
 }
