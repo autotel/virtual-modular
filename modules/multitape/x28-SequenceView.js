@@ -18,6 +18,7 @@ module.exports=function(environment,parentInteractor){
   var self=this;
   var refreshInterval=false;
   var needUpdateSequence=false;
+  var currentTape=false;
 
   var momentaryBitmap=false;
   var myColor=controlledModule.color;
@@ -42,9 +43,18 @@ module.exports=function(environment,parentInteractor){
   }
 
   this.matrixButtonPressed=function(event){
+
     if(engagedConfigurator){
       engagedConfigurator.matrixButtonPressed(event);
     }else{
+      var buttonEvents=tapeCanvas.sequenceButtonCall(event.button,function(currentEvents,timeIndex){
+        if(currentEvents){
+          currentTape.clearStep(timeIndex);
+        }else{
+          currentTape.addEvent(timeIndex,configurators.event.getEventMessage());
+        }
+
+      });
       eachEngagedHardware(updateHardware);
     }
   };
@@ -97,8 +107,8 @@ module.exports=function(environment,parentInteractor){
   };
   this.engage=function(event){
 
-    tapeCanvas.setTape(controlledModule.getCurrentTape());
-
+    currentTape=controlledModule.getCurrentTape();
+    tapeCanvas.setTape(currentTape);
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     refreshInterval=setInterval(function(){

@@ -80,6 +80,20 @@ var Tape=function(properties){
       silentOnInput.onInput=11;
     }
   }
+  this.addEvent=function(timeIndex,eventMessage){
+    if(!memory[timeIndex])memory[timeIndex]=[];
+    memory[timeIndex].push(eventMessage);
+    return eventMessage;
+  }
+  this.clearStep=function(timeIndex){
+    delete memory[timeIndex];
+  }
+  this.hasEventsAt=function(timeIndex){
+    console.error("hasEventsAt is an undone function");
+  }
+  this.hasEventsStartingAt=function(timeIndex){
+    return memory[timeIndex]?memory[timeIndex]:false;
+  }
 
 
   this.fold=function(factor,destructive=true){
