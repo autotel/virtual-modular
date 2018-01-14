@@ -3,15 +3,22 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
+
+var RecordMenu = require('../x28utils/RecordMenu.js');
+
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports = function(controlledModule) {
+module.exports = function(controlledModule,environment) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
     baseEvent: controlledModule.baseEventMessage
+  });
+  configurators.record = new RecordMenu(this, {
+    environment: environment,
+    controlledModule: controlledModule
   });
   configurators.time = new BlankConfigurator(this, {
     name: "",
@@ -81,9 +88,9 @@ module.exports = function(controlledModule) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
       if (playMode.value == "momentary") {
-        controlledModule.setStep(event.button);
+        controlledModule.setStep(event.button,true);
       } else {
-        controlledModule.toggleStep(event.button);
+        controlledModule.toggleStep(event.button,true);
       }
       updateHardware(event.hardware);
     }
@@ -91,7 +98,7 @@ module.exports = function(controlledModule) {
   this.matrixButtonReleased = function(event) {
     if (engagedConfigurator) {} else {
       if (playMode.value == "momentary") {
-        controlledModule.clearStep(event.button);
+        controlledModule.clearStep(event.button,true);
       } else {}
       updateHardware(event.hardware);
     }
@@ -100,31 +107,23 @@ module.exports = function(controlledModule) {
     var hardware = event.hardware;
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
-    } else {
-      if (event.data[0] == 1) {
-        engagedConfigurator = configurators.event;
-        configurators.event.engage(event);
-      }
-      if (event.data[0] == 2) {
-        engagedConfigurator = configurators.time;
-        configurators.time.engage(event);
-      }
-      lastEngagedConfigurator = engagedConfigurator;
+    } else if (event.data[0] == 1) {
+      lastEngagedConfigurator = engagedConfigurator = configurators.event;
+    }else if (event.data[0] == 2) {
+      lastEngagedConfigurator = engagedConfigurator = configurators.time;
+    }else if (event.button >= 8) {
+      lastEngagedConfigurator = engagedConfigurator = configurators.record;
     }
+    engagedConfigurator.engage(event);
+    lastEngagedConfigurator = engagedConfigurator;
+
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
-    if (event.data[0] == 1) {
-      if (engagedConfigurator == configurators.event) {
-        engagedConfigurator = false;
-        configurators.event.disengage(event);
-      }
-    }
-    if (event.data[0] == 2) {
-      if (engagedConfigurator == configurators.time) {
-        engagedConfigurator = false;
-        configurators.time.disengage(event);
-      }
+    if (engagedConfigurator){
+      engagedConfigurator.disengage(event);
+      engagedConfigurator = false;
+      updateHardware(hardware);
     }
   };
   this.encoderScrolled = function(event) {
