@@ -43,7 +43,7 @@ var PresetKit = function(properties, environment) {
   this.uiTriggerOn = function(presetNumber, velo) {
     // console.log("tr",kit[presetNumber]);
     // if(presetNumber!==undefined)
-    var fbVelo = 100;
+    var fbVelo = -1;
     if (velo) {
       // console.log("velo");
       fbVelo = velo;

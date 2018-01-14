@@ -64,7 +64,7 @@ var Harmonizer = function(properties,environment) {
         value: [
           CHORDCHANGEHEADER,
           self.baseEventMessage.value[1],
-          scalen, 100
+          scalen, -1
         ]
       }));
     }
