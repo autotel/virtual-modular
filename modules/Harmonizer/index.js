@@ -190,5 +190,12 @@ var Harmonizer = function(properties,environment) {
   this.interfaces.X28 = new InterfaceX28(this,environment);
 
   defaultState();
+
+  this.delete = function() {
+    noteOnTracker.empty(function(noteOff){
+      self.output(noteOff);
+    });
+    return true;
+  }
 }
 module.exports = Harmonizer;
