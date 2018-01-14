@@ -1,8 +1,9 @@
 "use strict";
 var EventMessage=require('../../datatypes/EventMessage.js');
+var TimeIndex=require('../../datatypes/TimeIndex');
+
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var TapeCanvas=require('./TapeCanvas.js');
-
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
@@ -19,6 +20,8 @@ module.exports=function(environment,parentInteractor){
   var refreshInterval=false;
   var needUpdateSequence=false;
   var currentTape=false;
+
+  var currentlySelectedEvents=false;
 
   var momentaryBitmap=false;
   var myColor=controlledModule.color;
@@ -43,15 +46,29 @@ module.exports=function(environment,parentInteractor){
   }
 
   this.matrixButtonPressed=function(event){
-
     if(engagedConfigurator){
       engagedConfigurator.matrixButtonPressed(event);
     }else{
       var buttonEvents=tapeCanvas.sequenceButtonCall(event.button,function(currentEvents,timeIndex){
-        if(currentEvents){
-          currentTape.clearStep(timeIndex);
+        if(event.tied){
+          console.log("TIED");
+          if(currentlySelectedEvents){
+            console.log("DUR",timeIndex);
+            //dummy duration, should actually be timeIndex-currentEvent.start
+            //but currentEvent.start donesnt exist
+            //adn if result is negative, the start of event is shifted
+            currentlySelectedEvents[0].duration=timeIndex;
+            // TimeIndex.add(currentlySelectedEvents[0].start,timeIndex);
+          }
         }else{
-          currentTape.addEvent(timeIndex,configurators.event.getEventMessage());
+          if(currentEvents){
+            currentTape.clearStep(timeIndex);
+            currentlySelectedEvents=currentEvents;
+          }else{
+            var newEvent=currentTape.addEvent(timeIndex,configurators.event.getEventMessage());
+            newEvent.duration=[2,0];
+            currentlySelectedEvents=[newEvent];
+          }
         }
 
       });
