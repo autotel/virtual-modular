@@ -96,6 +96,9 @@ var Operator = function(properties) {
     self.output(inEvt);
   }
   this.delete = function() {
+    for(let a in opMap){
+      opMap[a]=0;
+    }
     noteOnTracker.empty(function(noteOff){
       // console.log("NOFF",noteOff.value);
       self.output(noteOff);
