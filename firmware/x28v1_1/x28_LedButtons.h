@@ -47,14 +47,13 @@ class LedButtons {
         lcdBuf[a] = ' ';
       }
       //encoder pins setup
-      DDRA = 0x00; //0x3<<6
-      PORTA |= 3 << 6;
+      DDRB &= 0x01101111;
       //lcd->print("hello, world!");
     }
     void loop() {
       readMatrixButtons();
       doOtherButtons();
-
+      doEncoder();
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
@@ -124,8 +123,9 @@ class LedButtons {
 #define divideEncoderRotation 4
     const uint8_t grayToBinary = 0b10110100;
     int8_t enc_last = 0;
+    int8_t enc_inc_last = 0;
     int8_t enc_sub = 0;
-    unsigned int encoder0Pos = 0;
+    // unsigned int encoder0Pos = 0;
     char sign(char x) {
       return (x > 0) - (x < 0);
     }
@@ -133,22 +133,49 @@ class LedButtons {
     void doEncoder() {
       //encread turns around as follows: <- 0,1,3,2 ->
       //upon conversion it will turn as: <- 0,1,2,3 ->
-      int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
+
+      //DDRB&=0x01101111 (done on startup)
+      //ENCA = PB4
+      //ENCC = PB7
+
+      //read encoder input,
+      // the pins in this board are separate, so put together both digits (to get number range from 0 to 3)
+      PORTB=0b10010000;
+      uint8_t ENCR = (PINB>>3)&0b10;//didn't shift 3 because we want it to fall as second digit
+      ENCR |= (PINB>>7)&0b1;
+
+      // lcd->print(ENCPIN);
+
+      //here I am using a single byte as an array of two bit numbers
+      //I lookup through the pseudo array using shift operation
+      int8_t enc_read = ( grayToBinary >> ( ENCR * 2 ) ) & 0x3;
+
       if (enc_read != enc_last) {
+
         int8_t enc_inc = enc_read - enc_last;
 
+        //cases where it skipped a step
         if (enc_inc > 2) {
-          enc_inc = -1;
+          enc_inc = 0;
         }
         if (enc_inc < -2) {
-          enc_inc = +1;
+          enc_inc = 0;
         }
 
-        enc_sub += enc_inc;
+        if(enc_inc_last!=enc_inc){
+          //change direction case
+          enc_sub=enc_inc*divideEncoderRotation*2;
+        }else{
+          //sty in same direction case
+          enc_sub += enc_inc;
+        }
+
+        enc_inc_last=enc_inc;
+
         if (abs(enc_sub) >= divideEncoderRotation) {
-          encoder0Pos += sign(enc_sub);
+          // encoder0Pos += sign(enc_sub);
+          encoderRotatedCallback(sign(enc_sub));
           enc_sub = 0;
-          encoderRotatedCallback(encoder0Pos);
         }
         enc_last = enc_read;
       }
