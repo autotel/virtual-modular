@@ -63,23 +63,24 @@ class LedButtons {
     uint8_t otherButtonsLastPressed = 0;
     void doOtherButtons() {
       /*
-        side buttons:
-        mxx4				  mxy1,2
-        PH7 -[\_]-<|--	PK1,2
-        muxa4         muxbx1,2
-
+        side & encoder buttons:
         encoder:
-        PH7--[\_]--<|--PK0
-
+          PH7(MU XAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX0)PK0
+        side button 0&1:
+          PH7(MUXAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX1)PK1
+          PH7(MUXAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX2)PK2
       */
       //set MUXBX0 low MUXAX4 to high;
       for (uint8_t a = 0; a < 3; a++) {
-        DDRK &= 1 << a; /// ~(1<<a);
-        ///  DDRH |= 1 << 7;
-        PORTK |= 1 << a;
-        /// PORTH &= ~(1 << 7);
-        if ((PINK & (1 << a)) == 0) {
-          //buttton detected pressed
+        //set the current pinK to input
+        DDRK &= ~(1 << a);
+        PORTK|=1<<a;
+
+        //send high to the "other buttons" col
+        PORTH |= 1<<7;
+
+        if (PINK & (1 << a)) {
+          //here: buttton detected pressed
           if ((otherButtonsLastPressed & (1 << a)) == 0) {
             //and was not pressed the last time
             otherButtonsLastPressed |= 1 << a;
@@ -142,7 +143,7 @@ class LedButtons {
           //stateUpTime = 0;
         }
       }
-      
+
       //here: encoder is remaining in the same position
       if (justChanged) {
         //here: encoder just changed one 'frame', which has been debounced
@@ -195,7 +196,7 @@ class LedButtons {
         uint32_t test = 1UL << row;
         //TODO: there should be a juggling of the scan with the rest of the code ranther than a delay.
         //delay is to avoid leaks of voltage due to capacitances?
-        delayMicroseconds(100);
+        //delayMicroseconds(100);
 
         uint32_t an = PIY & test;
 
@@ -209,6 +210,7 @@ class LedButtons {
 
             pressedButtonsBitmap = pressedButtonsBitmap | test;
             CB_buttonPressed(currentButton, pressedButtonsBitmap);
+
           }
 
         } else {
