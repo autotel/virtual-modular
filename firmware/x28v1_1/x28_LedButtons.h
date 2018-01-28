@@ -48,11 +48,12 @@ class LedButtons {
         lcdBuf[a] = ' ';
       }
       DDRB &= 0x01101111;
-
+      setup_readMatrixButtons_velocity();
     }
     void loop() {
       readMatrixButtons();
       doOtherButtons();
+      readMatrixButtons_velocity();
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
@@ -169,6 +170,8 @@ class LedButtons {
 
 
     int readMatrixButtons() {
+
+
       uint16_t i, j, currentButton;
       //POX = pin out register n., PIN= pin in register n.
       //H, columns
@@ -198,13 +201,11 @@ class LedButtons {
         //delay is to avoid leaks of voltage due to capacitances?
         //delayMicroseconds(100);
 
-        uint32_t an = PIY & test;
-
         //we checked the row, now we want to use the test to compare with the pixel number.
         //I am recycling the variable
         test = 1UL << currentButton;
-        //check button is pressed, but in inverted logic
-        if (an) {
+
+        if (PIY & test) {
           //button is pressed, and not the last time
           if (!(test & pressedButtonsBitmap)) {
 
@@ -225,6 +226,57 @@ class LedButtons {
       }
 
     }
+    uint8_t MUXBX [4] = {A10,A11,A12,A13};
+    //[last pressure read, read time]
+    long matrixButtonStatus [16][2];
+    uint8_t currentButton = 0;
+    void setup_readMatrixButtons_velocity(){
+      pinMode(MUXBX[0],INPUT);
+      pinMode(MUXBX[1],INPUT);
+      pinMode(MUXBX[2],INPUT);
+      pinMode(MUXBX[3],INPUT);
+      for(uint8_t a=0; a<16; a++){
+        for(uint8_t b=0; b<2; b++){
+          matrixButtonStatus[a][b]=0;
+        }
+      }
+    }
+    uint16_t readMatrixButtons_velocity(){
+      long currentTime=millis();
+      //PH3-6(MUXAX0-3)---[\_]---|>---(--[470ohm]--GND )----(MUXBX2-5)PK2-5
+      // for (uint8_t currentButton = 0; currentButton < 16; currentButton++) {
+      uint8_t col=currentButton%4;
+      uint8_t row=(currentButton/4)%4;
+      PORTH |= 1 << (col+3);
+
+      uint16_t read=analogRead(MUXBX[row]);
+      //noise treshold
+      if(read>50){
+        if(matrixButtonStatus[currentButton][0]){
+          //here: the button was pressed on the last check, therefore we can measure velocity
+          uint16_t deltaT=currentTime-matrixButtonStatus[currentButton][1];
+          if(read>matrixButtonStatus[currentButton][0]){
+            uint16_t deltaP=read-matrixButtonStatus[currentButton][0];
+            uint16_t velo=(deltaP*100)/deltaT;
+            Serial.println();
+            Serial.print(currentButton);
+            Serial.print(',');
+            Serial.print(velo);
+          }
+          matrixButtonStatus[currentButton][0]=0;
+          matrixButtonStatus[currentButton][1]=0;
+        }else{
+          matrixButtonStatus[currentButton][0]=read;
+          matrixButtonStatus[currentButton][1]=currentTime;
+        }
+      }else{
+        matrixButtonStatus[currentButton][0]=0;
+      }
+      currentButton++;
+      currentButton%=16;
+      // }
+    }
+
     void refreshLeds() {
       //uint16_t a;
       /*for (a = 0; a < strip.numPixels(); a++) {
