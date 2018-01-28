@@ -42,7 +42,7 @@ void setup() {
   patchBus.addMessageListener(onBusMessageReceived);
   // patchBus.debug_onTip(test_onTip);
 
-  Timer1.initialize(1500);
+  Timer1.initialize(800);
   Timer1.attachInterrupt(onInterrupt);
 
 
@@ -171,27 +171,7 @@ char sign(char x) {
 }
 //todo: encoder readout should be part of the library
 void onInterrupt() {
-  //encread turns around as follows: <- 0,1,3,2 ->
-  //upon conversion it will turn as: <- 0,1,2,3 ->
-  int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
-  if (enc_read != enc_last) {
-    int8_t enc_inc = enc_read - enc_last;
-
-    if (enc_inc > 2) {
-      enc_inc = -1;
-    }
-    if (enc_inc < -2) {
-      enc_inc = +1;
-    }
-
-    enc_sub += enc_inc;
-    if (abs(enc_sub) >= divideEncoderRotation) {
-      encoder0Pos += sign(enc_sub);
-      enc_sub = 0;
-      onEncoderScrolled(enc_inc);
-    }
-    enc_last = enc_read;
-  }
+  hardware.doEncoder();
 }
 
 
