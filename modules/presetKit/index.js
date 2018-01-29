@@ -33,18 +33,19 @@ var PresetKit = function(properties, environment) {
 
 
   this.interfaces.X16 = new InterfaceX16(this, environment);
+
   var kit = this.kit = {};
+
+
+  for (var n=0; n<16; n++) {
+    this.kit[n % 16] = new EventMessage({ });
+  }
 
   if (properties.kit) {
     for (var n in properties.kit) {
       this.kit[n % 16] = new EventMessage({
         value: properties.kit[n]
       });
-    }
-    self.handle('kit changed');
-  }else{
-    for (var n=0; n<16; n++) {
-      this.kit[n % 16] = new EventMessage({ });
     }
     self.handle('kit changed');
   }

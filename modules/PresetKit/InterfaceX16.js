@@ -2,8 +2,8 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-var RecordMenu = require('../x16utils/RecordMenu.js');
-var RecorderModuleWindow = require('../x28utils/RecorderModuleWindow.js');
+var RecordMenu = require('../x28utils/RecordMenu.js');
+
 var base = require('../../interaction/x16basic/interactorBase.js');
 var SQUARE = String.fromCharCode(252);
 /**
@@ -16,15 +16,14 @@ module.exports = function(controlledModule, environment) {
   var thisInteractor = this;
   //configurators setup
   var engagedConfigurator = false;
-  var configurators = {};
+  var configurators = this.configurators = {};
+
   var muteBmp = 0;
   var muteMode=false;
   var muteAction=function(event){
     var muted = controlledModule.togglePresetMute(event.button);
-    //draw muted bmp
     (muted ? muteBmp |= 1 << event.button : muteBmp &= ~(1 << event.button));
     updateLeds(event.hardware);
-    // console.log("ut");
   }
   configurators.event = new EventConfigurator(this, {
     name:'event',
@@ -34,120 +33,9 @@ module.exports = function(controlledModule, environment) {
     environment: environment,
     controlledModule: controlledModule
   });
-  var utilAction = false;
-  configurators.util = new BlankConfigurator(this, {
-    name: "utils",
-    engageFunction: function(thisConfigurator) {
-      // utilAction=false;
-      // thisConfigurator.select(0,false);
-    },
-    disengageFunction: function(thisConfigurator) {
-      utilAction = false;
-      muteMode=false;
-      thisConfigurator.select(0, false);
-    },
-    variables: {
-      "none": {
-        nameFunction: function() {
-          return "mute, dup";
-        }
-      },
-      "mute": {
-        nameFunction: function(thisVar) {
-          return "mute preset";
-        },
-        selectFunction: function(thisVar) {
-          muteMode=true;
-          utilAction = muteAction
-        }
-      },
-      "duplicate": {
-        nameFunction: function(thisVar) {
-          var spv = "[]";
-          if (thisVar.sourcePreset) {
-            spv = thisVar.sourcePreset.on.value;
-          }
-          return "apply:" + JSON.stringify(spv);
-        },
-        selectFunction: function(thisVar) {
-          var selectedPresetNumber=selectedPresetNumbers[0];
 
-          if (selectedPresetNumber !== undefined) {
-            thisVar.sourcePreset = new EventMessage(controlledModule.kit[selectedPresetNumber]);
-            // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
-            utilAction = function(event) {
-              controlledModule.kit[event.button] = thisVar.sourcePreset;
-              var spv = "false";
-              if (thisVar.sourcePreset) {
-                spv = thisVar.sourcePreset.value;
-              }
-              selectedPresetNumber = event.button;
-              event.hardware.sendScreenB("" + selectedPresetNumber + "<" + JSON.stringify(spv));
-            };
-          }
-        },
-        sourcePreset: false
-      },
-      "duplicate[1]++": {
-        nameFunction: function(thisVar) {
-          var spv = "[]";
-          if (thisVar.sourcePreset) {
-            spv = thisVar.sourcePreset.value;
-          }
-          return "apply:" + JSON.stringify(spv);
-        },
-        selectFunction: function(thisVar) {
-          // console.log("selec");
-          var selectedPresetNumber=selectedPresetNumbers[0];
+  var muteMode=false;
 
-          if (selectedPresetNumber !== undefined) {
-            thisVar.sourcePreset = new EventMessage(controlledModule.kit[selectedPresetNumber]);
-            // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
-            utilAction = function(event) {
-              controlledModule.kit[event.button] = new EventMessage(thisVar.sourcePreset);
-              // console.log(controlledModule.kit[event.button]);
-              var spv = "false";
-              if (thisVar.sourcePreset) {
-                spv = thisVar.sourcePreset.value;
-                spv[1]++;
-              }
-              selectedPresetNumber = event.button;
-              event.hardware.sendScreenB("" + selectedPresetNumber + "<" + JSON.stringify(spv));
-            };
-          }
-        },
-        sourcePreset: false
-      },
-      "duplicate[2]++": {
-        nameFunction: function(thisVar) {
-          var spv = "[]";
-          if (thisVar.sourcePreset) {
-            spv = thisVar.sourcePreset.value;
-          }
-          return "apply:" + JSON.stringify(spv);
-        },
-        selectFunction: function(thisVar) {
-          console.log("selec");
-          var selectedPresetNumber=selectedPresetNumbers[0];
-          if (selectedPresetNumber !== undefined) {
-            thisVar.sourcePreset = new EventMessage(controlledModule.kit[selectedPresetNumber]);
-            // event.hardware.sendScreenB("apply:"+JSON.stringify(spv));
-            utilAction = function(event) {
-              controlledModule.kit[event.button] = new EventMessage(thisVar.sourcePreset);
-              var spv = "false";
-              if (thisVar.sourcePreset) {
-                spv = thisVar.sourcePreset.value;
-                spv[2]++;
-              }
-              selectedPresetNumber = event.button;
-              event.hardware.sendScreenB("" + selectedPresetNumber + "<" + JSON.stringify(spv));
-            };
-          }
-        },
-        sourcePreset: false
-      }
-    }
-  });
   var lastEngagedConfigurator = configurators.event;
   // configurators.one=new BlankConfigurator(this,{
   //   name:"T",
@@ -157,8 +45,6 @@ module.exports = function(controlledModule, environment) {
   var availablePresetsBitmap = 0;
   var highlightedBitmap = 0;
   var selectedPresetNumbers = [];
-
-  let recorderModuleWindow = new RecorderModuleWindow(controlledModule, environment);
 
   function eachSelectedPresetNumber(cb) {
     selectedPresetNumbers.map(cb);
@@ -174,9 +60,11 @@ module.exports = function(controlledModule, environment) {
       highlightedBitmap &= ~(1 << num);
     }, 500);
   });
+
   setInterval(function() {
     passiveUpdateLeds();
   }, 1000 / 20);
+
   controlledModule.on('kit changed', function() {
     updateAvailablePresetsBitmap();
   });
@@ -184,8 +72,6 @@ module.exports = function(controlledModule, environment) {
     var hardware = event.hardware;
     if(muteMode){
       muteAction(event);
-    }else if (utilAction) {
-      utilAction(event);
       updateLeds(hardware);
     } else if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
@@ -237,23 +123,14 @@ module.exports = function(controlledModule, environment) {
     } else {
       if (event.button == 1) {
         lastEngagedConfigurator = engagedConfigurator = configurators.event;
-        engagedConfigurator.engage(event);
       } else if (event.button == 2) {
-        lastEngagedConfigurator = engagedConfigurator = configurators.record;
-        engagedConfigurator.engage(event);
+
       } else if (event.button == 0||event.button == 3) {//0 is used in x28 and 3 in x16
-        lastEngagedConfigurator = engagedConfigurator = configurators.util;
-        engagedConfigurator.engage(event);
+        muteMode=!muteMode;
       } else if (event.button >= 8) {
-        let wevent = {
-          type: event.type,
-          originalMessage: event.originalMessage,
-          button: event.button,
-          hardware: event.hardware
-        };
-        wevent.button -= 8;
-        recorderModuleWindow.windowButtonPressed(wevent);
+        lastEngagedConfigurator = engagedConfigurator = configurators.record;
       }
+      if(engagedConfigurator) engagedConfigurator.engage(event);
     }
   };
   this.selectorButtonReleased = function(event) {
@@ -337,7 +214,6 @@ module.exports = function(controlledModule, environment) {
   this.engage = function(event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
-    recorderModuleWindow.engage(event);
   };
   this.disengage = function(event) {
     outsideScrollHeader = 0;
