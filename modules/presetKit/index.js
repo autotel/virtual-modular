@@ -38,7 +38,7 @@ var PresetKit = function(properties, environment) {
 
 
   for (var n=0; n<16; n++) {
-    this.kit[n % 16] = new EventMessage({ });
+    this.kit[n] = new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
   }
 
   if (properties.kit) {

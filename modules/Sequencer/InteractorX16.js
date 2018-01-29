@@ -47,7 +47,7 @@ module.exports = function(controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
-    values: [1, 1, 60, 90]
+    values: [1, 1, 0, 90]
   });
   var lastEngagedConfigurator = configurators.event;
   var loopDisplace = controlledModule.loopDisplace;
