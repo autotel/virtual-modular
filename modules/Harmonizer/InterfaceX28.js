@@ -25,6 +25,7 @@ module.exports = function(controlledModule,environment) {
   var noteHiglightMap = 0;
   var performMode = true;
   var currentScale = 0;
+  var copyingScale = false;
   var engaged = false;
   //configurators setup
   var engagedConfigurator = false;
@@ -153,9 +154,15 @@ module.exports = function(controlledModule,environment) {
         lastEngagedConfigurator = configurators.event;
         configurators.event.engage(event);
       } else if (event.data[0] == 2) {
-        engagedConfigurator = configurators.record;
-        lastEngagedConfigurator = configurators.record;
-        configurators.record.engage(event);
+        if(performMode){
+          engagedConfigurator = configurators.record;
+          lastEngagedConfigurator = configurators.record;
+          configurators.record.engage(event);
+        }else{
+          copyingScale=currentScale;
+          event.hardware.sendScreenA('copy scale to...');
+          event.hardware.sendScreenB('(release)');
+        }
       } else if (event.data[0] == 0) {
         performMode = !performMode;
         updateHardware(hardware);
@@ -178,8 +185,14 @@ module.exports = function(controlledModule,environment) {
       engagedConfigurator = false;
       configurators.event.disengage(hardware);
     } else if (event.data[0] == 2) {
-      engagedConfigurator = false;
-      configurators.record.disengage(hardware);
+      if(copyingScale!==false){
+        updateScaleMap(controlledModule.getScaleMap(copyingScale));
+        updateHardware(hardware);
+        copyingScale=false;
+      }else{
+        engagedConfigurator = false;
+        configurators.record.disengage(hardware);
+      }
     } else if (event.data[0] == 3) {
 
     } else  if (event.button >= 8) {
