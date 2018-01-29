@@ -2,9 +2,8 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-var RecordMenu = require('../x16utils/RecordMenu.js');
+var RecordMenu = require('../x28utils/RecordMenu.js');
 var scaleNames = require('./scaleNames.js');
-var RecorderModuleWindow = require('../x28utils/RecorderModuleWindow.js');
 
 /**
 TODO: interfaces should be extended by the environment, instead of being required on each module,
@@ -12,7 +11,6 @@ in the same way how modules are extended.
 */
 var base = require('../../interaction/x28basic/interactorBase.js');
 
-// var RecordMenu=require('../x16utils/RecordMenu.js');
 /**
 definition of a harmonizer interactor for the x16basic controller hardware
 */
@@ -21,7 +19,7 @@ module.exports = function(controlledModule,environment) {
   var thisInterface = this;
   var fingerMap = 0x0000;
   var scaleSelectionMap=controlledModule.currentScale;
-  var scaleIntervalsMap = controlledModule.getScaleMap(scaleSelectionMap);
+  var scaleIntervalsMap;
   var noteHiglightMap = 0;
   var performMode = true;
   var currentScale = 0;
@@ -51,7 +49,6 @@ module.exports = function(controlledModule,environment) {
     environment: environment,
     controlledModule: controlledModule
   });
-  let recorderModuleWindow = new RecorderModuleWindow(controlledModule, environment);
 
   //interaction with controlledModule
   var currentStep = controlledModule.currentStep;
@@ -139,34 +136,30 @@ module.exports = function(controlledModule,environment) {
   };
   this.matrixButtonHold = function(event) {};
   this.selectorButtonPressed = function(event) {
-    var hardware = event.hardware;
-    if (event.data[0] == 1) {
-      engagedConfigurator = configurators.event;
-      lastEngagedConfigurator = configurators.event;
-      configurators.event.engage(event);
-    } else if (event.data[0] == 2) {
-      engagedConfigurator = configurators.record;
-      lastEngagedConfigurator = configurators.record;
-      configurators.record.engage(event);
-    } else if (event.data[0] == 0) {
-      performMode = !performMode;
-      updateHardware(hardware);
-    }else if (event.button >= 8) {
-      let wevent = {
-        type: event.type,
-        originalMessage: event.originalMessage,
-        button: event.button,
-        hardware: event.hardware
-      };
-      wevent.button -= 8;
-      recorderModuleWindow.windowButtonPressed(wevent);
-    }else if (event.button >= 4) {
-      scaleSelectionMap ^= 1<<(event.data[0]-4);
-      selectScaleMap(scaleSelectionMap);
-      updateHardware(hardware);
-    }
-    if (engagedConfigurator)
+    if (engagedConfigurator){
       engagedConfigurator.selectorButtonPressed(event);
+    }else{
+      var hardware = event.hardware;
+      if (event.data[0] == 1) {
+        engagedConfigurator = configurators.event;
+        lastEngagedConfigurator = configurators.event;
+        configurators.event.engage(event);
+      } else if (event.data[0] == 2) {
+        engagedConfigurator = configurators.record;
+        lastEngagedConfigurator = configurators.record;
+        configurators.record.engage(event);
+      } else if (event.data[0] == 0) {
+        performMode = !performMode;
+        updateHardware(hardware);
+      }else if (event.button >= 8) {
+        configurators.record.engage(event);
+      }else if (event.button >= 4) {
+        scaleSelectionMap ^= 1<<(event.data[0]-4);
+        selectScaleMap(scaleSelectionMap);
+        updateHardware(hardware);
+      }
+    }
+
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
@@ -181,7 +174,10 @@ module.exports = function(controlledModule,environment) {
       configurators.record.disengage(hardware);
     } else if (event.data[0] == 3) {
 
-    } else if (event.button >= 4) {
+    } else  if (event.button >= 8) {
+      configurators.record.disengage(hardware);
+      engagedConfigurator = false;
+    }else if (event.button >= 4) {
       // scaleSelectionMap &= ~(1<<(event.data[0]-4));
       // selectScaleMap(scaleSelectionMap);
       // updateHardware(hardware);
@@ -202,7 +198,6 @@ module.exports = function(controlledModule,environment) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     updateLeds(hardware);
-    recorderModuleWindow.engage(event);
 
   };
   this.disengage = function(event) {
@@ -219,6 +214,9 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateLeds=function(hardware){
+    if(scaleIntervalsMap===undefined){
+      scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+    }
     var SNH = scaleIntervalsMap ^ noteHiglightMap;
     var SNN = scaleIntervalsMap;
     var rootNoteBitmap=1;
@@ -227,7 +225,6 @@ module.exports = function(controlledModule,environment) {
 
     var selScaleMap = (scaleSelectionMap & 0xf);
 
-    // recorderModuleWindow.redraw(hardware);
     // hardware.paintColorFromLedN(0,[0,0,0],0,false);
     hardware.paintColorFromLedN(selScaleMap<<4,[255,127,0],0,false);
     if (performMode) {

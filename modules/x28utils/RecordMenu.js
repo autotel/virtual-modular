@@ -103,14 +103,14 @@ var RecordMenu = function(parentInteractor, properties) {
     var hardware = event.hardware;
   };
   this.engage = function(event) {
+    if(!environment.vars.advancedRecording) limitOptions();
+
     if(event.button>=8){
       self.windowButtonPressed(event.button-8);
-
       updateLeds(event.hardware);
       updateScreen(event.hardware);
     }
 
-    if(!environment.vars.advancedRecording) limitOptions();
     var hardware = event.hardware;
     engagedHardwares.add(hardware);
     updateLeds(hardware);

@@ -104,7 +104,6 @@ var PresetKit = function(properties, environment) {
         }
       }
 
-      console.log("OP");
       newEvent.value[self.autoMap] += presetNumber;
       noteOnTracker.add(newEvent, presetNumber);
       self.output(newEvent);
