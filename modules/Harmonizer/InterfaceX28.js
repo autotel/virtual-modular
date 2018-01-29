@@ -16,9 +16,11 @@ definition of a harmonizer interactor for the x16basic controller hardware
 */
 module.exports = function(controlledModule,environment) {
   base.call(this);
+
   var thisInterface = this;
   var fingerMap = 0x0000;
   var scaleSelectionMap=controlledModule.currentScale;
+  var compressedScaleMaps=undefined;
   var scaleIntervalsMap;
   var noteHiglightMap = 0;
   var performMode = true;
@@ -55,15 +57,18 @@ module.exports = function(controlledModule,environment) {
   var loopLength = controlledModule.loopLength;
   var engagedHardwares = new Set();
   controlledModule.on('note played', function(evt) {
-    var grade = evt.triggeredGrade;
-    var note = evt.triggeredNote % 12;
-    var newH = noteHiglightMap |= 1 << note + 4;
+
+    var relativeNote = (evt.triggeredNote-controlledModule.baseEventMessage.value[2])%12;
+    console.log(relativeNote);
+    var newH = noteHiglightMap |= 4097 << relativeNote;
+
     setTimeout(function() {
       noteHiglightMap &= ~newH;
     }, 300);
     passiveUpdateLeds();
   });
   controlledModule.on('chordchange', function() {
+    compressedScaleMaps=undefined;
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         // console.log("chc");
@@ -89,10 +94,13 @@ module.exports = function(controlledModule,environment) {
     if (performMode)
       controlledModule.uiScaleChange(currentScale);
     scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+    compressedScaleMaps=undefined;
   }
   var updateScaleMap = function(newScaleMap) {
     scaleIntervalsMap = newScaleMap;
     controlledModule.newScaleMap(currentScale, newScaleMap);
+    compressedScaleMaps=undefined;
+
   }
 
   // updateScaleMap(scaleIntervalsMap);
@@ -214,23 +222,29 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateLeds=function(hardware){
-    if(scaleIntervalsMap===undefined){
-      scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
-    }
-    var SNH = scaleIntervalsMap ^ noteHiglightMap;
-    var SNN = scaleIntervalsMap;
-    var rootNoteBitmap=1;
-    SNN|=SNN<<12;
-    SNH|=SNH<<12;
+
+
 
     var selScaleMap = (scaleSelectionMap & 0xf);
 
     // hardware.paintColorFromLedN(0,[0,0,0],0,false);
     hardware.paintColorFromLedN(selScaleMap<<4,[255,127,0],0,false);
+
     if (performMode) {
-      hardware.draw([SNH,SNN,noteHiglightMap]);
+      if(compressedScaleMaps===undefined){
+        compressedScaleMaps=controlledModule.getCompMaps(currentScale);
+      }
+      hardware.draw( [compressedScaleMaps.roots,compressedScaleMaps.roots,compressedScaleMaps.semitones[1]] );
     }else{
-      hardware.draw([SNH,SNN,0x5AB5 | SNN]);
+      if(scaleIntervalsMap===undefined){
+        scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+      }
+
+      var SNN = scaleIntervalsMap;
+
+      SNN|=SNN<<12;
+
+      hardware.draw([SNN | noteHiglightMap, noteHiglightMap ,0x5AB5 | noteHiglightMap | SNN]);
     }
   }
   var updateScreen = function(hardware, upleds = true, upscreen = true) {

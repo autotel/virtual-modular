@@ -185,6 +185,31 @@ var Harmonizer = function(properties,environment) {
   this.getScaleMap = function(identifier) {
     return scaleMap[identifier] || 0x00;
   }
+
+  this.getCompMaps = function(identifier){
+    var ret={
+      roots:1,
+      semitones:[0,0,0,0]
+    }
+
+    for(let a=0; a<12+self.scaleArray[identifier].length; a+=self.scaleArray[identifier].length){
+      ret.roots|=ret.roots<<(a);
+    }
+
+    let lastNote=0;
+    for(let n in self.scaleArray[identifier]){
+      let itm=self.scaleArray[identifier][n];
+      let interval=itm-lastNote;
+      if(ret.semitones[interval]!==undefined){
+        //4097 is 1 | 1<<12
+        ret.semitones[interval]|=4097<<n;
+      }
+      lastNote=itm;
+    }
+
+    return ret;
+  }
+
   //TODO: there should be no need to isntantiate every interface for each module. most of them will probably not be used. maybe each interface is a function that gets called by the module creator or hardware manager.
   this.interfaces.X16 = new InterfaceX16(this,environment);
   this.interfaces.X28 = new InterfaceX28(this,environment);
