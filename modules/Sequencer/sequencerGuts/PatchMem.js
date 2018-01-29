@@ -82,8 +82,7 @@ module.exports=function(sequencerModule){ return new(function(){
       if(typeof filterFunction==="function"){
         for(var sEvt in patData[step]){
           if(filterFunction(patData[step][sEvt])){
-            patData[step].splice(sEvt,1);
-            return true;
+            return patData[step].splice(sEvt,1);
           }
         }
         return false;

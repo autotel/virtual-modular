@@ -114,7 +114,7 @@ module.exports = function(controlledModule, environment) {
         selectedPresetNumbers = [event.button];
       }
       controlledModule.uiTriggerOn(event.button);
-      if(controlledModule.autoMap){
+      if(controlledModule.autoMap!==false){
         if (controlledModule.kit[0])
           configurators.event.setFromEventMessage(controlledModule.kit[0], hardware);
       }else if (controlledModule.kit[event.button])
