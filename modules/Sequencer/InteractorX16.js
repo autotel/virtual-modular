@@ -47,7 +47,7 @@ module.exports = function(controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
-    values: [1, 1, 60, 90]
+    values: [1, 1, 0, 90]
   });
   var lastEngagedConfigurator = configurators.event;
   var loopDisplace = controlledModule.loopDisplace;
@@ -262,10 +262,16 @@ module.exports = function(controlledModule, environment) {
       }
       // console.log(throughfold);
       if (throughfold) {
+        var removedEvent=false;
         //there is an event on every fold of the lookloop
         eachFold(targetButton, function(step) {
-          controlledModule.clearStepByFilter(step, currentFilter)
+          removedEvent=controlledModule.clearStepByFilter(step, currentFilter)
         });
+
+        if(removedEvent){
+          console.log(removedEvent);
+          configurators.event.setFromEventPattern(removedEvent[0],event.hardware);
+        }
       }
       /*else if(trhoughFold>0){
                 //there is an event on some folds of the lookloop

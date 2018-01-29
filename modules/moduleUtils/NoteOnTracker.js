@@ -18,7 +18,7 @@ var NoteOnTracker = function(controlledModule) {
   }
 
   this.add = function(noteOn, identifier = false) {
-    if (noteOn.value[0] != TRIGGERONHEADER) console.warn("noteonTracker: tracking notes that are not a noteon is likely to give you headaches", noteOn);
+    if (noteOn.value[0] != TRIGGERONHEADER) console.warn("noteonTracker: tracking notes that are not a noteon is likely to give you headaches", noteOn, controlledModule.name);
     if (identifier === false) identifier = makeUpIdentifier(noteOn);
     trackedNotes[identifier] = noteOn.clone();
     transformToNoteOff(identifier);

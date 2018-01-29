@@ -21,13 +21,25 @@ var PresetKit = function(properties, environment) {
   //get my unique name
   name.call(this);
 
+  this.autoMap = false;
+
+  if (properties.autoMap == true) this.autoMap = 2;
+  if (properties.autoMap == 'channel') this.autoMap = 1;
+  if (properties.autoMap == 'note') this.autoMap = 2;
+
   this.recordingUi = true;
 
   if (properties.name) this.name = properties.name;
 
 
-  this.interfaces.X16 = new InterfaceX16(this,environment);
+  this.interfaces.X16 = new InterfaceX16(this, environment);
+
   var kit = this.kit = {};
+
+
+  for (var n=0; n<16; n++) {
+    this.kit[n] = new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
+  }
 
   if (properties.kit) {
     for (var n in properties.kit) {
@@ -41,25 +53,24 @@ var PresetKit = function(properties, environment) {
   var noteOnTracker = new NoteOnTracker(this);
 
   this.uiTriggerOn = function(presetNumber, velo) {
-    // console.log("tr",kit[presetNumber]);
-    // if(presetNumber!==undefined)
-    var fbVelo = -1;
-    if (velo) {
-      // console.log("velo");
-      fbVelo = velo;
-    }
-    if (kit[presetNumber]) {
-      // console.log(self.mute);
-      if (self.mute) return;
-      if (!kit[presetNumber].mute) {
-        noteOnTracker.add(kit[presetNumber], presetNumber);
-        kit[presetNumber].value[3] = fbVelo;
-        self.output(kit[presetNumber]);
-        if (self.recordingUi) {
-          self.recordOutput(new EventMessage({
-            value: [TRIGGERONHEADER, 0, presetNumber, fbVelo]
-          }));
+    if(velo===false||velo===undefined){velo=-1}
+    if (self.mute) return;
+
+    if (kit[presetNumber]||self.autoMap!==false) {
+      if (kit[presetNumber]) {
+        if (kit[presetNumber].mute) {
+          return;
         }
+      }
+
+      var recMessage=new EventMessage({
+        value: [TRIGGERONHEADER, 0, presetNumber, velo]
+      });
+
+      self.triggerOn(presetNumber, recMessage);
+
+      if (self.recordingUi) {
+        self.recordOutput(recMessage);
       }
     }
   }
@@ -77,17 +88,35 @@ var PresetKit = function(properties, environment) {
   }
 
   this.triggerOn = function(presetNumber, originalMessage) {
-    // console.log("ton",presetNumber,originalMessage);
     self.handle("extrigger", {
       preset: presetNumber
     });
-    if (self.mute) return;
-    presetNumber %= 16;
-    if (kit[presetNumber]) {
-      if (!kit[presetNumber].mute) {
-        var outputMessage = kit[presetNumber].clone().underImpose(originalMessage);
-        noteOnTracker.add(kit[presetNumber], presetNumber);
-        self.output(outputMessage);
+    if (self.autoMap !== false) {
+      if (!kit[0]) {
+        kit[0] = new EventMessage()
+      };
+
+      var newEvent = kit[0].clone().underImpose(originalMessage);
+
+      if (kit[presetNumber]) {
+        if (kit[presetNumber].mute) {
+          return;
+        }
+      }
+
+      newEvent.value[self.autoMap] += presetNumber;
+      noteOnTracker.add(newEvent, presetNumber);
+      self.output(newEvent);
+
+    } else {
+      if (self.mute) return;
+      presetNumber %= 16;
+      if (kit[presetNumber]) {
+        if (!kit[presetNumber].mute) {
+          var outputMessage = kit[presetNumber].clone().underImpose(originalMessage);
+          noteOnTracker.add(kit[presetNumber], presetNumber);
+          self.output(outputMessage);
+        }
       }
     }
   }
@@ -139,4 +168,4 @@ var PresetKit = function(properties, environment) {
   }
 
 }
-module.exports=PresetKit
+module.exports = PresetKit
