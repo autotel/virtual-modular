@@ -11,6 +11,7 @@ definition of a presetkit interactor for the x16basic controller hardware
 */
 module.exports = function(controlledModule, environment) {
   base.call(this);
+  this.name=controlledModule.name;
   var engagedHardwares = new Set();
   var thisInteractor = this;
   //configurators setup
@@ -26,6 +27,7 @@ module.exports = function(controlledModule, environment) {
     // console.log("ut");
   }
   configurators.event = new EventConfigurator(this, {
+    name:'event',
     values: [1, 1, 60, 90]
   });
   configurators.record = new RecordMenu(this, {
