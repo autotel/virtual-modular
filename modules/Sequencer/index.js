@@ -7,7 +7,10 @@ var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var CLOCKABSOLUTEHEADER = 0x03;
+
 var RECORDINGHEADER = 0xAA;
+var RECORDINGSTATUSHEADER = 0xAB;
+
 var EventMessage = require('../../datatypes/EventMessage.js');
 const sequencerFunctions = require("./sequencerGuts");
 /**
@@ -39,6 +42,17 @@ var Sequencer = function(properties,environment) {
   this.stepLength = {
     value: 12
   }
+  this.listenTransport = {
+    value:false
+  }
+  this.recordSettings={
+    mode:3,
+    namesList:['overdub','grow','fold','grow & trim'/*,stop*/],
+    growStep:16,
+    recording:false,
+    switchOnEnd:0,
+  }
+  let recordSettings=this.recordSettings;
 
   this.noteLenManager = sequencerFunctions.NoteLenManager(this);
   var patchMem = sequencerFunctions.PatchMem(this);
@@ -61,6 +75,8 @@ var Sequencer = function(properties,environment) {
   // this.getThroughfoldBoolean=patchMem.getThroughfoldBoolean;
   this.clearStepRange = patchMem.clearStepRange;
   this.duplicateSequence = patchMem.duplicateSequence;
+  this.offsetSequence = patchMem.offsetSequence;
+  this.sequenceBounds = patchMem.sequenceBounds;
   // this.getBitmapx16=patchMem.getBitmapx16;
   this.step = patchMem.step;
   this.restart = patchMem.restart;
@@ -70,10 +86,57 @@ var Sequencer = function(properties,environment) {
   this.stepMicro = patchMem.stepMicro;
   var thisInstance = this;
 
+  this.compensatedOffsetSequence=function(steps){
+    self.offsetSequence(steps);
+    currentStep.value+=steps;
+  }
+  this.trimSequence=function(grid=1,inner=false){
+    var bounds=self.sequenceBounds();
+
+    bounds.start-=bounds.start%grid;
+    bounds.end-=bounds.end%grid;
+
+    if(inner){
+      bounds.start+=grid;
+    }else{
+      bounds.end-=grid;
+    }
+    self.loopLength.value=bounds.end;
+
+    console.log("trim from step",bounds.start);
+    if(bounds.start>0){
+      self.compensatedOffsetSequence(-bounds.start);
+    }
+  }
+
   this.onPatchStep = function(evt) {
-    //console.log("MMO"+currentStep.value);
+    if (recordSettings.recording) {
+      if (currentStep.value >= self.loopLength.value-2) {
+        switch (recordSettings.mode) {
+          case 1:{
+              // console.log("Grow ");
+              self.loopLength.value += recordSettings.growStep;
+              break;
+            } case 2:{
+              // console.log("Fold");
+              self.loopLength.value *= 2;
+              break;
+            } case 3:{
+              // console.log("Fold");
+              self.loopLength.value += recordSettings.growStep;
+              break;
+            }/*case :{
+              console.log("Stop");
+              controlledModule.loopLength.value *= 2;
+              break;
+            }*/
+            // default: console.log("overdub");
+        }
+      }
+    }
     this.handle('step', evt);
   }
+
   this.play = function() {
     thisInstance.playing.value = true;
     // thisInstance.restart();
@@ -102,50 +165,72 @@ var Sequencer = function(properties,environment) {
   this.eventReceived = function(event) {
     var evt = event.eventMessage;
     // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
-    // console.log(evt);
-
-    if (evt.value[0] == CLOCKTICKHEADER) {
-      // console.log("sq:CLOCKTICKHEADER");
-      thisInstance.stepMicro(evt.value[1], evt.value[2]);
-      thisInstance.lastMicroStepBase=evt.value[1];
-      // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
-    } else if (evt.value[0] == TRIGGERONHEADER) {
-      // console.log("sq:TRIGGERONHEADER");
-      thisInstance.stepAbsolute(evt.value[2]);
-      thisInstance.play();
-      // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
-    } else if (evt.value[0] == TRIGGEROFFHEADER) {
-      // console.log("sq:TRIGGEROFFHEADER");
-      thisInstance.stop();
-      // console.log("2 stop");
-    } else if (evt.value[0] == CLOCKABSOLUTEHEADER) {
-      // console.log("sq:CLOCKABSOLUTEHEADER");
-      thisInstance.stepAbsolute(evt.value[1]);
-      // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
-    } else if (evt.value[0] == TRIGGEROFFHEADER) {
-      // console.log("sq:TRIGGEROFFHEADER");
-      thisInstance.stop();
-    } else if (evt.value[0] == 0x04) {
-      thisInstance.stepAbsolute(evt.value[1]);
-    } else if (evt.value[0] == RECORDINGHEADER) {
-      // console.log("sq:RECORDINGHEADER");
-      // console.log(evt.value);
-      // console.log("REC");
-      evt.value.shift();
-      // console.log(evt.value[0]);
-      if (evt.value[0] == TRIGGERONHEADER) {
-        recorder.recordNoteStart([evt.value[1],evt.value[2]], evt);
-        // console.log("ON",[evt.value[1],evt.value[2]]);
-      } else if (evt.value[0] == TRIGGEROFFHEADER) {
-        recorder.recordNoteEnd([evt.value[1],evt.value[2]]);
-        // console.log("OFF",[evt.value[1],evt.value[2]]);
-
-      } else {
-        recorder.recordSingularEvent(evt);
+    // console.log(evt.value);
+    switch (evt.value[0]) {
+      case CLOCKTICKHEADER:{
+        // console.log("sq:CLOCKTICKHEADER");
+        thisInstance.stepMicro(evt.value[1], evt.value[2]);
+        thisInstance.lastMicroStepBase=evt.value[1];
+        // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
+        break;
       }
-      // thisInstance.recorder.start();
-    }
+      case TRIGGERONHEADER:{
+        // console.log("sq:TRIGGERONHEADER");
+        thisInstance.stepAbsolute(evt.value[2]);
+        if(self.listenTransport.value){
+          thisInstance.play();
+        }
+        // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
+        break;
+      } case TRIGGEROFFHEADER: {
+        // console.log("sq:TRIGGEROFFHEADER");
+        if(self.listenTransport.value){
+          thisInstance.stop();
+        }
+        // console.log("2 stop");
+        break;
+      } case CLOCKABSOLUTEHEADER: {
+        // console.log("sq:CLOCKABSOLUTEHEADER");
+        thisInstance.stepAbsolute(evt.value[1]);
+        // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
+        break;
+      } case 0x04: {
+        thisInstance.stepAbsolute(evt.value[1]);
+        break;
+      } case RECORDINGHEADER: {
+        // console.log("sq:RECORDINGHEADER");
+        // console.log(evt.value);
+        // console.log("REC");
+        evt.value.shift();
+        // console.log(evt.value[0]);
+        if (evt.value[0] == TRIGGERONHEADER) {
+          recorder.recordNoteStart([evt.value[1],evt.value[2]], evt);
+          // console.log("ON",[evt.value[1],evt.value[2]]);
+        } else if (evt.value[0] == TRIGGEROFFHEADER) {
+          recorder.recordNoteEnd([evt.value[1],evt.value[2]]);
+        } else {
+          recorder.recordSingularEvent(evt);
+        }
+        // thisInstance.recorder.start();
+        break;
+      } case RECORDINGSTATUSHEADER: {
+        recordSettings.recording=evt.value[1];
+        if(!recordSettings.recording){
+          if(recordSettings.mode==3){
+            if(self.loopLength.value>recordSettings.growStep){
+              self.loopLength.value-=recordSettings.growStep;
+            }
+            self.trimSequence(recordSettings.growStep/2,true);
+          }
+          if(recordSettings.switchOnEnd!==false){
+            recordSettings.mode=recordSettings.switchOnEnd;
+          }
+        }
+        // console.log("RECSTATUS",evt.value);
+        break;
+      }
     this.handle('receive', evt);
+    }
   }
   this.interfaces.X16=new InteractorX16(this,environment);
   this.interfaces.X28=new InteractorX28(this,environment);

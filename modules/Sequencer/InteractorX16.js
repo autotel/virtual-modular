@@ -74,8 +74,12 @@ module.exports = function(controlledModule, environment) {
       "drift substep": controlledModule.loopDisplace,
       "microstep offset": controlledModule.microStepDisplace,
       "playing": controlledModule.playing,
+      "stoppable": controlledModule.listenTransport,
+      "rec mode": {value:controlledModule.recordSettings.mode},
+      "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
     }
   });
+
   configurators.time.vars["loop length"].min = 1;
   configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {
     if (thisVar.value + delta >= 1)
@@ -150,6 +154,33 @@ module.exports = function(controlledModule, environment) {
       thisVar.value = true;
     } else {
       thisVar.value = false;
+    }
+  }
+  configurators.time.vars["stoppable"].changeFunction = function(thisVar, delta) {
+    thisVar.value=!thisVar.value;
+  }
+
+  configurators.time.vars["rec mode"].changeFunction = function(thisVar, delta) {
+    var possible = controlledModule.recordSettings.namesList.length;
+    thisVar.value=controlledModule.recordSettings.mode;
+    thisVar.value+=delta;
+    if(thisVar.value<0) thisVar.value=possible-1;
+    thisVar.value%=possible;
+    controlledModule.recordSettings.mode=thisVar.value;
+  }
+  configurators.time.vars["rec mode"].nameFunction = function(thisVar) {
+    return controlledModule.recordSettings.namesList[thisVar.value]||"nothing";
+  }
+  configurators.time.vars["on rec end"].nameFunction = configurators.time.vars["rec mode"].nameFunction;
+  configurators.time.vars["on rec end"].changeFunction = function(thisVar, delta) {
+    var possible = controlledModule.recordSettings.namesList.length;
+    thisVar.value=controlledModule.recordSettings.switchOnEnd;
+    thisVar.value+=delta;
+    if(thisVar.value<0) thisVar.value=possible;
+    thisVar.value%=possible+1;
+    controlledModule.recordSettings.switchOnEnd=thisVar.value;
+    if(thisVar.value>possible){
+      controlledModule.recordSettings.switchOnEnd=false;
     }
   }
 
