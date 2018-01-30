@@ -1,1 +1,1 @@
-node index
+nodemon index

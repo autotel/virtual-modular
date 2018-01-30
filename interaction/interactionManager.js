@@ -15,7 +15,7 @@ var interactionManager=function(environment){ return new(function(){
   var superInteractorSingletons=[];
   var superInteractorInstances=[];
   var moduleInteractorSingletons=[];
-  var moduleInteractorInstances=[];
+  // var moduleInteractorInstances=[];
   //create the interface element and register it's singleton
   interfaces.x16basic=new X16bs(environment);
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
@@ -43,14 +43,13 @@ var interactionManager=function(environment){ return new(function(){
     moduleInteractorSingletons.push(interactorSingleton);
   }
 
-  environment.on('module created',function(evt){
-    var newInteractor=evt.module.interactor;
-    moduleInteractorInstances.push(newInteractor);
-    // console.log("CREATEEVENT",evt.module.name);
-    for(var sis of superInteractorSingletons){
-      sis.appendModuleInteractor(newInteractor);
-    }
-  })
+  // environment.on('module created',function(evt){
+    // var newInteractor=evt.module.interactor;
+    // moduleInteractorInstances.push(newInteractor);
+    // for(var sis of superInteractorSingletons){
+    //   sis.appendModuleInteractor(newInteractor);
+    // }
+  // })
   return this;
 })};
 module.exports=interactionManager;

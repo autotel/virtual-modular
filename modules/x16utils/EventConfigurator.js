@@ -13,7 +13,7 @@ var EventConfigurator=function(parentInteractor,properties){
   this.name="EventMessage";
   var thisInteractor=this;
   if(properties.name) this.name=properties.name;
-  var selectedValueNumber=0;
+  var selectedValueNumber=1;
   var valueNames=["func","chan","number","prop"];
   var extraValueNames=[];
   var extraVariables=[];
@@ -106,6 +106,7 @@ var EventConfigurator=function(parentInteractor,properties){
       extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.delta;
       updateScreen(hardware);
     }
+    return {currentEvent:baseEvent,selectedValueNumber:selectedValueNumber,selectedValueValue:baseEvent.value[selectedValueNumber]}
   };
   this.encoderPressed=function(event){
     var hardware=event.hardware;
@@ -157,13 +158,28 @@ var EventConfigurator=function(parentInteractor,properties){
     }
 
   }
+  this.setFromEventMessage=function(EvMes,hardware){
+    if(EvMes){
+      baseEvent=new EventMessage(EvMes);
+      if(hardware){
+        updateScreen(hardware);
+      }else{
+        passiveUpdateScreen();
+      }
+    }
 
+  }
   this.getEventPattern=function(){
     // if(!newDest) newDest=options[0].valueNames(0);
     var newEvPat=new EventPattern();
     newEvPat.fromEventMessage(baseEvent);
     newEvPat.stepLength=1;
     return newEvPat;
+  }
+  this.getEventMessage=function(){
+    // if(!newDest) newDest=options[0].valueNames(0);
+    var newEvMes=new EventMessage(baseEvent);
+    return newEvMes;
   }
 
 };
