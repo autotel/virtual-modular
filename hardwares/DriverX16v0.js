@@ -138,11 +138,13 @@ var DriverX16v0=function(properties,environment){
       myInteractionPattern.handle(event.type,event);
     }
   }
-  setTimeout(function(){
-    sendScreenA("initialized n."+myInstanceNumber);
-    sendScreenB("autotel x16v0");
-    myInteractionPattern.engage();
-  },200);
+  this.connectAndStart=function(){
+    setTimeout(function(){
+      sendScreenA("initialized n."+myInstanceNumber);
+      sendScreenB("autotel x16v0");
+      myInteractionPattern.engage();
+    },200);
+  }
 
   return this;
 };

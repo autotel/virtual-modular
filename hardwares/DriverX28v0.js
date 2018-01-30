@@ -335,14 +335,15 @@ var DriverX28v0 = function(properties, environment) {
       myInteractionPattern.handle(event.type, event);
     }
   }
-
-  setTimeout(function() {
-    // console.log(comConsts.transmits.engageControllerMode.head);
-    self.sendx8(comConsts.transmits.engageControllerMode.head, [comConsts.transmits.engageControllerMode.head]);
-    sendScreenA("initialized n." + myInstanceNumber);
-    sendScreenB("autotel x28v0");
-    myInteractionPattern.engage();
-  }, 200);
+  this.connectAndStart=function(){
+    setTimeout(function() {
+      // console.log(comConsts.transmits.engageControllerMode.head);
+      self.sendx8(comConsts.transmits.engageControllerMode.head, [comConsts.transmits.engageControllerMode.head]);
+      sendScreenA("initialized n." + myInstanceNumber);
+      sendScreenB("autotel x28v0");
+      myInteractionPattern.engage();
+    }, 200);
+  }
 
   return this;
 };
