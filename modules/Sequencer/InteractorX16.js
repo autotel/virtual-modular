@@ -428,6 +428,7 @@ module.exports = function(controlledModule, environment) {
     var hardware = event.hardware;
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
+    // hardware.sendScreenA(controlledModule.name);
 
     //when you record from a preset kit, and then search the Sequencer
     //it can get really hard to find the sequencer if they don't show the
@@ -447,7 +448,7 @@ module.exports = function(controlledModule, environment) {
 
   //feedback functions
   var updateHardware = function(hardware) {
-    hardware.sendScreenA(thisInterface.name);
+    // hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
   // var updateLeds=function(hardware){

@@ -90,23 +90,25 @@ var Sequencer = function(properties,environment) {
     self.offsetSequence(steps);
     currentStep.value+=steps;
   }
-  this.trimSequence=function(grid=1,inner=false){
+  this.trimSequence=function(grid=1){
     var bounds=self.sequenceBounds();
-
+    //quantize trim to grid
     bounds.start-=bounds.start%grid;
     bounds.end-=bounds.end%grid;
 
-    if(inner){
-      bounds.start+=grid;
-    }else{
-      bounds.end-=grid;
-    }
+    //trim first and last chunks
+    bounds.start+=grid;
+    bounds.end-=bounds.start;
+    bounds.end-=grid;
+
     self.loopLength.value=bounds.end;
 
     console.log("trim from step",bounds.start);
     if(bounds.start>0){
       self.compensatedOffsetSequence(-bounds.start);
     }
+
+
   }
 
   this.onPatchStep = function(evt) {
@@ -217,10 +219,19 @@ var Sequencer = function(properties,environment) {
         recordSettings.recording=evt.value[1];
         if(!recordSettings.recording){
           if(recordSettings.mode==3){
+            //trimSequence uses the loopLength, so it must be floored
             if(self.loopLength.value>recordSettings.growStep){
               self.loopLength.value-=recordSettings.growStep;
             }
             self.trimSequence(recordSettings.growStep/2,true);
+            //quantize length to the growStep
+            if(self.loopLength.value>recordSettings.growStep){
+              self.loopLength.value-=self.loopLength.value%recordSettings.growStep;
+            }
+            //prevent negative or zero length sequences
+            if(self.loopLength.value<recordSettings.growStep){
+              self.loopLength.value=recordSettings.growStep;
+            }
           }
           if(recordSettings.switchOnEnd!==false){
             recordSettings.mode=recordSettings.switchOnEnd;
