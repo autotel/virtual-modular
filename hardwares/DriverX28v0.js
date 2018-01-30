@@ -224,21 +224,24 @@ var DriverX28v0 = function(properties, environment) {
         }
         if(evt.type.indexOf("Release")!==-1){
           if(released(evt))
-            if(chain.length>1)
+            if(chain.length>1){
               evt.tied=chain;
+            }else{
+              evt.tied=false;
+            }
         }
         // console.log(evt);
       }
     }
     function pressed(event){
       let cpev=comp(event);
-      // console.log(cpev);
+      // console.log(String(cpev,2));
       if(cpev) chainadd(cpev,event);
       return(cpev);
     }
     function released(event,identifier){
       let cpev=comp(event);
-      // console.log(cpev);
+      // console.log(String(cpev,2));
       if(cpev) chainrmv(cpev);
       return(cpev);
     }
@@ -252,7 +255,8 @@ var DriverX28v0 = function(properties, environment) {
         var ret=[(0x2<<8)|(evt.data[0])];
       }
       if(evt.type.indexOf("bottomButton")!==-1){
-        var ret=[(0x3<<8)|(evt.data[0])];
+        // var ret=[(0x3<<8)|(evt.data[0])];
+        var ret=0;
       }
       // if(evt.type.match(/encoder(Pressed|Released)/).length){
       //   var ret=[(0x4<<8)|(evt.data[0])];

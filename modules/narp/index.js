@@ -63,7 +63,7 @@ var Narp = function(properties,environment) {
     if(self.recordingUi&&uiTriggered){
       recMessages.set.value[2]=square;
       self.recordOutput(recMessages.set);
-      console.log("RECO");
+      // console.log("RECO");
     }
   }
 
@@ -72,7 +72,7 @@ var Narp = function(properties,environment) {
     if(self.recordingUi&&uiTriggered){
       recMessages.clear.value[2]=square;
       self.recordOutput(recMessages.clear);
-      console.log("RECO");
+      // console.log("RECO");
     }
   }
 
