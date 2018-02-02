@@ -60,7 +60,7 @@ module.exports = function(controlledModule,environment) {
   controlledModule.on('note played', function(evt) {
 
     var relativeNote = (evt.triggeredNote-controlledModule.baseEventMessage.value[2])%12;
-    console.log(relativeNote);
+    // console.log(relativeNote);
     var newH = noteHiglightMap |= 4097 << relativeNote;
 
     setTimeout(function() {

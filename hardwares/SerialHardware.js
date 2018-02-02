@@ -71,8 +71,17 @@ var SerialHardware = function(properties, environment) {
 
   var lazyStack = new LazyStack({messagePriority:15,maxStack:15});
 
-  var serial = properties.serial;
+  var serial;
+
   var self = this;
+
+  this.newSerial=function(newSerial){
+    serial=newSerial;
+
+    serial.on('data', serialDataCallback );
+  }
+  
+  this.newSerial(properties.serial);
 
   this.sendx8 = function(header, dataArray) {
     lazyStack.enq(function() {
@@ -166,14 +175,15 @@ var SerialHardware = function(properties, environment) {
       serial.write(buf1);
     });
   }
-  serial.on('data', (data) => {
-    // console.log(data);
+
+  function serialDataCallback(data){
+
     try {
       dataChopper.incom(data);
     } catch (e) {
       console.error(e);
     }
-  });
+  };
   this.onDataReceived = function(choppedData) {
     console.log("RECIEVED", choppedData);
   }

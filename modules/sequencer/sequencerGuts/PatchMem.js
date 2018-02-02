@@ -117,6 +117,33 @@ module.exports=function(sequencerModule){ return new(function(){
       delete patData[step];
     }
   }
+  var sequenceBounds=function(){
+    var ret={start:0,end:0}
+    for(let step in patData){
+      if(!ret.start){
+        ret.start=step;
+      }
+      ret.end=step;
+      if(step>loopLength.value){
+        return ret;
+      }
+    }
+    return ret;
+  }
+  var offsetSequence=function(steps){
+    let newSequence=[];
+    console.log("OFFSETOP",steps);
+    // clearStepRange(0,-steps);
+    for(let stepIndex in patData){
+      newSequence[parseInt(stepIndex)+steps]=patData[stepIndex];
+      delete patData[stepIndex];
+    }
+    for(let stepIndex in newSequence){
+      // console.log("ASS",stepIndex);
+      patData[stepIndex]=newSequence[stepIndex];
+    }
+  }
+
   var duplicateSequence=function(startingStep,originalEndingStep,multiplyFactor){
     var initialStepSize=originalEndingStep-startingStep;
     if(multiplyFactor>1){
@@ -205,7 +232,7 @@ module.exports=function(sequencerModule){ return new(function(){
             // console.log("mememe");
             substep.value=substep.value%stepDivide.value;
             if(currentStep.value>=loopLength.value) currentStep.value%=loopLength.value;
-            if(currentStep.value<0) currentStep.value%=loopLength.value;
+            if(currentStep.value<0) currentStep.value%=Math.abs(loopLength.value);
           }
         // }
         }else{
@@ -236,10 +263,12 @@ module.exports=function(sequencerModule){ return new(function(){
   this.clearStep=clearStep;
   this.clearStepByFilter=clearStepByFilter;
   this.getBoolean=getBoolean;
+  this.sequenceBounds=sequenceBounds;
   // this.eachFold=eachFold;
   // this.getThroughfoldBoolean=getThroughfoldBoolean;
   this.clearStepRange=clearStepRange;
   this.duplicateSequence=duplicateSequence;
+  this.offsetSequence=offsetSequence;
   // this.getBitmapx16=getBitmapx16;
   this.step=step;
 })(); };

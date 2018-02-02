@@ -3,28 +3,33 @@
 var baudRate= 19200;
 var SerialPort = require('serialport');
 
+var openPorts={};
 var SerialHardwareDetector = function(properties,environment) {
   //open Serial hardware interfaces
-  var listPromise = SerialPort.list(function(err, ports) {
-    if (err) {
-      console.error(err);
-    }
-    ports.forEach(function(port) {
-      try {
-        console.log(port.comName);
-        console.log(port.pnpId);
-        console.log(port.manufacturer);
-        // portNameList.push(port.comName);
-        createHardwareController(port.comName);
-        // comName=port.comName;
-      } catch (e) {
-        console.error(e);
+  setInterval(function(){
+    var listPromise = SerialPort.list(function(err, ports) {
+      if (err) {
+        console.error(err);
       }
+      ports.forEach(function(port) {
+        if(!openPorts[port.comName]){
+          console.log("New Serial Hardware. Name:"+port.comName);
+          console.log(port.pnpId);
+          console.log(port.manufacturer);
+          try {
+            // portNameList.push(port.comName);
+            createHardwareController(port.comName);
+            // comName=port.comName;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      });
     });
-  });
-  listPromise.catch(function(e) {
-    console.log(e);
-  });
+    listPromise.catch(function(e) {
+      console.log(e);
+    });
+  },3000);
 
 
   // this.start = function() {
@@ -36,6 +41,9 @@ var SerialHardwareDetector = function(properties,environment) {
       let newPort = new SerialPort(portName, {
         baudRate: baudRate
       });
+
+      openPorts[portName]=newPort;
+
       newPort.on('open', function() {
         newPort.write(new Buffer([0x40]), function(error) {
           if (error) {
@@ -76,9 +84,9 @@ var SerialHardwareDetector = function(properties,environment) {
                   finished = true;
                 }
               }
-              // console.log("RESP",data);
-              // console.log(string);
-              var success=properties.onSerialResponse({response:data,serialPort:newPort});
+              console.log("RESP",data);
+              console.log(string);
+              var success=properties.onSerialConnected({response:data,serialPort:newPort,portName:portName});
               if(success){
                 clearInterval(getVersionInterval);
                 alreadyCreated=true;
@@ -88,6 +96,12 @@ var SerialHardwareDetector = function(properties,environment) {
             }
           }
         });
+      });
+      newPort.on('close',function(e){
+        properties.onSerialClosed({event:e,serialPort:newPort});
+        console.log(e);
+        console.log("Hardware disconnected");
+        openPorts[portName]=false;
       });
     }
   // }
