@@ -33,9 +33,10 @@ class MonoSequencer {
       patchBus=t_bus;
     }
     void onBusMessageReceived(uint8_t * message,uint8_t len){
-      char mes [6]="mes__";
-      mes[3]=(*message)+48;
-      ledButtons->lcdPrintB((char&)mes);
+      // char mes [6]="mes__";
+      // mes[3]=(*message)+48;
+      // mes[4]=(*message)+48;
+      // ledButtons->lcdPrintB(message,len);
     }
     uint8_t test_count=0;
     void onButtonPressed(uint8_t button, uint32_t pressedButtonsBitmap) {

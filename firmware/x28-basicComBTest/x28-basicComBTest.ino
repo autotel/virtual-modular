@@ -1,24 +1,26 @@
 #include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 #include "SendOnlySoftwareSerial.h"
-#define writer true
+#define writer false
 #if writer
-// SoftwareSerial sSerial (14,15); // RX, TX
-SendOnlySoftwareSerial    sSerial = SendOnlySoftwareSerial(15);
-
+// SoftwareSerial com_out (14,15); // RX, TX
+SendOnlySoftwareSerial    com_out = SendOnlySoftwareSerial(15);
 #else
 #endif
+
+#define com_in Serial3
+
 LiquidCrystal lcd(49, 48, 47, 46, 45, 44);
 
 void setup() {
   Serial.begin(19200);
   lcd.begin(16,2);
   #if writer
-    sSerial.begin(9600);
+    com_out.begin(9600);
     lcd.setCursor(0,0);
     lcd.print("writer");
   #else
-    Serial3.begin(9600);
+    com_in.begin(9600);
     lcd.print("reader");
   #endif
 }
@@ -29,13 +31,13 @@ void loop() {
   #if writer
     if(millis()-sendTimer>300){
       lcd.print(String(testCounter,HEX));
-      sSerial.write(testCounter);
+      com_out.write(testCounter);
       sendTimer=millis();
       testCounter++;
     }
   #else
-    while(Serial3.available()){
-      lcd.write(Serial3.read());
+    while(com_in.available()){
+      lcd.write(com_in.read());
       delay(10);
     }
   #endif

@@ -6,12 +6,15 @@
 #define state_receiving 0x02
 #define state_writing 0x03
 #define comBusPin 15
+#define serialDebug true
 #include "SendOnlySoftwareSerial.h"
 // #include <SoftwareSerial.h>
 
 // SoftwareSerial is same as Serial3, but with pins flipped
 // SoftwareSerial SoftwareSerial (14, comBusPin); // RX, TX
-SendOnlySoftwareSerial sSerial = SendOnlySoftwareSerial(15);
+SendOnlySoftwareSerial com_out = SendOnlySoftwareSerial(15);
+#define com_in Serial3
+
 class PatchBus {
   private:
     //TODO: should be an array so that many modes can be listening incoming signals
@@ -28,30 +31,30 @@ class PatchBus {
     uint8_t receptionHeader = 0;
     long waitStarted=0;
     void setup(){
-      writingMode();
-      // listeningMode();
+      // writingMode();
+      listeningMode();
     }
     void listeningMode(){
-      sSerial.end();
+      com_out.end();
       currentState=state_listening;
       pinMode(comBusPin,INPUT);
       digitalWrite(comBusPin,LOW);
-      Serial3.begin(patchBaud);
+      com_in.begin(patchBaud);
     }
     void writingMode(){
-      // Serial3.end();
+      com_in.end();
       currentState=state_writing;
       pinMode(comBusPin,OUTPUT);
       digitalWrite(comBusPin,LOW);
-      sSerial=SendOnlySoftwareSerial(15);
-      sSerial.begin(patchBaud);
+      com_out=SendOnlySoftwareSerial(15);
+      com_out.begin(patchBaud);
     }
     void start(){}
     uint8_t test_count=0;
     void writeLoop(){
       //writingMode();
       test_count++;
-      sSerial.write(test_count);
+      com_out.write(test_count);
     }
     void loop(){
       switch(currentState){
@@ -74,13 +77,16 @@ class PatchBus {
     }
     void listenLoop() {
       uint8_t expectedLength = 4;
-      // if(Serial3.available()){
-      if(false){
+      if(com_in.available()){
+      // if(false){
         currentState=state_receiving;
         //started receiving a message
         //or receiving the body of a messsage
         if(receptionHeader<expectedLength){
-          // reception[receptionHeader]=Serial3.read();
+          reception[receptionHeader]=com_in.read();
+          #if serialDebug
+          Serial.println(receptionHeader);
+          #endif;
           receptionHeader++;
           waitStarted=millis();
         }else{
@@ -92,7 +98,7 @@ class PatchBus {
       }
       //timeout operation
       if(waitStarted){
-        if(millis()-waitStarted>100){
+        if(millis()-waitStarted>10000){
           //trigger timeout
           waitStarted=0;
           receptionHeader=0;
@@ -105,18 +111,32 @@ class PatchBus {
     };
 
     void messageReceived(uint8_t * message,uint8_t len){
+      #if serialDebug
+      Serial.print("\nRCV:");
+      for(int a=0; a<len; a++){
+        Serial.print(message[a]);
+      }
+      #endif
       if ( 0 != CB_messageListener ) {
         (*CB_messageListener)(message,len);
       }
     }
     void out(uint8_t * message,uint8_t len) {
+      #if serialDebug
+      Serial.print("\nSEND>>");
+      #endif
       //enqueue message, send it next opportunity.
       //for now, just send
-      for (uint8_t i = 0; i < 4; i++) {
+      writingMode();//will not go here
+      for (uint8_t i = 0; i < 4; i++) {//will not go here
         //will it blend??
-        sSerial.write(*(message + i));
-        Serial.write(*(message + i));
-      }
+        com_out.write(*(message + i));//will not go here
+        #if serialDebug
+        Serial.print(*(message + i));
+        #endif
+
+      }//will not go here
+      listeningMode();//will not go here
     }
 };
 #endif
