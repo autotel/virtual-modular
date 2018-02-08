@@ -37,6 +37,7 @@ class MonoSequencer {
       // mes[3]=(*message)+48;
       // mes[4]=(*message)+48;
       // ledButtons->lcdPrintB(message,len);
+      step(message[1]);
     }
     uint8_t test_count=0;
     void onButtonPressed(uint8_t button, uint32_t pressedButtonsBitmap) {
@@ -109,9 +110,8 @@ class MonoSequencer {
         step();
       }
     }
-
-    void step() {
-      playHead++;
+    void step(uint8_t n){
+      playHead=n;
       playHead %= 16;
 
       if (patMem[playHead][0] != 0) {
@@ -120,7 +120,9 @@ class MonoSequencer {
         //and of course there should be a layer of abstraction concerning inter-module patching
         patchBus->out(patMem[playHead],4);
       }
-
+    }
+    void step() {
+      step(playHead+1);
     }
     void output() {
       //output to each specified output. so far hardcoded, later dynamic
