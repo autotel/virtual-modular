@@ -1,7 +1,7 @@
 //baudrate is applied to all devices in order to check their type via Serial.
 //if a device needed a faster baud, it's controller could implement a negotiation
 var baudRate= 19200;
-var SerialPort = require('serialport');
+var SerialPort = require('./SerialPortInterface.js');
 
 var openPorts={};
 var SerialHardwareDetector = function(properties,environment) {
@@ -14,8 +14,8 @@ var SerialHardwareDetector = function(properties,environment) {
       ports.forEach(function(port) {
         if(!openPorts[port.comName]){
           console.log("New Serial Hardware. Name:"+port.comName);
-          console.log(port.pnpId);
-          console.log(port.manufacturer);
+          console.log('pnpId:',port.pnpId);
+          console.log('manufacturer:',port.manufacturer);
           try {
             // portNameList.push(port.comName);
             createHardwareController(port.comName);

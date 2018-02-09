@@ -8,7 +8,11 @@ var SerialHardwareDetector = require('./SerialHardwareDetector.js');
 //   Defcli:require("../hardwares/driver-defcli.js")
 // };
 
-var SerialPort = require('serialport');
+console.log("x16v0 serial on ",process.platform);
+
+var SerialPort = require('./SerialPortInterface.js');
+
+
 var connectedPortHardwares={};
 /**
 Hardware manager
@@ -16,7 +20,7 @@ Hardware manager
 module.exports = function(environment) {
   var hardwareConstructors = {};
   this.addConstructor = function(Constructor) {
-    console.log(`Add hardwareConstructors[${Constructor.name}]=${Constructor};`);
+    // console.log(`Add hardwareConstructors[${Constructor.name}]=${Constructor};`);
     hardwareConstructors[Constructor.name] = Constructor;
   }
   this.list = [];

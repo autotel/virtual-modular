@@ -2,6 +2,7 @@ var utils = require('../environment/utils.js');
 var requireProperties = utils.requireProperties;
 var LazyStack = utils.LazyStack;
 
+
 var DataChopper = function(rLengths) {
   var inBuff;
   var expectedLength;
@@ -80,7 +81,7 @@ var SerialHardware = function(properties, environment) {
 
     serial.on('data', serialDataCallback );
   }
-  
+
   this.newSerial(properties.serial);
 
   this.sendx8 = function(header, dataArray) {
@@ -194,4 +195,5 @@ var SerialHardware = function(properties, environment) {
 
   }
 }
+
 module.exports=SerialHardware

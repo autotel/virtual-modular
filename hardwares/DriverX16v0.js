@@ -1,7 +1,6 @@
 'use strict';
 var SerialHardware=require('./SerialHardware.js');
 
-console.log("x16v0 serial on ",process.platform);
 
 const comConsts={
     "tHeaders": {

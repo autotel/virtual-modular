@@ -13,6 +13,7 @@
     "jazz-midi": "^1.6.0",
     "onhandlers": "^1.0.3",
     "prompt": "^1.0.0",
+    "raspi-serial": "^4.0.0",
     "serialport": "^6.0.4"
   },
   "devDependencies": {

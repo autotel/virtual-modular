@@ -1,5 +1,5 @@
 'use strict';
-var SerialPort = require('serialport');
+var SerialPort = require('./environment/SerialPortInterface.js');
 var baudRate = 19200;
 
 function init() {
@@ -11,15 +11,16 @@ function init() {
     ports.forEach(function(port) {
       try {
         console.log("PORT");
-        console.log(port.comName);
-        console.log(port.pnpId);
-        console.log(port.manufacturer);
+        console.log('comName:',port.comName);
+        console.log('pnpId:',port.pnpId);
+        console.log('manufacturer:',port.manufacturer);
       } catch (e) {
         console.error(e);
       }
       portInteract(port);
     });
   });
+
   listPromise.catch(function(e) {
     console.log(e);
   });
