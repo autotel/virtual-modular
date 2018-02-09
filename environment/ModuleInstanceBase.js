@@ -1,9 +1,9 @@
 'use strict';
 var onHandlers=require('onhandlers');
-/**
-events with header 0xAA are received as events to record.
-*/
+var EventMessage=require('../datatypes/EventMessage');
 var RECORDINGHEADER = 0xAA;
+var RECORDINGSTATUSHEADER = 0xAB;
+
 module.exports=function(properties,environment){
   onHandlers.call(this);
   var self=this;
@@ -62,13 +62,13 @@ module.exports=function(properties,environment){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
       self.enqueue(function(){
         outputs.forEach(function(tModule){
+          // console.log(eventMessage.value);
           tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
         })
       });
     }
   }
   this.eventReceived=function(evt){
-    // console.log(evt);
   }
   this.removeInput=function(what){
     what.removeOutput(self)
@@ -91,12 +91,19 @@ module.exports=function(properties,environment){
     return recordOutputs.has(what);
   }
 
+  var recordStartedEm=new EventMessage({value:[RECORDINGSTATUSHEADER,1,0,0]});
+  var recordEndedEm=new EventMessage({value:[RECORDINGSTATUSHEADER,0,0,0]});
+
   this.addRecordOutput=function(what){
     if(what){
       if(what.isModuleInstance){
-        console.log(self.name+"rec>"+what.name);
+        console.log(self.name+" rec> "+what.name);
         recordOutputs.add(what);
         self.addInput(what);
+        self.enqueue(function(){
+          what.eventReceived({eventMessage:recordStartedEm,origin:self});
+        });
+
       }else{
         // console.error(what);
         throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
@@ -107,7 +114,10 @@ module.exports=function(properties,environment){
   }
   this.removeRecordOutput=function(what){
     var rpt=recordOutputs.delete(what);
-    console.log(self.name+"r"+(rpt?"X":" ")+"c>"+what.name);
+    self.enqueue(function(){
+      what.eventReceived({eventMessage:recordEndedEm,origin:self});
+    });
+    console.log(self.name+" r"+(rpt?"X":" ")+"c> "+what.name);
   }
   this.addRecordInput=function(what){
     try{
@@ -138,9 +148,6 @@ module.exports=function(properties,environment){
     self.eventReceived=function(evt){
       evt.origin.removeOutput(self);
       evt.origin.removeRecordOutput(self);
-    }
-    for(let output of recordOutputs){
-      self.removeRecordOutput(output);
     }
     self.eventReceived=function(evt){
       console.log("deleted module",evt);
