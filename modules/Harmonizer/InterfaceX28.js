@@ -2,9 +2,8 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-var RecordMenu = require('../x16utils/RecordMenu.js');
+var RecordMenu = require('../x28utils/RecordMenu.js');
 var scaleNames = require('./scaleNames.js');
-var RecorderModuleWindow = require('../x28utils/RecorderModuleWindow.js');
 
 /**
 TODO: interfaces should be extended by the environment, instead of being required on each module,
@@ -12,19 +11,21 @@ in the same way how modules are extended.
 */
 var base = require('../../interaction/x28basic/interactorBase.js');
 
-// var RecordMenu=require('../x16utils/RecordMenu.js');
 /**
 definition of a harmonizer interactor for the x16basic controller hardware
 */
 module.exports = function(controlledModule,environment) {
   base.call(this);
+
   var thisInterface = this;
   var fingerMap = 0x0000;
   var scaleSelectionMap=controlledModule.currentScale;
-  var scaleIntervalsMap = controlledModule.getScaleMap(scaleSelectionMap);
+  var compressedScaleMaps=undefined;
+  var scaleIntervalsMap;
   var noteHiglightMap = 0;
   var performMode = true;
   var currentScale = 0;
+  var copyingScale = false;
   var engaged = false;
   //configurators setup
   var engagedConfigurator = false;
@@ -51,22 +52,24 @@ module.exports = function(controlledModule,environment) {
     environment: environment,
     controlledModule: controlledModule
   });
-  let recorderModuleWindow = new RecorderModuleWindow(controlledModule, environment);
 
   //interaction with controlledModule
   var currentStep = controlledModule.currentStep;
   var loopLength = controlledModule.loopLength;
   var engagedHardwares = new Set();
   controlledModule.on('note played', function(evt) {
-    var grade = evt.triggeredGrade;
-    var note = evt.triggeredNote % 12;
-    var newH = noteHiglightMap |= 1 << note + 4;
+
+    var relativeNote = (evt.triggeredNote-controlledModule.baseEventMessage.value[2])%12;
+    // console.log(relativeNote);
+    var newH = noteHiglightMap |= 4097 << relativeNote;
+
     setTimeout(function() {
       noteHiglightMap &= ~newH;
     }, 300);
     passiveUpdateLeds();
   });
   controlledModule.on('chordchange', function() {
+    compressedScaleMaps=undefined;
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         // console.log("chc");
@@ -92,10 +95,13 @@ module.exports = function(controlledModule,environment) {
     if (performMode)
       controlledModule.uiScaleChange(currentScale);
     scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+    compressedScaleMaps=undefined;
   }
   var updateScaleMap = function(newScaleMap) {
     scaleIntervalsMap = newScaleMap;
     controlledModule.newScaleMap(currentScale, newScaleMap);
+    compressedScaleMaps=undefined;
+
   }
 
   // updateScaleMap(scaleIntervalsMap);
@@ -139,34 +145,36 @@ module.exports = function(controlledModule,environment) {
   };
   this.matrixButtonHold = function(event) {};
   this.selectorButtonPressed = function(event) {
-    var hardware = event.hardware;
-    if (event.data[0] == 1) {
-      engagedConfigurator = configurators.event;
-      lastEngagedConfigurator = configurators.event;
-      configurators.event.engage(event);
-    } else if (event.data[0] == 2) {
-      engagedConfigurator = configurators.record;
-      lastEngagedConfigurator = configurators.record;
-      configurators.record.engage(event);
-    } else if (event.data[0] == 0) {
-      performMode = !performMode;
-      updateHardware(hardware);
-    }else if (event.button >= 8) {
-      let wevent = {
-        type: event.type,
-        originalMessage: event.originalMessage,
-        button: event.button,
-        hardware: event.hardware
-      };
-      wevent.button -= 8;
-      recorderModuleWindow.windowButtonPressed(wevent);
-    }else if (event.button >= 4) {
-      scaleSelectionMap ^= 1<<(event.data[0]-4);
-      selectScaleMap(scaleSelectionMap);
-      updateHardware(hardware);
-    }
-    if (engagedConfigurator)
+    if (engagedConfigurator){
       engagedConfigurator.selectorButtonPressed(event);
+    }else{
+      var hardware = event.hardware;
+      if (event.data[0] == 1) {
+        engagedConfigurator = configurators.event;
+        lastEngagedConfigurator = configurators.event;
+        configurators.event.engage(event);
+      } else if (event.data[0] == 2) {
+        if(performMode){
+          engagedConfigurator = configurators.record;
+          lastEngagedConfigurator = configurators.record;
+          configurators.record.engage(event);
+        }else{
+          copyingScale=currentScale;
+          event.hardware.sendScreenA('copy scale to...');
+          event.hardware.sendScreenB('(release)');
+        }
+      } else if (event.data[0] == 0) {
+        performMode = !performMode;
+        updateHardware(hardware);
+      }else if (event.button >= 8) {
+        configurators.record.engage(event);
+      }else if (event.button >= 4) {
+        scaleSelectionMap ^= 1<<(event.data[0]-4);
+        selectScaleMap(scaleSelectionMap);
+        updateHardware(hardware);
+      }
+    }
+
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
@@ -177,11 +185,20 @@ module.exports = function(controlledModule,environment) {
       engagedConfigurator = false;
       configurators.event.disengage(hardware);
     } else if (event.data[0] == 2) {
-      engagedConfigurator = false;
-      configurators.record.disengage(hardware);
+      if(copyingScale!==false){
+        updateScaleMap(controlledModule.getScaleMap(copyingScale));
+        updateHardware(hardware);
+        copyingScale=false;
+      }else{
+        engagedConfigurator = false;
+        configurators.record.disengage(hardware);
+      }
     } else if (event.data[0] == 3) {
 
-    } else if (event.button >= 4) {
+    } else  if (event.button >= 8) {
+      configurators.record.disengage(hardware);
+      engagedConfigurator = false;
+    }else if (event.button >= 4) {
       // scaleSelectionMap &= ~(1<<(event.data[0]-4));
       // selectScaleMap(scaleSelectionMap);
       // updateHardware(hardware);
@@ -202,7 +219,6 @@ module.exports = function(controlledModule,environment) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     updateLeds(hardware);
-    recorderModuleWindow.engage(event);
 
   };
   this.disengage = function(event) {
@@ -219,21 +235,29 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateLeds=function(hardware){
-    var SNH = scaleIntervalsMap ^ noteHiglightMap;
-    var SNN = scaleIntervalsMap;
-    var rootNoteBitmap=1;
-    SNN|=SNN<<12;
-    SNH|=SNH<<12;
+
+
 
     var selScaleMap = (scaleSelectionMap & 0xf);
 
-    // recorderModuleWindow.redraw(hardware);
     // hardware.paintColorFromLedN(0,[0,0,0],0,false);
     hardware.paintColorFromLedN(selScaleMap<<4,[255,127,0],0,false);
+
     if (performMode) {
-      hardware.draw([SNH,SNN,noteHiglightMap]);
+      if(compressedScaleMaps===undefined){
+        compressedScaleMaps=controlledModule.getCompMaps(currentScale);
+      }
+      hardware.draw( [compressedScaleMaps.roots,compressedScaleMaps.roots,compressedScaleMaps.semitones[1]] );
     }else{
-      hardware.draw([SNH,SNN,0x5AB5 | SNN]);
+      if(scaleIntervalsMap===undefined){
+        scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+      }
+
+      var SNN = scaleIntervalsMap;
+
+      SNN|=SNN<<12;
+
+      hardware.draw([SNN | noteHiglightMap, noteHiglightMap ,0x5AB5 | noteHiglightMap | SNN]);
     }
   }
   var updateScreen = function(hardware, upleds = true, upscreen = true) {

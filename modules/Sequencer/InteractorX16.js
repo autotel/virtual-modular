@@ -47,7 +47,7 @@ module.exports = function(controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
-    values: [1, 1, 60, 90]
+    values: [1, 1, 0, 90]
   });
   var lastEngagedConfigurator = configurators.event;
   var loopDisplace = controlledModule.loopDisplace;
@@ -74,8 +74,12 @@ module.exports = function(controlledModule, environment) {
       "drift substep": controlledModule.loopDisplace,
       "microstep offset": controlledModule.microStepDisplace,
       "playing": controlledModule.playing,
+      "stoppable": controlledModule.listenTransport,
+      "rec mode": {value:controlledModule.recordSettings.mode},
+      "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
     }
   });
+
   configurators.time.vars["loop length"].min = 1;
   configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {
     if (thisVar.value + delta >= 1)
@@ -150,6 +154,33 @@ module.exports = function(controlledModule, environment) {
       thisVar.value = true;
     } else {
       thisVar.value = false;
+    }
+  }
+  configurators.time.vars["stoppable"].changeFunction = function(thisVar, delta) {
+    thisVar.value=!thisVar.value;
+  }
+
+  configurators.time.vars["rec mode"].changeFunction = function(thisVar, delta) {
+    var possible = controlledModule.recordSettings.namesList.length;
+    thisVar.value=controlledModule.recordSettings.mode;
+    thisVar.value+=delta;
+    if(thisVar.value<0) thisVar.value=possible-1;
+    thisVar.value%=possible;
+    controlledModule.recordSettings.mode=thisVar.value;
+  }
+  configurators.time.vars["rec mode"].nameFunction = function(thisVar) {
+    return controlledModule.recordSettings.namesList[thisVar.value]||"nothing";
+  }
+  configurators.time.vars["on rec end"].nameFunction = configurators.time.vars["rec mode"].nameFunction;
+  configurators.time.vars["on rec end"].changeFunction = function(thisVar, delta) {
+    var possible = controlledModule.recordSettings.namesList.length;
+    thisVar.value=controlledModule.recordSettings.switchOnEnd;
+    thisVar.value+=delta;
+    if(thisVar.value<0) thisVar.value=possible;
+    thisVar.value%=possible+1;
+    controlledModule.recordSettings.switchOnEnd=thisVar.value;
+    if(thisVar.value>possible){
+      controlledModule.recordSettings.switchOnEnd=false;
     }
   }
 
@@ -262,10 +293,16 @@ module.exports = function(controlledModule, environment) {
       }
       // console.log(throughfold);
       if (throughfold) {
+        var removedEvent=false;
         //there is an event on every fold of the lookloop
         eachFold(targetButton, function(step) {
-          controlledModule.clearStepByFilter(step, currentFilter)
+          removedEvent=controlledModule.clearStepByFilter(step, currentFilter)
         });
+
+        if(removedEvent){
+          console.log(removedEvent);
+          configurators.event.setFromEventPattern(removedEvent[0],event.hardware);
+        }
       }
       /*else if(trhoughFold>0){
                 //there is an event on some folds of the lookloop
@@ -391,6 +428,7 @@ module.exports = function(controlledModule, environment) {
     var hardware = event.hardware;
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
+    // hardware.sendScreenA(controlledModule.name);
 
     //when you record from a preset kit, and then search the Sequencer
     //it can get really hard to find the sequencer if they don't show the
@@ -410,7 +448,7 @@ module.exports = function(controlledModule, environment) {
 
   //feedback functions
   var updateHardware = function(hardware) {
-    hardware.sendScreenA(thisInterface.name);
+    // hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
   // var updateLeds=function(hardware){

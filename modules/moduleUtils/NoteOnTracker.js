@@ -13,10 +13,13 @@ var NoteOnTracker = function(controlledModule) {
   this.checkMem=function(val=16){
     checkMem=val;
   }
+  function makeUpIdentifier(evMes){
+    return [evMes.value[1], evMes.value[0]];
+  }
 
   this.add = function(noteOn, identifier = false) {
-    if (noteOn.value[0] != TRIGGERONHEADER) console.warn("noteonTracker: tracking notes that are not a noteon is likely to give you headaches", noteOn);
-    if (identifier === false) identifier = [noteOn.value[1], noteOn.value[0]];
+    if (noteOn.value[0] != TRIGGERONHEADER) console.warn("noteonTracker: tracking notes that are not a noteon is likely to give you headaches", noteOn, controlledModule.name);
+    if (identifier === false) identifier = makeUpIdentifier(noteOn);
     trackedNotes[identifier] = noteOn.clone();
     transformToNoteOff(identifier);
     if(checkMem){
@@ -51,9 +54,14 @@ var NoteOnTracker = function(controlledModule) {
   this.list=function(){
     return Object.keys(trackedNotes);
   }
-  this.empty=function(){
+  this.empty=function(cb){
     var ret=trackedNotes;
     trackedNotes=[];
+    if(typeof cb == "function"){
+      for(var a of trackedNotes){
+        cb(a);
+      }
+    }
     return trackedNotes;
   }
 }

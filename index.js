@@ -21,6 +21,7 @@ var modulesToLoad = {
   'Narp': {},
   'PresetKit': {},
   'Sequencer': {},
+  'Operator': {},
 };
 for (var a in modulesToLoad) {
   console.log("requiring module " + a);

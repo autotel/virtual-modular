@@ -7,6 +7,7 @@ var InterfaceX16 = require('./InterfaceX16');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
+var CHANGERATEHEADER = 0x03;
 var RECORDINGHEADER = 0xAA;
 /**
 @constructor ModuleSingleton
@@ -25,7 +26,7 @@ var testGetName = function() {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var Narp = function(properties) {
+var Narp = function(properties,environment) {
   var self = this;
   var myBitmap = this.bitmap = 0;
   var currentStep = 0;
@@ -39,7 +40,7 @@ var Narp = function(properties) {
 
   var noteOnTracker = new NoteOnTracker(this);
   var substep = 0;
-  
+
   this.baseName = "narp";
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
@@ -47,28 +48,56 @@ var Narp = function(properties) {
   var baseEventMessage = this.baseEventMessage = new EventMessage({
     value: [TRIGGERONHEADER, -1, -1, -1]
   });
-  this.interfaces.X16 = new InterfaceX16(this);
-  var setStep = this.setStep = function(square) {
+
+  this.recordingUi=true;
+
+  var recMessages = {
+    set:new EventMessage({value:[TRIGGERONHEADER,-1,-1]}),
+    clear:new EventMessage({value:[TRIGGEROFFHEADER,-1,-1]}),
+    rate:new EventMessage({value:[CHANGERATEHEADER,-1,-1]}),
+  }
+  this.interfaces.X16 = new InterfaceX16(this,environment);
+
+  var setStep = this.setStep = function(square,uiTriggered=false) {
     myBitmap |= 1 << square;
+    if(self.recordingUi&&uiTriggered){
+      recMessages.set.value[2]=square;
+      self.recordOutput(recMessages.set);
+      // console.log("RECO");
+    }
   }
-  var clearStep = this.clearStep = function(square) {
+
+  var clearStep = this.clearStep = function(square,uiTriggered=false) {
     myBitmap &= ~(1 << square);
+    if(self.recordingUi&&uiTriggered){
+      recMessages.clear.value[2]=square;
+      self.recordOutput(recMessages.clear);
+      // console.log("RECO");
+    }
   }
-  var toggleStep = this.toggleStep = function(square) {
-    myBitmap ^= 1 << square;
+
+  var toggleStep = this.toggleStep = function(square,uiTriggered=false) {
+    if(myBitmap&(1<<square)){
+      clearStep(square,uiTriggered);
+    }else{
+      setStep(square,uiTriggered);
+    }
     return myBitmap;
   }
+
   var clearAll = this.clearAll = function() {
     myBitmap = 0;
   }
 
+
+
   var generatedOutput = function(eventMessage, buttonNumber) {
-    // console.log("GENO");
     if (self.mute) return;
     eventMessage.life = Math.ceil(noteDuration.value * 12);
     noteOnTracker.add(eventMessage);
     self.output(eventMessage);
   }
+
   var headerBmp = 0;
   var stepFunction = function() {
     var active = activeNumbers();
@@ -128,7 +157,11 @@ var Narp = function(properties) {
       });
     } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
       this.setStep(evt.eventMessage.value[2] % 16);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {} else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
+    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+      this.clearStep(evt.eventMessage.value[2] % 16);
+    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+      console.log("CHANGERATEHEAER");
+    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
   }
   this.getBitmaps16 = function() {
     return {
@@ -142,6 +175,7 @@ var Narp = function(properties) {
       self.output(noteOff, false);
     });
     noteOnTracker.empty();
+    clearAll();
     return true;
   }
 }

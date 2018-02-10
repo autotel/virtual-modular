@@ -107,9 +107,17 @@ void onEncoderReleased() {
   }
 }
 void onBusMessageReceived(uint8_t * data, uint8_t len) {
-  sequencerMode.step();
-  char pr[4] = "RCV";
-  hardware.lcdPrintA((char&)pr, 3);
+
+  char pr[9] = "RCV ____";
+  for(int a = 0; a<len; a++){
+    if(data[a]>9){
+      pr[a+4] = data[a]+65;
+    }else{
+      pr[a+4] = data[a]+48;
+    }
+  }
+  hardware.lcdPrintA((char&)pr, 8);
+  // hardware.lcdPrintB((char&)data, len);
   sequencerMode.onBusMessageReceived(data, len);
 }
 

@@ -7,7 +7,9 @@ module.exports=function(controlledModule){
   var recorderDifferenciatorList={};
   var currentStep=controlledModule.currentStep;
   this.recordSingularEvent=function(eventMessage){
-    console.log(controlledModule.storeNoDup(currentStep.value,new EventPattern().fromEventMessage(eventMessage)));
+
+    var nodup=controlledModule.storeNoDup(currentStep.value,new EventPattern().fromEventMessage(eventMessage));
+    //console.log(nodup);
     // console.log("st");
   }
   this.recordNoteStart=function(differenciator,eventOn){
@@ -22,8 +24,6 @@ module.exports=function(controlledModule){
     controlledModule.handle('noteOnRecorded',{eventMessage:eventOn,eventPattern:newStepEvent});
   }
   this.recordNoteEnd=function(differenciator){
-    // lo
-    // console.log("recoff",differenciator);
     // console.log("noteEnd",differenciator);
     noteLengthner.finishAdding(differenciator,function(subdiff,sequencerEvent,nicCount){
       // console.log("rec",recorderDifferenciatorList[differenciator],sequencerEvent);

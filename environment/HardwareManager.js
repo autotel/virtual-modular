@@ -9,6 +9,7 @@ var SerialHardwareDetector = require('./SerialHardwareDetector.js');
 // };
 
 var SerialPort = require('serialport');
+var connectedPortHardwares={};
 /**
 Hardware manager
 */
@@ -21,21 +22,32 @@ module.exports = function(environment) {
   this.list = [];
   // setTimeout(process.exit,500);
   var detector = new SerialHardwareDetector({
-    onSerialResponse: function(event) {
-      if (event.response.indexOf("28") > -1) {
+    onSerialConnected: function(event) {
+      if(connectedPortHardwares[event.portName]){
+        console.log("Driver exists");
+        connectedPortHardwares[event.portName].newSerial(event.serialPort);
+        connectedPortHardwares[event.portName].connectAndStart();
+        return true;
+      }else if (event.response.indexOf("28") > -1) {
         var hardwareCreated = new hardwareConstructors.DriverX28v0({
           serial: event.serialPort
         }, environment);
         environment.hardwares.list.push(hardwareCreated);
+        hardwareCreated.connectAndStart();
+        connectedPortHardwares[event.portName]=hardwareCreated;
         return true;
       } else if (event.response.indexOf("16") > -1) {
         var hardwareCreated = new hardwareConstructors.DriverX16v0({
           serial: event.serialPort
         }, environment);
         environment.hardwares.list.push(hardwareCreated);
+        hardwareCreated.connectAndStart();
+        connectedPortHardwares[event.portName]=hardwareCreated;
         return true;
       }
       return false;
+    },
+    onSerialClosed: function(event){
     }
   }, environment);
   // environment.on('created',detector.start);
