@@ -4,8 +4,9 @@
 #define MIDI_noteOn 0x90
 #define MIDI_noteOff 0x80
 
-#endif;
+#endif
 
+#define EH_NULL 0x00
 #define EH_CLOCKTICKHEADER 0xF
 #define EH_TRIGGERONHEADER 0x9
 #define EH_TRIGGEROFFHEADER 0x8

@@ -6,13 +6,28 @@
 #ifndef MONOSEQUENCERH
 #define MONOSEQUENCERH
 #define BTN_eventSelector 0
+
+#define MEM_HEAD 0
+#define MEM_NUM 1
+#define MEM_TIMBR 2
+#define MEM_PROP 3
+#define MEM_LEN 4
 // #include "submode_eventEditor.h"
+
+struct EventMessage {
+  uint8_t head = EH_TRIGGERONHEADER;
+  uint8_t num = 0;
+  uint8_t timbr = 0;
+  uint8_t prop = 100;
+};
+
 //TODO: separate .cpp and .h, capitalize filename
 class MonoSequencer {
   private:
-    uint8_t patMem [16][3];
+    struct EventMessage currentEvent;
+    uint8_t patMem [16][MEM_LEN];
     uint8_t microStepCount = 0;
-    uint8_t microSteps = 12;
+    uint8_t microSteps = 6;
     Midi *midi;
     LedButtons *ledButtons;
     // EventEditor mainEventEditor=EventEditor();
@@ -22,7 +37,7 @@ class MonoSequencer {
     uint8_t playHead = 0;
     MonoSequencer() {
       for (uint16_t b = 0; b < 16; b++) {
-        for (uint16_t a = 0; a < 3; a++) {
+        for (uint16_t a = 0; a < MEM_LEN; a++) {
           patMem[b][a] = 0;
         }
       }
@@ -33,11 +48,9 @@ class MonoSequencer {
       patchBus=t_bus;
     }
     void onBusMessageReceived(uint8_t * message,uint8_t len){
-      // char mes [6]="mes__";
-      // mes[3]=(*message)+48;
-      // mes[4]=(*message)+48;
-      // ledButtons->lcdPrintB(message,len);
-      step(message[1]);
+      char mes [6]="mes__";
+      mes[3]=(*message)+48;
+      ledButtons->lcdPrintB((char&)mes);
     }
     uint8_t test_count=0;
     void onButtonPressed(uint8_t button, uint32_t pressedButtonsBitmap) {
@@ -52,18 +65,14 @@ class MonoSequencer {
         // } else {
           uint8_t matrixButton = button - 8;
           //matrixButton %= 16;
-          if (patMem[matrixButton][0] == 0) {
-            //for now I matched internal headers with midi headers to make testing easier.
-            //an internal message thus results in a valid midi message upon merging the headers
-            // patMem[matrixButton][0] = (mainEventEditor.currentEvent[0] << 4) | mainEventEditor.currentEvent[1];
-            // patMem[matrixButton][1] = mainEventEditor.currentEvent[2];
-            // patMem[matrixButton][2] = mainEventEditor.currentEvent[3];
-            patMem[matrixButton][0] = (EH_TRIGGERONHEADER<<4) | 1;
-            patMem[matrixButton][1] = test_count;
-            patMem[matrixButton][2] = 100;
-            test_count++;
+          if (patMem[matrixButton][MEM_HEAD] == EH_NULL) {
+            patMem[matrixButton][MEM_HEAD] = currentEvent.head;
+            patMem[matrixButton][MEM_NUM] = currentEvent.num;
+            patMem[matrixButton][MEM_TIMBR] = currentEvent.timbr;
+            patMem[matrixButton][MEM_PROP] = currentEvent.prop;
+
           } else {
-            patMem[matrixButton][0] = 0;
+            patMem[matrixButton][MEM_HEAD] = EH_NULL;
           }
         // }
       } else {
@@ -84,6 +93,10 @@ class MonoSequencer {
     }
     void onEncoderScrolled(int8_t delta) {
       // mainEventEditor.scrollCurrentIndexValue(delta);
+      currentEvent.num+=delta;
+      char str[10];
+      snprintf(str, 10, "Event: %d", currentEvent.num);
+      ledButtons->lcdPrintB((char&)str,10);
     }
     void onEncoderPressed() {
     }
@@ -91,14 +104,11 @@ class MonoSequencer {
     }
     void loop() {
       for (uint16_t b = 0; b < 16; b++) {
-        if (patMem[b][0] == 0) {
+        if (patMem[b][MEM_HEAD] == 0) {
           ledButtons->setButtonColor(b + 8, 0, 0, 0);
         } else {
-          if (patMem[b][2] >= MIDI_noteOn) {
-            ledButtons->setButtonColor(b + 8, patMem[b][2], 0, 0);
-          } else {
-            ledButtons->setButtonColor(b + 8, patMem[b][2] / 2, 6, 6);
-          }
+          ledButtons->setButtonColor(b + 8, patMem[b][2] / 2, 10, 60);
+
         }
       }
       ledButtons->setButtonColor(playHead + 8, 100, 100, 100);
@@ -110,19 +120,18 @@ class MonoSequencer {
         step();
       }
     }
-    void step(uint8_t n){
-      playHead=n;
+
+    void step() {
+      playHead++;
       playHead %= 16;
 
-      if (patMem[playHead][0] != 0) {
-        //should do patched outputs aswell...
-        midi->out(patMem[playHead][0], patMem[playHead][1], patMem[playHead][2]);
+      if (patMem[playHead][MEM_HEAD] != EH_NULL) {
+        //instead of sending midi output, it should send to a midi out module, which will do the mappings
+        midi->out(MIDI_noteOn | patMem[playHead][MEM_TIMBR], patMem[playHead][MEM_NUM], patMem[playHead][MEM_PROP]);
         //and of course there should be a layer of abstraction concerning inter-module patching
         patchBus->out(patMem[playHead],4);
       }
-    }
-    void step() {
-      step(playHead+1);
+
     }
     void output() {
       //output to each specified output. so far hardcoded, later dynamic
