@@ -22,6 +22,8 @@ var EventPattern=function(properties){
     if(thisPE.on.value[0]==TRIGGERONHEADER){
       thisPE.off.value[0]=TRIGGEROFFHEADER;
       thisPE.off.value[3]=0x00;
+    }else{
+      thisPE.off=false;
     }
     return thisPE;
   };

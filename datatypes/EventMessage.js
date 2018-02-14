@@ -3,7 +3,8 @@
 @example ` myOutput.receive(new EventMessage([0x01,0x40,0x30])) `
 */
 var EventMessage=function(inputValue){
-  var thisEm=this;
+  var thisEm = this;
+  var self = this;
   this.isEventMessage=true;
   /**
   value of the EventMessage
@@ -57,9 +58,39 @@ var EventMessage=function(inputValue){
     return new EventMessage(this);
   }
   this.compareTo=function(otherEvent,propertyList){
+    function recurse(currentObject,pathArr,level=-1){
+      // console.log("R",currentObject);
+      var nextLevel=level+1;
+      if(level==pathArr.length-1){
+        // console.log("<<",currentObject);
+        return currentObject;
+      }else if(currentObject[pathArr[nextLevel]]){
+        // console.log(">>",currentObject[pathArr[nextLevel]]);
+        return recurse(currentObject[pathArr[nextLevel]],pathArr,nextLevel);
+      }else{
+        // console.log("?! currentObject["+pathArr[nextLevel]+"]=",currentObject[pathArr[nextLevel]]);
+        return;
+      }
+    }
     for(var a of propertyList){
-      if(JSON.stringify(this[a])!=JSON.stringify(otherEvent[a]))
-      return false;
+      var splitVal=a.split('.');
+      if(splitVal.length>1){
+        let comparableA=recurse(self,splitVal);
+        let comparableB=recurse(otherEvent,splitVal);
+        // console.log("compare",comparableA,comparableB);
+        if(comparableA!=comparableB){
+          // console.log(comparableA,"!==",comparableB);
+          return false;
+        }
+      }else{
+        if(JSON.stringify(self[a])!=JSON.stringify(otherEvent[a])){
+          // console.log(`${JSON.stringify(self[a])}!=${JSON.stringify(otherEvent[a])}`,JSON.stringify(self[a])!=JSON.stringify(otherEvent[a]))
+          return false;
+        }else{
+          // console.log(`${JSON.stringify(self[a])}==${JSON.stringify(otherEvent[a])}`,JSON.stringify(self[a])==JSON.stringify(otherEvent[a]))
+
+        }
+      }
     }
     return true;
   }
@@ -91,5 +122,38 @@ var EventMessage=function(inputValue){
 EventMessage.from=function(original){
   return new EventMessage(original);
 }
+EventMessage.test=function(){
+
+  var eM=new EventMessage({value:[0,2,2]});
+  function aa (){ return  }
+
+  var scripts=[
+    function(){
+      return eM
+    },
+    function(){
+      return eM.clone()
+    },
+    function(){
+      return eM.compareTo(eM.clone(),['value'])
+    },
+    function(){
+      return eM.compareTo( new EventMessage({ value:[0,1,2,3] }), ['value'] )
+    },
+    function(){
+      return eM.compareTo(eM.clone(),['value.1'])
+    },
+    function(){
+      return eM.compareTo( new EventMessage({ value:[0,1,2,3] }), ['value.2'] )
+    },
+    function(){
+      return eM.compareTo( new EventMessage({ value:[0,1,2,3] }), ['value.1','value.2'] )
+    },
+  ];
+  for(var scr of scripts){
+    console.log(String(scr)+'\n\n>',eval(scr)(),"\n");
+  }
+}
+// EventMessage.test();
 module.exports=EventMessage;
 /**/
