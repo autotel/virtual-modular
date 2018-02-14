@@ -18,8 +18,15 @@ var BlankConfigurator=function(parentInteractor,properties){
 
 
   this.addVars=function(nvars){
-    var defaultChangeFunction=function(thisVar,delta){
+    var defaultIntChangeFunction=function(thisVar,delta){
       thisVar.value+=delta;
+    }
+    var defaultBoolChangeFunction=function(thisVar,delta){
+      if(thisVar.value==true){
+        thisVar.value=false
+      }else{
+        thisVar.value=true
+      }
     }
     var defaultSelectFunction=function(thisVar){
     }
@@ -30,7 +37,16 @@ var BlankConfigurator=function(parentInteractor,properties){
     }
     for(var a in nvars){
       if(nvars[a]==undefined) throw `error while adding vars to a BlankConfigurator: vars[${a}] is undefined`;
-      if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultChangeFunction;
+
+      switch (typeof nvars[a].value) {
+        case "boolean":
+            if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultBoolChangeFunction;
+          break;
+        default:
+          if(nvars[a].changeFunction===undefined) nvars[a].changeFunction=defaultIntChangeFunction;
+
+      }
+
       if(nvars[a].disengageFunction===undefined) nvars[a].disengageFunction=defaultDisengageFunction;
       if(nvars[a].selectFunction===undefined) nvars[a].selectFunction=defaultSelectFunction;
       if(nvars[a].nameFunction===undefined) nvars[a].nameFunction=defaultNameFunction;

@@ -1,6 +1,8 @@
 "use strict";
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
+var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
+
 var base=require('../../interaction/x16basic/interactorBase.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
@@ -12,6 +14,20 @@ module.exports = function(controlledModule) {
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
     baseEvent: controlledModule.baseEventMessage
+  });
+  configurators.global = new BlankConfigurator(this, {
+    name: "",
+    vars: {
+      "step div": {
+        value: controlledModule.clock.subSteps,
+        changeFunction:function(thisVar,delta){
+          thisVar.value+=delta;
+          controlledModule.clock.subSteps=thisVar.value;
+          console.log(controlledModule.clock);
+        }
+      },
+      "duration": controlledModule.settings.duration
+    }
   });
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
@@ -49,9 +65,11 @@ module.exports = function(controlledModule) {
     } else {
       if (event.data[0] == 1) {
         engagedConfigurator = configurators.event;
-        configurators.event.engage({
-          hardware: hardware
-        });
+        configurators.event.engage(event);
+      }
+      if (event.data[0] == 2) {
+        engagedConfigurator = configurators.global;
+        configurators.global.engage(event);
       }
     }
   };
@@ -64,6 +82,12 @@ module.exports = function(controlledModule) {
         configurators.event.disengage({
           hardware: hardware
         });
+      }
+    }if (event.data[0] == 2) {
+      if (engagedConfigurator == configurators.global) {
+        lastEngagedConfigurator = engagedConfigurator;
+        engagedConfigurator.disengage(event);
+        engagedConfigurator = false;
       }
     }
   };

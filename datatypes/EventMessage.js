@@ -88,5 +88,8 @@ var EventMessage=function(inputValue){
   }
   this.set(inputValue);
 }
+EventMessage.from=function(original){
+  return new EventMessage(original);
+}
 module.exports=EventMessage;
 /**/
