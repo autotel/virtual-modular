@@ -5,7 +5,7 @@ var RECORDINGHEADER = 0xAA;
 var EventMessage = require('../../datatypes/EventMessage.js');
 var NoteOnTracker = function(controlledModule) {
   var self=this;
-  var checkMem=false;
+  var checkMem=30;
   var trackedNotes = [];
   function transformToNoteOff(identifier) {
     trackedNotes[identifier].value[0]=TRIGGEROFFHEADER;
@@ -55,13 +55,14 @@ var NoteOnTracker = function(controlledModule) {
     return Object.keys(trackedNotes);
   }
   this.empty=function(cb){
+    // console.log("EMPT",trackedNotes.length);
     var ret=trackedNotes;
-    trackedNotes=[];
     if(typeof cb == "function"){
-      for(var a of trackedNotes){
-        cb(a);
+      for(var a in trackedNotes){
+        cb(trackedNotes[a],a);
       }
     }
+    trackedNotes=[];
     return trackedNotes;
   }
 }

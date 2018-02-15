@@ -14,14 +14,15 @@ environment.useHardware(X28Hardware);
 var modulesToLoad = {
   'Bus': {},
   'ClockGenerator': {},
-  'GameOfLife': {},
-  'Harmonizer': {},
-  'MidiIO': {},
-  'MultiTape': {},
-  'Narp': {},
-  'PresetKit': {},
-  'Sequencer': {},
   'Operator': {},
+  'MidiIO': {},
+  'Harmonizer': {},
+  'PresetKit': {},
+  'Narp': {},
+  'GameOfLife': {},
+  'Arpeggiator': {},
+  'MultiTape': {},
+  'Sequencer': {},
 };
 for (var a in modulesToLoad) {
   console.log("requiring module " + a);
