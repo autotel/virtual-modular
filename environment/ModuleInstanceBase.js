@@ -14,6 +14,7 @@ module.exports=function(properties,environment){
   this.isModuleInstance=true;
   this.mute=false;
   this.interfaces={};
+  this._instancedInterfaces={};
   //patching capabilities
   this.toggleOutput=function(what){
     var ret=outputs.has(what);

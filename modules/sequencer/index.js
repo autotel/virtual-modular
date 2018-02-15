@@ -1,8 +1,8 @@
 'use strict';
 var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
-var InteractorX16=require('./InteractorX16');
-var InteractorX28=require('./InteractorX28');
+var InterfaceX16=require('./InterfaceX16');
+var InterfaceX28=require('./InterfaceX28');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -243,8 +243,8 @@ var Sequencer = function(properties,environment) {
     this.handle('receive', evt);
     }
   }
-  this.interfaces.X16=new InteractorX16(this,environment);
-  this.interfaces.X28=new InteractorX28(this,environment);
+  this.interfaces.X16 = InterfaceX16;
+  this.interfaces.X28 = InterfaceX28;
 
 }
 module.exports = Sequencer

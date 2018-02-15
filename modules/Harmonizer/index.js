@@ -211,8 +211,8 @@ var Harmonizer = function(properties,environment) {
   }
 
   //TODO: there should be no need to isntantiate every interface for each module. most of them will probably not be used. maybe each interface is a function that gets called by the module creator or hardware manager.
-  this.interfaces.X16 = new InterfaceX16(this,environment);
-  this.interfaces.X28 = new InterfaceX28(this,environment);
+  this.interfaces.X16 =  InterfaceX16;
+  this.interfaces.X28 =  InterfaceX28;
 
   defaultState();
 

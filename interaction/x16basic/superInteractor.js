@@ -275,10 +275,18 @@ var SuperInteractorsSingleton = function(environment) {
     }
     function tryGetInterfaceN(number) {
       if (number < modules.list.length) {
-        if(modules.list[number].interfaces.X16){
-          return modules.list[number].interfaces.X16;
+        //the module interactor is instnced by the superInteractor, hence, each module could have one interactor instance per each hardware that is connected. This would allow more independent control of modules.
+        var moduleInstance=modules.list[number];
+        if (moduleInstance._instancedInterfaces.X16){
+          return moduleInstance._instancedInterfaces.X16;
         }else{
-          console.log(modules.list[number].name," had no interfaces.X16 property");
+          if (moduleInstance.interfaces.X16) {
+            // console.log("GET INTERFACE",modules.list[number].interfaces.X16);
+            moduleInstance._instancedInterfaces.X16 = new moduleInstance.interfaces.X16(moduleInstance,environment);
+            return moduleInstance._instancedInterfaces.X16;
+          } else {
+            console.log(moduleInstance.name, " had no interfaces.X16 property");
+          }
         }
       }
       return false;

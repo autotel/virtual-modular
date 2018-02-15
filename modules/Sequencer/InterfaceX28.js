@@ -1,5 +1,5 @@
-var base=require('./InteractorX16.js');
-var InteractorX28=function(controlledModule,environment){
+var base=require('./InterfaceX16.js');
+var InterfaceX28=function(controlledModule,environment){
   base.call(this,controlledModule,environment);
   self=this;
   this.bottomButtonPressed=function(event){
@@ -13,4 +13,4 @@ var InteractorX28=function(controlledModule,environment){
   };
   this.bottomButtonReleased=function(event){};
 }
-module.exports=InteractorX28;
+module.exports=InterfaceX28;

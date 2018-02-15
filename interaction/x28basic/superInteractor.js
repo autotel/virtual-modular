@@ -135,7 +135,7 @@ var SuperInteractorsSingleton = function(environment) {
 
           } else if (deleteMode) {
             if (environment.modules.removeModuleN(event.button)) {
-              
+
               selectedInterface = false;
             }
           } else {}
@@ -378,13 +378,21 @@ var SuperInteractorsSingleton = function(environment) {
 
     function tryGetInterfaceN(number) {
       if (number < modules.list.length) {
-        if (modules.list[number].interfaces.X28) {
-          return modules.list[number].interfaces.X28;
-        } else if (modules.list[number].interfaces.X16) {
-          // console.log("GET INTERFACE",modules.list[number].interfaces.X16);
-          return modules.list[number].interfaces.X16;
-        } else {
-          console.log(modules.list[number].name, " had no interfaces.X28 property nor interfaces.X16 property");
+        //the module interactor is instnced by the superInteractor, hence, each module could have one interactor instance per each hardware that is connected. This would allow more independent control of modules.
+        var moduleInstance=modules.list[number];
+        if (moduleInstance._instancedInterfaces.X28){
+          return moduleInstance._instancedInterfaces.X28;
+        }else{
+          if (moduleInstance.interfaces.X28) {
+            moduleInstance._instancedInterfaces.X28 = new moduleInstance.interfaces.X28(moduleInstance,environment);
+            return moduleInstance._instancedInterfaces.X28;
+          } else if (moduleInstance.interfaces.X16) {
+            // console.log("GET INTERFACE",modules.list[number].interfaces.X16);
+            moduleInstance._instancedInterfaces.X28 = new moduleInstance.interfaces.X16(moduleInstance,environment);
+            return moduleInstance._instancedInterfaces.X28;
+          } else {
+            console.log(moduleInstance.name, " had no interfaces.X28 property nor interfaces.X16 property");
+          }
         }
       }
       return false;
