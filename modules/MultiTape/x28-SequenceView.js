@@ -4,9 +4,7 @@ var TimeIndex=require('../../datatypes/TimeIndex');
 
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var TapeCanvas=require('./TapeCanvas.js');
-/**
-definition of a monoSequencer interactor for the x16basic controller hardware
-*/
+
 module.exports=function(environment,parentInteractor){
   var controlledModule=parentInteractor.controlledModule;
   var configurators={};
