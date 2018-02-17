@@ -29,13 +29,7 @@ var MultiTape = function(properties,environment) {
 
   this.baseName = "multitape";
   this.color = [0, 127, 255];
-
-
-  var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [TRIGGERONHEADER, -1, -1, -1], duration:1
-  });
-
-  this.interfaces.X28=new InterfaceX28(this,environment);
+  this.interfaces.X28=InterfaceX28;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var noteOffSuperImpose = new EventMessage({
@@ -133,6 +127,9 @@ var MultiTape = function(properties,environment) {
 
   var noteOnTracker = new NoteOnTracker(self);
 
+  var baseEventMessage = this.baseEventMessage = new EventMessage({
+    value: [TRIGGERONHEADER, -1, -1, -1]
+  });
 
 
   this.memoryOutput = function(eventMessage) {
