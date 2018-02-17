@@ -1,7 +1,6 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
-var DataVisualizer = require('./visualizer.js');
 var SequenceView = require('./x28-SequenceView.js');
 var ArragementView = require('./x28-ArrangementView.js');
 var SQUARE = String.fromCharCode(252);

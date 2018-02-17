@@ -29,6 +29,10 @@ var NoteOnTracker = function(ownerModule) {
     currentMicroStep = _currentMicroStep
     for (var a in trackedNotes) {
       if (trackedNotes[a].value[0] == TRIGGERONHEADER) {
+        if(!trackedNotes[a].duration){
+          trackedNotes[a].duration=[1,0];
+          console.warn("Tape had a note without duration");
+        }
         if (trackedNotes[a].started[0] + trackedNotes[a].duration[0] <= currentStep ) {
           //TODO: microstep precise length if (currentMicroStep - trackedNotes[a].started[1] >= trackedNotes[a].duration[1]) {
             let off=trackedNotes[a].clone().superImpose(noteOffSuperImpose);
