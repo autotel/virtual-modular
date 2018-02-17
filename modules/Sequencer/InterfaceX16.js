@@ -77,6 +77,7 @@ module.exports = function(controlledModule, environment) {
       "loop length": loopLength,
       "fold": {value:controlledModule.loopLength.value,base:2},
       "fold!": {value:controlledModule.loopLength.value,base:2},
+      "shift+cpte.": { value:0 },
       "loop look": lookLoop,
       "page": {value:0},
       "step div": controlledModule.stepDivide,
@@ -88,6 +89,14 @@ module.exports = function(controlledModule, environment) {
       "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
     }
   });
+  configurators.time.vars["shift+cpte."].changeFunction=function(v,d){
+    v.value+=d;
+    controlledModule.offsetSequence(d);
+    controlledModule.currentStep.value+=d;
+  };
+  configurators.time.vars["shift+cpte."].selectFunction = function(v){
+    v.value=0;
+  }
 
   configurators.time.vars["loop length"].min = 1;
   configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {

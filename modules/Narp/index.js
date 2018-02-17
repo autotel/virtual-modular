@@ -56,7 +56,7 @@ var Narp = function(properties,environment) {
     clear:new EventMessage({value:[TRIGGEROFFHEADER,-1,-1]}),
     rate:new EventMessage({value:[CHANGERATEHEADER,-1,-1]}),
   }
-  this.interfaces.X16 = new InterfaceX16(this,environment);
+  this.interfaces.X16 = InterfaceX16;
 
   var setStep = this.setStep = function(square,uiTriggered=false) {
     myBitmap |= 1 << square;

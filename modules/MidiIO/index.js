@@ -72,7 +72,7 @@ var MidiIO = function(properties,environment) {
   }
 
 
-  this.interfaces.X16 = new InteractorX16(this,environment);
+  this.interfaces.X16 = InteractorX16;
   if (midi.input) {
     var inputClockCount = 0;
     midi.input.setCallback(function(t, midiMessage) {

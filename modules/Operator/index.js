@@ -42,7 +42,7 @@ var Operator = function(properties) {
 
   var noteOnTracker = new NoteOnTracker(this);
 
-  this.interfaces.X16 = new InterfaceX16(this);
+  this.interfaces.X16 =  InterfaceX16;
   this.ops={
     "none":function(signal){
       return signal;
