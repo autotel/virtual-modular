@@ -317,9 +317,10 @@ module.exports = function(controlledModule, environment) {
           removedEvent=controlledModule.clearStepByFilter(step, currentFilter)
         });
 
-        if(removedEvent){
-          console.log(removedEvent);
+        if(removedEvent && shiftPressed){
+          // console.log(removedEvent);
           configurators.event.setFromEventPattern(removedEvent[0],event.hardware);
+          lastEngagedConfigurator=configurators.event;
         }
       }
       /*else if(trhoughFold>0){
