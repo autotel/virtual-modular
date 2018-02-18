@@ -28,7 +28,7 @@ var ClockGenerator = function(properties) {
   this.color = [60, 100, 100];
   name.call(this);
   if (properties.name) this.name = properties.name;
-  this.interfaces.X16 = new InterfaceX16(this);
+  this.interfaces.X16 =  InterfaceX16;
 
   function resetInterval() {
     clearInterval(myInterval);

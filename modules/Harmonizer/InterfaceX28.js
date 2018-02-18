@@ -69,19 +69,22 @@ module.exports = function(controlledModule,environment) {
     passiveUpdateLeds();
   });
   controlledModule.on('chordchange', function() {
-    compressedScaleMaps=undefined;
-    if (!engagedConfigurator)
+    // compressedScaleMaps=undefined;
+    // if (!engagedConfigurator)
+    //   for (let hardware of engagedHardwares) {
+    //     // console.log("chc");
+    //     if (performMode) {
+    //       currentScale = controlledModule.currentScale;
+    //       scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
+    //       if (engaged)
+    //         updateLeds(hardware);
+    //     } else {
+    //       if (engaged)
+    //         hardware.sendScreenB("chord " + controlledModule.currentScale);
+    //     }
+    //   }
       for (let hardware of engagedHardwares) {
-        // console.log("chc");
-        if (performMode) {
-          currentScale = controlledModule.currentScale;
-          scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
-          if (engaged)
-            updateLeds(hardware);
-        } else {
-          if (engaged)
-            hardware.sendScreenB("chord " + controlledModule.currentScale);
-        }
+        updateHardware(hardware);
       }
   });
   var selectScaleMap = function(num) {
@@ -101,7 +104,6 @@ module.exports = function(controlledModule,environment) {
     scaleIntervalsMap = newScaleMap;
     controlledModule.newScaleMap(currentScale, newScaleMap);
     compressedScaleMaps=undefined;
-
   }
 
   // updateScaleMap(scaleIntervalsMap);
@@ -171,7 +173,7 @@ module.exports = function(controlledModule,environment) {
       }else if (event.button >= 4) {
         scaleSelectionMap ^= 1<<(event.data[0]-4);
         selectScaleMap(scaleSelectionMap);
-        updateHardware(hardware);
+        // updateHardware(hardware);
       }
     }
 
@@ -209,6 +211,10 @@ module.exports = function(controlledModule,environment) {
     var hardware = event.hardware;
     if (lastEngagedConfigurator) {
       lastEngagedConfigurator.encoderScrolled(event);
+      if(lastEngagedConfigurator==configurators.event){
+        compressedScaleMaps=undefined;
+        updateLeds(event.hardware);
+      }
     }
     updateLeds(hardware);
   };
@@ -235,17 +241,13 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateLeds=function(hardware){
-
-
-
     var selScaleMap = (scaleSelectionMap & 0xf);
-
     // hardware.paintColorFromLedN(0,[0,0,0],0,false);
     hardware.paintColorFromLedN(selScaleMap<<4,[255,127,0],0,false);
 
     if (performMode) {
       if(compressedScaleMaps===undefined){
-        compressedScaleMaps=controlledModule.getCompMaps(currentScale);
+        compressedScaleMaps=controlledModule.getCompMaps(currentScale,keyboardRoot.value);
       }
       hardware.draw( [compressedScaleMaps.roots,compressedScaleMaps.roots,compressedScaleMaps.semitones[1]] );
     }else{

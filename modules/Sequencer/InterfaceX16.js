@@ -1,4 +1,13 @@
 "use strict";
+
+var CLOCKTICKHEADER = 0x00;
+var TRIGGERONHEADER = 0x01;
+var TRIGGEROFFHEADER = 0x02;
+var CLOCKABSOLUTEHEADER = 0x03;
+
+var RECORDINGHEADER = 0xAA;
+var RECORDINGSTATUSHEADER = 0xAB;
+
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
@@ -68,6 +77,7 @@ module.exports = function(controlledModule, environment) {
       "loop length": loopLength,
       "fold": {value:controlledModule.loopLength.value,base:2},
       "fold!": {value:controlledModule.loopLength.value,base:2},
+      "shift+cpte.": { value:0 },
       "loop look": lookLoop,
       "page": {value:0},
       "step div": controlledModule.stepDivide,
@@ -79,6 +89,14 @@ module.exports = function(controlledModule, environment) {
       "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
     }
   });
+  configurators.time.vars["shift+cpte."].changeFunction=function(v,d){
+    v.value+=d;
+    controlledModule.offsetSequence(d);
+    controlledModule.currentStep.value+=d;
+  };
+  configurators.time.vars["shift+cpte."].selectFunction = function(v){
+    v.value=0;
+  }
 
   configurators.time.vars["loop length"].min = 1;
   configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {
@@ -313,7 +331,10 @@ module.exports = function(controlledModule, environment) {
               }*/
       else {
         //on every repetition is empty
-        noteLengthner.startAdding(targetButton, configurators.event.getEventPattern());
+        var targetEventPattern=configurators.event.getEventPattern();
+
+        noteLengthner.startAdding(targetButton, targetEventPattern);
+
         noteLengthnerStartPointsBitmap |= 0x1 << button;
         noteLengthnerLengthsBitmap = noteLengthnerStartPointsBitmap;
       }

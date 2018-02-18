@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
+var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
@@ -18,10 +19,12 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var GameOfLife = function(properties) {
-  var noteOnTracker = new Set();
+  var noteOnTracker = new NoteOnTracker();
   var thisInstance = this;
   var myBitmap = 0;
-
+  var settings=this.settings={
+    duration:{value:false}
+  }
   var clock = this.clock = {
     subSteps: 4,
     subStep: 0
@@ -35,7 +38,7 @@ var GameOfLife = function(properties) {
     value: [TRIGGERONHEADER, -1, -1, -1]
   });
 
-  this.interfaces.X16 = new InterfaceX16(this);
+  this.interfaces.X16 =  InterfaceX16;
 
   var cells = [
     [0, 0, 0, 0],
@@ -90,8 +93,11 @@ var GameOfLife = function(properties) {
   this.cellOutput = function(x, y, val) {
     if (self.mute) return;
     if (val) {
-      baseEventMessage.value[2] = x * 4 + y;
-      thisInstance.output(baseEventMessage);
+      var outMessage=new EventMessage.from(baseEventMessage);
+      outMessage.value[2] = baseEventMessage.value[2] + (x * 4 + y);
+      noteOnTracker.add(outMessage,[x,y]);
+      // console.log("ON",outMessage.value);
+      thisInstance.output(outMessage);
     } else {
 
     }
@@ -102,7 +108,20 @@ var GameOfLife = function(properties) {
       clock.subStep++;
       if (clock.subStep >= clock.subSteps) {
         clock.subStep = 0;
-        cellOperation();
+
+        if(settings.duration.value){
+          noteOnTracker.empty(function(noff){
+            console.log("OFF",noff.value);
+            thisInstance.output(noff, true);
+          });
+          cellOperation();
+        }else{
+          cellOperation();
+          noteOnTracker.empty(function(noff){
+            // console.log("OFF",noff.value);
+            thisInstance.output(noff, true);
+          });
+        }
         this.handle('step');
       }
     } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
@@ -127,10 +146,9 @@ var GameOfLife = function(properties) {
     return myBitmap;
   }
   this.delete = function() {
-    for (var noff of noteOnTracker) {
+    noteOnTracker.empty(function(noff){
       thisInstance.output(noff, true);
-      noteOnTracker.delete(noff);
-    }
+    });
     return true;
   }
 

@@ -186,14 +186,18 @@ var Harmonizer = function(properties,environment) {
     return scaleMap[identifier] || 0x00;
   }
 
-  this.getCompMaps = function(identifier){
+  this.getCompMaps = function(identifier, shift = 0){
     var ret={
       roots:1,
       semitones:[0,0,0,0]
     }
+    var scaleLength = self.scaleArray[identifier].length;
+    var wrapShift=(scaleLength-shift%scaleLength)%scaleLength;
 
-    for(let a=0; a<12+self.scaleArray[identifier].length; a+=self.scaleArray[identifier].length){
-      ret.roots|=ret.roots<<(a);
+    ret.roots=ret.roots<<wrapShift;
+
+    for(let a=0; a<16; a+=scaleLength){
+      ret.roots|=ret.roots<<a;
     }
 
     let lastNote=0;
@@ -201,18 +205,26 @@ var Harmonizer = function(properties,environment) {
       let itm=self.scaleArray[identifier][n];
       let interval=itm-lastNote;
       if(ret.semitones[interval]!==undefined){
-        //4097 is 1 | 1<<12
-        ret.semitones[interval]|=4097<<n;
+        ret.semitones[interval]|=(1<<scaleLength)<<(n);
       }
       lastNote=itm;
+    }
+
+    for(var b in ret.semitones){
+      ret.semitones[b]=ret.semitones[b]<<wrapShift;
+      ret.semitones[b]|=(ret.semitones[b])>>scaleLength;
+      ret.semitones[b]|=(ret.semitones[b])>>scaleLength;
+      for(let a=0; a<16; a+=scaleLength){
+        ret.semitones[b]|=ret.semitones[b]<<a;
+      }
     }
 
     return ret;
   }
 
   //TODO: there should be no need to isntantiate every interface for each module. most of them will probably not be used. maybe each interface is a function that gets called by the module creator or hardware manager.
-  this.interfaces.X16 = new InterfaceX16(this,environment);
-  this.interfaces.X28 = new InterfaceX28(this,environment);
+  this.interfaces.X16 =  InterfaceX16;
+  this.interfaces.X28 =  InterfaceX28;
 
   defaultState();
 

@@ -1,8 +1,27 @@
-var DataVisualizer=module.exports=function(controlledModule){
+
+var TapeCanvas=module.exports=function(controlledModule){
+
   var self=this;
   var timeRange=this.timeRange={start:[0,0]}
   var stepsPerButton=this.stepsPerButton={value:2};
   var microStepBase=12;
+
+  // var pressRelease = new (function(){
+  //   var memory={};
+  //   this.releaseFunction=function(data){}
+  //   this.press=function(identifier,attachData){
+  //     memory[identifier]=attachData;
+  //   }
+  //   this.release=function(identifier){
+  //     self.releaseFunction(memory[identifier]);
+  //   }
+  //   return this;
+  // })();
+  //
+  // pressRelease.releaseFunction=function(data){
+  //   currentTape.addEvent(data.start,data.eventMessage);
+  // }
+
   this.eventsBitmap=0x00;
   this.eventsTrailBitmap=0x00;
   var memKeys=[];
@@ -11,6 +30,19 @@ var DataVisualizer=module.exports=function(controlledModule){
     currentTape=tape;
   }
 
+  this.sequenceButtonCall=function(button,callback){
+    var timeIndex=getTimeIndexOfButton(button);
+    //perhaps there is a modulus composition setup?
+    var currentEvents=currentTape.hasEventsStartingAt(timeIndex);
+    callback(currentEvents,timeIndex);
+    //if the current button has an event, return it.
+    //, so we can make event selction
+    updateBitmap();
+    return false;
+  }
+  this.eventDuration=function(eventMessage,newLength){
+    return eventMessage;
+  }
   var pageRight=this.pageRight=function(){
     timeRange.start[0]+=16*stepsPerButton.value;
     updateBitmap();

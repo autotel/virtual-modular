@@ -32,7 +32,7 @@ var PresetKit = function(properties, environment) {
   if (properties.name) this.name = properties.name;
 
 
-  this.interfaces.X16 = new InterfaceX16(this, environment);
+  this.interfaces.X16 =  InterfaceX16;
 
   var kit = this.kit = {};
 

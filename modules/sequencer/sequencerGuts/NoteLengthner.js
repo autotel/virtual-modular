@@ -18,6 +18,7 @@ var NoteLengthner=module.exports=function(controlledModule){
   }
   this.finishAdding=function(differenciator,storeCallback=false){
     if(notesInCreation[differenciator]){
+
       notesInCreation[differenciator].sequencerEvent.stepLength=stepCounter-notesInCreation[differenciator].started;
       nicCount--;
       if(storeCallback){

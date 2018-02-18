@@ -132,7 +132,7 @@ module.exports=function(sequencerModule){ return new(function(){
   }
   var offsetSequence=function(steps){
     let newSequence=[];
-    console.log("OFFSETOP",steps);
+    // console.log("OFFSETOP",steps);
     // clearStepRange(0,-steps);
     for(let stepIndex in patData){
       newSequence[parseInt(stepIndex)+steps]=patData[stepIndex];
