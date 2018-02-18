@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>modular-performance-x01</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #13002a;
+      }
+    </style>
+  </head>
+  <body>
+  <style>
+
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+.node {
+  fill: #766090;
+}
+
+.cursor {
+  fill: none;
+  stroke: brown;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.link {
+  stroke: #766090;
+}
+
+</style>
+
+  </body>
+  <script>
+'use strict';
+  </script>
+  <script src="libs/socket.io.js"></script>
+  <script src="shared/messageNames.js"></script>
+  <script src="js/execution.js"></script>
+  <script src="js/socketMan.js"></script>
+  <script src="libs/d3.v3.min.js"></script>
+  <script src="js/ui/forceDirectedGrapher.js"></script>
+  <script src="js/ui/Ui.js"></script>
+  <script src="js/ui/spriteTypes.js"></script>
+</html>
