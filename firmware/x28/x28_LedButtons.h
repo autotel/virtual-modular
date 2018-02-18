@@ -1,3 +1,4 @@
+//x28_LedButtons version for iteration 2
 //TODO: separate .cpp and .h
 #include <LiquidCrystal.h>
 #include "FastLED.h"
@@ -5,6 +6,7 @@
 #define REFRESHRATE 20
 #ifndef HARDWAREH
 #define HARDWAREH
+
 
 
 //useful about callback functions https://stackoverflow.com/questions/14427917/call-function-in-main-program-from-a-library-in-arduino
@@ -39,21 +41,18 @@ class LedButtons {
         }
         FastLED.show();
         //https://www.desmos.com/calculator/zmpnfwcguf
-        delay(((t+70)/((t/44)+1))-47);
+        delay(((t + 70) / ((t / 44) + 1)) - 47);
       }
 
       for (uint8_t a = 0; a < 33; a++) {
         lcdBuf[a] = ' ';
       }
-      //encoder pins setup
-      DDRA = 0x00; //0x3<<6
-      PORTA |= 3 << 6;
-      //lcd->print("hello, world!");
+      DDRB &= 0x01101111;
+
     }
     void loop() {
       readMatrixButtons();
       doOtherButtons();
-
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
@@ -61,97 +60,114 @@ class LedButtons {
       }
     }
 
-    uint8_t otherButtonsLastPressed=0;
-    void doOtherButtons(){
-        /*
-        side buttons:
-        mxx4				  mxy1,2
-        PH7 -[\_]-<|--	PK1,2
-        muxa4         muxbx1,2
-
+    uint8_t otherButtonsLastPressed = 0;
+    void doOtherButtons() {
+      /*
+        side & encoder buttons:
         encoder:
-        PH7--[\_]--<|--PK0
-
+          PH7(MU XAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX0)PK0
+        side button 0&1:
+          PH7(MUXAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX1)PK1
+          PH7(MUXAX4)---[\_]---|>---(--[470ohm]--GND )----(MUXBX2)PK2
       */
       //set MUXBX0 low MUXAX4 to high;
-      for(uint8_t a=0; a<3; a++){
-        DDRK &= ~(1<<a);
-        DDRH |= 1 << 7;
-        PORTK |= 1 << a;
-        PORTH &= ~(1 << 7);
-        if ((PINK & (1<<a)) == 0){
-          //buttton detected pressed
-          if((otherButtonsLastPressed&(1<<a))==0){
+      for (uint8_t a = 0; a < 3; a++) {
+        //set the current pinK to input
+        DDRK &= ~(1 << a);
+        PORTK|=1<<a;
+
+        //send high to the "other buttons" col
+        PORTH |= 1<<7;
+
+        if (PINK & (1 << a)) {
+          //here: buttton detected pressed
+          if ((otherButtonsLastPressed & (1 << a)) == 0) {
             //and was not pressed the last time
-            otherButtonsLastPressed|=1<<a;
-            if(a==0){
+            otherButtonsLastPressed |= 1 << a;
+            if (a == 0) {
               encoderPressedCallback();
-            }else{
-              bottomButtonPressedCallback(a-1);
+            } else {
+              bottomButtonPressedCallback(a - 1);
             }
           }
         } else {
-          if((otherButtonsLastPressed&(1<<a))!=0){
+          if ((otherButtonsLastPressed & (1 << a)) != 0) {
             //and was pressed the last time
-            if(a==0){
+            if (a == 0) {
               encoderReleasedCallback();
-            }else{
-              bottomButtonReleasedCallback(a-1);
+            } else {
+              bottomButtonReleasedCallback(a - 1);
             }
           }
-          otherButtonsLastPressed&=~(1<<a);
+          otherButtonsLastPressed &= ~(1 << a);
         }
       }
     }
-    // uint16_t lastEncoderPressTimer = 0;
-    // uint16_t debounceTime = 250;
-    // void doEncoderButton() {
-    //   //set MUXBX0 low MUXAX4 to high;
-    //   PORTK &= ~(0x1 << 0);
-    //   PORTH |= 0x1 << 7;
-    //   if ((PINH >> 7) & 1) {
-    //     if (lastEncoderPressTimer >= debounceTime) {
-    //       encoderPressedCallback();
-    //       lastEncoderPressTimer = 0;
-    //     }
-    //   } else {
-    //     if (lastEncoderPressTimer <= debounceTime) {
-    //       lastEncoderPressTimer++;
-    //     }
-    //   }
-    // }
-#define divideEncoderRotation 4
-    const uint8_t grayToBinary = 0b10110100;
-    int8_t enc_last = 0;
-    int8_t enc_sub = 0;
-    unsigned int encoder0Pos = 0;
+
+    // unsigned int encoder0Pos = 0;
     char sign(char x) {
       return (x > 0) - (x < 0);
     }
 
+    int8_t enc_last = 0;
+    int8_t enc_last_debounced = 0;
+    uint8_t enc_current_debounced = 0;
+    uint8_t justChanged = 0;
+    int16_t stateUpTime = 0;
+
     void doEncoder() {
-      //encread turns around as follows: <- 0,1,3,2 ->
-      //upon conversion it will turn as: <- 0,1,2,3 ->
-      int8_t enc_read = (grayToBinary >> ( ( (PINA >> 6) & 0x3) * 2 ) ) & 0x3;
-      if (enc_read != enc_last) {
-        int8_t enc_inc = enc_read - enc_last;
 
-        if (enc_inc > 2) {
-          enc_inc = -1;
-        }
-        if (enc_inc < -2) {
-          enc_inc = +1;
-        }
 
-        enc_sub += enc_inc;
-        if (abs(enc_sub) >= divideEncoderRotation) {
-          encoder0Pos += sign(enc_sub);
-          enc_sub = 0;
-          encoderRotatedCallback(encoder0Pos);
+      //DDRB&=0x01101111 (done on startup)
+      //ENCA = PB4
+      //ENCC = PB7
+
+      //read encoder input,
+      // the pins in this board are separate, so put together both digits (to get number range from 0 to 3)
+      PORTB = 0b10010000;
+      //  PORTB = 0xFF;
+      uint8_t enc_read = (PINB >> 3) & 0b10; //didn't shift 3 because we want it to fall as second digit
+      enc_read |= (PINB >> 7) & 0b1;
+
+      if(enc_current_debounced != enc_read){
+        if (enc_last == enc_read) {
+          //here: the detected change has been persisting
+          //if (stateUpTime >= 1) {
+            //here: the detected change persisted for longer than 600
+            enc_current_debounced = enc_read;
+            justChanged = 1;
+          //}
+          //stateUpTime ++;
+        } else {
+          //here: the change that was detected on the last check didn't persist until the current check
+          //stateUpTime = 0;
         }
-        enc_last = enc_read;
       }
+
+      //here: encoder is remaining in the same position
+      if (justChanged) {
+        //here: encoder just changed one 'frame', which has been debounced
+        //encread turns around as follows: <- 0,1,3,2 ->
+        //we want one send per tick, which happens a whole lap around enc_
+        //in other words, one send per each four encoder events
+
+        if (enc_current_debounced == 3) {
+          if (enc_last_debounced == 1) {
+            encoderRotatedCallback(+1);
+          } else if (enc_last_debounced == 2) {
+            encoderRotatedCallback(-1);
+          }
+        }
+        justChanged = 0;
+        stateUpTime = 0;
+
+        enc_last_debounced = enc_current_debounced;
+      }
+      enc_last = enc_read;
+
     }
+
+
     int readMatrixButtons() {
       uint16_t i, j, currentButton;
       //POX = pin out register n., PIN= pin in register n.
@@ -159,7 +175,7 @@ class LedButtons {
 #define POX PORTH //bits 3-7, digital
 #define PIX PINH
 #define PORTXMASK 0b00000111
-      DDRH = 0xFF << 3;
+      DDRH |= 0xFF << 3;
       //K, rows
 #define POY PORTK //bits 0-6, analog
 #define PIY PINK
@@ -175,12 +191,12 @@ class LedButtons {
         POX &= PORTXMASK;
 
         //not 1<< because starts in PH3
-        POX = ~(0b1000 << col);
+        POX = 0b1000 << col;
         //set test to a mask according to the row we want to check
         uint32_t test = 1UL << row;
         //TODO: there should be a juggling of the scan with the rest of the code ranther than a delay.
         //delay is to avoid leaks of voltage due to capacitances?
-        delayMicroseconds(100);
+        //delayMicroseconds(100);
 
         uint32_t an = PIY & test;
 
@@ -188,12 +204,13 @@ class LedButtons {
         //I am recycling the variable
         test = 1UL << currentButton;
         //check button is pressed, but in inverted logic
-        if (!an) {
+        if (an) {
           //button is pressed, and not the last time
           if (!(test & pressedButtonsBitmap)) {
 
             pressedButtonsBitmap = pressedButtonsBitmap | test;
             CB_buttonPressed(currentButton, pressedButtonsBitmap);
+
           }
 
         } else {
@@ -227,7 +244,7 @@ class LedButtons {
       }
       if (changedScreenB) {
         for (uint16_t c = 16; c < 32; c++) {
-          lcd->setCursor(c-16, 1);
+          lcd->setCursor(c - 16, 1);
           if (lcdBuf[c] == 0)lcdBuf[c] = ' ';
           lcd->write(lcdBuf[c]);
           lcdBuf[c] = ' ';

@@ -48,12 +48,11 @@ class LedButtons {
         lcdBuf[a] = ' ';
       }
       DDRB &= 0x01101111;
-      setup_readMatrixButtons_velocity();
+
     }
     void loop() {
       readMatrixButtons();
       doOtherButtons();
-      readMatrixButtons_velocity();
       if (millis() - lastLedsUpdate > 1000 / REFRESHRATE) {
         refreshLeds();
         lastLedsUpdate = millis();
@@ -170,8 +169,6 @@ class LedButtons {
 
 
     int readMatrixButtons() {
-
-
       uint16_t i, j, currentButton;
       //POX = pin out register n., PIN= pin in register n.
       //H, columns
@@ -201,11 +198,13 @@ class LedButtons {
         //delay is to avoid leaks of voltage due to capacitances?
         //delayMicroseconds(100);
 
+        uint32_t an = PIY & test;
+
         //we checked the row, now we want to use the test to compare with the pixel number.
         //I am recycling the variable
         test = 1UL << currentButton;
-
-        if (PIY & test) {
+        //check button is pressed, but in inverted logic
+        if (an) {
           //button is pressed, and not the last time
           if (!(test & pressedButtonsBitmap)) {
 

@@ -4,7 +4,6 @@
 #define MIDI_noteOn 0x90
 #define MIDI_noteOff 0x80
 
-#endif
 
 #define EH_NULL 0x00
 #define EH_CLOCKTICKHEADER 0xF
@@ -91,5 +90,6 @@
 #define TH_version_len 0x00
 
 
+#endif;
 //}
 
