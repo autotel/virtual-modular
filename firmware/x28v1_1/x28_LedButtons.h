@@ -76,8 +76,8 @@ class LedButtons {
         DDRK &= ~(1 << a);
         PORTK|=1<<a;
 
-        //send high to the "other buttons" col
-        PORTH |= 1<<7;
+        //send high to the "other buttons" col, low to all other cols
+        PORTH = 1<<7;
 
         if (PINK & (1 << a)) {
           //here: buttton detected pressed
@@ -200,16 +200,21 @@ class LedButtons {
 
         uint32_t an = PIY & test;
 
+
+
+        //tButton is the pressed button, but vertically flipped.
+        uint16_t tButton = buttonsRemap[currentButton];
+
         //we checked the row, now we want to use the test to compare with the pixel number.
         //I am recycling the variable
-        test = 1UL << currentButton;
+        test = 1UL << tButton;
         //check button is pressed, but in inverted logic
         if (an) {
           //button is pressed, and not the last time
           if (!(test & pressedButtonsBitmap)) {
 
             pressedButtonsBitmap = pressedButtonsBitmap | test;
-            CB_buttonPressed(currentButton, pressedButtonsBitmap);
+            CB_buttonPressed(tButton, pressedButtonsBitmap);
 
           }
 
@@ -218,7 +223,7 @@ class LedButtons {
           if (test & pressedButtonsBitmap) {
 
             pressedButtonsBitmap = pressedButtonsBitmap & (~test);
-            CB_buttonReleased(currentButton);
+            CB_buttonReleased(tButton);
           }
         }
 
@@ -319,6 +324,9 @@ class LedButtons {
       CB_botomButtonReleased = fpb;
     };
     void setButtonColor(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
+
+      button=buttonsRemap[button];
+
       if (a | b | c > 0) {
         //c |= 80;
         leds[button] = CRGB(a, b, c);//CHSV
@@ -327,6 +335,8 @@ class LedButtons {
       }
     }
     void setButtonColorHSV(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
+
+      button=buttonsRemap[button];
       if ( c > 0) {
         //c |= 80;
         leds[button] = CHSV(a, b, c);//CHSV
@@ -389,6 +399,7 @@ class LedButtons {
     bool changedScreenA = false;
     bool changedScreenB = true;
     long lastLedsUpdate = 0;
+    uint8_t buttonsRemap[28]={0,1,2,3,4,5,6,7,20,21,22,23,16,17,18,19,12,13,14,15,8,9,10,11,24,25,26,27};
     uint8_t lcdChange = 0;
     void (*CB_buttonPressed)(byte, uint32_t) = 0;
     void (*CB_buttonReleased)(byte) = 0;
