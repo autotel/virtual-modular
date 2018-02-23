@@ -18,7 +18,12 @@ var MessageCompressor=require('../http/shared/MessageCompressor');
 
 var SocketClientInteractor=function(environment,socket){
   var messageCompressor=new MessageCompressor(socket);
-
+  function compress(msg){
+    return messageCompressor.compress(msg);
+  }
+  function decompress(msg){
+    return messageCompressor.decompress(msg);
+  }
   var instancedModules=new Set();
   var availableModules=new Set();
 
@@ -62,7 +67,7 @@ var SocketClientInteractor=function(environment,socket){
   listenerCount
   eventNames
   */
-  socket.write('socket write test');
+  // socket.write('socket write test');
   // socket.emit('emit test',{vv:'emit test'});
   this.onDataReceived=function(data){
     console.log(data);
@@ -82,7 +87,14 @@ var SocketClientInteractor=function(environment,socket){
     }
     var unique=module._instancedInterfaces.http.serverUnique;
     var nInterface=module._instancedInterfaces;
-    socket.write({type:'+ module',data:[unique,module.name,nInterface.features]});
+
+    socket.write(compress({
+      type:'+ module',
+      unique:unique,
+      name:module.name,
+      features:nInterface.features
+    }));
+
     instancedModules.add(module);
   }
 
