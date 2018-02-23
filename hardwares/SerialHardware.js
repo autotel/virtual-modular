@@ -1,6 +1,9 @@
+'use strict'
 var utils = require('../environment/utils.js');
+var SerialHardwareDetector = require('./SerialHardwareDetector.js');
 var requireProperties = utils.requireProperties;
 var LazyStack = utils.LazyStack;
+
 
 var DataChopper = function(rLengths) {
   var inBuff;
@@ -66,21 +69,18 @@ var SerialHardware = function(properties, environment) {
   }
   var rLengths=properties.rLengths;
   var tLengths=properties.tLengths;
-
   var dataChopper = new DataChopper(rLengths);
-
   var lazyStack = new LazyStack({messagePriority:15,maxStack:15});
-
   var serial;
-
   var self = this;
+
 
   this.newSerial=function(newSerial){
     serial=newSerial;
 
     serial.on('data', serialDataCallback );
   }
-  
+
   this.newSerial(properties.serial);
 
   this.sendx8 = function(header, dataArray) {
@@ -192,6 +192,50 @@ var SerialHardware = function(properties, environment) {
   }
   this.connectAndStart=function(){
 
+  }
+}
+
+//detector is contains an instance of the SerialHardwareDetector. Only one is instanced, thus the static scope
+SerialHardware.detector=false;
+//Keeps a list of drivers for serial devices, using the "hardwareId" (the string that the wardware tells the system about his type) name as key
+SerialHardware.availableSerialDrivers={};
+//keeps the serial ports for which a driver has been instanced
+SerialHardware.connectedPortHardwares={};
+
+
+SerialHardware.initialization=function(environment){
+  if(!SerialHardware.detector){
+    SerialHardware.detector = new SerialHardwareDetector({
+      onSerialConnected: function(event) {
+        if(SerialHardware.connectedPortHardwares[event.portName]){
+          console.log("Driver exists");
+          SerialHardware.connectedPortHardwares[event.portName].newSerial(event.serialPort);
+          SerialHardware.connectedPortHardwares[event.portName].connectAndStart();
+          return true;
+        }else{
+          console.log(SerialHardware.availableSerialDrivers);
+          for(var recogName in SerialHardware.availableSerialDrivers){
+            // console.log("ONSERIAL");
+            if (event.response.indexOf(recogName) > -1) {
+              var hardwareCreated = new SerialHardware.availableSerialDrivers[recogName]({
+               serial: event.serialPort
+              }, environment);
+              environment.hardwares.list.push(hardwareCreated);
+              hardwareCreated.connectAndStart();
+              SerialHardware.connectedPortHardwares[event.portName]=hardwareCreated;
+              return true;
+            }else{
+              console.log("event.response.indexOf(recogName)",event.response.indexOf(recogName));
+            }
+          }
+        }
+        return false;
+      },
+      onSerialClosed: function(event){
+      }
+    }, environment);
+  }else{
+    // console.log("THERE",SerialHardware.availableSerialDrivers.length);
   }
 }
 module.exports=SerialHardware

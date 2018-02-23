@@ -284,10 +284,10 @@ class ControllerMode {
               //lcdPrintA("connecting");
               sendToBrainData[0] = 6; //len
               sendToBrainData[1] = 'x';
-              sendToBrainData[3] = '2';
-              sendToBrainData[4] = '8';
-              sendToBrainData[5] = 'v';
-              sendToBrainData[6] = '1';
+              sendToBrainData[2] = '2';
+              sendToBrainData[3] = '8';
+              sendToBrainData[4] = 'v';
+              sendToBrainData[5] = '1';
               sendToBrain(TH_version_head, 7);
               a++;
               break;

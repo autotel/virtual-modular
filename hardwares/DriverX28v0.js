@@ -98,7 +98,7 @@ var instances = 0;
 var DriverX28v0 = function(properties, environment) {
   properties.rLengths=rLengths;
   properties.tLengths=tLengths;
-
+  properties.recognitionString="28";
   SerialHardware.call(this,properties,environment);
   var myInstanceNumber = instances;
   instances++;
@@ -351,4 +351,6 @@ var DriverX28v0 = function(properties, environment) {
 
   return this;
 };
+DriverX28v0.initialization=SerialHardware.initialization;
+SerialHardware.availableSerialDrivers['28']=DriverX28v0;
 module.exports = DriverX28v0;

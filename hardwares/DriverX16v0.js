@@ -83,6 +83,7 @@ DEPRECATED DOC
 var DriverX16v0=function(properties,environment){
   properties.rLengths=rLengths;
   properties.tLengths=tLengths;
+  properties.recognitionString="x 16";
 
     SerialHardware.call(this,properties,environment);
   var myInstanceNumber=instances;
@@ -148,4 +149,8 @@ var DriverX16v0=function(properties,environment){
 
   return this;
 };
+
+DriverX16v0.initialization=SerialHardware.initialization;
+SerialHardware.availableSerialDrivers['16']=DriverX16v0;
+
 module.exports = DriverX16v0;
