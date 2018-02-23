@@ -1,7 +1,7 @@
 'use strict';
 var SerialHardware=require('./SerialHardware.js');
 
-console.log("x28v0 serial on ", process.platform);
+/**/console.log("x28v0 serial on ", process.platform);
 
 //TODO:cache to save startup time
 var fs = require('fs');

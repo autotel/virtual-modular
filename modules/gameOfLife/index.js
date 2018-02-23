@@ -111,7 +111,7 @@ var GameOfLife = function(properties) {
 
         if(settings.duration.value){
           noteOnTracker.empty(function(noff){
-            console.log("OFF",noff.value);
+            // console.log("OFF",noff.value);
             thisInstance.output(noff, true);
           });
           cellOperation();

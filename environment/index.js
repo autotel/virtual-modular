@@ -7,8 +7,11 @@ var utils=require('./utils.js');
 var requireProperties=utils.requireProperties;
 
 var Environment=function(){
+
+  this.log=console.log;
   Observable.call(this);
   var self=this;
+  var environment=this;
   this.on('a',console.log)
 
   /**
@@ -38,7 +41,7 @@ var Environment=function(){
   var hardwares=this.hardwares= new HardwareManager(this);
 
   this.useHardware=function(Constructor){
-    var fails=requireProperties.call(Constructor,['name','constructor']);
+    var fails=requireProperties.call(Constructor,['name','constructor','initialization']);
     if(fails){
       console.error("a module couldn't be added because of problems the properties:",fails);
       return;
@@ -46,6 +49,7 @@ var Environment=function(){
       console.log("added hardware",Constructor.name);
     }
     if(typeof Constructor.initialization==="function"){
+      // console.log("INIT",Constructor.name);
       Constructor.initialization(self);
     }
     hardwares.addConstructor(Constructor);

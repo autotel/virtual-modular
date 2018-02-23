@@ -89,17 +89,17 @@ for(var n in structures){
 
 
   var scaleStructure=scaleString.split(/\; */g);
-  console.log(scaleStructure);
+  // console.log(scaleStructure);
   var gradesByte=0;
   for(var a of scaleStructure){
     a=a.replace(/\/.*/,"");
     gradesByte|=1<<gradeNames.indexOf(a);
-    console.log(a);
+    // console.log(a);
   }
   gradesByte&=0xFFF;
   scaleToName[gradesByte]=scaleTitle;
   nameToScale[scaleTitle]=gradesByte;
-  console.log(gradesByte.toString(2));
+  // console.log(gradesByte.toString(2));
 }
 
 var shiftedScalesArray=[];

@@ -14,7 +14,7 @@ Hardware manager
 module.exports = function(environment) {
   var hardwareConstructors = {};
   this.addConstructor = function(Constructor) {
-    console.log(`Add hardwareConstructors[${Constructor.name}]=${Constructor};`);
+    // console.log(`Add hardwareConstructors[${Constructor.name}]=${Constructor};`);
     hardwareConstructors[Constructor.name] = Constructor;
   }
   this.list = [];

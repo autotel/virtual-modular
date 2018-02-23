@@ -35,7 +35,7 @@ var NoteLogger = function( _settings) {
     };
   }
   this.addEvent = function(eventMessage) {
-    console.log("ADDD2");
+    // console.log("ADDD2");
     var timeNow = [self.clock.historicStep, self.clock.microStep];
     var eventKey = [eventMessage.value[1], eventMessage.value[2]];
     if (eventMessage.value[0] == TRIGGERONHEADER) {

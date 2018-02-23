@@ -17,6 +17,7 @@ var interactionManager=function(environment){ return new(function(){
   var moduleInteractorSingletons=[];
   // var moduleInteractorInstances=[];
   //create the interface element and register it's singleton
+  //TODO: change this structure. This is a total mess!
   interfaces.x16basic=new X16bs(environment);
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
   interfaces.x28basic=new X28bs(environment);

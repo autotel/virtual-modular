@@ -5,7 +5,7 @@ var onHandlers=require('onhandlers');
 
 var SocketClient=function(socket,nodeServer){
   // console.log(nodeServer);
-  /**/console.log('a client connected');
+  console.log('a client connected');
   // console.log(nodeServer);
   onHandlers.call(this);
   socketList.push(this);
@@ -30,10 +30,10 @@ var SocketClient=function(socket,nodeServer){
   }
 
   socket.on(nodeServer.messageIndexes.CREATE,function(event){
-    /**/console.log("component create requested");
+    console.log("component create requested");
   });
   socket.on(nodeServer.messageIndexes.CHANGE,function(params){
-    /**/console.log("component change requested");
+    console.log("component change requested");
   });
 
 
@@ -41,7 +41,7 @@ var SocketClient=function(socket,nodeServer){
 
 
   socket.on('disconnect',function(e){
-    /**/console.log("client disconnected");
+    console.log("client disconnected");
   });
 }
 

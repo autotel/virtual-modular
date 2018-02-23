@@ -103,21 +103,21 @@ var Tape=function(properties){
       }else if(factor!=1){
         //we have to iterate backward or otherwise I will remove the newly duplicated events.
         var timeKeys=Object.keys(memory);
-        console.log(timeKeys);
+        // console.log(timeKeys);
         for (var kekey=timeKeys.length; kekey>0; kekey--) {
           var timeIndex=JSON.parse(`[${timeKeys[kekey-1]}]`);
           // var timeIndex=timeKeys[kekey-1];
           // console.log(timeIndex);
           if(timeIndex[0]<steps.value*factor){
-            console.log(`${timeIndex[0]}<=${steps.value*factor}`);
+            // console.log(`${timeIndex[0]}<=${steps.value*factor}`);
             //we are in the zone that gets duplicated
             var factoredTimeIndex=[timeIndex[0]+(steps.value*factor),timeIndex[1]];
             memory[factoredTimeIndex]=memory[timeIndex];
-            console.log("DUP",timeIndex,">>",factoredTimeIndex);
+            // console.log("DUP",timeIndex,">>",factoredTimeIndex);
           }else{
-            console.log(`${timeIndex[0]}>${steps.value*factor}`);
+            // console.log(`${timeIndex[0]}>${steps.value*factor}`);
             //we are in the zone that gets deleted
-            console.log("DEL",timeIndex);
+            // console.log("DEL",timeIndex);
             delete memory[timeIndex];
           }
         }
@@ -194,7 +194,7 @@ var Tape=function(properties){
 
     if(silentOnInput.onInput){
       silentOnInput.onInput -= clockDelta[1];
-      console.log(silentOnInput.onInput);
+      // console.log(silentOnInput.onInput);
       if(silentOnInput.onInput<=0) silentOnInput.onInput=false;
     }
 

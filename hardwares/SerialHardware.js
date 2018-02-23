@@ -213,7 +213,7 @@ SerialHardware.initialization=function(environment){
           SerialHardware.connectedPortHardwares[event.portName].connectAndStart();
           return true;
         }else{
-          console.log(SerialHardware.availableSerialDrivers);
+          // console.log(SerialHardware.availableSerialDrivers);
           for(var recogName in SerialHardware.availableSerialDrivers){
             // console.log("ONSERIAL");
             if (event.response.indexOf(recogName) > -1) {
@@ -225,7 +225,7 @@ SerialHardware.initialization=function(environment){
               SerialHardware.connectedPortHardwares[event.portName]=hardwareCreated;
               return true;
             }else{
-              console.log("event.response.indexOf(recogName)",event.response.indexOf(recogName));
+              // console.log("event.response.indexOf(recogName)",event.response.indexOf(recogName));
             }
           }
         }

@@ -79,4 +79,4 @@ fs.writeFile("./generated/checkMessagesFn.txt", outString, function(err) {
     }
     console.log("The file was saved!");
 });
-console.log(comConsts);
+/**/console.log(comConsts);

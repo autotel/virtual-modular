@@ -49,9 +49,9 @@ module.exports=function(environment,parentInteractor){
     }else{
       var buttonEvents=tapeCanvas.sequenceButtonCall(event.button,function(currentEvents,timeIndex){
         if(event.tied){
-          console.log("TIED");
+          // console.log("TIED");
           if(currentlySelectedEvents){
-            console.log("DUR",timeIndex);
+            // console.log("DUR",timeIndex);
             //dummy duration, should actually be timeIndex-currentEvent.start
             //but currentEvent.start donesnt exist
             //adn if result is negative, the start of event is shifted

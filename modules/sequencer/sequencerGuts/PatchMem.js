@@ -50,13 +50,13 @@ module.exports=function(sequencerModule){ return new(function(){
       for(var a in patData[step]){
         try{
           if(patData[step][a].on.compareTo(data.on,['value'])){
-            console.log("DUP!");
+            // console.log("DUP!");
             cancel=true;
             break;
           }
         }catch(e){
-          console.log(patData[step]);
-          console.log(e);
+          // console.log(patData[step]);
+          // console.log(e);
         }
       }
       if(!cancel){

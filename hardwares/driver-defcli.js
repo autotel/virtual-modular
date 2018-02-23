@@ -1,7 +1,7 @@
 'use strict';
 var ON=require('onhandlers');
 var prompt = require('prompt');
-console.log("using command line interface");
+/**/console.log("using command line interface");
 prompt.start();
 var Defcli = function(environment,settings) {
   ON.call(this);

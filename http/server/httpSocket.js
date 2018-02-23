@@ -32,7 +32,7 @@ module.exports=function(nodeServer){ return new (function(){
       // var ip = http.address().address;
       // serverMan.handle('ipready',ip);
       // /**/console.log("IP:",ip);
-      /**/console.log('listening on :'+httpPort);
+      console.log('listening on :'+httpPort);
     });
     SocketMan.on('connection', function(socket){
       socketClients.add(socket,nodeServer);

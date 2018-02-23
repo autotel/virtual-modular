@@ -15,7 +15,7 @@ var getMessageNames=function(caller){
     var messageNames=[];
     var b=0;
     for(var a in messageIndexes){
-      /**/console.log("name of "+b+" = "+a);
+      console.log("name of "+b+" = "+a);
       messageIndexes[a]=b;
       messageNames[b]=a;
       b++;

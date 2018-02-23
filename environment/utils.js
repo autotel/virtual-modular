@@ -17,7 +17,7 @@ module.exports.LazyStack=function(properties) {
     if(self.maxStack){
       if(stack.length>self.maxStack){
         stack.splice(0,self.maxStack-stack.length);
-        console.log(`stack.splice(0,${self.maxStack-stack.length});`);
+        // console.log(`stack.splice(0,${self.maxStack-stack.length});`);
       }
     }
     if(!self.dequeuing){

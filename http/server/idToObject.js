@@ -5,11 +5,11 @@ function add(what){
   for(a in idArray){
     if(idArray[a]===false){
       idArray[a]=what;
-      /**/console.log("assign slot"+a+"to new");
+      console.log("assign slot"+a+"to new");
       return a;
     }
   }
-  /**/console.log("assign slot"+idArray.length+"to new");
+  console.log("assign slot"+idArray.length+"to new");
   return idArray.push(what)-1;
 }
 function detach(id){

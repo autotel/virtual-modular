@@ -111,7 +111,7 @@ var forceDirectedGrapher=new(function(){
   this.rebuild=restart;
   function mousedownNode(d, i) {
     d.grasa=10;
-    console.log(i,d);
+    // console.log(i,d);
     //how on earth are node.id kept??
     // nodes.splice(i, 1);
     // links = links.filter(function(l) {
