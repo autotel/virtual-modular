@@ -6,8 +6,29 @@ var dataMap=[
     header:'+ module',
     attributes:['unique','name','features'],
   },{
+    header:'- module',
+    attributes:['unique','name','features'],
+  },{
+    header:'select module',
+    attributes:['origin'],
+  },{
+    header:'deselect module',
+    attributes:['origin'],
+  },{
+    header:'focus module',
+    attributes:['origin'],
+  },{
+    header:'defocus module',
+    attributes:['origin'],
+  },{
     header:'> message',
     attributes:['origin','destination','val'],
+  },{
+    header:'+ connection',
+    attributes:['origin','destination'],
+  },{
+    header:'- connection',
+    attributes:['origin','destination'],
   }
 ]
 
@@ -22,6 +43,7 @@ var MessageCompressor=function(socket){
   Observable.call(this);
 
   this.compress=function(readableMessage){
+    console.log("COMP");
     var header=readableMessage.type;
     var headerNumber=headerToDataMap[header];
     var map=dataMap[headerNumber];

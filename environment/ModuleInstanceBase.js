@@ -29,16 +29,16 @@ module.exports=function(properties,environment){
   this.addOutput=function(what){
     if(what){
       if(what===self){
-        self.handle('fail + output',{subject:self, data:what});
+        self.handle('fail + connection',{origin:self, destination:what});
         console.error("can't patch a module to itself!");
       }else{
         if(what.isModuleInstance){
           console.log(self.name+"--->"+what.name);
           outputs.add(what);
-          self.handle('+ output',{subject:self,data:what});
+          self.handle('+ connection',{origin:self,destination:what});
         }else{
           // console.error(what);
-          self.handle('fail + output',{subject:self, data:what});
+          self.handle('fail + connection',{origin:self, destination:what});
           throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
         }
       }
@@ -49,7 +49,7 @@ module.exports=function(properties,environment){
   this.removeOutput=function(what){
     var rpt=outputs.delete(what);
     console.log(self.name+"-"+(rpt?"X":" ")+"->"+what.name);
-    self.handle('- output',{subject:self,data:what});
+    self.handle('- connection',{origin:self,destination:what});
 
   }
   this.addInput=function(what){
@@ -65,10 +65,10 @@ module.exports=function(properties,environment){
 
   this.output=function(eventMessage,overrideMute){
     if((!self.mute)||overrideMute){
-      self.handle('> output',{subject:self,data:eventMessage});
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
       self.enqueue(function(){
         outputs.forEach(function(tModule){
+          self.handle('> message',{origin:self,destination:tModule,val:eventMessage});
           // console.log(eventMessage.value);
           tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
         })
@@ -104,7 +104,7 @@ module.exports=function(properties,environment){
   this.addRecordOutput=function(what){
     if(what){
       if(what.isModuleInstance){
-        self.handle('+ recopt',{subject:self,data:what});
+        self.handle('+ recopt',{origin:self,data:what});
         console.log(self.name+" rec> "+what.name);
         recordOutputs.add(what);
         self.addInput(what);
@@ -115,7 +115,7 @@ module.exports=function(properties,environment){
       }else{
         // console.error(what);
         throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
-        self.handle('fail + recopt',{subject:self,data:what});
+        self.handle('fail + recopt',{origin:self,data:what});
       }
     }else{
       throw "Forbidden output: Attempted to connect "+self.name+" to "+what;
@@ -127,7 +127,7 @@ module.exports=function(properties,environment){
       what.eventReceived({eventMessage:recordEndedEm,origin:self});
     });
     console.log(self.name+" r"+(rpt?"X":" ")+"c> "+what.name);
-    self.handle('- recopt',{subject:self,data:what});
+    self.handle('- recopt',{origin:self,data:what});
   }
   this.addRecordInput=function(what){
     try{
@@ -163,11 +163,11 @@ module.exports=function(properties,environment){
       console.log("deleted module",evt);
       if(evt.origin) self.removeInput(evt.origin);
     }
-    self.handle('- module',{subject:self});
+    self.handle('- module',{origin:self});
     if(self.onRemove){
       return self.onRemove();
     }
     return true;
   }
-  self.handle('+ module',{subject:self});
+  self.handle('+ module',{origin:self});
 }

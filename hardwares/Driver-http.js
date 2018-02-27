@@ -12,103 +12,10 @@ var app = express();
 var http = require('http').Server(app);
 var SocketMan = require('socket.io')(http);
 
-var uniquesCount=0;
 
 var MessageCompressor=require('../http/shared/MessageCompressor');
 
-var SocketClientInteractor=function(environment,socket){
-  var messageCompressor=new MessageCompressor(socket);
-  function compress(msg){
-    return messageCompressor.compress(msg);
-  }
-  function decompress(msg){
-    return messageCompressor.decompress(msg);
-  }
-  var instancedModules=new Set();
-  var availableModules=new Set();
-
-  socket.on('message',console.log);
-  // for(var fn in socket){
-  //   if(typeof socket[fn] == "function"){
-  //     console.log("   -",fn);
-  //   }
-  // }
-  /*
-  buildHandlshake
-  emit
-  in
-  to
-  write
-  send
-  packet
-  join
-  leave
-  leaveAll
-  onconnect
-  onpacket
-  onevent
-  ack
-  onpacket
-  ondisconnect
-  onerror
-  onclose
-  error
-  disconnect
-  setMaxListeners
-  getMaxListeners
-  addListener
-  on
-  prependListener
-  once
-  prependOnceListener
-  removeListener
-  removeAllListeners
-  listeners
-  listenerCount
-  eventNames
-  */
-  // socket.write('socket write test');
-  // socket.emit('emit test',{vv:'emit test'});
-  this.onDataReceived=function(data){
-    console.log(data);
-  }
-
-  function moduleCreatedCallback(module){
-    console.log(module.interfaces);
-    if(!module.interfaces.Http){
-      module.interfaces.Http=function(){
-
-      }
-    }
-    if(!module._instancedInterfaces.http){
-      module._instancedInterfaces.http=new module.interfaces.Http(environment,module);
-      module._instancedInterfaces.http.serverUnique=uniquesCount;
-      uniquesCount++;
-    }
-    var unique=module._instancedInterfaces.http.serverUnique;
-    var nInterface=module._instancedInterfaces;
-
-    socket.write(compress({
-      type:'+ module',
-      unique:unique,
-      name:module.name,
-      features:nInterface.features
-    }));
-
-    instancedModules.add(module);
-  }
-
-  for(var a of environment.modules.list){
-    // console.log(a);
-    moduleCreatedCallback(a);
-  }
-
-  environment.on('module created', function(evt) {
-    moduleCreatedCallback(evt.module);
-  });
-
-  return this;
-}
+var SuperInteractor=require('../interaction/http-server/SuperInteractor.js');
 
 var HttpGui=function(properties,environment){
   var self=this;
@@ -130,10 +37,32 @@ var HttpGui=function(properties,environment){
       console.log('listening on :'+httpPort);
     });
     SocketMan.on('connection', function(socket){
-      var client=new SocketClientInteractor(environment,socket);
+      var SocketInterface=function(inSocket){
+        var messageCompressor=new MessageCompressor(socket);
+        function compress(msg){
+          return messageCompressor.compress(msg);
+        }
+        function decompress(msg){
+          return messageCompressor.decompress(msg);
+        }
+        this.send=function(message){
+          // console.log("SENDING",message);
+          inSocket.write(compress(message));
+        }
+        var cb_msgrec=function(){};
+        socket.on('message',function(msg){
+          var evt=messageCompressor.decompress(msg);
+          evt.original=msg;
+          console.log("RECEIVE",evt);
+          cb_msgrec(evt);
+        });
+        this.onMessage=function(cb){
+          cb_msgrec=cb;
+        }
+      }
+      var client=new SuperInteractor(environment,new SocketInterface(socket));
 
     });
-
   }
   this.broadcast=function(a,b){SocketMan.emit(a,b)};
   return this;
