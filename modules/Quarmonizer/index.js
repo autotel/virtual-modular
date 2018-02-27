@@ -18,7 +18,7 @@ every module needs to run at the beginning of the runtime to register it's inter
 */
 
 var instanced = 0;
-var baseName = "harmonizer";
+var baseName = "quarmonizer";
 var name = function() {
   this.name = baseName + " " + instanced;
   instanced++;
@@ -28,7 +28,7 @@ var name = function() {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var Harmonizer = function(properties,environment) {
+var Quarmonizer = function(properties,environment) {
   this.color = [255, 255, 127];
   if (properties.name){
     this.name = properties.name;
@@ -40,7 +40,7 @@ var Harmonizer = function(properties,environment) {
   this.recordingUi = true;
   this.currentScale = 0;
   var noteOnTracker = new NoteOnTracker(this);
-  this.mapMode=true;
+  this.mapMode=false;
   // this.baseNote={value:0};
 
   this.baseEventMessage = new EventMessage({
@@ -254,4 +254,4 @@ var Harmonizer = function(properties,environment) {
     return true;
   }
 }
-module.exports = Harmonizer;
+module.exports = Quarmonizer;
