@@ -1,7 +1,6 @@
 "use strict";
-var Ui=new(function(){
-
-
+var forceDirectedGrapher=require('./forceDirectedGrapher');
+module.exports=function(environment){
   var SpriteManager=new(function(){
     var spriteTypes={}
     var thisSm=this;
@@ -45,6 +44,7 @@ var Ui=new(function(){
     this.remove=function(handler){
       handler.remove();
     };
+
   })();
   this.representEvent=function(handler,event){
     if(handler){
@@ -61,4 +61,8 @@ var Ui=new(function(){
   this.spriteFromNames=SpriteManager.spriteFromNames;
   this.start=function(){
   }
-})();
+
+  environment.on('+ module',function(module){
+
+  });
+};

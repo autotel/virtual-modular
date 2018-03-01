@@ -1,3 +1,5 @@
+'use strict';
+var d3=require('d3');
 
 // TODO: : node returns array index as handle reference,
 //but deletion does a splice, thus these indexes become
