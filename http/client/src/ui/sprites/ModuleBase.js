@@ -10,15 +10,28 @@ module.exports=function(ui,properties){
 
   properties.draggable=true;
   Base.call(this,ui,properties);
-  this.K.add( new Konva.Circle({
-    x: 0,
-    y: 0,
-    radius: 10,
-    fill: 'transparent',
-    stroke: 'white',
-    strokeWidth: 1,
-    draggable: 'true'
-  }) );
+  if(properties.name){
+    var text=new Konva.Text({
+      x:10,
+      y:-12,
+      rotation:-30,
+      text:properties.name,
+      fill: 'rgba(255,255,255,0.2)'
+    });
+    // text.setOffset({
+    //   x: text.getWidth() / 2
+    // });
+    this.K.add(text);
+  }
+  // this.K.add( new Konva.Circle({
+  //   x: 0,
+  //   y: 0,
+  //   radius: 10,
+  //   fill: 'transparent',
+  //   stroke: 'white',
+  //   strokeWidth: 1,
+  //   draggable: 'true'
+  // }) );
   this.connectTo=function(to){
     self.forceNode.connectTo(to.forceNode);
   }

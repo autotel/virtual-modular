@@ -17,16 +17,6 @@ module.exports=function(environment){
     stage.add(layer);
 
     var moduleSprites=[];
-    // var qty=3;
-    // while(qty){
-    //   qty--;
-    //   var n= moduleSprites.push(new Elements.TestModule(self,{name:"hola"}));
-    //   if(moduleSprites.length>1){
-    //     moduleSprites[n-1].connectTo(moduleSprites[n-2]);
-    //     moduleSprites[n-1].connectTo(moduleSprites[Math.floor(Math.random()*moduleSprites.length)]);
-    //   }
-    // }
-    // moduleSprites[0].connectTo(moduleSprites[moduleSprites.length-1]);
 
     var anim = new Konva.Animation(function(frame) {
       var time = frame.time,
@@ -53,11 +43,12 @@ module.exports=function(environment){
         // console.log("FOUND",module.properties.unique,module);
         moduleSprites[module.properties.unique].remove();
       }
-
       var newSprite;
-      if(Elements[event.module.baseName]){
-        newSprite=new Elements[event.module.baseName](self,module.properties);
+      if(Elements[module.properties.kind]){
+        newSprite=new Elements[module.properties.kind](self,module.properties);
       }else{
+        console.log("No "+module.properties.kind+" module sprite, using generic",Elements);
+        console.log(event);
         newSprite=new Elements.TestModule(self,module.properties);
       }
       moduleSprites[module.properties.unique]=(newSprite);

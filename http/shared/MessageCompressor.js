@@ -6,7 +6,7 @@ var dataMap=[
     header:'start',
   },{
     header:'+ module',
-    attributes:['unique','name','baseName'],
+    attributes:['unique','name','kind'],
   },{
     header:'- module',
     attributes:['unique'],

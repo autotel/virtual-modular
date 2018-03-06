@@ -60,6 +60,7 @@ var ModulesManager=function(environment){
       constructors[moduleName].call(newInstance,properties,environment);
       environment.handle('module created',{module:newInstance});
       newInstance.enqueue=lazyStack.enq;
+      newInstance.type=moduleName;
       modules.push(newInstance);
     }catch(e){
       console.error("error instantiating module ",moduleName,e);

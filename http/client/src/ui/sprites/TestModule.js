@@ -15,18 +15,6 @@ module.exports=function(ui,properties){
   });
   this.K.add( testCircle );
 
-  if(properties.name){
-    var text=new Konva.Text({
-      x:0,
-      y:-15,
-      text:properties.name,
-      fill: 'white'
-    });
-    text.setOffset({
-      x: text.getWidth() / 2
-    });
-    this.K.add(text);
-  }
   var place={x:0,y:0}
   place.x=Math.random()*100;
   place.y=Math.random()*100;
@@ -37,12 +25,12 @@ module.exports=function(ui,properties){
   var _upd=this.update;
   var absTime=0;
   this.update=function(evt){
+    _upd(evt);
     if(evt.type=="clock"){
-      absTime=evt.absTime;
-      _upd(evt);
-      var obq=Math.sin(absTime/205*speed)*5+10;
-      testCircle.setX(Math.sin(absTime/400*speed)*(obq));
-      testCircle.setY(Math.cos(absTime/400*speed)*(obq));
+      // absTime=evt.absTime;
+      // var obq=Math.sin(absTime/205*speed)*5+10;
+      // testCircle.setX(Math.sin(absTime/400*speed)*(obq));
+      // testCircle.setY(Math.cos(absTime/400*speed)*(obq));
     }
   }
 }

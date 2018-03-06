@@ -44,12 +44,12 @@ module.exports=function(environment,socket){
       type:'+ module',
       unique:getUniqueOf(module),
       name:module.name,
-      baseName:module.baseName
+      kind:module.type
     });
 
     nInterface.http.triggerModuleData(function(data){
       if(data.output){
-        
+
         socket.send({
           type:'+ connection',
           origin:getUniqueOf(module),

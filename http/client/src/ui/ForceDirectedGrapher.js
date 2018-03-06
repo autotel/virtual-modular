@@ -150,11 +150,17 @@ var ForceDirectedGrapher=function(){
 
   function tick(evt) {
     // console.log("TICL",evt);
-    _link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
+    // _link.attr("x1", function(d) { return d.source.x; })//for straight lines
+    //     .attr("y1", function(d) { return d.source.y; })
+    //     .attr("x2", function(d) { return d.target.x; })
+    //     .attr("y2", function(d) { return d.target.y; });
+    //thanks to Bob Haslett https://stackoverflow.com/questions/13455510/curved-line-on-d3-force-directed-tree#13456081
+    _link.attr("d", function(d) {
+      var dx = d.target.x - d.source.x,
+          dy = d.target.y - d.source.y,
+          dr = Math.sqrt(dx * dx + dy * dy);
+      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+    });
     _node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
         // .attr("r", function(d) {
@@ -218,7 +224,7 @@ var ForceDirectedGrapher=function(){
     }/**/)
     .on("tick", tick);
 
-    _link.enter().insert("line", ".node")
+    _link.enter().insert("path", ".node")//"line"
         .attr("class", "link");
     _link.exit()
         .remove();
