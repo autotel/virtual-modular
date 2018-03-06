@@ -14,11 +14,14 @@ module.exports=function(ui,properties){
     radius: 10,
     fill: 'transparent',
     stroke: 'white',
-    strokeWidth: 1
+    strokeWidth: 1,
+    draggable: 'true'
   }) );
-
   this.connectTo=function(to){
     self.forceNode.connectTo(to.forceNode);
+  }
+  this.disconnectTo=function(to){
+    self.forceNode.disconnectTo(to.forceNode);
   }
   this.update=function(evt){
     if(evt.type='tick'){

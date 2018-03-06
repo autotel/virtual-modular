@@ -14,6 +14,19 @@ module.exports=function(ui,properties){
     strokeWidth: 1
   });
   this.K.add( testCircle );
+
+  if(properties.name){
+    var text=new Konva.Text({
+      x:0,
+      y:-15,
+      text:properties.name,
+      fill: 'white'
+    });
+    text.setOffset({
+      x: text.getWidth() / 2
+    });
+    this.K.add(text);
+  }
   var place={x:0,y:0}
   place.x=Math.random()*100;
   place.y=Math.random()*100;

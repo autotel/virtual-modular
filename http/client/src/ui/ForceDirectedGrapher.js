@@ -1,8 +1,6 @@
-
-// TODO: : node returns array index as handle reference,
-//but deletion does a splice, thus these indexes become
-//outdated. Node hanlding should be differnet
-ForceDirectedGrapher=function(){
+//TODO. lazy stack of reconstructFunction
+'use strict'
+var ForceDirectedGrapher=function(){
   var thisGrapher=this;
   var width = window.innerWidth,
       height = window.innerHeight;
@@ -13,7 +11,7 @@ ForceDirectedGrapher=function(){
       .size([width, height])
       .nodes([]) // initialize with a single node
       .linkDistance(150)
-      .charge(160)
+      .charge(-60)
       .on("tick", tick);
 
   var svg = d3.select("body").append("svg")
@@ -28,9 +26,10 @@ ForceDirectedGrapher=function(){
   //     .attr("height", height);
 
   var nodes = force.nodes(),
-      links = force.links(),
-      node = svg.selectAll(".node"),
-      link = svg.selectAll(".link");
+      links = force.links();
+
+  var _node = svg.selectAll(".node"),
+      _link = svg.selectAll(".link");
 
   var cursor = svg.append("circle")
       .attr("r", 30)
@@ -59,22 +58,25 @@ ForceDirectedGrapher=function(){
     //
     // restart();
   }
-  this.addLink=function(from,to){
-    // console.log("ADDLINK",from,to);
-    links.push({
-      source: from,
-      target: to
-    });
-    restart();
-  }
 
   var Node=function(props){
     var props=props||{};
     // this.layoutNode=props;
     var self=this;
     var graphs=false;
+
+    var outputs=this.outputs=new Set();
+
     self.connectTo=function(to){
-      thisGrapher.addLink(self,to);
+      outputs.add(to);
+      // thisGrapher.addLink(self,to);
+      restart();
+    }
+    self.disconnectTo=function(to){
+      outputs.delete(to);
+      // console.log("disconnect",linkCache);
+      // thisGrapher.setLinksTo(self,Array.from(linkCache));
+      restart();
     }
     self.tickFunction=function(evt){
 
@@ -113,9 +115,6 @@ ForceDirectedGrapher=function(){
     var d=nodeReference;
     var i=nodeReference.index;
     nodes.splice(i, 1);
-    links = links.filter(function(l) {
-      return l.source !== d && l.target !== d;
-    });
   }
   this.nodeHighlight=function(handler){
     if(handler.grasa<20)
@@ -139,12 +138,12 @@ ForceDirectedGrapher=function(){
 
   function tick(evt) {
     // console.log("TICL",evt);
-    link.attr("x1", function(d) { return d.source.x; })
+    _link.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
+    _node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
         // .attr("r", function(d) {
         //   if(!d.grasa) d.grasa=5;
@@ -152,19 +151,19 @@ ForceDirectedGrapher=function(){
         //   return d.grasa;
         // });
     // console.log(node);
-    node.each(function(node){
+    _node.each(function(node){
       node.tickFunction(evt);
     });
   }
   function animate(t){
     // console.log(evt);
-    node.each(function(node){
+    _node.each(function(node){
       node.tickFunction({
         type:'clock',
         absTime:t
       });
     });
-    node.attr("r", function(d) {
+    _node.attr("r", function(d) {
           if(!d.grasa) d.grasa=5;
           if(d.grasa>5)d.grasa--;
           return d.grasa;
@@ -173,9 +172,9 @@ ForceDirectedGrapher=function(){
   }
   animate();
   function restart() {
-    node = node.data(nodes);
+    _node = _node.data(nodes);
 
-    node.enter().insert("circle", ".cursor")
+    _node.enter().insert("circle", ".cursor")
       // .attr("class",function(d) { return "node "+d.grasa; })
         .attr("class","node")
         .attr("r", 5)
@@ -183,16 +182,22 @@ ForceDirectedGrapher=function(){
     // console.log(node.enter());
 
 
-    node.exit()
+    _node.exit()
         .remove();
 
+    var links=[];
+    for(var node of nodes){
+      for(var output of node.outputs){
+        links.push({'source':node,'target':output});
+      }
+    }
 
-    link = link.data(links);
+    _link = _link.data(links);
 
     force.nodes(nodes)
     .links(links)
     .linkDistance(80)
-    .charge(-120/*function(d){
+    .charge(-170/*function(d){
       if(d.grasa){
         return -60*d.grasa
       }else{
@@ -201,9 +206,9 @@ ForceDirectedGrapher=function(){
     }/**/)
     .on("tick", tick);
 
-    link.enter().insert("line", ".node")
+    _link.enter().insert("line", ".node")
         .attr("class", "link");
-    link.exit()
+    _link.exit()
         .remove();
 
     force.start();

@@ -4,82 +4,50 @@ var ForceDirectedGrapher=require('./ForceDirectedGrapher.js');
 module.exports=function(environment){
   var self=this;
   var start=function(){
-    console.log("UI START");
+    // console.log("UI START");
     var forceLayout=self.forceLayout=new ForceDirectedGrapher();
     var client=new Client();
     var stage = new Konva.Stage({
-      container: 'konva',   // id of container <div>
-      width: 500,
-      height: 500
+      container: 'konva',
+      width: window.innerWidth,
+      height: window.innerHeight
     });
 
-    var layer = new Konva.Layer();
-
-    // create our shape
-    var circle = new Konva.Circle({
-      x: stage.getWidth() / 2,
-      y: stage.getHeight() / 2,
-      radius: 8,
-      fill: 'red',
-      stroke: 'black',
-      strokeWidth: 4,
-      draggable:true
-    });
+    var layer = self.konvaLayer = new Konva.Layer();
+    stage.add(layer);
 
     var testModules=[];
-    var qty=90;
+    var qty=3;
     while(qty){
       qty--;
-      var n= testModules.push(new Elements.TestModule(self,{}));
+      var n= testModules.push(new Elements.TestModule(self,{name:"hola"}));
       if(testModules.length>1){
-        // testModules[n-1].connectTo(testModules[n-2]);
+        testModules[n-1].connectTo(testModules[n-2]);
         testModules[n-1].connectTo(testModules[Math.floor(Math.random()*testModules.length)]);
-
       }
     }
     testModules[0].connectTo(testModules[testModules.length-1]);
-
-    // forceLayout.restart();
-
-    circle.draggable('true');
-    // var testModules=[
-    //   new Elements.TestModule(self,{}),
-    //   new Elements.TestModule(self,{}),
-    //   new Elements.TestModule(self,{}),
-    // ];
-    // testModules[0].connectTo(testModules[1]);
-
-
-
-    for(var a of testModules)
-      layer.add(a.K);
-    // add the shape to the layer
-    layer.add(circle);
-
-    // add the layer to the stage
-    stage.add(layer);
-
-    // function step(timestamp) {
-    //   if (!start) start = timestamp;
-    //   var progress = timestamp - start;
-    //   circle.x=timestamp;
-    //   requestAnimationFrame(step);
-    // }
-    // step(0);
 
     var anim = new Konva.Animation(function(frame) {
       var time = frame.time,
         deltaTime = frame.timeDiff,
         frameRate = frame.frameRate;
-        // for(var a of testModules)
-        //   a.update(time,deltaTime);
-        // Force.update();
-      // console.log(frame);
-        // update stuff
     }, layer);
     anim.start();
+
+    environment.on('+ module',function(event){
+      var module=event.module;
+      var nMod=new Elements.TestModule(self,module.properties);
+      testModules.push(nMod);
+      module.sprite=nMod;
+    });
+    environment.on('+ connection',function(event){
+      event.origin.sprite.connectTo(event.destination.sprite);
+    });
+    environment.on('- connection',function(event){
+      event.origin.sprite.disconnectTo(event.destination.sprite);
+    });
   }
-  // environment.on('start',start);
   window.onload=start;
 
 }

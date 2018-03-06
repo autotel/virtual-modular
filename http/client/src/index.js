@@ -8,9 +8,34 @@ var environment=new(function(){
     var environment=Module.environment;
     this.properties=properties;
     this.connectTo=function(to){
-      console.log(self.name,"-->",to.name);
+      if(to.properties){
+        console.log(self.properties.name,"--->",to.properties.name);
+        environment.handle('+ connection',{origin:self,destination:to});
+      }else{
+        console.warn(self,"-!->",to);
+      }
     }
-    environment.handle('+ module',self)
+    this.disconnectTo=function(to){
+      if(to.properties){
+        console.log(self.properties.name,"-X->",to.properties.name);
+        environment.handle('- connection',{origin:self,destination:to});
+      }else{
+        console.warn(self,"X!->",to);
+      }
+    }
+    environment.handle('+ module',{module:self})
+    Module.list.push(this);
+  }
+  Module.list=[];
+  Module.getByUnique=function(uiq){
+    for(var mod of Module.list){
+      if(mod.properties.unique===uiq){
+        // console.log("FOUND!",mod);
+        return mod;
+      }
+    }
+    console.log("sprite unique not found",uiq);
+    return false;
   }
   Module.environment=this;
   var modules=this.modules=new Set();
@@ -24,7 +49,14 @@ var environment=new(function(){
     modules.add(new Module(properties))
   }
   this.connect=function(properties){
-    properties.origin.connectTo(properties.destination);
+    // console.log("connect",properties);
+    Module.getByUnique(properties.origin)
+        .connectTo(Module.getByUnique(properties.destination));
+  }
+  this.disconnect=function(properties){
+    // console.log("connect",properties);
+    Module.getByUnique(properties.origin)
+        .disconnectTo(Module.getByUnique(properties.destination));
   }
   this.start=function(){
     console.log("START");

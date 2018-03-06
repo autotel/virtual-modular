@@ -16,9 +16,7 @@ module.exports=function(ui,properties){
     if(evt.type=="clock"){
       absTime=evt.absTime;
       _upd(evt);
-      var obq=Math.sin(absTime/205*speed)*5+10;
-      testCircle.setX(Math.sin(absTime/400*speed)*(obq));
-      testCircle.setY(Math.cos(absTime/400*speed)*(obq));
+      //update graphics?
     }
   }
 }

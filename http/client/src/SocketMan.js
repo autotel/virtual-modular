@@ -30,12 +30,16 @@ var SocketMan=function(environment){
 
   var messageCallbacks={
     '+ module':function(msg){
-      console.log("NEW MODULE",msg);
+      // console.log("NEW MODULE",msg);
       environment.addModule(msg);
     },
     '+ connection':function(msg){
-      console.log("CONNECT MODULE",msg);
+      // console.log("CONNECT MODULE",msg);
       environment.connect(msg);
+    },
+    '- connection':function(msg){
+      // console.log("CONNECT MODULE",msg);
+      environment.disconnect(msg);
     }
   }
 

@@ -1,6 +1,8 @@
 
 module.exports=function(ui,properties){
+  var layer=ui.konvaLayer;
   this.K=new Konva.Group();
+  layer.add(this.K);
   this.place=function(coords){
     if(coords.x)
       this.K.setX(coords.x);
