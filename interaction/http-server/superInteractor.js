@@ -57,28 +57,36 @@ module.exports=function(environment,socket){
         });
       }
     });
+    var listeners=['start',
+    '+ module',
+    '- module',
+    'select module',
+    'deselect module',
+    'focus module',
+    'defocus module',
+    '> message',
+    '+ connection',
+    '- connection'];
+    for(var action of listeners){
+      module.on(action,function(evt){
+        console.log("MODEV",evt);
+        var evtt={}
+        for(var a in evt){
+          evtt[a]=evt[a];
+        }
+        if(evtt.origin){
+          evtt.origin=getUniqueOf(evtt.origin);
+          console.log("ORIG",(evtt.origin));
+        }
+        if(evtt.destination){
+          evtt.destination=getUniqueOf(evtt.destination);
+          console.log("DEST",(evtt.destination));
+        }
+        evtt.type=evt.name;
+        socket.send(evtt);
 
-    module.on('*',function(evt){
-      // console.log("MODEV",);
-
-      var evtt={}
-
-      for(var a in evt.original){
-        evtt[a]=evt.original[a];
-      }
-
-      if(evtt.origin){
-        evtt.origin=getUniqueOf(evtt.origin);
-        console.log("ORIG",(evtt.origin));
-      }
-      if(evtt.destination){
-        evtt.destination=getUniqueOf(evtt.destination);
-        console.log("DEST",(evtt.destination));
-      }
-      evtt.type=evt.name;
-      socket.send(evtt);
-
-    });
+      });
+    }
 
     instancedModules.add(module);
   }
