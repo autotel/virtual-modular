@@ -52,6 +52,7 @@ var MessageCompressor=function(socket){
     var ret=[parseInt(headerNumber)];
     if(!map){
       console.error("data structure of the message is",map,readableMessage);
+      return;
     }
     if(map.attributes){
       for(var a of map.attributes){
@@ -67,6 +68,10 @@ var MessageCompressor=function(socket){
     var ret={}
     var headerNumber=compressedMessage.shift();
     var map=dataMap[headerNumber];
+    if(!map){
+      console.error("data structure of the message is",map,readableMessage);
+      return;
+    }
     var header=map.header;
     ret.type=header;
     for(var a in map.attributes){

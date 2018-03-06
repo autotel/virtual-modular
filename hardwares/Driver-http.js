@@ -37,7 +37,7 @@ var HttpGui=function(properties,environment){
       console.log('listening on :'+httpPort);
     });
     SocketMan.on('connection', function(socket){
-      var SocketInterface=function(inSocket){
+      var socketInterface=new(function(inSocket){
         var messageCompressor=new MessageCompressor(socket);
         function compress(msg){
           return messageCompressor.compress(msg);
@@ -46,7 +46,7 @@ var HttpGui=function(properties,environment){
           return messageCompressor.decompress(msg);
         }
         this.send=function(message){
-          // console.log("SENDING",message);
+          console.log("SENDING live",message);
           inSocket.write(compress(message));
         }
         var cb_msgrec=function(){};
@@ -59,9 +59,15 @@ var HttpGui=function(properties,environment){
         this.onMessage=function(cb){
           cb_msgrec=cb;
         }
-      }
-      var client=new SuperInteractor(environment,new SocketInterface(socket));
-
+      })(socket);
+      var client=new SuperInteractor(environment,socketInterface);
+      socket.on('disconnect',function() {
+        client.remove();
+        console.log('client has disconnected!');
+        socketInterface.send=function(){
+          console.error("Sending Message to closed socket");
+        }
+      });
     });
   }
   this.broadcast=function(a,b){SocketMan.emit(a,b)};

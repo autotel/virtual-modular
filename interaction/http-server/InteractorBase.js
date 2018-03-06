@@ -1,10 +1,9 @@
 var Observable=require('onhandlers');
-module.exports=function(controlledModule, environment, gui){
+module.exports=function(controlledModule, environment){
+  var self=this;
   Observable.call(this);
   // console.log("HTTPSUPER",controlledModule.name);
-  controlledModule.on('*',function(evt){
-    gui.moduleEvent(evt.name,evt.original);
-  });
+  
   //to get module's initial configuration
   this.triggerModuleData=function(callback){
     var outputList=controlledModule.getOutputs();

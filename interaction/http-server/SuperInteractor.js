@@ -7,11 +7,14 @@ module.exports=function(environment,socket){
   var instancedModules=new Set();
   var availableModules=new Set();
   function getUniqueOf(module){
+    // console.log("getUniqueOf",module);
     if(module._instancedInterfaces){
       if(module._instancedInterfaces.http){
         return module._instancedInterfaces.http.serverUnique;
       }
+      // console.log("module has no instanced interfaces.http");
     }
+    // console.log("module has no instanced interfaces",module);
     return false;
   }
   socket.onMessage(console.log);
@@ -30,9 +33,10 @@ module.exports=function(environment,socket){
     }
     //instance interactor if not yet done.
     if(!module._instancedInterfaces.http){
-      module._instancedInterfaces.http=new module.interfaces.Http(module,environment,self);
+      module._instancedInterfaces.http=new module.interfaces.Http(module,environment);
       module._instancedInterfaces.http.serverUnique=uniquesCount;
       uniquesCount++;
+      console.log("(UNIQUES",uniquesCount);
     }
     var nInterface=module._instancedInterfaces;
 
@@ -45,12 +49,35 @@ module.exports=function(environment,socket){
 
     nInterface.http.triggerModuleData(function(data){
       if(data.output){
+        
         socket.send({
           type:'+ connection',
           origin:getUniqueOf(module),
           destination:getUniqueOf(data.output)
         });
       }
+    });
+
+    module.on('*',function(evt){
+      // console.log("MODEV",);
+
+      var evtt={}
+
+      for(var a in evt.original){
+        evtt[a]=evt.original[a];
+      }
+
+      if(evtt.origin){
+        evtt.origin=getUniqueOf(evtt.origin);
+        console.log("ORIG",(evtt.origin));
+      }
+      if(evtt.destination){
+        evtt.destination=getUniqueOf(evtt.destination);
+        console.log("DEST",(evtt.destination));
+      }
+      evtt.type=evt.name;
+      socket.send(evtt);
+
     });
 
     instancedModules.add(module);
@@ -66,24 +93,10 @@ module.exports=function(environment,socket){
     moduleCreatedCallback(evt.module);
   });
 
-  this.moduleEvent=function(type,evt){
-    console.log("MODEV");
-    // evt.original.type=evt.event;
-    var evtt=evt;
-    if(evtt.origin){
-      evtt.origin=getUniqueOf(evtt.origin);
-      console.log("ORIG",(evtt.origin));
-    }
-    if(evtt.destination){
-      evtt.destination=getUniqueOf(evtt.destination);
-      console.log("DEST",(evtt.destination));
-    }
-    evtt.type=type;
-    socket.send(evtt);
-    // console.log(evt);
-  }
 
   socket.send({type:'start'});
-
+  this.remove=function(){
+    console.log("superinteractor delete not implemented");
+  }
   return this;
 }
