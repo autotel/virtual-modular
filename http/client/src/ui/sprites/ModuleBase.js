@@ -4,7 +4,9 @@ module.exports=function(ui,properties){
   var force=ui.forceLayout;
   // console.log(force);
   var self=this;
-  this.forceNode=force.addNode();
+  this.forceNode=force.getOrMakeNode(properties,function(node){
+    return node.unique==properties.unique;
+  });
 
   properties.draggable=true;
   Base.call(this,ui,properties);

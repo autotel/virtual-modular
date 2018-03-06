@@ -3,11 +3,13 @@ var Observable=require('onhandlers');
 
 var dataMap=[
   {
+    header:'start',
+  },{
     header:'+ module',
-    attributes:['unique','name','features'],
+    attributes:['unique','name','baseName'],
   },{
     header:'- module',
-    attributes:['unique','name','features'],
+    attributes:['unique'],
   },{
     header:'select module',
     attributes:['origin'],
@@ -48,7 +50,7 @@ var MessageCompressor=function(socket){
     var headerNumber=headerToDataMap[header];
     var map=dataMap[headerNumber];
     var ret=[parseInt(headerNumber)];
-    if(!dataMap){
+    if(!map){
       console.error("data structure of the message is",map,readableMessage);
     }
     if(map.attributes){

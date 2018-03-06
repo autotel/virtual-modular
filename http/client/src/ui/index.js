@@ -16,17 +16,17 @@ module.exports=function(environment){
     var layer = self.konvaLayer = new Konva.Layer();
     stage.add(layer);
 
-    var testModules=[];
-    var qty=3;
-    while(qty){
-      qty--;
-      var n= testModules.push(new Elements.TestModule(self,{name:"hola"}));
-      if(testModules.length>1){
-        testModules[n-1].connectTo(testModules[n-2]);
-        testModules[n-1].connectTo(testModules[Math.floor(Math.random()*testModules.length)]);
-      }
-    }
-    testModules[0].connectTo(testModules[testModules.length-1]);
+    var moduleSprites=[];
+    // var qty=3;
+    // while(qty){
+    //   qty--;
+    //   var n= moduleSprites.push(new Elements.TestModule(self,{name:"hola"}));
+    //   if(moduleSprites.length>1){
+    //     moduleSprites[n-1].connectTo(moduleSprites[n-2]);
+    //     moduleSprites[n-1].connectTo(moduleSprites[Math.floor(Math.random()*moduleSprites.length)]);
+    //   }
+    // }
+    // moduleSprites[0].connectTo(moduleSprites[moduleSprites.length-1]);
 
     var anim = new Konva.Animation(function(frame) {
       var time = frame.time,
@@ -34,12 +34,38 @@ module.exports=function(environment){
         frameRate = frame.frameRate;
     }, layer);
     anim.start();
+    environment.on('server start',function(){
+      for(var module of moduleSprites){
+        // module.remove();
+      }
+    });
+    environment.on('module reset',function(event){
+      var module=event.module;
+      if(module.sprite){
+        module.sprite.remove();
+      }
 
+    });
     environment.on('+ module',function(event){
       var module=event.module;
-      var nMod=new Elements.TestModule(self,module.properties);
-      testModules.push(nMod);
-      module.sprite=nMod;
+      // console.log("SPRIOTE",event);
+      if(moduleSprites[module.properties.unique]){
+        // console.log("FOUND",module.properties.unique,module);
+        moduleSprites[module.properties.unique].remove();
+      }
+
+      var newSprite;
+      if(Elements[event.module.baseName]){
+        newSprite=new Elements[event.module.baseName](self,module.properties);
+      }else{
+        newSprite=new Elements.TestModule(self,module.properties);
+      }
+      moduleSprites[module.properties.unique]=(newSprite);
+      module.sprite=newSprite;
+    });
+    environment.on('- module',function(event){
+      var module=event.module;
+      moduleSprites[module.properties.unique].remove();
     });
     environment.on('+ connection',function(event){
       event.origin.sprite.connectTo(event.destination.sprite);

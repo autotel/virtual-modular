@@ -65,6 +65,10 @@ var ForceDirectedGrapher=function(){
     var self=this;
     var graphs=false;
 
+    for(var a in props){
+      self[a]=props[a];
+    }
+
     var outputs=this.outputs=new Set();
 
     self.connectTo=function(to){
@@ -110,6 +114,14 @@ var ForceDirectedGrapher=function(){
     //TODO: Lazy stack, replacing the restart because many node/ link calls can be done in fast succession
     restart();
     return node;
+  }
+  this.getOrMakeNode=function(props,checkFn){
+    for(var a in nodes){
+      if(checkFn(nodes[a])){
+        return nodes[a];
+      }
+    }
+    return thisGrapher.addNode(props);
   }
   this.removeNode=function(nodeReference){
     var d=nodeReference;

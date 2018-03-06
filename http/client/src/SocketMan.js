@@ -29,6 +29,10 @@ var SocketMan=function(environment){
   }
 
   var messageCallbacks={
+    'start':function(){
+      // window.location.href=window.location.href;
+      environment.handle('server start');
+    },
     '+ module':function(msg){
       // console.log("NEW MODULE",msg);
       environment.addModule(msg);

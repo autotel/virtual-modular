@@ -40,15 +40,26 @@ module.exports=function(environment,socket){
       type:'+ module',
       unique:getUniqueOf(module),
       name:module.name,
-      features:nInterface.features
+      baseName:module.baseName
+    });
+
+    nInterface.http.triggerModuleData(function(data){
+      if(data.output){
+        socket.send({
+          type:'+ connection',
+          origin:getUniqueOf(module),
+          destination:getUniqueOf(data.output)
+        });
+      }
     });
 
     instancedModules.add(module);
   }
 
-  for(var a of environment.modules.list){
+  for(var module of environment.modules.list){
     // console.log(a);
-    moduleCreatedCallback(a);
+    moduleCreatedCallback(module);
+
   }
 
   environment.on('module created', function(evt) {
@@ -61,16 +72,18 @@ module.exports=function(environment,socket){
     var evtt=evt;
     if(evtt.origin){
       evtt.origin=getUniqueOf(evtt.origin);
-      console.log("ORIG",getUniqueOf(evtt.origin));
+      console.log("ORIG",(evtt.origin));
     }
     if(evtt.destination){
       evtt.destination=getUniqueOf(evtt.destination);
-      console.log("DEST",getUniqueOf(evtt.destination));
+      console.log("DEST",(evtt.destination));
     }
     evtt.type=type;
     socket.send(evtt);
     // console.log(evt);
   }
+
+  socket.send({type:'start'});
 
   return this;
 }

@@ -62,7 +62,9 @@ module.exports=function(properties,environment){
   }
 
   this.enqueue=setImmediate;
-
+  this.getOutputs=function(){
+    return Array.from(outputs);
+  }
   this.output=function(eventMessage,overrideMute){
     if((!self.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop

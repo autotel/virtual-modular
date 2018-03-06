@@ -10,9 +10,6 @@ var environment = new(require('./environment'))();
 environment.useHardware(X28Hardware);
 environment.useHardware(Http);
 
-
-
-
 var modulesToLoad = {
   'Bus': {},
   'ClockGenerator': {},

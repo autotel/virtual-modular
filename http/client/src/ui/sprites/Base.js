@@ -10,4 +10,8 @@ module.exports=function(ui,properties){
       this.K.setY(coords.y);
   }
   this.update=function(){}
+  this.remove=function(){
+    this.K.destroy();
+    // this.K.remove();
+  }
 }
