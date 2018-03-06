@@ -4,22 +4,11 @@ module.exports=function(ui,properties){
 
   Base.call(this,ui,properties);
   var self=this;
-  var speed=Math.random();
-  var testCircle=new Konva.Circle({
-    x: 0,
-    y: 0,
-    radius: 5,
-    fill: 'transparent',
-    stroke: 'white',
-    strokeWidth: 1
-  });
-  this.K.add( testCircle );
-  var place={x:0,y:0}
-  place.x=Math.random()*100;
-  place.y=Math.random()*100;
 
-  this.K.setX(place.x);
-  this.K.setY(place.y);
+
+  if(properties.position){
+    this.place(properties.position);
+  }
 
   var _upd=this.update;
   var absTime=0;

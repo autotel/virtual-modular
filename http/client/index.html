@@ -37,12 +37,18 @@ rect {
   stroke: #766090;
 }
 
+svg{
+  position:fixed; left:0; top:0
+}
+
 </style>
-  <div id="konva"></id>
+  <div id="konva" style="position:fixed; left:0; top:0"></id>
   </body>
   <script>
 'use strict';
   </script>
+  <script src="libs/cola.min.js"></script>
+  <script src="libs/d3.v3.min.js"></script>
   <script src="libs/konva.min.js"></script>
   <script src="libs/socket.io.js"></script>
   <script src="js/main.js"></script>
