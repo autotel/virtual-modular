@@ -40,7 +40,7 @@ var Harmonizer = function(properties,environment) {
   this.recordingUi = true;
   this.currentScale = 0;
   var noteOnTracker = new NoteOnTracker(this);
-
+  this.mapMode=true;
   // this.baseNote={value:0};
 
   this.baseEventMessage = new EventMessage({
@@ -129,16 +129,35 @@ var Harmonizer = function(properties,environment) {
   }
 
   var inputTransformNumber = function(inputNumber) {
+    var ret;
     if (self.scaleArray[self.currentScale]) {
       var scaleLength = self.scaleArray[self.currentScale].length;
-      var noteWraped = self.scaleArray[self.currentScale][inputNumber % scaleLength];
-      var ret = noteWraped + (12 * Math.floor(inputNumber / scaleLength));
-      // console.log(self.baseEventMessage);
+      if(self.mapMode==true){
+        var octave = Math.floor(inputNumber / scaleLength);
+        var noteWraped = self.scaleArray[self.currentScale][inputNumber % scaleLength];
+        ret = noteWraped + (12 * octave);
+      }else{
+        // console.log("FLOORMODE");
+        var nearestGrade=0;
+        var octave = Math.floor(inputNumber / 12);
+        var noteWraped = inputNumber % 12;
+        //scaleArray is always in increasing order
+        for (var a in self.scaleArray[self.currentScale]){
+          if(self.scaleArray[self.currentScale][a] <= noteWraped){
+            nearestGrade=self.scaleArray[self.currentScale][a];
+            // console.log("NEARE",nearestGrade);
+          }else{
+            break;
+          }
+        }
+        ret = nearestGrade + (12 * octave);
+      }
       return ret + self.baseEventMessage.value[2];
     } else {
       return false;
     }
   }
+
   var getOutputMessageFromNumber = function(number) {
     var outputMessage = new EventMessage(self.baseEventMessage);
     var num = inputTransformNumber(number);

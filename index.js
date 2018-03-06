@@ -16,6 +16,7 @@ var modulesToLoad = {
   'Operator': {},
   'MidiIO': {},
   'Harmonizer': {},
+  'Quarmonizer': {},
   'PresetKit': {},
   'Narp': {},
   'GameOfLife': {},
