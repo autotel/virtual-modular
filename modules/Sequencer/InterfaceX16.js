@@ -102,6 +102,8 @@ module.exports = function(controlledModule, environment) {
   configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {
     if (thisVar.value + delta >= 1)
       thisVar.value += delta;
+    controlledModule.handleStepsChange();
+
   }
 
   configurators.time.vars["fold"].nameFunction=configurators.time.vars["fold!"].nameFunction=function(thisVar){
@@ -124,6 +126,7 @@ module.exports = function(controlledModule, environment) {
     // console.log("FOLD",thisVar.value);
     controlledModule.duplicateSequence(0, oldLength, thisVar.value / oldLength);
     controlledModule.loopLength.value = thisVar.value;
+    controlledModule.handleStepsChange();
   }
   configurators.time.vars["fold"].changeFunction = function(thisVar, delta) {
     var oldLength = thisVar.value;
@@ -135,6 +138,7 @@ module.exports = function(controlledModule, environment) {
     thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
     // console.log("FOLD",thisVar.value);
     controlledModule.loopLength.value = thisVar.value;
+    controlledModule.handleStepsChange();
   }
 
   configurators.time.vars["loop look"].nameFunction = function(thisVar) {

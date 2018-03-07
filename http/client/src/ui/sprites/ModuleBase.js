@@ -46,6 +46,9 @@ module.exports=function(ui,properties){
   this.disconnectTo=function(to){
     self.forceNode.disconnectTo(to.forceNode);
   }
+  this.applyChanges=function(properties){
+
+  }
   this.update=function(evt){
     // text.setAttr('text', self.forceNode.links.length+", "+self.forceNode.outputs.size);
     if(evt.type='tick'){

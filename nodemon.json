@@ -1,4 +1,4 @@
 {
   "verbose": true,
-  "ignore": ["midi-options.js"]
+  "ignore": ["midi-options.js","./http"]
 }

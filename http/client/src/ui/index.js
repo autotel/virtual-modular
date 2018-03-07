@@ -58,6 +58,10 @@ module.exports=function(environment){
       var module=event.module;
       moduleSprites[module.properties.unique].remove();
     });
+    environment.on('~ module',function(event){
+      var module=event.module;
+      moduleSprites[module.properties.unique].applyChanges(event);
+    });
     environment.on('+ connection',function(event){
       event.origin.sprite.connectTo(event.destination.sprite);
     });

@@ -9,6 +9,7 @@ module.exports=function(environment,socket){
   var listeners=[
     '+ module',
     '- module',
+    '~ module',
     'select module',
     'deselect module',
     'focus module',
@@ -85,6 +86,10 @@ module.exports=function(environment,socket){
               evtt.destination=getUniqueOf(evtt.destination);
               if(evtt.origin===false) return;
               // console.log("DEST",(evtt.destination));
+            }
+            if(eventName=="~ module"){
+              evtt.origin=getUniqueOf(module);
+              // console.log("CHANGE",self.loopLength.value);
             }
             evtt.type=eventName;
             if(active) socket.send(evtt);

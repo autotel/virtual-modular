@@ -28,13 +28,13 @@ module.exports=function(ui,properties){
         circles[n].setAttr('visible',true);
       }
 
-      var modPos=(n/16)%1;
+      var modPos=(n/to);
 
       circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
       circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
 
-      if(to>16)
-      obq+=0.5;
+      // if(to>16)
+      // obq+=0.5;
 
     }
     for(var n=to; n<circles.length; n++){
@@ -58,7 +58,7 @@ module.exports=function(ui,properties){
     }
   };
 
-  setLength(16);
+  setLength(0);
 
   this.applyChanges=function(properties){
     if(properties.steps) setLength(properties.steps);

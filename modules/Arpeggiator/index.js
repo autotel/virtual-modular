@@ -107,6 +107,10 @@ var Arpeggiator = function(properties) {
     return true;
   }
 
+  this.handleStepsChange=function(){
+    self.handle('~ module',{steps:runningNotes.length});
+  }
+
   function arpOperation() {
     if(settings.reset.value){
       runningNotes.splice(0);
@@ -127,10 +131,13 @@ var Arpeggiator = function(properties) {
   }
 
   function addNote(eventMessage){
+    self.handleStepsChange();
     runningNotes.push(eventMessage);
   }
 
   function removeNote(eventMessage){
+    self.handleStepsChange();
+
     eachRunningNote(function(index,rnote){
       if(eventMessage.compareTo(rnote,['value.1','value.2'])){
         runningNotes.splice(index,1);

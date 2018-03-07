@@ -37,7 +37,8 @@ var Sequencer = function(properties,environment) {
   this.patData = {};
   var currentModulus = 16;
   this.loopLength = {
-    value: 16
+    value: 16,
+    lastWatchedValue:16
   };
   this.stepLength = {
     value: 12
@@ -137,8 +138,15 @@ var Sequencer = function(properties,environment) {
       }
     }
     this.handle('step', evt);
+    if(self.loopLength.lastWatchedValue!=self.loopLength.value){
+      this.handleStepsChange();
+    }
   }
-
+  // self.on('~ module',console.log);
+  this.handleStepsChange=function(){
+    self.handle('~ module',{steps:self.loopLength.value});
+    self.loopLength.lastWatchedValue=self.loopLength.value;
+  }
   this.play = function() {
     thisInstance.playing.value = true;
     // thisInstance.restart();

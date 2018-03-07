@@ -3,7 +3,7 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../datatypes/EventMessage.js');
 
 var InterfaceX16 = require('./InterfaceX16');
-var InterfaceHttp = require('./HttpGui');
+// var InterfaceHttp = require('./HttpGui');
 // var clockSpec=require('../standards/clock.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
@@ -58,7 +58,7 @@ var Narp = function(properties,environment) {
     rate:new EventMessage({value:[CHANGERATEHEADER,-1,-1]}),
   }
   this.interfaces.X16 = InterfaceX16;
-  this.interfaces.Http = InterfaceHttp;
+  // this.interfaces.Http = InterfaceHttp;
 
   var setStep = this.setStep = function(square,uiTriggered=false) {
     myBitmap |= 1 << square;
@@ -68,6 +68,7 @@ var Narp = function(properties,environment) {
       // console.log("RECO");
     }
     self.handle('~ bitmap',{bmp:myBitmap,operation:"+"});
+    self.handleStepsChange();
   }
 
   var clearStep = this.clearStep = function(square,uiTriggered=false) {
@@ -78,6 +79,7 @@ var Narp = function(properties,environment) {
       // console.log("RECO");
     }
     self.handle('~ bitmap',{bmp:myBitmap,operation:"-"});
+    self.handleStepsChange();
   }
 
   var toggleStep = this.toggleStep = function(square,uiTriggered=false) {
@@ -95,7 +97,10 @@ var Narp = function(properties,environment) {
     self.handle('~ bitmap',{bmp:myBitmap,operation:"="});
   }
 
-
+  this.handleStepsChange=function(){
+    var active = activeNumbers();
+    self.handle('~ module',{steps:active.length});
+  }
 
   var generatedOutput = function(eventMessage, buttonNumber) {
     if (self.mute) return;

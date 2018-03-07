@@ -13,6 +13,7 @@ var SocketMan=function(environment){
   socket.on('message',function(msg){
     msg=decompress(msg);
     if(msg.type){
+      // if(msg.type!="> message") console.log(">>",msg);
       self.handle(msg.type,msg);
       if(messageCallbacks[msg.type]){
         messageCallbacks[msg.type](msg);
@@ -36,6 +37,14 @@ var SocketMan=function(environment){
     '+ module':function(msg){
       // console.log("NEW MODULE",msg);
       environment.addModule(msg);
+    },
+    '- module':function(msg){
+      // console.log("NEW MODULE",msg);
+      environment.removeModule(msg);
+    },
+    '~ module':function(msg){
+      // console.log("NEW MODULE",msg);
+      environment.changeModule(msg);
     },
     '+ connection':function(msg){
       // console.log("CONNECT MODULE",msg);

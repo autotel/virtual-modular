@@ -82,6 +82,26 @@ var environment=new(function(){
     modules.add(new Module(properties))
 
   }
+  this.changeModule=function(properties){
+    //two modules must not have the same unique
+    var exists=Module.getByUnique(properties.origin,false);
+    if(exists){
+      properties.module=exists;
+      environment.handle('~ module',properties);
+      // exists.applyChanges(properties);
+    }else{
+      console.warn("module change error: uid "+properties.unique+" doesn't exist");
+    }
+  }
+  this.removeModule=function(properties){
+    //two modules must not have the same unique
+    var exists=Module.getByUnique(properties.origin,false);
+    if(exists){
+      Module.delete(exists);
+    }else{
+      console.warn("module deletion error: uid "+properties.unique+" doesn't exist");
+    }
+  }
   this.connect=function(properties){
     // console.log("connect",properties);
     Module.getByUnique(properties.origin,true)

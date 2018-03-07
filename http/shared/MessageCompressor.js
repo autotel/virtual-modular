@@ -10,7 +10,11 @@ var dataMap=[
     compress:{},decompress:{}
   },{
     header:'- module',
-    attributes:['unique'],
+    attributes:['origin'],
+    compress:{},decompress:{}
+  },{
+    header:'~ module',
+    attributes:['origin','steps'],
     compress:{},decompress:{}
   },{
     header:'select module',
