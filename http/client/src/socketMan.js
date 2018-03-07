@@ -44,6 +44,11 @@ var SocketMan=function(environment){
     '- connection':function(msg){
       // console.log("CONNECT MODULE",msg);
       environment.disconnect(msg);
+    },
+    '> message':function(msg){
+      // console.log("CONNECT MODULE",msg);
+      // environment.handle('eventMessage',msg);
+      environment.makeEventMessageEvent(msg);
     }
   }
 

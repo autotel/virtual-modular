@@ -64,6 +64,9 @@ module.exports=function(environment){
     environment.on('- connection',function(event){
       event.origin.sprite.disconnectTo(event.destination.sprite);
     });
+    environment.on('> message',function(event){
+      event.origin.sprite.message(event.destination);
+    });
   }
   window.onload=start;
 

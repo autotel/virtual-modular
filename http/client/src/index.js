@@ -7,6 +7,7 @@ var environment=new(function(){
   var Module=function(properties){
     var self=this;
     var environment=Module.environment;
+    // Observable.call(this);
     this.properties=properties;
     this.reset=function(properties){
       this.properties=properties;
@@ -28,6 +29,9 @@ var environment=new(function(){
         console.warn(self,"X!->",to);
       }
     }
+    // this.messageTo=function(to,message){
+    //   self.handle('> message',{destination:to,value:message});
+    // }
     environment.handle('+ module',{module:self})
     Module.list.push(this);
   }
@@ -87,6 +91,20 @@ var environment=new(function(){
     // console.log("connect",properties);
     Module.getByUnique(properties.origin,true)
         .disconnectTo(Module.getByUnique(properties.destination,true));
+  }
+  this.makeEventMessageEvent=function(properties){
+    // console.log('msg',properties);
+    var a = Module.getByUnique(properties.origin,true);
+    var b = Module.getByUnique(properties.destination,true);
+    if(a&&b){
+      environment.handle('> message',{
+        origin:a,
+        destination:b,
+        value:properties.val
+      });
+    }else{
+      console.warn("message could not be attributed to any module",properties);
+    }
   }
   this.start=function(){
     console.log("START");

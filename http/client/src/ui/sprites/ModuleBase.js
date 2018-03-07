@@ -7,6 +7,14 @@ module.exports=function(ui,properties){
   this.forceNode=force.getOrMakeNode(properties,function(node){
     return node.unique==properties.unique;
   });
+  this.message=function(to,msg){
+    var exists=self.forceNode.getLinkTo(to.sprite.forceNode);
+    if(exists){
+      exists.highlight();
+    }else{
+      console.warn("couldn't find a link to highlight");
+    }
+  }
 
   properties.draggable=true;
   Base.call(this,ui,properties);
@@ -16,7 +24,7 @@ module.exports=function(ui,properties){
       y:-12,
       rotation:-30,
       text:properties.name,
-      fill: 'rgba(255,255,255,0.2)'
+      fill: 'rgba(255,127,150,0.2)'
     });
     // text.setOffset({
     //   x: text.getWidth() / 2
@@ -39,6 +47,7 @@ module.exports=function(ui,properties){
     self.forceNode.disconnectTo(to.forceNode);
   }
   this.update=function(evt){
+    // text.setAttr('text', self.forceNode.links.length+", "+self.forceNode.outputs.size);
     if(evt.type='tick'){
       self.K.setX(self.forceNode.x);
       self.K.setY(self.forceNode.y);

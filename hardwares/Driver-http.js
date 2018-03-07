@@ -46,7 +46,7 @@ var HttpGui=function(properties,environment){
           return messageCompressor.decompress(msg);
         }
         this.send=function(message){
-          console.log("SENDING live",message);
+          // console.log("SENDING live",message);
           inSocket.write(compress(message));
         }
         var cb_msgrec=function(){};

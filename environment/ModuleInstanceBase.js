@@ -70,9 +70,10 @@ module.exports=function(properties,environment){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
       self.enqueue(function(){
         outputs.forEach(function(tModule){
-          self.handle('> message',{origin:self,destination:tModule,val:eventMessage});
           // console.log(eventMessage.value);
           tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
+          self.handle('> message',{origin:self,destination:tModule,val:eventMessage});
+          // console.log("handle>",tModule.name);
         })
       });
     }

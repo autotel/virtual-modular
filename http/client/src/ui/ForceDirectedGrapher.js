@@ -74,6 +74,7 @@ var ForceDirectedGrapher=function(){
     self.connectTo=function(to){
       outputs.add(to);
       // thisGrapher.addLink(self,to);
+      // console.log(outputs.size);
       restart();
     }
     self.disconnectTo=function(to){
@@ -81,6 +82,15 @@ var ForceDirectedGrapher=function(){
       // console.log("disconnect",linkCache);
       // thisGrapher.setLinksTo(self,Array.from(linkCache));
       restart();
+    }
+    this.links=[];
+    self.getLinkTo=function(to){
+      // console.log(to);
+      for(var d of self.links){
+        if(d.target==to) return d;
+      }
+      return false;
+      // return self.links[to];
     }
     self.tickFunction=function(evt){
 
@@ -169,12 +179,11 @@ var ForceDirectedGrapher=function(){
         //   return d.grasa;
         // });
     // console.log(node);
-    _node.each(function(node){
-      node.tickFunction(evt);
-    });
+
   }
   function animate(t){
     // console.log(evt);
+    requestAnimationFrame(animate);
     _node.each(function(node){
       node.tickFunction({
         type:'clock',
@@ -186,9 +195,24 @@ var ForceDirectedGrapher=function(){
           if(d.grasa>5)d.grasa--;
           return d.grasa;
         });
-    requestAnimationFrame(animate);
+
+    // _node.each(function(node){
+    //   node.tickFunction(t);
+    // });
+    _link.each(function(link){
+      link.tickFunction({
+        type:'clock',
+        absTime:t
+      });
+    }).style("stroke-width",function(d){
+      return (1+d.h)/2;
+    });;
+
+    // requestAnimationFrame(
   }
+
   animate();
+
   function restart() {
     _node = _node.data(nodes);
 
@@ -205,8 +229,22 @@ var ForceDirectedGrapher=function(){
 
     var links=[];
     for(var node of nodes){
+      node.links=[];
       for(var output of node.outputs){
-        links.push({'source':node,'target':output});
+        var newLink=new(function(){
+          var self=this;
+          this.source=node;
+          this.target=output;
+          this.h=0;
+          this.highlight=function(){self.h=10};
+          this.tickFunction=function(){
+            if(self.h>0){
+              self.h--;
+            }
+          }
+        })();
+        links.push(newLink);
+        node.links.push(newLink);
       }
     }
 
@@ -215,7 +253,7 @@ var ForceDirectedGrapher=function(){
     force.nodes(nodes)
     .links(links)
     .linkDistance(80)
-    .charge(-170/*function(d){
+    .charge(-300/*function(d){
       if(d.grasa){
         return -60*d.grasa
       }else{

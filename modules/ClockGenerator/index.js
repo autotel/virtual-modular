@@ -12,6 +12,8 @@ var name = function() {
 var ClockGenerator = function(properties) {
   var thisInstance = this;
   var myInterval = false;
+  this.preventBus = true;
+
   var myEventMessage = new EventMessage({
     value: [CLOCKTICKHEADER, 12 /*ck per step*/ , 0 /* step number*/ ]
   });
