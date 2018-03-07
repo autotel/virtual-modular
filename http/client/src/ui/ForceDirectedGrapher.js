@@ -205,8 +205,8 @@ var ForceDirectedGrapher=function(){
         absTime:t
       });
     }).style("stroke-width",function(d){
-      return (1+d.h)/2;
-    });;
+      return (1+d.h)/4;
+    })/*.style("stroke-dashoffset",function(d){return d.off + "%"})*/;
 
     // requestAnimationFrame(
   }
@@ -236,7 +236,14 @@ var ForceDirectedGrapher=function(){
           this.source=node;
           this.target=output;
           this.h=0;
-          this.highlight=function(){self.h=10};
+          this.off=0;
+          this.highlight=function(){
+            self.h=10;
+            self.off--;
+            if(self.off<=0){
+              self.off=100;
+            }
+          };
           this.tickFunction=function(){
             if(self.h>0){
               self.h--;
