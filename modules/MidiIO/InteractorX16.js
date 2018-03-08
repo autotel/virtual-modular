@@ -7,11 +7,12 @@ var getHeaderName = {
   0x02: "off/stop"
 };
 var base = require('../../interaction/x16basic/interactorBase.js');
+var RecordMenu = require('../x28utils/RecordMenu.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports = function(controlledModule) {
+module.exports = function(controlledModule,environment) {
   base.call(this);
   /**
   plan for the midi io module:
@@ -28,6 +29,13 @@ module.exports = function(controlledModule) {
   var indexedMidiInputCache = [];
   var inputMode = true;
 
+  var lastEngagedConfigurator=false;
+  var engagedConfigurator=false;
+  var configurators={};
+  configurators.record = new RecordMenu(this, {
+    environment: environment,
+    controlledModule: controlledModule
+  });
   // controlledModule.on('midi in',function(event){
   //
   // });
@@ -64,8 +72,16 @@ module.exports = function(controlledModule) {
       controlledModule.choke();
       updateHardware(event.hardware);
     }
+    if (event.button >= 8) {
+      lastEngagedConfigurator = engagedConfigurator = configurators.record;
+    }
+    if (engagedConfigurator) engagedConfigurator.engage(event);
   };
   this.selectorButtonReleased = function(event) {
+    if (engagedConfigurator) {
+      engagedConfigurator.disengage(event);
+      engagedConfigurator = false;
+    }
     if (event.button == 2) {
       inputMode = true;
       updateHardware(event.hardware);

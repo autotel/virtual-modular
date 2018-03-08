@@ -88,6 +88,7 @@ var PresetKit = function(properties, environment) {
   }
 
   this.triggerOn = function(presetNumber, originalMessage) {
+    presetNumber %= 16;
     self.handle("extrigger", {
       preset: presetNumber
     });
@@ -110,7 +111,6 @@ var PresetKit = function(properties, environment) {
 
     } else {
       if (self.mute) return;
-      presetNumber %= 16;
       if (kit[presetNumber]) {
         if (!kit[presetNumber].mute) {
           var outputMessage = kit[presetNumber].clone().underImpose(originalMessage);
