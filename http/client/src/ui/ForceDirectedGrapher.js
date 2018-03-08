@@ -135,8 +135,12 @@ var ForceDirectedGrapher=function(){
   }
   this.removeNode=function(nodeReference){
     var d=nodeReference;
-    var i=nodeReference.index;
-    nodes.splice(i, 1);
+    var i=nodes.indexOf(d);
+    if(i!==-1){
+      return nodes.splice(i, 1);
+    }else{
+      return false;
+    }
   }
   this.nodeHighlight=function(handler){
     if(handler.grasa<20)

@@ -60,4 +60,9 @@ module.exports=function(ui,properties){
   this.forceNode.tickFunction=function(evt){
     self.update(evt);
   }
+  // var _remove=this.remove;
+  // this.remove=function(){
+  //   force.removeNode(self.forceNode);
+  //   _remove();
+  // }
 }

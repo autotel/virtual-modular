@@ -1,6 +1,7 @@
 
 module.exports=function(ui,properties){
   var layer=ui.konvaLayer;
+  var self=this;
   this.K=new Konva.Group();
   layer.add(this.K);
   this.place=function(coords){
@@ -11,7 +12,7 @@ module.exports=function(ui,properties){
   }
   this.update=function(){}
   this.remove=function(){
-    this.K.destroy();
+    self.K.destroy();
     // this.K.remove();
   }
 }

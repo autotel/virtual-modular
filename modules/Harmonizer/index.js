@@ -184,6 +184,7 @@ var Harmonizer = function(properties,environment) {
           self.handle('chordchange');
           // console.log("chordchange",event);
         } else if (eventMessage.value[0] == 1) {
+          // console.log("TRIGGERON");
           self.triggerOn(eventMessage.value[2], eventMessage);
         } else {
           // console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
