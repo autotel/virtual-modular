@@ -1,5 +1,7 @@
 'use strict';
 
+///TODO: bus links are not being bound for some reason
+//TODO: narps are being created with "null" type but get correct type when client refreshed
 var httpBasePath=__dirname+'/../http';
 var clientBasePath=httpBasePath+"/client";
 
@@ -38,6 +40,8 @@ var HttpGui=function(properties,environment){
     });
     SocketMan.on('connection', function(socket){
       var socketInterface=new(function(inSocket){
+        var active=true;
+        var self=this;
         var messageCompressor=new MessageCompressor(socket);
         function compress(msg){
           return messageCompressor.compress(msg);
@@ -58,6 +62,15 @@ var HttpGui=function(properties,environment){
         });
         this.onMessage=function(cb){
           cb_msgrec=cb;
+        }
+        this.deactivate=function(){
+          active=false;
+          compress=false;
+          decompress=false;
+          self.send=false;
+          cb_msgrec=false;
+          socket=false;
+          self.onMessage=false;
         }
       })(socket);
       var client=new SuperInteractor(environment,socketInterface);

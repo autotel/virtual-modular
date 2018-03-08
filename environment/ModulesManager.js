@@ -58,10 +58,12 @@ var ModulesManager=function(environment){
       console.log("+"+moduleName);
       newInstance=new ModuleInstanceBase(properties,environment)
       constructors[moduleName].call(newInstance,properties,environment);
-      environment.handle('module created',{module:newInstance});
       newInstance.enqueue=lazyStack.enq;
       newInstance.type=moduleName;
       modules.push(newInstance);
+      // environment.handle('+ module',{module:newInstance});
+      environment.handle('+ module',{module:newInstance});
+
     }catch(e){
       console.error("error instantiating module ",moduleName,e);
     }

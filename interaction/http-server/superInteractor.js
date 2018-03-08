@@ -18,53 +18,51 @@ module.exports=function(environment,socket){
     '+ connection',
     '- connection'];
   function getUniqueOf(module){
-    // console.log("getUniqueOf",module);
+    //make sure module has http interface
+    if(!module.interfaces) module.interfaces={};
+    if(!module.interfaces.Http) module.interfaces.Http=InteractorBase;
+    if(!module._instancedInterfaces) module._instancedInterfaces={};
+    //instance interactor if not yet done.
+    if(!module._instancedInterfaces.http){
+      module._instancedInterfaces.http=new module.interfaces.Http(module,environment);
+      module._instancedInterfaces.http.serverUnique=uniquesCount;
+      uniquesCount++;
+    }
+
     if(module._instancedInterfaces){
       if(module._instancedInterfaces.http){
         return module._instancedInterfaces.http.serverUnique;
       }
-      // console.log("module has no instanced interfaces.http");
     }
-    // console.log("module has no instanced interfaces",module);
     return false;
   }
-  // socket.onMessage(console.log);
-
-  // socket.write('socket write test');
-  // socket.emit('emit test',{vv:'emit test'});
   this.onDataReceived=function(data){
-    // console.log(data);
+    console.log(data);
   }
 
   function moduleCreatedCallback(module){
     if(active){
-      // console.log(module.interfaces);
-      //polyfill constructor
-      if(!module.interfaces.Http){
-        module.interfaces.Http=InteractorBase;
-      }
-      //instance interactor if not yet done.
-      if(!module._instancedInterfaces.http){
-        module._instancedInterfaces.http=new module.interfaces.Http(module,environment);
-        module._instancedInterfaces.http.serverUnique=uniquesCount;
-        uniquesCount++;
-        // console.log("(UNIQUES",uniquesCount);
-      }
+      var moduleUnique=getUniqueOf(module);
       var nInterface=module._instancedInterfaces;
 
       socket.send({
         type:'+ module',
-        unique:getUniqueOf(module),
+        unique:moduleUnique,
         name:module.name,
         kind:module.type
       });
-
+      console.log(">>+module",{
+        type:'+ module',
+        unique:moduleUnique,
+        name:module.name,
+        kind:module.type
+      });
       nInterface.http.triggerModuleData(function(data){
         if(data.output){
           //TODO: do actual cleanup
           if(active)socket.send({
             type:'+ connection',
-            origin:getUniqueOf(module),
+            origin:moduleUnique,
             destination:getUniqueOf(data.output)
           });
         }
@@ -88,7 +86,7 @@ module.exports=function(environment,socket){
               // console.log("DEST",(evtt.destination));
             }
             if(eventName=="~ module"){
-              evtt.origin=getUniqueOf(module);
+              evtt.origin=moduleUnique;
               // console.log("CHANGE",self.loopLength.value);
             }
             evtt.type=eventName;
@@ -108,7 +106,7 @@ module.exports=function(environment,socket){
 
   }
 
-  environment.on('module created', function(evt) {
+  environment.on('+ module', function(evt) {
     moduleCreatedCallback(evt.module);
   });
 
@@ -121,6 +119,7 @@ module.exports=function(environment,socket){
       // console.log("OFF",action);
       module.off(action);
     }
+    socket.deactivate();
   }
   return this;
 }

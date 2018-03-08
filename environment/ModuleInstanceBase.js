@@ -29,7 +29,7 @@ module.exports=function(properties,environment){
   this.addOutput=function(what){
     if(what){
       if(what===self){
-        self.handle('fail + connection',{origin:self, destination:what});
+        self.handle('+!connection',{origin:self, destination:what});
         console.error("can't patch a module to itself!");
       }else{
         if(what.isModuleInstance){
@@ -38,7 +38,7 @@ module.exports=function(properties,environment){
           self.handle('+ connection',{origin:self,destination:what});
         }else{
           // console.error(what);
-          self.handle('fail + connection',{origin:self, destination:what});
+          self.handle('+!connection',{origin:self, destination:what});
           throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
         }
       }

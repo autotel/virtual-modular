@@ -64,7 +64,7 @@ var SuperInteractorsSingleton = function(environment) {
       }
     });
     // this.on('interaction',console.log);
-    environment.on('module created', function(evt) {
+    environment.on('+ module', function(evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }

@@ -73,7 +73,7 @@ var DefCliSuperInteractorSingleton = function(environment) {
       }
     }
 
-    environment.on('module created', function(evt) {
+    environment.on('+ module', function(evt) {
       myHardware.print("new module",evt.module.name);
     });
 
