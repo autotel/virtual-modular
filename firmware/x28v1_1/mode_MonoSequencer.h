@@ -102,6 +102,7 @@ class MonoSequencer {
     }
     void onEncoderReleased() {
     }
+    void onButtonVelocity(uint8_t, uint8_t){}
     void loop() {
       for (uint16_t b = 0; b < 16; b++) {
         if (patMem[b][MEM_HEAD] == 0) {

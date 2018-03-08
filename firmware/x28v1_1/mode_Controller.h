@@ -16,7 +16,7 @@ class ControllerMode {
     PatchBus *patchBus;
 #define serialInLength 32
     unsigned char inBuff[serialInLength];
-    byte sendToBrainData [10];
+    byte sendToBrainData [32];
     bool recordingBuffer = false;
     int expectedLength = 0;
     unsigned char currentHeader = 0;
@@ -26,6 +26,7 @@ class ControllerMode {
       Serial.write(header);
       for (int a = 0; a < len; a++) {
         Serial.write(sendToBrainData[a]);
+        sendToBrainData[a]=0;
       }
       //this ensures that there is a healthy pause between messages
       Serial.write(TH_null_head);
@@ -99,6 +100,12 @@ class ControllerMode {
       sendToBrainData[0] = button;
       sendToBrain(TH_selectorButtonReleased_head, TH_selectorButtonReleased_len);
     }
+
+    void onButtonVelocity(uint8_t button, uint8_t velocity){
+      sendToBrainData[0] = button;
+      sendToBrainData[1] = velocity;
+      sendToBrain(TH_matrixButtonVelocity_head, TH_matrixButtonVelocity_len);
+    }
     //long testTimer = 0;
     void loop() {
       checkMessages();
@@ -123,6 +130,7 @@ class ControllerMode {
     void messageReceived( int len) {
       int a = 0;
       unsigned char header = inBuff[a];
+      inBuff[a]=0;
       a++;
 #define nibbleMultiplyFactor 17
       switch (header) {
@@ -294,6 +302,7 @@ class ControllerMode {
             }
 
           default:
+            inBuff[a]=0;
             a++;
           }
       }

@@ -30,6 +30,7 @@ void setup() {
   hardware.setButtonCallbacks(onButtonPressed, onButtonReleased);
   hardware.setEncoderCallbacks(onEncoderScrolled, onEncoderPressed, onEncoderReleased);
   hardware.setBottomButtonsCallbacks(onBottomButtonPressed,onBottomButtonReleased);
+  hardware.setButtonVelocityCallbacks(onButtonVelocity);
   midi.setup();
   midi.onMidiIn(midiInCallback);
 
@@ -81,6 +82,14 @@ void onButtonReleased(byte button) {
     sequencerMode.onButtonReleased(button);
   } else {
     controllerMode.onButtonReleased(button);
+  }
+}
+
+void onButtonVelocity(uint8_t button, uint8_t velocity) {
+  if (engagedMode == 0) {
+    sequencerMode.onButtonVelocity(button, velocity);
+  } else {
+    controllerMode.onButtonVelocity(button, velocity);
   }
 }
 

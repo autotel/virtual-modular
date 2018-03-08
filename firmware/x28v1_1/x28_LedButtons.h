@@ -48,7 +48,7 @@ class LedButtons {
         lcdBuf[a] = ' ';
       }
       DDRB &= 0x01101111;
-
+      setup_readMatrixButtons_velocity();
     }
     void loop() {
       readMatrixButtons();
@@ -168,72 +168,9 @@ class LedButtons {
     }
 
 
-    int readMatrixButtons() {
-      uint16_t i, j, currentButton;
-      //POX = pin out register n., PIN= pin in register n.
-      //H, columns
-#define POX PORTH //bits 3-7, digital
-#define PIX PINH
-#define PORTXMASK 0b00000111
-      DDRH |= 0xFF << 3;
-      //K, rows
-#define POY PORTK //bits 0-6, analog
-#define PIY PINK
-      //#define YREGMASK 0b00111111
-      DDRK = 0x00;
-      POY = 0xFF;
-      // int inpinbase = 8;
-
-      for (currentButton = 0; currentButton < NUM_LEDS; currentButton++) {
-        uint16_t col = currentButton % 4;
-        uint16_t row = currentButton / 4;
-
-        POX &= PORTXMASK;
-
-        //not 1<< because starts in PH3
-        POX = 0b1000 << col;
-        //set test to a mask according to the row we want to check
-        uint32_t test = 1UL << row;
-        //TODO: there should be a juggling of the scan with the rest of the code ranther than a delay.
-        //delay is to avoid leaks of voltage due to capacitances?
-        //delayMicroseconds(100);
-
-        uint32_t an = PIY & test;
-
-
-
-        //tButton is the pressed button, but vertically flipped.
-        uint16_t tButton = buttonsRemap[currentButton];
-
-        //we checked the row, now we want to use the test to compare with the pixel number.
-        //I am recycling the variable
-        test = 1UL << tButton;
-        //check button is pressed, but in inverted logic
-        if (an) {
-          //button is pressed, and not the last time
-          if (!(test & pressedButtonsBitmap)) {
-
-            pressedButtonsBitmap = pressedButtonsBitmap | test;
-            CB_buttonPressed(tButton, pressedButtonsBitmap);
-
-          }
-
-        } else {
-          //button is depressed, and was pressed last time
-          if (test & pressedButtonsBitmap) {
-
-            pressedButtonsBitmap = pressedButtonsBitmap & (~test);
-            CB_buttonReleased(tButton);
-          }
-        }
-
-      }
-
-    }
+    uint16_t currentReadMatrixButton=0;
     uint8_t MUXBX [4] = {A10,A11,A12,A13};
-    //[last pressure read, read time]
-    long matrixButtonStatus [16][2];
-    uint8_t currentButton = 0;
+    uint16_t matrixButtonStatus [16][2];
     void setup_readMatrixButtons_velocity(){
       pinMode(MUXBX[0],INPUT);
       pinMode(MUXBX[1],INPUT);
@@ -245,41 +182,69 @@ class LedButtons {
         }
       }
     }
-    uint16_t readMatrixButtons_velocity(){
-      long currentTime=millis();
-      //PH3-6(MUXAX0-3)---[\_]---|>---(--[470ohm]--GND )----(MUXBX2-5)PK2-5
-      // for (uint8_t currentButton = 0; currentButton < 16; currentButton++) {
-      uint8_t col=currentButton%4;
-      uint8_t row=(currentButton/4)%4;
-      PORTH |= 1 << (col+3);
 
-      uint16_t read=analogRead(MUXBX[row]);
-      //noise treshold
-      if(read>50){
-        if(matrixButtonStatus[currentButton][0]){
-          //here: the button was pressed on the last check, therefore we can measure velocity
-          uint16_t deltaT=currentTime-matrixButtonStatus[currentButton][1];
-          if(read>matrixButtonStatus[currentButton][0]){
-            uint16_t deltaP=read-matrixButtonStatus[currentButton][0];
-            uint16_t velo=(deltaP*100)/deltaT;
-            Serial.println();
-            Serial.print(currentButton);
-            Serial.print(',');
-            Serial.print(velo);
+    int readMatrixButtons() {
+      DDRH |= 0xFF << 3;
+
+      DDRK = 0x00;
+      PORTK = 0xFF;
+      // int inpinbase = 8;
+
+      // for (currentReadMatrixButton = 0; currentReadMatrixButton < NUM_LEDS; currentReadMatrixButton++) {
+      uint16_t col = currentReadMatrixButton % 4;
+      uint16_t row = currentReadMatrixButton / 4;
+
+
+      PORTH &= 0b111;
+      //not 1<< because starts in PH3
+      PORTH |= 0b1000 << col;
+      //set test to a mask according to the row we want to check
+      uint32_t test = 1UL << row;
+
+      long currentTime=millis();
+
+
+
+      uint32_t digitalOn = PINK & test;
+
+      uint16_t tButton = buttonsRemap[currentReadMatrixButton];
+      uint16_t matrixButton = currentReadMatrixButton-8;
+      bool getVelocity=matrixButton<16;
+
+      //we checked the row, now we want to use the test to compare with the pixel number.
+      //I am recycling the variable
+      test = 1UL << tButton;
+      if (digitalOn) {
+        //tButton is the pressed button, but vertically flipped.
+
+        //button is pressed, and not the last time
+        if (!(test & pressedButtonsBitmap)) {
+          pressedButtonsBitmap |= test;
+          buttonPressedCallback(tButton, pressedButtonsBitmap);
+          if(getVelocity){
+            uint16_t analog=analogRead(MUXBX[row]);
+            uint8_t velo=analog-matrixButtonStatus[matrixButton][0];
+            buttonVelocityCallback(matrixButton,velo);
           }
-          matrixButtonStatus[currentButton][0]=0;
-          matrixButtonStatus[currentButton][1]=0;
-        }else{
-          matrixButtonStatus[currentButton][0]=read;
-          matrixButtonStatus[currentButton][1]=currentTime;
         }
-      }else{
-        matrixButtonStatus[currentButton][0]=0;
+
+      } else {
+        //button is depressed, and was pressed last time
+        if (test & pressedButtonsBitmap) {
+          pressedButtonsBitmap = pressedButtonsBitmap & (~test);
+          buttonReleasedCallback(tButton);
+        }
+        if(getVelocity){
+          uint16_t analog=analogRead(MUXBX[row]);
+          matrixButtonStatus[matrixButton][0]=analog;
+        }
       }
-      currentButton++;
-      currentButton%=16;
+
       // }
+      currentReadMatrixButton++;
+      currentReadMatrixButton%=NUM_LEDS;
     }
+
 
     void refreshLeds() {
       //uint16_t a;
@@ -310,9 +275,12 @@ class LedButtons {
     }
 
 
-    void setButtonCallbacks( void (*fpa)(byte, uint32_t), void (*fpb)(byte) ) {
+    void setButtonCallbacks( void (*fpa)(uint8_t, uint32_t), void (*fpb)(uint8_t) ) {
       CB_buttonPressed = fpa;
       CB_buttonReleased = fpb;
+    }
+    void setButtonVelocityCallbacks( void (*fpa)(uint8_t, uint8_t)) {
+      CB_buttonVelocity = fpa;
     }
     void setEncoderCallbacks(void (*fpa)(int8_t), void (*fpb)(), void (*fpc)()) {
       CB_encoderRotated = fpa;
@@ -324,9 +292,7 @@ class LedButtons {
       CB_botomButtonReleased = fpb;
     };
     void setButtonColor(uint16_t button, uint8_t a, uint8_t b, uint8_t c ) {
-
       button=buttonsRemap[button];
-
       if (a | b | c > 0) {
         //c |= 80;
         leds[button] = CRGB(a, b, c);//CHSV
@@ -401,8 +367,9 @@ class LedButtons {
     long lastLedsUpdate = 0;
     uint8_t buttonsRemap[28]={0,1,2,3,4,5,6,7,20,21,22,23,16,17,18,19,12,13,14,15,8,9,10,11,24,25,26,27};
     uint8_t lcdChange = 0;
-    void (*CB_buttonPressed)(byte, uint32_t) = 0;
-    void (*CB_buttonReleased)(byte) = 0;
+    void (*CB_buttonPressed)(uint8_t, uint32_t) = 0;
+    void (*CB_buttonReleased)(uint8_t) = 0;
+    void (*CB_buttonVelocity)(uint8_t, uint8_t) = 0;
     void (*CB_encoderRotated)(int8_t) = 0;
     void (*CB_encoderPressed)() = 0;
     void (*CB_encoderReleased)() = 0;
@@ -425,6 +392,11 @@ class LedButtons {
         (*CB_buttonReleased)(button);
       }
       else {
+      }
+    }
+    void buttonVelocityCallback(uint8_t button, uint8_t velocity){
+      if(0!=CB_buttonVelocity){
+        (*CB_buttonVelocity)(button,velocity);
       }
     }
     void encoderRotatedCallback(byte delta) {
