@@ -170,7 +170,7 @@ class LedButtons {
 
     uint16_t currentReadMatrixButton=0;
     uint8_t MUXBX [4] = {A10,A11,A12,A13};
-    uint16_t matrixButtonStatus [16][2];
+    long matrixButtonStatus [16][2];
     void setup_readMatrixButtons_velocity(){
       pinMode(MUXBX[0],INPUT);
       pinMode(MUXBX[1],INPUT);
@@ -187,7 +187,7 @@ class LedButtons {
       DDRH |= 0xFF << 3;
 
       DDRK = 0x00;
-      PORTK = 0xFF;
+      PORTK = 0x00;
       // int inpinbase = 8;
 
       // for (currentReadMatrixButton = 0; currentReadMatrixButton < NUM_LEDS; currentReadMatrixButton++) {
@@ -203,13 +203,16 @@ class LedButtons {
 
       long currentTime=millis();
 
-
-
       uint32_t digitalOn = PINK & test;
 
       uint16_t tButton = buttonsRemap[currentReadMatrixButton];
-      uint16_t matrixButton = currentReadMatrixButton-8;
-      bool getVelocity=matrixButton<16;
+      uint16_t matrixButton = tButton-8;
+      // bool getVelocity=matrixButton<16;
+      bool getVelocity=false;
+      uint16_t analog=0;
+      if(getVelocity){
+        analog=analogRead(MUXBX[row]);
+      }
 
       //we checked the row, now we want to use the test to compare with the pixel number.
       //I am recycling the variable
@@ -221,13 +224,13 @@ class LedButtons {
         if (!(test & pressedButtonsBitmap)) {
           pressedButtonsBitmap |= test;
           buttonPressedCallback(tButton, pressedButtonsBitmap);
-          if(getVelocity){
-            uint16_t analog=analogRead(MUXBX[row]);
-            uint8_t velo=analog-matrixButtonStatus[matrixButton][0];
-            buttonVelocityCallback(matrixButton,velo);
-          }
         }
-
+        if(getVelocity){
+          // uint8_t velo=(analog-matrixButtonStatus[matrixButton][0])*3;
+          // velo /= (currentTime-matrixButtonStatus[matrixButton][1]);
+          // buttonVelocityCallback(matrixButton,velo);
+          buttonVelocityCallback(matrixButton,analog/4);
+        }
       } else {
         //button is depressed, and was pressed last time
         if (test & pressedButtonsBitmap) {
@@ -235,8 +238,9 @@ class LedButtons {
           buttonReleasedCallback(tButton);
         }
         if(getVelocity){
-          uint16_t analog=analogRead(MUXBX[row]);
+          // uint16_t analog=analogRead(MUXBX[row]);
           matrixButtonStatus[matrixButton][0]=analog;
+          matrixButtonStatus[matrixButton][1]=currentTime;
         }
       }
 
