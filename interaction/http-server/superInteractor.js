@@ -51,12 +51,6 @@ module.exports=function(environment,socket){
         name:module.name,
         kind:module.type
       });
-      console.log(">>+module",{
-        type:'+ module',
-        unique:moduleUnique,
-        name:module.name,
-        kind:module.type
-      });
       nInterface.http.triggerModuleData(function(data){
         if(data.output){
           //TODO: do actual cleanup
@@ -66,31 +60,41 @@ module.exports=function(environment,socket){
             destination:getUniqueOf(data.output)
           });
         }
+        if(data.steps){
+          //TODO: do actual cleanup
+          if(active)socket.send({
+            type:'~ module',
+            origin:moduleUnique
+          });
+        }
       });
 
       for(var action of listeners){
         var actionListener=new(function(eventName){
-          var evtt={}
-          this.send=function(evt){
-            for(var a in evt){
-              evtt[a]=evt[a];
+          if(active){
+            this.send=function(evt){
+              var evtt={}
+              for(var a in evt){
+                evtt[a]=evt[a];
+              }
+              if(evtt.origin){
+                evtt.origin=getUniqueOf(evtt.origin);
+                if(evtt.origin===false) return;
+
+                // console.log("ORIG",(evtt.origin));
+              }
+              if(evtt.destination){
+                evtt.destination=getUniqueOf(evtt.destination);
+                if(evtt.destination===false) return;
+                // console.log("DEST",(evtt.destination));
+              }
+              if(eventName=="~ module"){
+                evtt.origin=moduleUnique;
+                // console.log("CHANGE",self.loopLength.value);
+              }
+              evtt.type=eventName;
+              if(active) socket.send(evtt);
             }
-            if(evtt.origin){
-              evtt.origin=getUniqueOf(evtt.origin);
-              if(evtt.origin===false) return;
-              // console.log("ORIG",(evtt.origin));
-            }
-            if(evtt.destination){
-              evtt.destination=getUniqueOf(evtt.destination);
-              if(evtt.origin===false) return;
-              // console.log("DEST",(evtt.destination));
-            }
-            if(eventName=="~ module"){
-              evtt.origin=moduleUnique;
-              // console.log("CHANGE",self.loopLength.value);
-            }
-            evtt.type=eventName;
-            if(active) socket.send(evtt);
           }
         })(action);
         module.on(action,actionListener.send);

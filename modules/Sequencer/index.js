@@ -144,6 +144,7 @@ var Sequencer = function(properties,environment) {
   }
   // self.on('~ module',console.log);
   this.handleStepsChange=function(){
+    // console.log("STEPCHANGE");
     self.handle('~ module',{steps:self.loopLength.value});
     self.loopLength.lastWatchedValue=self.loopLength.value;
   }
