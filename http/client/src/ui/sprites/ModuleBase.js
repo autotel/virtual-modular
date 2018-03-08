@@ -1,5 +1,6 @@
 var Base=require('./Base.js');
 module.exports=function(ui,properties){
+  Base.call(this,ui,properties);
   // console.log(ui);
   var force=ui.forceLayout;
   // console.log(force);
@@ -7,17 +8,17 @@ module.exports=function(ui,properties){
   this.forceNode=force.getOrMakeNode(properties,function(node){
     return node.unique==properties.unique;
   });
-  this.message=function(to,msg){
+  this.messageOut=function(to,msg){
     var exists=self.forceNode.getLinkTo(to.sprite.forceNode);
     if(exists){
       exists.highlight();
     }else{
       console.warn("couldn't find a link to highlight");
     }
+
   }
 
   properties.draggable=true;
-  Base.call(this,ui,properties);
   if(properties.name){
     var text=new Konva.Text({
       x:10,

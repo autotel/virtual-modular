@@ -8,13 +8,15 @@ module.exports=function(ui,properties){
   var speed=Math.random();
   var steps=0;
 
+  var circlesGroup=new Konva.Group();
+  var rotation=0;
+  this.K.add(circlesGroup);
 
   var circles=[];
 
   function setLength(to){
-    var steps=to;
+    steps=to;
 
-    var obq=22;
     for(var n=0; n<to; n++){
       if(!circles[n]){
         circles[n]=new Konva.Circle({
@@ -23,13 +25,14 @@ module.exports=function(ui,properties){
           stroke: 'white',
           strokeWidth: 1
         });
-        self.K.add( circles[n] );
+        circlesGroup.add( circles[n] );
       }else{
         circles[n].setAttr('visible',true);
       }
 
       var modPos=(n/to);
 
+      var obq=to*4;
       circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
       circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
 
@@ -61,8 +64,17 @@ module.exports=function(ui,properties){
   setLength(0);
 
   this.applyChanges=function(properties){
-    if(properties.steps) setLength(properties.steps);
+
+    if(properties.steps!==undefined) setLength(properties.steps);
   }
+  this.messageIn=function(from,val){
+    if(val[0]==0){
+      if(steps>0){
+        rotation--;
+        circlesGroup.setAttr('rotation',(3/steps)*rotation);
+      }
+    }
+  };
 
   var place={x:0,y:0}
   place.x=Math.random()*100;

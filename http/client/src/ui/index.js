@@ -69,7 +69,12 @@ module.exports=function(environment){
       event.origin.sprite.disconnectTo(event.destination.sprite);
     });
     environment.on('> message',function(event){
-      event.origin.sprite.message(event.destination);
+      // console.log(event);
+      event.origin.sprite.messageOut(event.destination,event.value);
+      if(event.destination.sprite.messageIn){
+        event.destination.sprite.messageIn(event.origin,event.value);
+      }
+
     });
   }
   window.onload=start;

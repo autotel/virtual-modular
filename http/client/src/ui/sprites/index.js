@@ -6,4 +6,5 @@ module.exports={
   Sequencer:require('./Sequencer.js'),
   Arpeggiator:require('./Arpeggiator.js'),
   Narp:require('./Narp.js'),
+  MidiIO:require('./MidiIO.js'),
 }

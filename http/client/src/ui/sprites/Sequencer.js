@@ -10,11 +10,11 @@ module.exports=function(ui,properties){
 
 
   var circles=[];
-
+  var circlesGroup=new Konva.Group();
+  var rotation=0;
+  this.K.add(circlesGroup);
   function setLength(to){
-    var steps=to;
-
-    var obq=22;
+    var obq=30;
     for(var n=0; n<to; n++){
       if(!circles[n]){
         circles[n]=new Konva.Circle({
@@ -23,19 +23,16 @@ module.exports=function(ui,properties){
           stroke: 'white',
           strokeWidth: 1
         });
-        self.K.add( circles[n] );
+        circlesGroup.add( circles[n] );
       }else{
         circles[n].setAttr('visible',true);
       }
+      steps=to;
 
       var modPos=(n/16)%1;
-
       circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
       circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
-
-      if(to>16)
-      obq+=0.5;
-
+      if(to>16) obq-=0.5;
     }
     for(var n=to; n<circles.length; n++){
       circles[n].setAttr('visible',false);
@@ -60,6 +57,16 @@ module.exports=function(ui,properties){
 
   setLength(16);
 
+  this.messageIn=function(from,val){
+    if(val[0]==0){
+
+      if(steps>0){
+        rotation++;
+        circlesGroup.setAttr('rotation',(3/steps)*rotation);
+      }
+    }
+
+  };
   this.applyChanges=function(properties){
     if(properties.steps) setLength(properties.steps);
   }
@@ -75,10 +82,18 @@ module.exports=function(ui,properties){
   var absTime=0;
 
   // this.update=function(evt){
-    // _upd(evt);
-
-    // if(evt.type=="clock"){
-    //
-    // }
+  //   _upd(evt);
+  //
+  //   if(evt.type=="clock"){
+  //     for(var n=0; n<to; n++){
+  //       var modPos=(n/16)%1;
+  //       var obq=circles[n].startAnimation;
+  //       circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
+  //       circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
+  //       if(circles[n].startAnimation<10){
+  //         circles[n].startAnimation++;
+  //       }
+  //     }
+  //   }
   // }
 }

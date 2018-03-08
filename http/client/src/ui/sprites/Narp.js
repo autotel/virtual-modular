@@ -8,11 +8,14 @@ var Narp=function(ui,properties){
   var speed=Math.random();
   var steps=0;
 
+  var circlesGroup=new Konva.Group();
+  var rotation=0;
+  this.K.add(circlesGroup);
 
   var circles=[];
 
   function setLength(to){
-    var steps=to;
+    steps=to;
 
     var obq=22;
     for(var n=0; n<to; n++){
@@ -23,12 +26,13 @@ var Narp=function(ui,properties){
           stroke: 'white',
           strokeWidth: 1
         });
-        self.K.add( circles[n] );
+        circlesGroup.add( circles[n] );
       }else{
         circles[n].setAttr('visible',true);
       }
 
       var modPos=(n/to);
+      var obq=to*4;
 
       circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
       circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
@@ -39,7 +43,6 @@ var Narp=function(ui,properties){
     }
     for(var n=to; n<circles.length; n++){
       circles[n].setAttr('visible',false);
-
     }
 
     // eachStepCircle(function(circle,n){
@@ -57,12 +60,23 @@ var Narp=function(ui,properties){
       callback(circles[n],n);
     }
   };
-
   setLength(0);
 
   this.applyChanges=function(properties){
-    if(properties.steps) setLength(properties.steps);
+    // console.log("change",properties);
+    if(properties.steps!==undefined) setLength(properties.steps);
   }
+  this.messageIn=function(from,val){
+    if(val[0]==0){
+
+      if(steps>0){
+        rotation--;
+
+        circlesGroup.setAttr('rotation',(3/steps)*rotation);
+      }
+    }
+
+  };
 
   var place={x:0,y:0}
   place.x=Math.random()*100;
