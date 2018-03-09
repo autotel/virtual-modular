@@ -214,10 +214,13 @@ module.exports=function(sequencerModule){ return new(function(){
     }
   }
   this.stepMicro=function(base,number){
-    microStepDivide=base;
-    microStep.value=ramp(number-self.microStepDisplace.value,base);
+    microStepDivide.value=base;
+    if(stepDivide.value<1){
+      microStepDivide.value*=stepDivide.value;
+    }
+    microStep.value=ramp(number-self.microStepDisplace.value,microStepDivide.value);
     // console.log(microStep.value);
-      if(microStep.value==0){
+      if(microStep.value%microStepDivide.value==0){
         if(self.playing.value){
           // if(clockIncremental){
           // self.step();
@@ -227,6 +230,7 @@ module.exports=function(sequencerModule){ return new(function(){
           currentStep.value+=loopDisplace.value;
           loopDisplace.value=0;
           if(substep.value>=stepDivide.value){
+            // console.log(stepDivide);
             step(currentStep.value);
             currentStep.value++;
             // console.log("mememe");

@@ -7,7 +7,7 @@ var utils=require('./utils.js');
 var requireProperties=utils.requireProperties;
 
 var Environment=function(){
-
+  this.utils=utils;
   this.log=console.log;
   Observable.call(this);
   var self=this;

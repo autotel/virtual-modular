@@ -93,20 +93,22 @@ var SuperInteractorsSingleton = function(environment) {
           updateLeds();
 
         }
+        if (muteMode) {
+          selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
+
+        } else if (deleteMode) {
+          if (environment.modules.removeModuleN(event.button)) {
+            modules.list.splice(event.button, 1);
+            selectedInterface = false;
+            selectedModule = false;
+          }
+        } else {}
+        updateLeds();
         if (!selectedInterface) {
           selectedInterface = false;
           if (event.data[0] == modules.list.length) myModuleCreator.engage();
         } else {
-          if (muteMode) {
-            selectedInterface.controlledModule.mute = (false == selectedInterface.controlledModule.mute);
 
-          } else if (deleteMode) {
-            if (environment.modules.removeModuleN(event.button)) {
-              modules.list.splice(event.button, 1);
-              selectedInterface = false;
-            }
-          } else {}
-          updateLeds();
         }
       } else {
         engagedInterface.matrixButtonPressed(event);

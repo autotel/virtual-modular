@@ -80,7 +80,7 @@ module.exports = function(controlledModule, environment) {
       "shift+cpte.": { value:0 },
       "loop look": lookLoop,
       "page": {value:0},
-      "step div": controlledModule.stepDivide,
+      "step length": {value:controlledModule.stepDivide.value},
       "drift substep": controlledModule.loopDisplace,
       "microstep offset": controlledModule.microStepDisplace,
       "playing": controlledModule.playing,
@@ -89,6 +89,20 @@ module.exports = function(controlledModule, environment) {
       "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
     }
   });
+
+  configurators.time.vars["step length"].changeFunction=function(thisVar,delta){
+    thisVar.value+=delta;
+    if(thisVar.value<-4){
+      thisVar.value-=delta;
+    }else if(thisVar.value<1){
+      controlledModule.stepDivide.value=Math.pow(2,thisVar.value);//go by 12 divisible numbers: Math.floor( Math.pow(2,-1)/(1/12) )/12
+    }else{
+      controlledModule.stepDivide.value=thisVar.value;
+    }
+  }
+  configurators.time.vars["step length"].nameFunction=function(thisVar){
+    return "to "+controlledModule.stepDivide.value;
+  }
   configurators.time.vars["shift+cpte."].changeFunction=function(v,d){
     v.value+=d;
     controlledModule.offsetSequence(d);
@@ -153,11 +167,6 @@ module.exports = function(controlledModule, environment) {
       thisVar.value += delta;
     thisVar.value=thisVar.value%controlledModule.loopLength.value;
     currentViewStartStep=thisVar.value*16;
-  }
-
-  configurators.time.vars["step div"].changeFunction = function(thisVar, delta) {
-    if (thisVar.value + delta >= 1)
-      thisVar.value += delta;
   }
 
   configurators.time.vars["drift substep"].nameFunction = function(thisVar) {

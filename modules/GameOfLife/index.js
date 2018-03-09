@@ -104,25 +104,35 @@ var GameOfLife = function(properties) {
   }
 
   this.eventReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
-      clock.subStep++;
-      if (clock.subStep >= clock.subSteps) {
-        clock.subStep = 0;
+    //to achieve microsteps divisions
 
-        if(settings.duration.value){
-          noteOnTracker.empty(function(noff){
-            // console.log("OFF",noff.value);
-            thisInstance.output(noff, true);
-          });
-          cellOperation();
-        }else{
-          cellOperation();
-          noteOnTracker.empty(function(noff){
-            // console.log("OFF",noff.value);
-            thisInstance.output(noff, true);
-          });
+    var eventMessage=evt.eventMessage;
+    if (evt.eventMessage.value[0] == CLOCKTICKHEADER ) {
+      var microStep=eventMessage.value[2];
+      var microSteps=eventMessage.value[1];
+      if(clock.subSteps<1){
+        microSteps*=clock.subSteps;
+        console.log("MCL",microStep % microSteps);
+      }
+      if(microStep % microSteps == 0){
+        clock.subStep++;
+        if (clock.subStep >= clock.subSteps) {
+          clock.subStep = 0;
+          if(settings.duration.value){
+            noteOnTracker.empty(function(noff){
+              // console.log("OFF",noff.value);
+              thisInstance.output(noff, true);
+            });
+            cellOperation();
+          }else{
+            cellOperation();
+            noteOnTracker.empty(function(noff){
+              // console.log("OFF",noff.value);
+              thisInstance.output(noff, true);
+            });
+          }
+          this.handle('step');
         }
-        this.handle('step');
       }
     } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
       // this.setFixedStep(evt.eventMessage.value[2]%16);

@@ -22,8 +22,17 @@ module.exports = function(controlledModule) {
         value: controlledModule.clock.subSteps,
         changeFunction:function(thisVar,delta){
           thisVar.value+=delta;
-          controlledModule.clock.subSteps=thisVar.value;
+          if(thisVar.value<-4){
+            thisVar.value-=delta;
+          }else if(thisVar.value<1){
+            controlledModule.clock.subSteps=Math.pow(2,thisVar.value);//go by 12 divisible numbers: Math.floor( Math.pow(2,-1)/(1/12) )/12
+          }else{
+            controlledModule.clock.subSteps=thisVar.value;
+          }
           console.log(controlledModule.clock);
+        },
+        nameFunction:function(thisVar){
+          return "to "+controlledModule.clock.subSteps;
         }
       },
       "duration": controlledModule.settings.duration

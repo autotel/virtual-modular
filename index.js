@@ -14,6 +14,7 @@ var modulesToLoad = {
   'Bus': {},
   'ClockGenerator': {},
   'Operator': {},
+  'Bouncer': {},
   'MidiIO': {},
   'Harmonizer': {},
   'Quarmonizer': {},
