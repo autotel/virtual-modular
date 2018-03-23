@@ -89,7 +89,8 @@ var SuperInteractorsSingleton = function(environment) {
     let lCompConfigurator= enviroVarConfig.vars["ambt. light"];
 
     this.on('interaction', function(event) {
-      // console.log("28 int");
+
+        // console.log("28 int",event);
       if (engagedInterface) {
         engagedInterface.handle('interaction', event);
       }
@@ -162,6 +163,15 @@ var SuperInteractorsSingleton = function(environment) {
       if (matrixButtonOwners[event.data[0]]) {
         matrixButtonOwners[event.data[0]].matrixButtonHold(event);
       } else {}
+    });
+    this.on('matrixButtonVelocity', function(event) {
+      // console.log("VELO");
+      if (matrixButtonOwners[event.data[0]]) {
+        matrixButtonOwners[event.data[0]].matrixButtonVelocity(event);
+        // console.log("YES",event.data);
+      } else {
+        // console.log("NO",matrixButtonOwners);
+      }
     });
     this.on('bottomButtonPressed', function(event) {
       if (engagedInterface) {

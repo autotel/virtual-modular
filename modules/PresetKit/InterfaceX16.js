@@ -6,6 +6,9 @@ var RecordMenu = require('../x28utils/RecordMenu.js');
 
 var base = require('../../interaction/x16basic/interactorBase.js');
 var SQUARE = String.fromCharCode(252);
+
+
+
 /**
 definition of a presetkit interactor for the x16basic controller hardware
 */
@@ -16,6 +19,8 @@ module.exports = function(controlledModule, environment) {
   //configurators setup
   var engagedConfigurator = false;
   var configurators = this.configurators = {};
+
+  var usingVelocity=false;
 
   var muteBmp = 0;
   var muteMode = false;
@@ -94,6 +99,16 @@ module.exports = function(controlledModule, environment) {
   controlledModule.on('kit changed', function() {
     updateAvailablePresetsBitmap();
   });
+
+  this.matrixButtonVelocity = function(event) {
+    //the if prevents retrigger the first time
+    if(usingVelocity){
+      // console.log(event);
+      controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
+    }
+    usingVelocity=true;
+  };
+
   this.matrixButtonPressed = function(event) {
     var hardware = event.hardware;
     if (muteMode) {
@@ -113,7 +128,9 @@ module.exports = function(controlledModule, environment) {
       } else {
         selectedPresetNumbers = [event.button];
       }
-      controlledModule.uiTriggerOn(event.button);
+      if(!usingVelocity){
+        controlledModule.uiTriggerOn(event.button);
+      }
       if(controlledModule.autoMap!==false){
         if (controlledModule.kit[0])
           configurators.event.setFromEventMessage(controlledModule.kit[0], hardware);
@@ -127,6 +144,7 @@ module.exports = function(controlledModule, environment) {
       updateHardware(hardware);
     }
   };
+
   this.matrixButtonReleased = function(event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonReleased(event);
@@ -134,6 +152,7 @@ module.exports = function(controlledModule, environment) {
       controlledModule.uiTriggerOff(event.button);
     }
   };
+
   this.matrixButtonHold = function(event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonHold(event);

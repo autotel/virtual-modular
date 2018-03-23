@@ -58,7 +58,6 @@ var SuperInteractorsSingleton = function(environment) {
     onHandlers.call(this);
     var myModuleCreator = new ModuleCreator(myHardware,environment);
     this.on('interaction', function(event) {
-      // console.log("28 int");
       if (engagedInterface) {
         engagedInterface.handle('interaction', event);
       }

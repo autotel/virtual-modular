@@ -14,6 +14,7 @@ var x28InteractorBase=function(controlledModule){
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};
   this.matrixButtonHold=function(event){};
+  this.matrixButtonVelocity=function(event){};
   this.selectorButtonPressed=function(event){};
   this.selectorButtonReleased=function(event){};
   this.encoderScrolled=function(event){};
