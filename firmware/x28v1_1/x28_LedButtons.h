@@ -169,13 +169,14 @@ class LedButtons {
 
 
     uint16_t currentReadMatrixButton=0;
-    uint8_t MUXBX [4] = {A10,A11,A12,A13};
+                        //PK 0,1,{2,3,4,5},6
+    uint8_t ANALOG_ROW [4] = {A10,A11,A12,A13};
     long matrixButtonStatus [16][2];
     void setup_readMatrixButtons_velocity(){
-      pinMode(MUXBX[0],INPUT);
-      pinMode(MUXBX[1],INPUT);
-      pinMode(MUXBX[2],INPUT);
-      pinMode(MUXBX[3],INPUT);
+      pinMode(ANALOG_ROW[0],INPUT);
+      pinMode(ANALOG_ROW[1],INPUT);
+      pinMode(ANALOG_ROW[2],INPUT);
+      pinMode(ANALOG_ROW[3],INPUT);
       for(uint8_t a=0; a<16; a++){
         for(uint8_t b=0; b<2; b++){
           matrixButtonStatus[a][b]=0;
@@ -207,11 +208,11 @@ class LedButtons {
 
       uint16_t tButton = buttonsRemap[currentReadMatrixButton];
       uint16_t matrixButton = tButton-8;
-      // bool getVelocity=matrixButton<16;
-      bool getVelocity=false;
+      bool getVelocity=matrixButton<16;
+      // bool getVelocity=false;
       uint16_t analog=0;
       if(getVelocity){
-        analog=analogRead(MUXBX[row]);
+        analog=analogRead(ANALOG_ROW[row-2]);
       }
 
       //we checked the row, now we want to use the test to compare with the pixel number.
@@ -238,7 +239,7 @@ class LedButtons {
           buttonReleasedCallback(tButton);
         }
         if(getVelocity){
-          // uint16_t analog=analogRead(MUXBX[row]);
+          // uint16_t analog=analogRead(ANALOG_ROW[row]);
           matrixButtonStatus[matrixButton][0]=analog;
           matrixButtonStatus[matrixButton][1]=currentTime;
         }
