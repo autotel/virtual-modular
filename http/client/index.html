@@ -16,7 +16,11 @@
   </head>
   <body>
   <style>
-
+body{
+  font-family: roboto;
+  color:rgba(255,255,255,0.4);
+  font-size: 23px;
+}
 rect {
   fill: none;
   pointer-events: all;
@@ -33,6 +37,12 @@ rect {
   visibility: hidden;
 }
 
+#logo {
+  position:fixed;
+  bottom:5px;
+  right:10px;
+}
+
 .link {
   stroke: #766090;
 
@@ -45,6 +55,7 @@ svg{
 }
 
 </style>
+  <div id="logo">@autotel</div>
   <div id="konva" style="position:fixed; left:0; top:0; z-index:100"></id>
   </body>
   <script>
