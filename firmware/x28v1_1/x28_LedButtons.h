@@ -225,12 +225,13 @@ class LedButtons {
         if (!(test & pressedButtonsBitmap)) {
           pressedButtonsBitmap |= test;
           buttonPressedCallback(tButton, pressedButtonsBitmap);
-        }
-        if(getVelocity){
-          // uint8_t velo=(analog-matrixButtonStatus[matrixButton][0])*3;
-          // velo /= (currentTime-matrixButtonStatus[matrixButton][1]);
-          // buttonVelocityCallback(matrixButton,velo);
-          buttonVelocityCallback(matrixButton,analog/4);
+          if(getVelocity){
+            // uint8_t velo=analog;
+            uint16_t velo=max(0,analog-matrixButtonStatus[matrixButton][0]);
+            velo /= (currentTime-matrixButtonStatus[matrixButton][1]);
+            buttonVelocityCallback(matrixButton,min(0xff,velo));
+            // buttonVelocityCallback(matrixButton,analog/4);
+          }
         }
       } else {
         //button is depressed, and was pressed last time
