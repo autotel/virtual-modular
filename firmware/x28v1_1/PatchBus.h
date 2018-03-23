@@ -6,7 +6,7 @@
 #define state_receiving 0x02
 #define state_writing 0x03
 #define comBusPin 15
-#define serialDebug true
+#define serialDebug false
 
 //hardware pin namings
 #define DDRBUS DDRB

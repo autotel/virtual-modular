@@ -36,12 +36,10 @@ void setup() {
 
   controllerMode.setup(& hardware, & midi, & patchBus);
   sequencerMode.setup(& hardware, & midi, & patchBus);
-  patchBus.setup();
-  patchBus.addMessageListener(onBusMessageReceived);
-  patchBus.start();
-  // patchBus.onData(onBusMessageReceived);
-  patchBus.addMessageListener(onBusMessageReceived);
-  // patchBus.debug_onTip(test_onTip);
+  // patchBus.setup();
+  // patchBus.addMessageListener(onBusMessageReceived);
+  // patchBus.start();
+  // patchBus.addMessageListener(onBusMessageReceived);
 
   Timer1.initialize(800);
   Timer1.attachInterrupt(onInterrupt);
@@ -141,8 +139,8 @@ void loop() {
       hardware.lcdPrintB((char&) str[0]);
 
 
-      lcd.setCursor(0, 1);
-      lcd.write(patchBus.test_count);
+      // lcd.setCursor(0, 1);
+      // lcd.write(patchBus.test_count);
 
     } else {
       sequencerMode.loop();
@@ -151,7 +149,7 @@ void loop() {
     controllerMode.loop();
   }
   hardware.loop();
-  patchBus.loop();
+  // patchBus.loop();
 
   midi.loop();
 }
