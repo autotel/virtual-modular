@@ -2,3 +2,4 @@ node_modules
 documentation
 midi-options.js
 http/client/js/main.js
+firmware/
