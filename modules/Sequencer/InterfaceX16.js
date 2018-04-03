@@ -24,7 +24,7 @@ definition of a monoSequencer interactor for the x16basic controller hardware
 */
 module.exports = function(controlledModule, environment) {
   base.call(this);
-
+  var self=this;
   //boilerplate
 
   base.call(this, controlledModule);
@@ -299,7 +299,7 @@ module.exports = function(controlledModule, environment) {
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         if (engagedConfigurator === false)
-          updateLeds(hardware);
+          self.updateLeds(hardware);
       }
     // loopDisplace.value=controlledModule.loopDisplace.value;
   });
@@ -352,7 +352,7 @@ module.exports = function(controlledModule, environment) {
         noteLengthnerStartPointsBitmap |= 0x1 << button;
         noteLengthnerLengthsBitmap = noteLengthnerStartPointsBitmap;
       }
-      updateLeds(hardware);
+      self.updateLeds(hardware);
     } else {
 
       engagedConfigurator.matrixButtonPressed(event);
@@ -376,7 +376,7 @@ module.exports = function(controlledModule, environment) {
 
 
     if (engagedConfigurator === false) {
-      updateLeds(hardware);
+      self.updateLeds(hardware);
     } else {
 
       engagedConfigurator.matrixButtonPressed(event);
@@ -397,7 +397,7 @@ module.exports = function(controlledModule, environment) {
       lastEngagedConfigurator = engagedConfigurator = false;
       skipMode = true;
       hardware.sendScreenA("skip to step");
-      updateLeds(hardware);
+      self.updateLeds(hardware);
     } else if (event.data[0] == 1) {
       /**TODO: use configurator objects instead of their names**/
       engagedConfigurator = configurators.event;
@@ -413,7 +413,7 @@ module.exports = function(controlledModule, environment) {
       lastEngagedConfigurator = engagedConfigurator = false;
       shiftPressed = true;
       hardware.sendScreenA("select through");
-      updateLeds(hardware);
+      self.updateLeds(hardware);
     } else if (event.data[0] >= 4){
       var wouldPage=(event.data[0]-4)*16;
       //pressed the same button for a second time, and is one of both extreme buttons
@@ -455,7 +455,7 @@ module.exports = function(controlledModule, environment) {
     if (lastEngagedConfigurator) {
       lastEngagedConfigurator.encoderScrolled(event);
     }
-    updateLeds(hardware);
+    self.updateLeds(hardware);
   };
   this.encoderPressed = function(event) {};
   this.encoderReleased = function(event) {};
@@ -475,7 +475,7 @@ module.exports = function(controlledModule, environment) {
       configurators.event.setFromEventPattern(lastRecordedNote);
       lastRecordedNote = false;
     }
-    updateLeds(hardware);
+    self.updateLeds(hardware);
   };
   this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
@@ -484,9 +484,9 @@ module.exports = function(controlledModule, environment) {
   //feedback functions
   var updateHardware = function(hardware) {
     // hardware.sendScreenA(controlledModule.name);
-    updateLeds(hardware);
+    self.updateLeds(hardware);
   }
-  // var updateLeds=function(hardware){
+  // var self.updateLeds=function(hardware){
   //   stepsBmp=getBitmap16();
   //   hardware.draw([playHeadBmp,playHeadBmp|stepsBmp,stepsBmp]);
   // }
@@ -503,14 +503,17 @@ module.exports = function(controlledModule, environment) {
   var moreBluredFilter = new configurators.event.Filter({
     header: true
   });
+  var filterNone = new configurators.event.Filter({
+  });
 
-  function updateLeds(hardware) {
+  self.updateLeds=function(hardware) {
     //actually should display also according to the currently being tweaked
     var showThroughfold = lastEngagedConfigurator == configurators.time;
     var mostImportant = getBitmapx16(shiftPressed ? moreBluredFilter : focusedFilter, showThroughfold);
-    var mediumImportant = getBitmapx16(moreBluredFilter, showThroughfold);
+    var mediumImportant = getBitmapx16(bluredFilter, showThroughfold);
     mediumImportant |= noteLengthnerStartPointsBitmap;
-    var leastImportant = getBitmapx16(bluredFilter, false, !shiftPressed); //red, apparently
+    var leastImportant = getBitmapx16(moreBluredFilter, false, !shiftPressed);
+    var everyEvent = getBitmapx16(filterNone, false, false);
     leastImportant |= noteLengthnerLengthsBitmap;
     var drawStep = 0;
     var playHeadBmp = 0;
@@ -530,9 +533,10 @@ module.exports = function(controlledModule, environment) {
     }
 
     hardware.draw([
-      playHeadBmp ^ mostImportant,
+      (playHeadBmp ^ mostImportant)|(shiftPressed?(everyEvent^mediumImportant):0),
       playHeadBmp | mostImportant | mediumImportant,
-      (mostImportant) | mediumImportant | leastImportant,
+      mostImportant | mediumImportant | leastImportant,
     ]);
+    return [mostImportant,mediumImportant,leastImportant,everyEvent];
   }
 }
