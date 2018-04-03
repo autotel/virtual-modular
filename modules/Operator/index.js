@@ -32,7 +32,7 @@ var Operator = function(properties) {
   //maybe the operator should allow layering of many operation layers, also adding timing operations
 
   var self = this;
-
+  this.preventBus=true;
   this.color = [255, 0, 255];
   this.baseName = "Operator";
 
