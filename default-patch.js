@@ -13,7 +13,7 @@ module.exports=[
     type:'Sequencer',
     outputs:[]
   },{
-    type:'Arpeggiator',
+    type:'Bouncer',
     outputs:['O-to DAW']
   },{
     type:'PresetKit',

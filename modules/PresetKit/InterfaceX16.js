@@ -106,7 +106,7 @@ module.exports = function(controlledModule, environment) {
       // console.log(event);
       controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
     }
-    usingVelocity=true;
+    // usingVelocity=true;
   };
 
   this.matrixButtonPressed = function(event) {

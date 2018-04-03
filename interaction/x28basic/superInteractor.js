@@ -106,15 +106,17 @@ var SuperInteractorsSingleton = function(environment) {
         myModuleCreator.matrixButtonPressed(event);
       } else if (!engagedInterface) {
         if (firstPressedMatrixButton === false) {
-          selectedModule = tryGetModuleN(event.button);
-          selectedInterface = tryGetInterfaceN(event.button);
+          var selected=tryGetModuleN(event.button);
+          selectedModule = selected.module;
+          selectedInterface = selected.interface;
           selectedModuleNumber = (selectedModule ? event.button : false);
           engageOnRelease=true;
           firstPressedMatrixButton = event.data[0];
           updateHardware();
         } else {
-          var modulea = tryGetModuleN(firstPressedMatrixButton);
-          var moduleb = tryGetModuleN(event.button);
+
+          var modulea = tryGetModuleN(firstPressedMatrixButton).module;
+          var moduleb = tryGetModuleN(event.button).module;
 
           if (modulea && moduleb) try {
             var connected = modulea.toggleOutput(moduleb);
@@ -126,8 +128,8 @@ var SuperInteractorsSingleton = function(environment) {
           }
 
         }
-        if (!selectedInterface) {
-          selectedInterface = false;
+        if (!selectedModule) {
+          selectedModule = false;
           if (event.data[0] == modules.list.length) myModuleCreator.engage();
         } else {
           if (muteMode) {
@@ -136,7 +138,7 @@ var SuperInteractorsSingleton = function(environment) {
 
           } else if (deleteMode) {
             if (environment.modules.removeModuleN(event.button)) {
-
+              selectedModule=false;
               selectedInterface = false;
             }
           } else {}
@@ -380,33 +382,34 @@ var SuperInteractorsSingleton = function(environment) {
     }
 
     function tryGetModuleN(number) {
-      if (number < modules.list.length) {
-        return modules.list[number];
+      var ret={
+        module:false,
+        interface:false
       }
-      return false;
-    }
-
-    function tryGetInterfaceN(number) {
       if (number < modules.list.length) {
         //the module interactor is instnced by the superInteractor, hence, each module could have one interactor instance per each hardware that is connected. This would allow more independent control of modules.
         var moduleInstance=modules.list[number];
+        ret.module=moduleInstance;
         if (moduleInstance._instancedInterfaces.X28){
-          return moduleInstance._instancedInterfaces.X28;
+          ret.interface= moduleInstance._instancedInterfaces.X28;
         }else{
           if (moduleInstance.interfaces.X28) {
             moduleInstance._instancedInterfaces.X28 = new moduleInstance.interfaces.X28(moduleInstance,environment);
-            return moduleInstance._instancedInterfaces.X28;
+            ret.interface= moduleInstance._instancedInterfaces.X28;
           } else if (moduleInstance.interfaces.X16) {
             // console.log("GET INTERFACE",modules.list[number].interfaces.X16);
             moduleInstance._instancedInterfaces.X28 = new moduleInstance.interfaces.X16(moduleInstance,environment);
-            return moduleInstance._instancedInterfaces.X28;
+            ret.interface= moduleInstance._instancedInterfaces.X28;
           } else {
             console.log(moduleInstance.name, " had no interfaces.X28 property nor interfaces.X16 property");
           }
         }
       }
-      return false;
+      return ret;
     }
+    // function tryGetInterfaceN(number) {
+    //
+    // }
   }
 };
 
