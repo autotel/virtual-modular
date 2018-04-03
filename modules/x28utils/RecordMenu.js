@@ -32,9 +32,12 @@ var RecordMenu = function(parentInteractor, properties) {
   var limitOptions=function(){
     modules=[];
     for(var tmodule of environment.modules.list){
-      if(tmodule.outputs.has(controlledModule)){
-        modules.push(tmodule);
+      if(!tmodule.preventRecord){
+        if(tmodule.outputs.has(controlledModule)){
+          modules.push(tmodule);
+        }
       }
+
     }
 
   }

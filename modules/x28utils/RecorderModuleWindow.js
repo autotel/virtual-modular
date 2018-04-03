@@ -1,3 +1,4 @@
+/*DEPRECATE*/
 'use strict';
 var RecorderModuleWindow=function(controlledModule,environment){
   this.recorder=false;
