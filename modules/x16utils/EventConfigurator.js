@@ -139,7 +139,7 @@ var EventConfigurator=function(parentInteractor,properties){
         if(criteria.value_b)
           ret&=(onMessage.value[2]===baseEvent.value[2]);
         if(criteria.value_c)
-          ret&=(onMessage.value[2]===baseEvent.value[2]);
+          ret&=(onMessage.value[3]===baseEvent.value[3]);
       }
       return ret;
     }
