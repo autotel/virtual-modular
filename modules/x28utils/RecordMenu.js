@@ -102,6 +102,9 @@ var RecordMenu = function(parentInteractor, properties) {
   this.encoderReleased = function(event) {
     var hardware = event.hardware;
   };
+  this.redraw = function(hardware){
+    updateLeds(hardware);
+  }
   this.engage = function(event) {
     if(!environment.vars.advancedRecording) limitOptions();
 
