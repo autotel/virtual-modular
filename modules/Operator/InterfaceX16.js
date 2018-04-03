@@ -26,13 +26,11 @@ module.exports = function(controlledModule,environment) {
         self.op=controlledModule.availOps-1;
       }
       controlledModule.opMap[varn]=self.op;
-      controlledModule.triggerOperationChange();
     }
     var valChangeFunction=function(thisVar, delta){
       console.log(self.value);
       self.value+=delta;
       controlledModule.baseEventMessage.value[varn]=self.value;
-      controlledModule.triggerValueChange();
     }
     var nameFunction=function(thisVar){
       if(!self.op) return "nothing"

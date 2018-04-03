@@ -15,8 +15,6 @@ var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
-var TRIGGERCHANGEVALUESHEADER = 0X03;
-var TRIGGERCHANGEOPERATIONHEADER = 0x04;
 var instancesCount = 0;
 var testGetName = function() {
   this.name = this.baseName + " " + instancesCount;
@@ -38,23 +36,7 @@ var Operator = function(properties) {
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
 
-  var operationEventMessage=new EventMessage({value:[TRIGGERCHANGEOPERATIONHEADER,0,0,0,0]});
-  var valuesEventMessage=new EventMessage({value:[TRIGGERCHANGEVALUESHEADER,0,0,0,0]});
-
   let opMap = this.opMap=[0,0,0,0];
-  operationEventMessage.update=function(){
-    console.log(this);
-    for(var n in opMap){
-      this.value[n+1]=opMap[n];
-    }
-  }
-
-  valuesEventMessage.update=function(){
-    console.log(this);
-    for(var n in opMap){
-      this.value[n+1]=baseEventMessage.value[n];
-    }
-  }
 
   testGetName.call(this);
 
