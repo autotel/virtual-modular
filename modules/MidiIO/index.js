@@ -14,7 +14,7 @@ var InteractorX16 = require('./InteractorX16');
 
 var fs = require('fs');
 var path = require('path');
-var midiOptions = require('./midi-options.js');
+// var midiOptions = require('./midi-options.js');
 
 var jazz = require('jazz-midi');
 
@@ -38,12 +38,12 @@ var midiDevicesAmount = 1;
 var currentPortNumber = 0;
 var openedMidiPorts = [];
 
-if (!midiOptions.outputs) {
-  midiOptions.outputs = {};
-}
-if (!midiOptions.inputs) {
-  midiOptions.inputs = {}
-}
+// if (!midiOptions.outputs) {
+//   midiOptions.outputs = {};
+// }
+// if (!midiOptions.inputs) {
+//   midiOptions.inputs = {}
+// }
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -241,7 +241,7 @@ MidiIO.initialization=function(environment){
 
 
 
-  fs.writeFile(path.join(__dirname, '/midi-options.js'), "module.exports=" + JSON.stringify(midiOptions, null, "\t"), 'utf8', console.log);
+  // fs.writeFile(path.join(__dirname, '/midi-options.js'), "module.exports=" + JSON.stringify(midiOptions, null, "\t"), 'utf8', console.log);
 
 
   environment.on('created', function() {
@@ -296,18 +296,18 @@ MidiIO.initialization=function(environment){
         var ioString = "";
         if (midiInterface.in) ioString += "I";
         if (midiInterface.out) ioString += "O";
-        if (!midiOptions.rename) midiOptions.rename = {};
-        if (midiOptions.rename[midiInterface.name]) {
-          environment.modules.instantiate("MidiIO", {
-            midi: midiInterface,
-            name: midiOptions.rename[midiItem]
-          });
-        } else {
+        // if (!midiOptions.rename) midiOptions.rename = {};
+        // if (midiOptions.rename[midiInterface.name]) {
+        //   environment.modules.instantiate("MidiIO", {
+        //     midi: midiInterface,
+        //     name: midiOptions.rename[midiItem]
+        //   });
+        // } else {
           environment.modules.instantiate("MidiIO", {
             midi: midiInterface,
             name: ioString + "-" + midiInterface.name
           });
-        }
+        // }
       }
     }
   });
