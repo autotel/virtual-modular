@@ -15,7 +15,8 @@ var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
-var CHORDCHANGEHEADER = 0x03;
+var TRIGGERCHANGEVALUESHEADER = 0X03;
+var TRIGGERCHANGEOPERATIONHEADER = 0x04;
 var instancesCount = 0;
 var testGetName = function() {
   this.name = this.baseName + " " + instancesCount;
@@ -36,6 +37,25 @@ var Operator = function(properties) {
   this.baseName = "Operator";
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
+
+  var operationEventMessage=new EventMessage({value:[TRIGGERCHANGEOPERATIONHEADER,0,0,0,0]});
+  var valuesEventMessage=new EventMessage({value:[TRIGGERCHANGEVALUESHEADER,0,0,0,0]});
+
+  let opMap = this.opMap=[0,0,0,0];
+  operationEventMessage.update=function(){
+    console.log(this);
+    for(var n in opMap){
+      this.value[n+1]=opMap[n];
+    }
+  }
+
+  valuesEventMessage.update=function(){
+    console.log(this);
+    for(var n in opMap){
+      this.value[n+1]=baseEventMessage.value[n];
+    }
+  }
+
   testGetName.call(this);
 
   if (properties.name) this.name = properties.name;
@@ -69,31 +89,47 @@ var Operator = function(properties) {
     this.opFns.push(this.ops[n]);
     this.availOps++;
   }
-  let opMap = this.opMap=[0,0,0,0];
+
+  this.triggerOperationChange=function(){
+    // operationEventMessage.update();
+    // self.recordOutput(operationEventMessage);
+  }
+  this.triggerValueChange=function(){
+    // valuesEventMessage.update();
+    // self.recordOutput(valuesEventMessage);
+  }
 
   this.eventReceived = function(evt) {
     var inEvt=evt.eventMessage;
-
-    var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
-
-    if(inEvt.value[0]==TRIGGEROFFHEADER){
-      noteOnTracker.ifNoteOff(noteTrackerKey,function(noteOff){
-        self.output(noteOff);
-        // console.log("NOFF",noteOff.value);
-      });
-    }
-
-    for(var n in opMap){
-      if(opMap[n]){
-        inEvt.value[n]=opFns[opMap[n]](inEvt.value[n],baseEventMessage.value[n]);
+    var outEvt=inEvt.clone();
+    if(inEvt.value[0]==RECORDINGHEADER){
+      inEvt.value.shift();
+      for(var a in inEvt.value){
+        baseEventMessage.value[a]=inEvt.value[a];
       }
-    }
+    }else{
+      if(inEvt.value[0]==TRIGGEROFFHEADER){
+        var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
+        // console.log(noteTrackerKey);
+        noteOnTracker.ifNoteOff(noteTrackerKey,function(noteOff){
+          self.output(noteOff);
+          // console.log("NOFF",noteOff.value);
+        });
+      }
 
-    if(inEvt.value[0]==TRIGGERONHEADER){
-      noteOnTracker.add(inEvt,noteTrackerKey);
-    }
+      for(var n in opMap){
+        if(opMap[n]){
+          outEvt.value[n]=opFns[opMap[n]](inEvt.value[n],baseEventMessage.value[n]);
+        }
+      }
 
-    self.output(inEvt);
+      if(inEvt.value[0]==TRIGGERONHEADER){
+        var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
+        noteOnTracker.add(outEvt,noteTrackerKey);
+      }
+
+      self.output(outEvt);
+    }
   }
   this.delete = function() {
     for(let a in opMap){

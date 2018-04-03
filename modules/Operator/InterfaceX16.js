@@ -3,10 +3,9 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-/**
-definition of a monoSequencer interactor for the x16basic controller hardware
-*/
-module.exports = function(controlledModule) {
+// var RecordMenu = require('../x28utils/RecordMenu.js');
+
+module.exports = function(controlledModule,environment) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};
@@ -27,11 +26,13 @@ module.exports = function(controlledModule) {
         self.op=controlledModule.availOps-1;
       }
       controlledModule.opMap[varn]=self.op;
+      controlledModule.triggerOperationChange();
     }
     var valChangeFunction=function(thisVar, delta){
       console.log(self.value);
       self.value+=delta;
       controlledModule.baseEventMessage.value[varn]=self.value;
+      controlledModule.triggerValueChange();
     }
     var nameFunction=function(thisVar){
       if(!self.op) return "nothing"
@@ -73,6 +74,10 @@ module.exports = function(controlledModule) {
     }
   });
 
+  // configurators.record = new RecordMenu(this, {
+  //   environment: environment,
+  //   controlledModule: controlledModule
+  // });
 
   var lastEngagedConfigurator=false;
   var engagedConfigurator = false;
@@ -105,21 +110,26 @@ module.exports = function(controlledModule) {
       if (event.data[0] == 1) {
         engagedConfigurator = configurators.ops;
         configurators.ops.engage(event);
-      }
-      if (event.data[0] == 2) {
+      }else if (event.data[0] == 2) {
         // engagedConfigurator = configurators.time;
         // configurators.time.engage(event);
+      }else if (event.button >= 8) {
+        // engagedConfigurator = configurators.record;
       }
-      lastEngagedConfigurator = engagedConfigurator;
+      if(engagedConfigurator){
+        lastEngagedConfigurator = engagedConfigurator;
+        engagedConfigurator.engage(event);
+      }
+
     }
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
-    if (event.data[0] == 1) {
-      if (engagedConfigurator) {
-        // engagedConfigurator.disengage(event);
-        // engagedConfigurator=false;
+    if (engagedConfigurator) {
+      if (event.button == 1) {
+        engagedConfigurator.disengage(event);
       }
+      engagedConfigurator=false;
     }
   };
   this.encoderScrolled = function(event) {
@@ -134,10 +144,10 @@ module.exports = function(controlledModule) {
   this.encoderPressed = function(event) {};
   this.encoderReleased = function(event) {};
   this.engage = function(event) {
-    configurators.ops.engage(event);
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     event.hardware.draw([0,0,0]);
+    // configurators.record.redraw(event.hardware);
   };
   this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
@@ -151,5 +161,6 @@ module.exports = function(controlledModule) {
     // hardware.sendScreenB("n:"+currentStep);
   }
   var updateLeds = function(hardware) {
+
   }
 }
