@@ -48,6 +48,7 @@ var GameOfLife = function(properties) {
   ];
   var fixedCells = 0;
   var setStep = this.setStep = function(square) {
+    while(square<0) square+=16;
     // console.log("st",square);
     myBitmap |= 1 << square;
     cells[Math.floor(square / 4)][square % 4] = 1;
