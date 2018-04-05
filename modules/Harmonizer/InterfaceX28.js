@@ -51,7 +51,7 @@ module.exports = function(controlledModule,environment) {
   configurators.record = new RecordMenu(this, {
     environment: environment,
     controlledModule: controlledModule
-  });
+  })
 
   //interaction with controlledModule
   var currentStep = controlledModule.currentStep;
@@ -225,11 +225,13 @@ module.exports = function(controlledModule,environment) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
     updateLeds(hardware);
-
   };
   this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
   }
+
+  configurators.record.autoEngageWindow();
+
   var passiveUpdateLeds = function() {
     if (!engagedConfigurator)
       for (var hardware of engagedHardwares) {

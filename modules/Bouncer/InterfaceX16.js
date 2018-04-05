@@ -82,6 +82,8 @@ module.exports = function(controlledModule,environment) {
   this.disengage = function(event) {
     engagedHardwares.delete(event.hardware);
   }
+
+  configurators.record.autoEngageWindow();
   var updateHardware = function(hardware) {
     updateLeds(hardware);
     updateScreen(hardware);

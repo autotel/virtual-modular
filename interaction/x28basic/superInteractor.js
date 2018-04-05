@@ -100,7 +100,8 @@ var SuperInteractorsSingleton = function(environment) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }
-    });environment.on('- module', function(evt) {
+    });
+    environment.on('- module', function(evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }

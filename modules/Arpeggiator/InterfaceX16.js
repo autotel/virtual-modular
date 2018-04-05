@@ -9,7 +9,6 @@ definition of a monoSequencer interactor for the x16basic controller hardware
 
 //instance section
 module.exports = function(controlledModule) {
-
   base.call(this);
   var configurators = {};
   configurators.global = new BlankConfigurator(this, {

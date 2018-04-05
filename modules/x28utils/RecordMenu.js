@@ -23,7 +23,7 @@ var RecordMenu = function(parentInteractor, properties) {
   if (properties.name) this.name = properties.name;
   var selectedModuleNumber = 0;
   var engagedHardwares = new Set();
-
+  var windowEngagedHardwares = new Set();
   if (properties.values) {
     this.vars = properties.values;
   }
@@ -47,6 +47,9 @@ var RecordMenu = function(parentInteractor, properties) {
     for (let hardware of engagedHardwares) {
       updateLeds(hardware);
     }
+    for (let hardware of windowEngagedHardwares) {
+      updateWindowLeds(hardware);
+    }
   }
   var updateLeds = function(hardware) {
     var eventLengthBmp = ~(0xFFFF << modules.length);
@@ -56,10 +59,24 @@ var RecordMenu = function(parentInteractor, properties) {
       eventLengthBmp ^ recordingOuptutsBitmap,
       eventLengthBmp ^ recordingOuptutsBitmap
     ]);
+    //
+    // hardware.drawLowerSelectorButtonsColor(eventLengthBmp,[0,32,32],false);
+    // hardware.drawLowerSelectorButtonsColor(recordingOuptutsBitmap,[255,0,0]);
+  }
+
+  var updateWindowLeds = function(hardware) {
+    var eventLengthBmp = ~(0xFFFF << modules.length);
+
+    // hardware.draw([
+    //   recordingOuptutsBitmap | eventLengthBmp,
+    //   eventLengthBmp ^ recordingOuptutsBitmap,
+    //   eventLengthBmp ^ recordingOuptutsBitmap
+    // ]);
 
     hardware.drawLowerSelectorButtonsColor(eventLengthBmp,[0,32,32],false);
     hardware.drawLowerSelectorButtonsColor(recordingOuptutsBitmap,[255,0,0]);
   }
+
   var updateScreen = function(hardware) {
     if (modules[selectedModuleNumber]) {
       hardware.sendScreenA("Rec dest");
@@ -74,13 +91,14 @@ var RecordMenu = function(parentInteractor, properties) {
       } else {
         recordingOuptutsBitmap &= ~(1 << selectedModuleNumber);
       }
+      valueChanged();
     }
   }
   this.matrixButtonPressed = function(event) {
     var hardware = event.hardware;
     self.windowButtonPressed(event.button);
 
-    updateLeds(hardware);
+    // updateLeds(hardware);//it happens because valueChanged()
     updateScreen(hardware);
   };
   this.matrixButtonReleased = function(event) {
@@ -108,13 +126,35 @@ var RecordMenu = function(parentInteractor, properties) {
   this.redraw = function(hardware){
     updateLeds(hardware);
   }
+
+  this.autoEngageWindow=function(){
+    var _pief=parentInteractor.engage;
+    var _pidf=parentInteractor.disengage;
+    parentInteractor.engage=function(evt){
+      self.engageWindow(evt);
+      _pief(evt);
+    }
+    parentInteractor.disengage=function(evt){
+      self.disengageWindow(evt);
+      _pidf(evt);
+    }
+  }
+  this.engageWindow = function(event){
+    var hardware = event.hardware;
+    windowEngagedHardwares.add(hardware);
+  }
+  this.disengageWindow = function(event) {
+    var hardware = event.hardware;
+    windowEngagedHardwares.delete(hardware);
+  }
+
   this.engage = function(event) {
     if(!environment.vars.advancedRecording) limitOptions();
-
+    //
     if(event.button>=8){
       self.windowButtonPressed(event.button-8);
-      updateLeds(event.hardware);
-      updateScreen(event.hardware);
+      // updateLeds(event.hardware);
+      // updateScreen(event.hardware);
     }
 
     var hardware = event.hardware;
@@ -126,5 +166,6 @@ var RecordMenu = function(parentInteractor, properties) {
     var hardware = event.hardware;
     engagedHardwares.delete(hardware);
   }
+  return this;
 };
 module.exports = RecordMenu;

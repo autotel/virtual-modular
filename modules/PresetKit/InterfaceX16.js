@@ -106,7 +106,7 @@ module.exports = function(controlledModule, environment) {
       // console.log(event);
       controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
     }
-    // usingVelocity=true;
+    usingVelocity=true;
   };
 
   this.matrixButtonPressed = function(event) {
@@ -267,6 +267,7 @@ module.exports = function(controlledModule, environment) {
     outsideScrollHeader = 0;
     engagedHardwares.delete(event.hardware);
   }
+  configurators.record.autoEngageWindow();
   var updateHardware = function(hardware) {
     hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
