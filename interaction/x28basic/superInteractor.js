@@ -100,6 +100,10 @@ var SuperInteractorsSingleton = function(environment) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }
+    });environment.on('- module', function(evt) {
+      if (!(engagedInterface || myModuleCreator.engaged)) {
+        updateHardware();
+      }
     });
     this.on('matrixButtonPressed', function(event) {
       if (myModuleCreator.engaged) {

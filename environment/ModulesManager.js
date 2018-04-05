@@ -43,6 +43,7 @@ var ModulesManager=function(environment){
   this.removeModuleN=function(n){
     if(modules[n].remove()){
       modules.splice(n,1);
+      environment.handle('- module',{module:modules[n]});
       return true;
     }else{
       return false;
