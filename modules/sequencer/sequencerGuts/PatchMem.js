@@ -109,6 +109,7 @@ module.exports=function(sequencerModule){ return new(function(){
   };
 
   var clearStepRange=function(from,to){
+    console.log("CLR",from,to);
     for(var step=to; step>from; step--){
       //maybe this iteration is unnecesary?
       for(var a in patData[step]){
@@ -147,7 +148,8 @@ module.exports=function(sequencerModule){ return new(function(){
   var duplicateSequence=function(startingStep,originalEndingStep,multiplyFactor){
     var initialStepSize=originalEndingStep-startingStep;
     if(multiplyFactor>1){
-      clearStepRange(originalEndingStep+1,initialStepSize*(multiplyFactor-1));
+      clearStepRange(originalEndingStep,initialStepSize*(multiplyFactor));
+      // displaceStepRange(originalEndingStep);
       //starts in 1 because the 0 is the currently existing one
       for(var duplicationNumber=1; duplicationNumber<multiplyFactor; duplicationNumber++){
         console.log("DUPOP",duplicationNumber);
