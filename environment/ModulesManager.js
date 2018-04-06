@@ -11,7 +11,8 @@ var ModulesManager=function(environment){
   var constructors={};
 
   var thisMan=this;
-  console.log("-modulesManager");
+  console.log("+ modulesManager");
+  environment.handle('+ modulesManager',this);
   this.addConstructor=function(Constructor){
     console.log("modules constructor add "+Constructor.name);
     // console.log("instancing module: ",moduleName);
@@ -40,6 +41,21 @@ var ModulesManager=function(environment){
       }
     }
   }
+  this.tryGetN=function(n){
+    if(this.list[n]){
+      return this.list[n];
+    }
+    return false;
+  }
+  this.removeModule=function(mod){
+    if(mod.remove()){
+      modules.splice(modules.indexOf(mod),1);
+      environment.handle('- module',{module:mod});
+      return true;
+    }else{
+      return false;
+    }
+  }
   this.removeModuleN=function(n){
     if(modules[n].remove()){
       modules.splice(n,1);
@@ -53,16 +69,18 @@ var ModulesManager=function(environment){
   instanciate and register a new module.
   Two example uses of this function are in the superinteractor, when you create a new module using the buttons, and the midi IO, which creates one module per midi input
   */
-  this.instantiate=function(moduleName,properties={}){
+  this.instantiate=function(moduleName,properties={},callback=false){
     var newInstance=false;
     try{
-      console.log("+"+moduleName);
+      console.log("+ module "+moduleName);
       newInstance=new ModuleInstanceBase(properties,environment)
       constructors[moduleName].call(newInstance,properties,environment);
       newInstance.enqueue=lazyStack.enq;
       newInstance.type=moduleName;
       modules.push(newInstance);
-      // environment.handle('+ module',{module:newInstance});
+      if(typeof callback==="function"){
+        callback(newInstance);
+      }
       environment.handle('+ module',{module:newInstance});
 
     }catch(e){

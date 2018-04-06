@@ -10,6 +10,7 @@ var x28InteractorBase=function(controlledModule){
   this.controlledModule=controlledModule;
   InteractorBase.call(this,controlledModule);
   this.compatibilityTags=["x28v0"];
+  this.buttonLocation=false;
   // console.log(".....",this.compatibilityTags);
   this.matrixButtonPressed=function(event){};
   this.matrixButtonReleased=function(event){};

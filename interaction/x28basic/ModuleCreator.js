@@ -7,9 +7,10 @@ function ModuleCreator(myHardware,environment) {
   var possibleModulesBitmap = 0;
   var moduleToCreateOnDisengage = false;
   var lastMatrixButton = false;
+  this.invokerButton = 0;
   var modules=environment.modules;
   this.engaged = false;
-
+  var self=this;
   function updatePossibleModulesList() {
     possibleModules = environment.modules.getRegistered();
     possibleModulesBitmap = ~(0xffff << possibleModules.length);
@@ -21,30 +22,18 @@ function ModuleCreator(myHardware,environment) {
     if (lastMatrixButton) head = 1 << lastMatrixButton;
     myHardware.draw([possibleModulesBitmap | head, 0 | head, possibleModulesBitmap | head]);
   }
-  this.engage = function() {
+  this.engage = function(event) {
     if (possibleModules.length == 0) updatePossibleModulesList();
     updateHardware();
-    this.engaged = true;
+    self.invokerButton=event.button;
+    self.engaged = true;
   }
   this.disengage = function() {
-    var ret = false;
-    this.engaged = false;
-    if (moduleToCreateOnDisengage) {
-      var defaultProps = {};
-      environment.modules.instantiate(moduleToCreateOnDisengage, defaultProps);
-      var nMod=modules.list[modules.list.length - 1];
-      ret = {
-        module:nMod,
-        interface:nMod.interface,
-        number:modules.list.length - 1
-      };
-    }
+    var ret = moduleToCreateOnDisengage;
+    self.engaged = false;
     return ret;
   }
   this.matrixButtonPressed = function(evt) {
-    /*if(evt.data[0]===lastMatrixButton){ deprecated create module on second tap.
-      this.disengage();
-    }else */
     if (evt.data[0] < possibleModules.length) {
       lastMatrixButton = evt.data[0];
       moduleToCreateOnDisengage = possibleModules[evt.data[0]];
