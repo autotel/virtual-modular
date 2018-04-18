@@ -131,6 +131,7 @@ var RecordMenu = function(parentInteractor, properties) {
     var _pief=parentInteractor.engage;
     var _pidf=parentInteractor.disengage;
     parentInteractor.engage=function(evt){
+      // console.log("AUTOENG");
       self.engageWindow(evt);
       _pief(evt);
     }
@@ -141,6 +142,7 @@ var RecordMenu = function(parentInteractor, properties) {
   }
   this.engageWindow = function(event){
     var hardware = event.hardware;
+    updateWindowLeds(hardware);
     windowEngagedHardwares.add(hardware);
   }
   this.disengageWindow = function(event) {
