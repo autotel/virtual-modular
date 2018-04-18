@@ -23,7 +23,9 @@ module.exports = function(controlledModule,environment) {
   configurators.time = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "step ratio": controlledModule.stepDivision,
+      "step ratio": {
+        value:controlledModule.stepDivision.value,
+      },
       "mode": {
         value: "toggle",
         changeFunction: function(thisVar, delta) {
@@ -43,6 +45,9 @@ module.exports = function(controlledModule,environment) {
     }
   });
   configurators.time.vars["step ratio"].changeFunction = function(thisVar, delta) {
+
+    thisVar.value=controlledModule.stepDivision.value
+
     if (delta > 0) {
       if (thisVar.value < 2) {
         thisVar.value *= 2;
@@ -56,6 +61,8 @@ module.exports = function(controlledModule,environment) {
         thisVar.value--;
       }
     }
+    controlledModule.stepDivision.value=thisVar.value;
+    controlledModule.recordStepDivision();
   };
   configurators.time.vars["note duration"].changeFunction = function(thisVar, delta) {
     delta /= 12;

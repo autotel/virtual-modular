@@ -6,6 +6,7 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
+var CHANGERATEHEADER = 0x04;
 var RECORDINGHEADER = 0xAA;
 
 var testcount = 0;
@@ -63,7 +64,13 @@ var Arpeggiator = function(properties) {
   this.interfaces.X16 =  InterfaceX16;
 
   var memory=[];
-
+  var recMessages={
+    rate:new EventMessage({value:[CHANGERATEHEADER,12,-1]})
+  }
+  this.recordStepDivision=function(){
+    recMessages.rate.value[2]=stepDivision.value*12;
+    self.recordOutput(recMessages.rate);
+  }
 
   this.eventReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
@@ -94,7 +101,10 @@ var Arpeggiator = function(properties) {
       // }else  if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
       //   this.clearFixedStep(evt.eventMessage.value[2]%16);
       // }
-    } else {}
+    } else  if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+      // console.log("CHANGERATEHEAER",evt.eventMessage.value);
+      clock.subSteps=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
+    }
   }
 
   this.getBitmap16 = function() {

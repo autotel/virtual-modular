@@ -8,7 +8,7 @@ var InterfaceX16 = require('./InterfaceX16');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
-var CHANGERATEHEADER = 0x03;
+var CHANGERATEHEADER = 0x04;
 var RECORDINGHEADER = 0xAA;
 /**
 @constructor ModuleSingleton
@@ -34,6 +34,7 @@ var Narp = function(properties,environment) {
   var stepDivision = this.stepDivision = {
     value: 2
   }
+
   var noteDuration = this.noteDuration = {
     value: 1
   }
@@ -50,13 +51,20 @@ var Narp = function(properties,environment) {
     value: [TRIGGERONHEADER, -1, -1, -1]
   });
 
+
   this.recordingUi=true;
 
   var recMessages = {
     set:new EventMessage({value:[TRIGGERONHEADER,-1,-1]}),
     clear:new EventMessage({value:[TRIGGEROFFHEADER,-1,-1]}),
-    rate:new EventMessage({value:[CHANGERATEHEADER,-1,-1]}),
+    rate:new EventMessage({value:[CHANGERATEHEADER,12,-1]}),
   }
+
+  this.recordStepDivision=function(){
+    recMessages.rate.value[2]=stepDivision.value*12;
+    self.recordOutput(recMessages.rate);
+  }
+
   this.interfaces.X16 = InterfaceX16;
   // this.interfaces.Http = InterfaceHttp;
 
@@ -172,7 +180,8 @@ var Narp = function(properties,environment) {
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
       this.clearStep(evt.eventMessage.value[2] % 16);
     } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
-      // console.log("CHANGERATEHEAER");
+      // console.log("CHANGERATEHEAER",evt.eventMessage.value);
+      stepDivision.value=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
   }
   this.getBitmaps16 = function() {
