@@ -60,6 +60,14 @@ var Operator = function(properties) {
     },
     "%":function(signal,value){
       return signal%value;
+    },
+    "?":function(signal,value){
+      if(value==signal) return signal;
+      return false;
+    },
+    "!":function(signal,value){
+      if(value!=signal) return signal;
+      return false;
     }
   }
   //make lookup arrays
@@ -90,6 +98,7 @@ var Operator = function(properties) {
         baseEventMessage.value[a]=inEvt.value[a];
       }
     }else{
+      var cancelEvent=false;
       if(inEvt.value[0]==TRIGGEROFFHEADER){
         var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
         // console.log(noteTrackerKey);
@@ -101,7 +110,12 @@ var Operator = function(properties) {
 
       for(var n in opMap){
         if(opMap[n]){
-          outEvt.value[n]=opFns[opMap[n]](inEvt.value[n],baseEventMessage.value[n]);
+          var result=opFns[opMap[n]](inEvt.value[n],baseEventMessage.value[n]);
+          if(typeof result==="boolean"){
+            cancelEvent=true;
+          }else{
+            outEvt.value[n]=result;
+          }
         }
       }
 
@@ -109,7 +123,7 @@ var Operator = function(properties) {
         var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
         noteOnTracker.add(outEvt,noteTrackerKey);
       }
-
+      if(!cancelEvent)
       self.output(outEvt);
     }
   }
