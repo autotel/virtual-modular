@@ -112,19 +112,23 @@ var Operator = function(properties) {
         if(opMap[n]){
           var result=opFns[opMap[n]](inEvt.value[n],baseEventMessage.value[n]);
           if(typeof result==="boolean"){
+            // console.log("CANCEL",inEvt.value);
             cancelEvent=true;
           }else{
+            // console.log("PASS",inEvt.value);
+
             outEvt.value[n]=result;
           }
         }
       }
 
-      if(inEvt.value[0]==TRIGGERONHEADER){
-        var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
-        noteOnTracker.add(outEvt,noteTrackerKey);
+      if(!cancelEvent){
+        if(inEvt.value[0]==TRIGGERONHEADER){
+          var noteTrackerKey=[inEvt.value[1],inEvt.value[2]];
+          noteOnTracker.add(outEvt,noteTrackerKey);
+        }
+        self.output(outEvt);
       }
-      if(!cancelEvent)
-      self.output(outEvt);
     }
   }
   this.delete = function() {
