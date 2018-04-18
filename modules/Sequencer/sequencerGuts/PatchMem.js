@@ -46,12 +46,12 @@ module.exports=function(sequencerModule){ return new(function(){
   var storeNoDup=function(step,data){
     if(!patData[step]) patData[step]=[];
     if(data){
-      var cancel=false;
+      var replace=false;
       for(var a in patData[step]){
         try{
-          if(patData[step][a].on.compareTo(data.on,['value'])){
+          if(patData[step][a].on.compareTo(data.on,['value.0','value.1','value.2'])){
             // console.log("DUP!");
-            cancel=true;
+            replace=a;
             break;
           }
         }catch(e){
@@ -59,11 +59,13 @@ module.exports=function(sequencerModule){ return new(function(){
           // console.log(e);
         }
       }
-      if(!cancel){
+      if(replace===false){
         patData[step].push(data);
         return data;
+      }else{
+        patData[step][replace]=data;
       }
-      return !cancel;
+      return !replace;
     }else{
       console.error("wrong storeNoDup data is ",data);
     }
