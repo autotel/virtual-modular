@@ -1,4 +1,7 @@
 "use strict";
+var RARROW = String.fromCharCode(199);
+var LARROW = String.fromCharCode(200);
+
 var EventMessage = require('../../datatypes/EventMessage.js');
 var base=require('../../interaction/x16basic/interactorBase.js');
 module.exports = function(controlledModule) {
@@ -6,6 +9,7 @@ module.exports = function(controlledModule) {
   var engagedHardwares = new Set();
   var playHeadBmp;
   var microStepsBmp;
+  var shiftPressed=false;
   base.call(this);
   // controlledModule.on('micro step',function(event){
   // });
@@ -22,11 +26,43 @@ module.exports = function(controlledModule) {
   };
   this.matrixButtonReleased = function(event) {};
   this.matrixButtonHold = function(event) {};
-  this.selectorButtonPressed = function(event) {};
-  this.selectorButtonReleased = function(event) {};
+  var drifting=0;
+  this.selectorButtonPressed = function(event) {
+    if(event.button==0) shiftPressed=true;
+  };
+  this.selectorButtonReleased = function(event) {
+    if(event.button==0 && shiftPressed){
+      shiftPressed=false;
+      drifting=0;
+      controlledModule.metro.drift(drifting);
+      event.hardware.sendScreenA("");
+    }
+  };
+  var bpm=120;
   this.encoderScrolled = function(event) {
-    controlledModule.cpm.value += event.delta;
-    event.hardware.sendScreenA("CPM" + controlledModule.cpm.value);
+    if(shiftPressed){
+      drifting+=event.delta;
+      controlledModule.metro.drift(drifting);
+      var string="";
+      if(drifting>0){
+        string="Drift";
+        for(var a=0; a<Math.abs(drifting); a++){
+          string+=RARROW;
+        }
+      }else if(drifting<0){
+        for(var a=0; a<Math.abs(drifting); a++){
+          string+=LARROW;
+        }
+        string+="Drift";
+      }else{
+        string="Drift";
+      }
+      event.hardware.sendScreenA(string);
+    }else{
+      bpm+=event.delta;
+      controlledModule.metro.bpm(bpm*4);
+      event.hardware.sendScreenA("BPM:"+bpm+"");
+    }
   };
   this.encoderPressed = function(event) {};
   this.encoderReleased = function(event) {};

@@ -13,9 +13,6 @@ module.exports=[
     type:'Sequencer',
     outputs:[]
   },{
-    type:'Bouncer',
-    outputs:['O-to DAW']
-  },{
     type:'PresetKit',
     properties:{
       name:'nu presetKit',
