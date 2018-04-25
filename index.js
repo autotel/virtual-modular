@@ -19,6 +19,7 @@ var modulesToLoad = {
   'Harmonizer': {},
   'Quarmonizer': {},
   'PresetKit': {},
+  'NoteSustainer': {},
   'Narp': {},
   'GameOfLife': {},
   'Arpeggiator': {},
@@ -29,14 +30,6 @@ for (var a in modulesToLoad) {
   console.log("requiring module " + a);
   modulesToLoad[a] = require('./modules/' + a);
 }
-//
-environment.vars = {
-  light: 56,
-  advancedRecording: false,
-  messagePriority: 50,
-  interfacePriority: 15,
-  interfaceMaxStack: 15,
-}
 
 /** modulesMan is responsible for the modular environment */
 // environment.modules=require("./modules/modulesManager.js")(environment);
@@ -44,6 +37,14 @@ for (var a in modulesToLoad) {
   environment.module(modulesToLoad[a]);
   //  for testing
   // environment.modules.instantiate(a, {});
+}
+//
+environment.vars = {
+  light: 56,
+  advancedRecording: false,
+  messagePriority: 50,
+  interfacePriority: 15,
+  interfaceMaxStack: 15,
 }
 environment.modules.instantiate('Bus',{name:"global"});
 
