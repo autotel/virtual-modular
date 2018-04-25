@@ -30,7 +30,6 @@ var GameOfLife = function(properties) {
     subStep: 0
   }
   this.baseName = "game of life";
-  this.color = [255, 0, 233];
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var self = this;
@@ -217,4 +216,6 @@ var GameOfLife = function(properties) {
     }
   }
 };
+
+GameOfLife.color = [255, 0, 233];
 module.exports=GameOfLife;

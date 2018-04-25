@@ -29,7 +29,6 @@ var NoteSustainer = function(properties) {
     return runningNotes;
   }
   this.baseName = "Note sust";
-  this.color = [210, 0, 233];
 
   this.name = this.baseName + " " + testcount;
   testcount++;
@@ -107,4 +106,6 @@ var NoteSustainer = function(properties) {
     polyphonyConstrainCheck();
   }
 };
+
+NoteSustainer.color = [210, 0, 233];
 module.exports=NoteSustainer;

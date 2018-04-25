@@ -55,7 +55,6 @@ var Arpeggiator = function(properties) {
     }
   }
   this.baseName = "Arpeggiator";
-  this.color = [210, 0, 233];
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var self = this;
@@ -155,4 +154,6 @@ var Arpeggiator = function(properties) {
     });
   }
 };
+
+Arpeggiator.color = [210, 0, 233];
 module.exports=Arpeggiator;

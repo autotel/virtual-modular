@@ -7,7 +7,6 @@ var name = function() {
 
 var Bus = function(properties,environment) {
   this.baseName = "bus";
-  this.color = [110, 120, 130];
   var self = this;
   name.call(this);
   this.interactor = {
@@ -30,5 +29,5 @@ var Bus = function(properties,environment) {
     }
   });
 };
-
+Bus.color = [110, 120, 130];
 module.exports=Bus;

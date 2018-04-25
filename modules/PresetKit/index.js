@@ -16,7 +16,7 @@ var name = function() {
 }
 var PresetKit = function(properties, environment) {
   this.baseName = "preset kit";
-  this.color = [90, 70, 30];
+
   var self = this;
   //get my unique name
   name.call(this);
@@ -169,4 +169,5 @@ var PresetKit = function(properties, environment) {
   }
 
 }
+PresetKit.color = [90, 70, 30];
 module.exports = PresetKit

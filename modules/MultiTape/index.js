@@ -28,7 +28,6 @@ require to moduleBase.call
 var MultiTape = function(properties,environment) {
 
   this.baseName = "multitape";
-  this.color = [0, 127, 255];
   this.interfaces.X28=InterfaceX28;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
@@ -186,4 +185,6 @@ var MultiTape = function(properties,environment) {
   }
 
 }
+
+MultiTape.color = [0, 127, 255];
 module.exports = MultiTape;

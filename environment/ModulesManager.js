@@ -14,7 +14,7 @@ var ModulesManager=function(environment){
   console.log("+ modulesManager");
   environment.handle('+ modulesManager',this);
   this.addConstructor=function(Constructor){
-    console.log("modules constructor add "+Constructor.name);
+    console.log("modules constructor add "+Constructor.name,"color",Constructor.color);
     // console.log("instancing module: ",moduleName);
     try{
       // if(!moduleName) moduleName="unnamed";
@@ -27,8 +27,12 @@ var ModulesManager=function(environment){
     constructors[Constructor.name]=Constructor;
   }
   this.getRegistered=function(){
-    return Object.keys(constructors);
+    return constructors;
   }
+  this.getModuleConstructors=function(){
+    return constructors;
+  }
+
 
   //this prevents the program from freezing in a case of extreme module feedback
   var lazyStack = new utils.LazyStack();
@@ -77,6 +81,9 @@ var ModulesManager=function(environment){
       constructors[moduleName].call(newInstance,properties,environment);
       newInstance.enqueue=lazyStack.enq;
       newInstance.type=moduleName;
+      if(constructors[moduleName].color){
+        newInstance.color=constructors[moduleName].color;
+      }
       modules.push(newInstance);
       if(typeof callback==="function"){
         callback(newInstance);

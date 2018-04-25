@@ -256,4 +256,5 @@ var Sequencer = function(properties,environment) {
   this.interfaces.X28 = InterfaceX28;
 
 }
+Sequencer.color=[0,0,255];
 module.exports = Sequencer

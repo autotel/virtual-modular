@@ -31,7 +31,6 @@ var Operator = function(properties) {
 
   var self = this;
   this.preventBus=true;
-  this.color = [255, 0, 255];
   this.baseName = "Operator";
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
@@ -143,4 +142,5 @@ var Operator = function(properties) {
   }
 }
 
+Operator.color = [255, 0, 255];
 module.exports = Operator

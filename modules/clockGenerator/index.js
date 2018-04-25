@@ -23,7 +23,6 @@ var ClockGenerator = function(properties={bpm:60}) {
   }
 
   this.baseName = "clockGenerator";
-  this.color = [60, 100, 100];
   name.call(this);
   if (properties.name) this.name = properties.name;
   this.interfaces.X16 =  InterfaceX16;
@@ -145,4 +144,5 @@ function MetronomePrototype(props={}) {
     }
   }
 }
+ClockGenerator.color = [60, 100, 100];
 module.exports = ClockGenerator;

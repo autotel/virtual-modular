@@ -1,10 +1,13 @@
-
+'use strict';
+var panton = require('./panton');
 /**
  *Tiny pseudo-interactor that is used to choose what module to isntantiate when we press on an empty slot of the "patchboard" (i.e. button that is not lid)
  */
 function ModuleCreator(myHardware,environment) {
   var possibleModules = [];
   var possibleModulesBitmap = 0;
+  var possibleModuleConstructors={};
+  var colors=[];
   var moduleToCreateOnDisengage = false;
   var lastMatrixButton = false;
   this.invokerButton = 0;
@@ -12,15 +15,38 @@ function ModuleCreator(myHardware,environment) {
   this.engaged = false;
   var self=this;
   function updatePossibleModulesList() {
-    possibleModules = environment.modules.getRegistered();
+    possibleModuleConstructors = environment.modules.getRegistered();
+    possibleModules = Object.keys(possibleModuleConstructors);
     possibleModulesBitmap = ~(0xffff << possibleModules.length);
+    for(var mnum in possibleModules){
+      var mname=possibleModules[mnum];
+      var iscolor=possibleModuleConstructors[mname].color;
+      console.log(mname,"module color",iscolor);
+      if(!iscolor){
+        iscolor=[25,25,25];
+      }
+      colors[mnum]=iscolor;
+    }
   }
 
   function updateHardware() {
     myHardware.sendScreenA("create module");
     var head = 0;
-    if (lastMatrixButton) head = 1 << lastMatrixButton;
     myHardware.draw([possibleModulesBitmap | head, 0 | head, possibleModulesBitmap | head]);
+    paintModuleColors();
+    if (lastMatrixButton) head = 1 << lastMatrixButton;
+  }
+  function paintModuleColors(){
+    let lowLight=environment.vars.light;
+    for (let button = 0; button<16; button++) {
+      var color=colors[button]
+      if(color){
+        var posBmp=1<<button;
+
+        color=panton.homogenize(color,button===lastMatrixButton?lowLight*5/3:lowLight*2/3);
+        myHardware.drawColor(posBmp,color);
+      }
+    }
   }
   this.engage = function(event) {
     if (possibleModules.length == 0) updatePossibleModulesList();
@@ -34,8 +60,8 @@ function ModuleCreator(myHardware,environment) {
     return ret;
   }
   this.matrixButtonPressed = function(evt) {
+    lastMatrixButton = evt.button;
     if (evt.data[0] < possibleModules.length) {
-      lastMatrixButton = evt.data[0];
       moduleToCreateOnDisengage = possibleModules[evt.data[0]];
       myHardware.sendScreenA("Release to create");
       myHardware.sendScreenB("+" + moduleToCreateOnDisengage);
@@ -43,6 +69,7 @@ function ModuleCreator(myHardware,environment) {
       moduleToCreateOnDisengage = false;
       this.disengage();
     }
+    updateHardware();
   }
   this.matrixButtonReleased = function(evt) {}
 }

@@ -38,7 +38,6 @@ var Narp = function(properties,environment) {
   var noteDuration = this.noteDuration = {
     value: 1
   }
-  this.color = [255, 0, 255];
 
   var noteOnTracker = new NoteOnTracker(this);
   var substep = 0;
@@ -201,4 +200,5 @@ var Narp = function(properties,environment) {
   }
 }
 
+Narp.color = [255, 0, 255];
 module.exports = Narp

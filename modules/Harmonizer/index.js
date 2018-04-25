@@ -29,7 +29,6 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var Harmonizer = function(properties,environment) {
-  this.color = [255, 255, 127];
   if (properties.name){
     this.name = properties.name;
   }else{
@@ -255,4 +254,6 @@ var Harmonizer = function(properties,environment) {
     return true;
   }
 }
+
+Harmonizer.color = [255, 255, 127];
 module.exports = Harmonizer;

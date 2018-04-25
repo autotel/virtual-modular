@@ -52,7 +52,6 @@ require to moduleBase.call. it is created via ModulesManager.addModule
 var MidiIO = function(properties,environment) {
   this.preventBus = true;
   this.baseName = (properties.name ? properties.name : "Midi");
-  this.color = [127, 127, 127];
   getName.call(this);
   var hangingNotes = {};
   var self = this;
@@ -312,5 +311,5 @@ MidiIO.initialization=function(environment){
     }
   });
 }
-
+MidiIO.color = [127, 127, 127];
 module.exports=MidiIO;

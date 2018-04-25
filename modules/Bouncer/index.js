@@ -32,7 +32,7 @@ var Bouncer = function(properties,environment) {
 
   var self = this;
 
-  this.color = [255, 0, 255];
+
   this.baseName = "Bouncer";
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
@@ -62,5 +62,5 @@ var Bouncer = function(properties,environment) {
     return true;
   }
 }
-
+Bouncer.color = [255, 0, 255];
 module.exports = Bouncer;
