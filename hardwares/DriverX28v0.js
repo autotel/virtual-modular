@@ -120,7 +120,7 @@ var DriverX28v0 = function(properties, environment) {
   this.sendScreenB = sendScreenB;
   var setLedsToColor = this.paintColorFromLedN = function(bitmaps, color = [255, 0, 0], start = 0, add = true) {
     var oparray=[];
-
+    //TODO: count amount of pixels to paint, to avoid wasting com.time
     var reform=[];
     if(bitmaps.length){
       reform=bitmaps;
