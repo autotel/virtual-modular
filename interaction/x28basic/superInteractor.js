@@ -28,7 +28,6 @@ var SuperInteractorsSingleton = function(environment) {
   * @param {x16Hardware}
   * @returns {undefined} no return
   */
-  var pageOffset=0;
   var modules = environment.modules;
   environment.on('+ modulesManager',function(man){
     modules=man;
@@ -107,6 +106,7 @@ var SuperInteractorsSingleton = function(environment) {
     return ret;
   }
   this.SuperInteractor = function(myHardware) {
+    var pageOffset=0;
 
     /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
 
@@ -262,19 +262,27 @@ var SuperInteractorsSingleton = function(environment) {
         // console.log("NO",matrixButtonOwners);
       }
     });
-    this.on('bottomButtonPressed', function(event) {
-      if (engagedInterface) {
-        // engagedInterface.disengage(event);
-        // console.log(engagedInterface.controlledModule.outputs[event.data[0]-8]);
-        // engagedInterface.controlledModule.inputs[event.data[0]].engage();
-      }
-    });
-    this.on('bottomButtonReleased', function(event) {
-      if (engagedInterface) {
-        // engagedInterface.controlledModule.outputs[event.data[0]-8].disengage();
-        // engagedInterface.engage(event);
-      }
-    });
+    // this.on('bottomButtonPressed', function(event) {
+    //   console.log("BBP");
+    //   if (engagedInterface) {
+    //     // engagedInterface.bottomButtonPressed(event);
+    //   }else{
+    //     if(event.data[0]==0){
+    //       pageOffset-=4;
+    //     }else{
+    //       pageOffset+=4;
+    //     }
+    //     if(pageOffset<0) pageOffset=0;
+    //     pageMode=true;
+    //     updateHardware();
+    //     pageMode=false;
+    //   }
+    // });
+    // this.on('bottomButtonReleased', function(event) {
+    //   if (engagedInterface) {
+    //     // engagedInterface.bottomButtonReleased(event);
+    //   }
+    // });
     this.on('selectorButtonPressed', function(event) {
       //if the button is the patchMenu button}
       //  console.log(event.button);
@@ -309,18 +317,19 @@ var SuperInteractorsSingleton = function(environment) {
           }  else if (event.button < 8) {
             pageMode=true;
             if(event.button==4){
-              pageOffset-=8;
+              pageOffset-=16;
             }else if(event.button==5){
               pageOffset-=4;
             }else if(event.button==6){
               pageOffset+=4;
             }else if(event.button==7){
-              pageOffset+=8;
+              pageOffset+=16;
             }
             if(pageOffset<0){
               pageOffset=0;
             }
-            console.log("PO",pageOffset);
+            // console.log("PO",pageOffset);
+            updateHardware();
           } else {
             thisInteractor.engage(event);
           }
@@ -386,9 +395,9 @@ var SuperInteractorsSingleton = function(environment) {
     this.on('encoderScrolled', function(event) {
       if (!engagedInterface) {
         if(pageMode){
-          pageOffset+=event.delta;
+          pageOffset+=event.delta*4;
           if(pageOffset<0) pageOffset=0;
-          updateLeds();
+          updateHardware();
         }else if(selectedInterface){
           let str=selectedInterface.outsideScroll(event);
           if(str){
@@ -408,14 +417,22 @@ var SuperInteractorsSingleton = function(environment) {
     function updateHardware() {
       if (muteMode) {
         myHardware.sendScreenA("Mute module");
+        myHardware.sendScreenB((selectedModule ? ""+selectedModule.name : "none") + "");
+
       } else if (deleteMode) {
         myHardware.sendScreenA("Delete module!");
+        myHardware.sendScreenB((selectedModule ? ""+selectedModule.name : "none") + "");
+
+      } else  if (pageMode) {
+        myHardware.sendScreenA("Set page");
+        myHardware.sendScreenB("Page "+(pageOffset/16));
       } else  if (inputsMode) {
         myHardware.sendScreenA("Watching inputs");
+        myHardware.sendScreenB((selectedModule ? "of "+selectedModule.name : "none") + "");
       } else {
         myHardware.sendScreenA("Select module");
+        myHardware.sendScreenB((selectedModule ? selectedModule.name : "none") + "");
       }
-      myHardware.sendScreenB((selectedModule ? selectedModule.name : "none") + "");
       updateLeds();
     }
 
@@ -425,12 +442,12 @@ var SuperInteractorsSingleton = function(environment) {
       myHardware.clear();
       let lowLight=environment.vars.light;
 
-      if (selectedModule && !inputsMode) {
-        for (var optIt of selectedModule.outputs) {
-          var loc=tryGetLocOfModule(optIt);
-          outputsBmp |= (loc!==undefined)? 1<<(loc) : 0;
-        }
-      }
+      // if (selectedModule && !inputsMode) {
+      //   for (var optIt of selectedModule.outputs) {
+      //     var loc=tryGetLocOfModule(optIt);
+      //     outputsBmp |= (loc!==undefined)? 1<<(loc) : 0;
+      //   }
+      // }
 
       for (let button = 0; button<16; button++) {
 
@@ -450,15 +467,19 @@ var SuperInteractorsSingleton = function(environment) {
             }else{
               color=panton.homogenize(color,lowLight);
             }
-
-            if(selectedModule && inputsMode){
-              if(bmodule.outputs.has(selectedModule)){
-                color=panton.mixColors(panton.isInput,color,0.5);
+            if(selectedModule){
+              if(inputsMode){
+                if(bmodule.outputs.has(selectedModule)){
+                  color=panton.mixColors(panton.isInput,color,0.5);
+                }else{
+                  color=panton.mixColors(panton.disabled,color,0.4);
+                }
               }else{
-                color=panton.mixColors(panton.disabled,color,0.5);
+                if(selectedModule.outputs.has(bmodule)){
+                  color=panton.mixColors(panton.connected,color,0.5);
+                }
               }
             }
-
             if(outputsBmp&posBmp){
               color=panton.mixColors(panton.connected,color,0.5);
             }

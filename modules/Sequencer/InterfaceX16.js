@@ -137,6 +137,15 @@ module.exports = function(controlledModule, environment) {
       thisVar.power += delta;
     }
     thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
+    if(thisVar.value<1){
+      thisVar.value=1;
+    }
+    if(thisVar.base<1){
+      thisVar.base=1;
+    }
+    if(thisVar.power<1){
+      thisVar.power=1;
+    }
     // console.log("FOLD",thisVar.value);
     controlledModule.duplicateSequence(0, oldLength, thisVar.value / oldLength);
     controlledModule.loopLength.value = thisVar.value;
@@ -150,7 +159,15 @@ module.exports = function(controlledModule, environment) {
       thisVar.power += delta;
     }
     thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
-    // console.log("FOLD",thisVar.value);
+    if(thisVar.value<1){
+      thisVar.value=1;
+    }
+    if(thisVar.base<1){
+      thisVar.base=1;
+    }
+    if(thisVar.power<1){
+      thisVar.power=1;
+    }
     controlledModule.loopLength.value = thisVar.value;
     controlledModule.handleStepsChange();
   }
