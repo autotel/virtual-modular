@@ -113,7 +113,7 @@ var SuperInteractorsSingleton = function(environment) {
     var muteMode = false;
     var deleteMode = false;
     var pageMode = false;
-
+    var inputsMode = false;
 
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
@@ -291,8 +291,10 @@ var SuperInteractorsSingleton = function(environment) {
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
           if(event.button==0){
-            engagedInterface=enviroVarConfig;
-            engagedInterface.engage(event);
+            inputsMode = true;
+            updateHardware();
+            // engagedInterface=enviroVarConfig;
+            // engagedInterface.engage(event);
           }else if (event.button == 2) {
             // deleteMode=!deleteMode;
             deleteMode = true;
@@ -331,10 +333,11 @@ var SuperInteractorsSingleton = function(environment) {
         if(event.button==0){
           enviroVarConfig.disengage(event);
         }
-      }else if (deleteMode || muteMode || pageMode) {
-        if (event.button == 2 || event.button == 1) {
+      }else if (deleteMode || muteMode || pageMode || inputsMode) {
+        if (event.button == 2 || event.button == 1 || event.button == 0) {
           deleteMode = false;
           muteMode = false;
+          inputsMode = false;
         }else if(event.button < 8 && event.button > 3){
           pageMode=false;
         }
@@ -382,7 +385,11 @@ var SuperInteractorsSingleton = function(environment) {
     });
     this.on('encoderScrolled', function(event) {
       if (!engagedInterface) {
-        if(selectedInterface){
+        if(pageMode){
+          pageOffset+=event.delta;
+          if(pageOffset<0) pageOffset=0;
+          updateLeds();
+        }else if(selectedInterface){
           let str=selectedInterface.outsideScroll(event);
           if(str){
             myHardware.sendScreenB(str);
@@ -403,6 +410,8 @@ var SuperInteractorsSingleton = function(environment) {
         myHardware.sendScreenA("Mute module");
       } else if (deleteMode) {
         myHardware.sendScreenA("Delete module!");
+      } else  if (inputsMode) {
+        myHardware.sendScreenA("Watching inputs");
       } else {
         myHardware.sendScreenA("Select module");
       }
@@ -416,24 +425,16 @@ var SuperInteractorsSingleton = function(environment) {
       myHardware.clear();
       let lowLight=environment.vars.light;
 
-      if (selectedModule) {
-        // console.log("SELECTEDMOD");
-        //displaying the selected module outputs is rather awkward:
-        //for each output of the module that the interface controls
-        // console.log(selectedInterface.controlledModule.outputs)
+      if (selectedModule && !inputsMode) {
         for (var optIt of selectedModule.outputs) {
-          //we add a bit to the array position of the interactor that iterated output module has
           var loc=tryGetLocOfModule(optIt);
           outputsBmp |= (loc!==undefined)? 1<<(loc) : 0;
         }
-        outputsBmp>>=pageOffset;
-        // var selectedBmp = 1 << selectedModuleLoc;
       }
 
       for (let button = 0; button<16; button++) {
 
         var location=button + pageOffset;
-        // if(location>=0){
           var bmodule=tryGetModuleInLoc(location);
           if(bmodule){
             var posBmp=1<<button;
@@ -450,8 +451,16 @@ var SuperInteractorsSingleton = function(environment) {
               color=panton.homogenize(color,lowLight);
             }
 
+            if(selectedModule && inputsMode){
+              if(bmodule.outputs.has(selectedModule)){
+                color=panton.mixColors(panton.isInput,color,0.5);
+              }else{
+                color=panton.mixColors(panton.disabled,color,0.5);
+              }
+            }
+
             if(outputsBmp&posBmp){
-              color=panton.mixColors(panton.connected,color,0.2);
+              color=panton.mixColors(panton.connected,color,0.5);
             }
             if(selectedModuleLoc==location){
               color=panton.homogenize(color,Math.min((lowLight<<2),0xff));

@@ -2,6 +2,7 @@ panton = {
   disabled: [10, 7, 11],
   selected: [255, 255, 255],
   connected: [190, 0, 0],
+  isInput: [0, 190, 190],
   black: [0, 0, 0]
 }
 
