@@ -110,7 +110,8 @@ var ModulesManager=function(environment){
       // console.log(moduleDefinition.properties.name);
       var module=thisMan.getModuleWithName(moduleDefinition.properties.name);
       console.log(" - patch module \""+moduleDefinition.properties.name+"\" ("+moduleDefinition.type+") ");
-      for(var outputName of moduleDefinition.outputs){
+
+      if(moduleDefinition.outputs)for(var outputName of moduleDefinition.outputs){
         console.log(" - to \""+outputName+"\"");
         try{
           var output=thisMan.getModuleWithName(outputName);

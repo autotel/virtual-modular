@@ -111,7 +111,7 @@ var Narp = function(properties,environment) {
 
   var generatedOutput = function(eventMessage, buttonNumber) {
     if (self.mute) return;
-    eventMessage.life = Math.ceil(noteDuration.value * 12);
+    eventMessage.life = Math.ceil(noteDuration.value);
     noteOnTracker.add(eventMessage);
     self.output(eventMessage);
   }
@@ -161,6 +161,7 @@ var Narp = function(properties,environment) {
   this.eventReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
       var clockBase = evt.eventMessage.value[1];
+      var clockMicroStep = evt.eventMessage.value[2];
       if ((evt.eventMessage.value[2] / stepDivision.value) % clockBase == 0) {
         substep++;
         if (substep >= stepDivision.value) {
@@ -169,7 +170,8 @@ var Narp = function(properties,environment) {
         }
       }
       noteOnTracker.each(function(noteOff, identifier) {
-        noteOff.life--;
+        noteOff.life-=1/clockBase;
+        // console.log("LF",noteOff.life);
         if (noteOff.life <= 0) {
           self.output(noteOnTracker.noteOff(identifier));
         }

@@ -49,22 +49,36 @@ var openedMidiPorts = [];
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call. it is created via ModulesManager.addModule
 */
+
 var MidiIO = function(properties,environment) {
   this.preventBus = true;
+  this.deviceName="none";
   this.baseName = (properties.name ? properties.name : "Midi");
   getName.call(this);
   var hangingNotes = {};
   var self = this;
   if (properties.name) this.name = properties.name;
   var midi = false;
+
   this.setMidi=function(to){
-    console.log("set midi",to);
-    midi=to;
-    // if(midi.in)
-    midi.onIn=function(a,b,c){midiReceived(a,b,c)};
+    if(to){
+      console.log("set midi",to);
+      midi=to;
+      self.deviceName=to.name;
+      // if(midi.in)
+      midi.onIn=function(a,b,c){midiReceived(a,b,c)};
+    }
   }
   if(properties.midi){
-    this.setMidi(properties.midi);
+    var midiDevice=tryGetDeviceNamed(properties.midi);
+    if(midiDevice){
+      this.setMidi(midiDevice);
+    }else{
+      console.warn("MIDI device not found",properties.midi);
+    }
+  }
+  this.getPossibleInterfaces=function(){
+    return MidiInterface.list;
   }
 
   console.log("midi device", midi.input);
@@ -231,47 +245,54 @@ var MidiIO = function(properties,environment) {
     baseRemove();
   }
 }
-
+function tryGetDeviceNamed(name){
+  for(var interf of MidiInterface.list){
+    if(interf.name==name){
+      return interf
+    }else if(interf.deviceName==name){
+      return interf
+    }else if( interf.name.match(new RegExp(name))!==null ){
+      return interf
+    }
+  }
+  return false;
+}
+var MidiInterface=function(midi){
+  var self=this;
+  this.name="unnamed";
+  this.deviceName="none";
+  this.out=false;
+  this.openMidiOut=function(str){
+    self.name=midi.MidiOutOpen(str);
+    self.deviceName=self.name;
+    self.out=function(a,b,c){midi.MidiOut(a,b,c)};
+    return this.name;
+  }
+  this.onIn=false;
+  this.in=false;
+  this.openMidiIn=function(str){
+    self.onIn=function(a,b){ console.log("no callback");};
+    var inCaller=function(a,b){
+      // console.log("HELLOOO",self.onIn);
+      if(self.in){
+        // console.log("in");
+        self.onIn(a,b);
+      }
+    };
+    self.name=midi.MidiInOpen(str, inCaller);
+    self.in=true;
+    return this.name;
+  }
+  MidiInterface.list.push(this);
+}
+MidiInterface.list=[];
 /**
 environment will call the static initialization function when it registers a new module; if such function is present.
 
 */
 MidiIO.initialization=function(environment){
-
-
-
   // fs.writeFile(path.join(__dirname, '/midi-options.js'), "module.exports=" + JSON.stringify(midiOptions, null, "\t"), 'utf8', console.log);
-
-
   environment.on('created', function() {
-
-    var MidiInterface=function(midi){
-      var self=this;
-      this.name="unnamed";
-      this.out=false;
-      this.openMidiOut=function(str){
-        self.name=midi.MidiOutOpen(str);
-        self.out=function(a,b,c){midi.MidiOut(a,b,c)};
-        return this.name;
-      }
-      this.onIn=false;
-      this.in=false;
-      this.openMidiIn=function(str){
-        self.onIn=function(a,b){ console.log("no callback");};
-        var inCaller=function(a,b){
-          // console.log("HELLOOO",self.onIn);
-          if(self.in){
-            // console.log("in");
-            self.onIn(a,b);
-          }
-        };
-        self.name=midi.MidiInOpen(str, inCaller);
-        self.in=true;
-        return this.name;
-      }
-      MidiInterface.list.push(this);
-    }
-    MidiInterface.list=[];
     var fail=false;
     var pNum=0;
     var midi=new jazz.MIDI();
@@ -295,18 +316,8 @@ MidiIO.initialization=function(environment){
         var ioString = "";
         if (midiInterface.in) ioString += "I";
         if (midiInterface.out) ioString += "O";
-        // if (!midiOptions.rename) midiOptions.rename = {};
-        // if (midiOptions.rename[midiInterface.name]) {
-        //   environment.modules.instantiate("MidiIO", {
-        //     midi: midiInterface,
-        //     name: midiOptions.rename[midiItem]
-        //   });
-        // } else {
-          environment.modules.instantiate("MidiIO", {
-            midi: midiInterface,
-            name: ioString + "-" + midiInterface.name
-          });
-        // }
+        ioString+=midiInterface.name;
+        midiInterface.name=ioString;
       }
     }
   });

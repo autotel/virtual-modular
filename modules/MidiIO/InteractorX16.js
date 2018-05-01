@@ -22,8 +22,10 @@ module.exports = function(controlledModule,environment) {
   var selectedOutputNumber = false;
   var selectedInputNumber = false;
   var engagedHardwares = new Set();
+  var selectedDeviceNumber=0;
   this.name = controlledModule.name;
   var chokeMode = false;
+  var selectDeviceMode=false;
   var midiInputCache = controlledModule.midiInputCache;
   //updated on updateLeds
   var indexedMidiInputCache = [];
@@ -64,6 +66,10 @@ module.exports = function(controlledModule,environment) {
   this.matrixButtonHold = function(event) {};
   this.selectorButtonPressed = function(event) {
     if (event.button == 2) {
+      selectDeviceMode = true;
+      updateHardware(event.hardware);
+    }
+    if (event.button == 0) {
       inputMode = false;
       updateHardware(event.hardware);
     }
@@ -83,6 +89,10 @@ module.exports = function(controlledModule,environment) {
       engagedConfigurator = false;
     }
     if (event.button == 2) {
+      selectDeviceMode = false;
+      updateHardware(event.hardware);
+    }
+    if (event.button == 0) {
       inputMode = true;
       updateHardware(event.hardware);
     }
@@ -100,7 +110,16 @@ module.exports = function(controlledModule,environment) {
     };
     return ret;
   };
-  this.encoderScrolled = function(event) {};
+  var possibleDevices=[];
+  this.encoderScrolled = function(event) {
+    if(selectDeviceMode){
+      possibleDevices=controlledModule.getPossibleInterfaces();
+      selectedDeviceNumber+=event.delta;
+      if(selectedDeviceNumber<0) selectedDeviceNumber=possibleDevices.length;
+      if(selectedDeviceNumber>=possibleDevices.length)selectedDeviceNumber=0;
+      event.hardware.sendScreenB(possibleDevices[selectedDeviceNumber].name);
+    }
+  };
   this.encoderPressed = function(event) {};
   this.encoderReleased = function(event) {};
   this.engage = function(event) {
@@ -121,7 +140,6 @@ module.exports = function(controlledModule,environment) {
       hardware.sendScreenA("Choke");
     } else if (inputMode) {
       hardware.sendScreenA("Inputs");
-
       // hardware.sendScreenB(JSON.stringify(event.eventMessage.value));
       // try{
       if (selectedInputNumber !== false) {
@@ -133,7 +151,11 @@ module.exports = function(controlledModule,environment) {
       // }catch(e){
       // console.log("no",selectedInputNumber,indexedMidiInputCache);
       // }
-    } else {
+    } if(selectDeviceMode){
+      hardware.sendScreenA("S.device<release");
+      hardware.sendScreenB(controlledModule.deviceName);
+      controlledModule.setMidi(possibleDevices[selectedDeviceNumber]);
+    }else {
       hardware.sendScreenA("Outputs");
       if (controlledModule.outputs.size <= selectedOutputNumber) selectedOutputNumber = false;
       if (selectedOutputNumber !== false) {

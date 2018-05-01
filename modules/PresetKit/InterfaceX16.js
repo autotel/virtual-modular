@@ -20,7 +20,6 @@ module.exports = function(controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = this.configurators = {};
 
-  var usingVelocity=false;
 
   var muteBmp = 0;
   var muteMode = false;
@@ -43,9 +42,12 @@ module.exports = function(controlledModule, environment) {
       "auto map": {
         value: 0,
         list: [false, 1, 2, 3]
+      },"use velocity": {
+        value: false,
       }
     }
   });
+  var usingVelocity=configurators.global.vars["use velocity"];
   configurators.global.vars["auto map"].selectFunction = function(thisVar) {
     thisVar.value=thisVar.list.indexOf(controlledModule.autoMap);
   };
@@ -55,6 +57,7 @@ module.exports = function(controlledModule, environment) {
     thisVar.value %= thisVar.list.length;
     controlledModule.autoMap = thisVar.list[thisVar.value];
   };
+
   configurators.global.vars["auto map"].nameFunction = function(thisVar) {
     switch (thisVar.value) {
       case 0:
@@ -102,11 +105,10 @@ module.exports = function(controlledModule, environment) {
 
   this.matrixButtonVelocity = function(event) {
     //the if prevents retrigger the first time
-    if(usingVelocity){
+    if(usingVelocity.value && !engagedConfigurator){
       // console.log(event);
       controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
     }
-    usingVelocity=true;
   };
 
   this.matrixButtonPressed = function(event) {
@@ -128,7 +130,7 @@ module.exports = function(controlledModule, environment) {
       } else {
         selectedPresetNumbers = [event.button];
       }
-      if(!usingVelocity){
+      if(!usingVelocity.value){
         controlledModule.uiTriggerOn(event.button);
       }
       if(controlledModule.autoMap!==false){

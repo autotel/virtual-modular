@@ -28,49 +28,50 @@ var SuperInteractorsSingleton = function(environment) {
   * @param {x16Hardware}
   * @returns {undefined} no return
   */
-
+  var pageOffset=0;
   var modules = environment.modules;
   environment.on('+ modulesManager',function(man){
     modules=man;
   });
-  // console.log("MODULEEES",module);
   // fail();
   //contains the module that is accessible through each button
-  var moduleButtons=[];
+  var moduleLocations=[];
   //function to transform a number to module
-  function tryGetModuleInButton(button) {
+  function tryGetModuleInLoc(location) {
+    if(location<0){ console.warn(`tryGetModuleInLoc(${location})`); return false};
     var ret=false;
-    if(moduleButtons[button]) ret=moduleButtons[button][moduleButtons[button].length-1];
-
+    if(moduleLocations[location]){
+      ret=moduleLocations[location][moduleLocations[location].length-1];
+    }
     return ret;
   }
-  function tryGetButtonOfModule(module){
-    for(var x in moduleButtons){
-      for(var y in moduleButtons[x]){
-        if(moduleButtons[x][y]===module){
+  function tryGetLocOfModule(module){
+
+    for(var x in moduleLocations){
+      for(var y in moduleLocations[x]){
+        if(moduleLocations[x][y]===module){
           return x;
         }
       }
     }
   }
-  function addModuleToButton(module,button){
-    if(moduleButtons[button]){
-      moduleButtons[button].push(module);
+  function addModuleToLoc(module,location){
+    if(location<0){ console.warn("loc is",location); return false};
+    if(moduleLocations[location]){
+      moduleLocations[location].push(module);
     }else{
-      moduleButtons[button]=[module];
+      moduleLocations[location]=[module];
     }
   };
   environment.on('- module',function(event){
-    for(var x in moduleButtons){
-      for(var y in moduleButtons[x]){
-        if(moduleButtons[x][y]===event.module){
-          console.log("RM module from button",x,y);
-          if(moduleButtons[x].length==1){
-            console.log("UNDEF");
-            moduleButtons[x]=undefined;
+
+    for(var x in moduleLocations){
+      for(var y in moduleLocations[x]){
+        if(moduleLocations[x][y]===event.module){
+          if(moduleLocations[x].length==1){
+            moduleLocations[x]=undefined;
           }else{
-            console.log("SPLICE");
-            moduleButtons[x].splice(y,1);
+            moduleLocations[x].splice(y,1);
           }
         }
       }
@@ -78,10 +79,9 @@ var SuperInteractorsSingleton = function(environment) {
   });
   var defaultButtonForNewModule=0;
   environment.on('+ module',function(event){
-    console.log("+MODUL");
-    if(tryGetButtonOfModule(event.module)===undefined){
-      console.log("ASSIGN!");
-      addModuleToButton(event.module,defaultButtonForNewModule);
+
+    if(tryGetLocOfModule(event.module)===undefined){
+      addModuleToLoc(event.module,defaultButtonForNewModule);
       defaultButtonForNewModule++;
     }
   });
@@ -112,6 +112,7 @@ var SuperInteractorsSingleton = function(environment) {
 
     var muteMode = false;
     var deleteMode = false;
+    var pageMode = false;
 
 
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
@@ -120,7 +121,7 @@ var SuperInteractorsSingleton = function(environment) {
     var selectedModule = false;
     var selectedInterface = false;
     var engageOnRelease = false;
-    var selectedModuleNumber = false;
+    var selectedModuleLoc = false;
     /**
     keeps the interface that is currently engaged
     */
@@ -139,6 +140,7 @@ var SuperInteractorsSingleton = function(environment) {
     var selectorButtonOwners = {};
 
     //for the matrix button pressed event, it indicates if this is the only matrix button that is pressed or not (allows selecting a module's outputs)
+    var firstPressedMatrixLoc = false;
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
     var myModuleCreator = new ModuleCreator(myHardware, environment);
@@ -167,12 +169,10 @@ var SuperInteractorsSingleton = function(environment) {
 
     this.on('interaction', function(event) {
 
-        // console.log("28 int",event);
       if (engagedInterface) {
         engagedInterface.handle('interaction', event);
       }
     });
-    // this.on('interaction',console.log);
     environment.on('+ module', function(evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
@@ -184,20 +184,23 @@ var SuperInteractorsSingleton = function(environment) {
       }
     });
     this.on('matrixButtonPressed', function(event) {
+      var location=event.button+pageOffset;
+      if(location<0) return false;
       if (myModuleCreator.engaged) {
         myModuleCreator.matrixButtonPressed(event);
       } else if (!engagedInterface) {
-        if (firstPressedMatrixButton === false) {
-          selectedModule=tryGetModuleInButton(event.button);
+        if (firstPressedMatrixLoc === false) {
+          selectedModule=tryGetModuleInLoc(location);
           selectedInterface = tryGetModuleInterface(selectedModule);
-          selectedModuleNumber = (selectedModule ? event.button : false);
+          selectedModuleLoc = (selectedModule ? location : false);
           engageOnRelease=true;
-          firstPressedMatrixButton = event.data[0];
+          firstPressedMatrixLoc = location;
+          firstPressedMatrixButton = event.button;
           updateHardware();
         } else {
 
-          var modulea = tryGetModuleInButton(firstPressedMatrixButton);
-          var moduleb = tryGetModuleInButton(event.button);
+          var modulea = tryGetModuleInLoc(firstPressedMatrixLoc);
+          var moduleb = tryGetModuleInLoc(location);
 
           if (modulea && moduleb) try {
             var connected = modulea.toggleOutput(moduleb);
@@ -211,17 +214,17 @@ var SuperInteractorsSingleton = function(environment) {
         }
         if (!selectedModule) {
           selectedModule = false;
-          myModuleCreator.engage(event);
+          myModuleCreator.engage(event,location);
         } else {
           if (muteMode) {
             selectedModule.mute = (false == selectedModule.mute);
             myHardware.sendScreenA(selectedModule.mute?"MUTED":"Active");
 
           } else if (deleteMode) {
-            if (modules.removeModule(tryGetModuleInButton(event.button))) {
+            if (modules.removeModule(tryGetModuleInLoc(location))) {
               selectedModule=false;
               selectedInterface = false;
-              selectedModuleNumber=false;
+              selectedModuleLoc=false;
             }
           } else {}
           updateLeds();
@@ -233,8 +236,10 @@ var SuperInteractorsSingleton = function(environment) {
 
     });
     this.on('matrixButtonReleased', function(event) {
-      if (firstPressedMatrixButton === event.data[0]) {
-        firstPressedMatrixButton = false;
+      var location=event.button+pageOffset;
+      if (firstPressedMatrixButton === event.button) {
+        firstPressedMatrixLoc = false;
+        firstPressedMatrixButton=false;
       }
       // event.button=event.data[0];
       if (matrixButtonOwners[event.data[0]]) {
@@ -279,7 +284,7 @@ var SuperInteractorsSingleton = function(environment) {
           thisInteractor.engage();
           engageOnRelease=false;
         }
-      } else {
+      }else{
         //  event.button=event.data[0];
         if (engagedInterface) {
           engagedInterface.selectorButtonPressed(event);
@@ -299,6 +304,21 @@ var SuperInteractorsSingleton = function(environment) {
             muteMode = true;
             // console.log("DEL");
             updateHardware();
+          }  else if (event.button < 8) {
+            pageMode=true;
+            if(event.button==4){
+              pageOffset-=8;
+            }else if(event.button==5){
+              pageOffset-=4;
+            }else if(event.button==6){
+              pageOffset+=4;
+            }else if(event.button==7){
+              pageOffset+=8;
+            }
+            if(pageOffset<0){
+              pageOffset=0;
+            }
+            console.log("PO",pageOffset);
           } else {
             thisInteractor.engage(event);
           }
@@ -311,10 +331,12 @@ var SuperInteractorsSingleton = function(environment) {
         if(event.button==0){
           enviroVarConfig.disengage(event);
         }
-      }else if (deleteMode || muteMode) {
+      }else if (deleteMode || muteMode || pageMode) {
         if (event.button == 2 || event.button == 1) {
           deleteMode = false;
           muteMode = false;
+        }else if(event.button < 8 && event.button > 3){
+          pageMode=false;
         }
         updateHardware();
       } else if (selectorButtonOwners[event.data[0]]) {
@@ -329,7 +351,7 @@ var SuperInteractorsSingleton = function(environment) {
           var defaultProps = {};
           environment.modules.instantiate(create, defaultProps, function(nmod){
             newCreated=nmod;
-            addModuleToButton(newCreated,myModuleCreator.invokerButton);
+            addModuleToLoc(newCreated,myModuleCreator.invokerButton);
           });
         }
 
@@ -395,49 +417,54 @@ var SuperInteractorsSingleton = function(environment) {
       let lowLight=environment.vars.light;
 
       if (selectedModule) {
-        console.log("SELECTEDMOD");
+        // console.log("SELECTEDMOD");
         //displaying the selected module outputs is rather awkward:
         //for each output of the module that the interface controls
         // console.log(selectedInterface.controlledModule.outputs)
-        for (var siOpts of selectedModule.outputs) {
+        for (var optIt of selectedModule.outputs) {
           //we add a bit to the array position of the interactor that iterated output module has
-          var button=tryGetButtonOfModule(siOpts);
-          outputsBmp |= (button!==undefined)? 1 << button:0;
+          var loc=tryGetLocOfModule(optIt);
+          outputsBmp |= (loc!==undefined)? 1<<(loc) : 0;
         }
-        // var selectedBmp = 1 << selectedModuleNumber;
+        outputsBmp>>=pageOffset;
+        // var selectedBmp = 1 << selectedModuleLoc;
       }
 
       for (let button = 0; button<16; button++) {
-        var bmodule=tryGetModuleInButton(button);
-        if(bmodule){
-          var posBmp=1<<button;
-          var color=[0,0,127];
 
-          if (bmodule.color){
-            color=bmodule.color;
+        var location=button + pageOffset;
+        // if(location>=0){
+          var bmodule=tryGetModuleInLoc(location);
+          if(bmodule){
+            var posBmp=1<<button;
+            var color=[0,0,127];
+
+            if (bmodule.color){
+              color=bmodule.color;
+            }
+
+            if(bmodule.mute){
+              color=panton.mixColors(panton.disabled,color,0.4);
+              color=panton.homogenize(color,lowLight/16);
+            }else{
+              color=panton.homogenize(color,lowLight);
+            }
+
+            if(outputsBmp&posBmp){
+              color=panton.mixColors(panton.connected,color,0.2);
+            }
+            if(selectedModuleLoc==location){
+              color=panton.homogenize(color,Math.min((lowLight<<2),0xff));
+            }
+
+
+            myHardware.drawColor(posBmp,color);
           }
-
-          if(bmodule.mute){
-            color=panton.mixColors(panton.disabled,color,0.4);
-            color=panton.homogenize(color,lowLight/16);
-          }else{
-            color=panton.homogenize(color,lowLight);
-          }
-
-          if(outputsBmp&posBmp){
-            color=panton.mixColors(panton.connected,color,0.2);
-          }
-          if(selectedModuleNumber==button){
-            color=panton.homogenize(color,Math.min((lowLight<<2),0xff));
-          }
-
-
-          myHardware.drawColor(posBmp,color);
-        }
+        // }
       }
 
 
-
+      // myHardware.draw([outputsBmp,0,0],false);
       // myHardware.drawColor(1<<modules.list.length,[100,255,255]);
 
 

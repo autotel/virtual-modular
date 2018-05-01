@@ -48,10 +48,10 @@ function ModuleCreator(myHardware,environment) {
       }
     }
   }
-  this.engage = function(event) {
+  this.engage = function(event,buttonLoc) {
     if (possibleModules.length == 0) updatePossibleModulesList();
     updateHardware();
-    self.invokerButton=event.button;
+    self.invokerButton=buttonLoc;
     self.engaged = true;
   }
   this.disengage = function() {

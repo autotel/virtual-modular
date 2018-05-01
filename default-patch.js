@@ -1,5 +1,17 @@
 module.exports=[
   {
+    type:"MidiIO",
+    properties:{
+      name:"Daw send",
+      midi:"DAW"
+    },outpupts:[]
+  },{
+    type:"MidiIO",
+    properties:{
+      name:"Sync clock",
+      midi:"to sequencer"
+    },outpupts:[]
+  },{
     type:'ClockGenerator',
     properties:{
       name:'main clock',
@@ -10,18 +22,12 @@ module.exports=[
     type:'Harmonizer',
     outputs:['default midi out','O-to DAW']
   },{
-    type:'Sequencer',
-    outputs:[]
-  },{
-    type:'NoteSustainer',
-    outputs:[]
-  },{
     type:'PresetKit',
     properties:{
       name:'nu presetKit',
       autoMap:'note',
       kit:[
-        [1,9,36,-1]
+        [1,12,36,-1]
       ]
     },
     outputs:['default midi out','O-to DAW']
@@ -30,7 +36,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,10,36,-1]
+        [1,13,36,-1]
       ]
     },
     outputs:['default midi out','O-to DAW']
@@ -39,7 +45,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,10,36,-1]
+        [1,14,36,-1]
       ]
     },
     outputs:['default midi out','O-to DAW']
@@ -48,7 +54,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,10,36,-1]
+        [1,15,36,-1]
       ]
     },
     outputs:[]
