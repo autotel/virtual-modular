@@ -9,11 +9,13 @@
   "author": "autotel",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.3",
     "fifo": "^2.3.0",
     "jazz-midi": "^1.6.0",
     "onhandlers": "^1.0.3",
     "prompt": "^1.0.0",
-    "serialport": "^6.0.4"
+    "serialport": "^6.0.4",
+    "socket.io": "^2.1.0"
   },
   "devDependencies": {
     "documentation": "^5.3.5"
