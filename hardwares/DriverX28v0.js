@@ -5,7 +5,7 @@ var SerialHardware=require('./SerialHardware.js');
 
 //TODO:cache to save startup time
 var fs = require('fs');
-var file = fs.readFileSync('./firmware/x28/_name_signals.h', "utf8");
+var file = fs.readFileSync('./hardwares/_name_signals.h', "utf8");
 
 var lines = file.split('\n');
 
