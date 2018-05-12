@@ -114,7 +114,7 @@ var SuperInteractorsSingleton = function(environment) {
     var deleteMode = false;
     var pageMode = false;
     var inputsMode = false;
-
+    var deleteList=new Set();
     /** @private @var selectedInterface stores the {@link moduleInterface} that will become engaged once the patching button is released / the superInteractor disengaged.
     selectedInterface is also subject to patching
     */
@@ -221,11 +221,19 @@ var SuperInteractorsSingleton = function(environment) {
             myHardware.sendScreenA(selectedModule.mute?"MUTED":"Active");
 
           } else if (deleteMode) {
-            if (modules.removeModule(tryGetModuleInLoc(location))) {
-              selectedModule=false;
-              selectedInterface = false;
-              selectedModuleLoc=false;
+            if(deleteList.has(selectedModule)){
+              deleteList.delete(selectedModule);
+              selectedModule.mute = false;
+              myHardware.sendScreenA("don't delete");
+            }else{
+              deleteList.add(selectedModule);
+              selectedModule.mute = true;
+              myHardware.sendScreenA("del on release");
             }
+            selectedModule=false;
+            selectedInterface = false;
+            selectedModuleLoc=false;
+
           } else {}
           updateLeds();
         }
@@ -342,9 +350,20 @@ var SuperInteractorsSingleton = function(environment) {
         if(event.button==0){
           enviroVarConfig.disengage(event);
         }
-      }else if (deleteMode || muteMode || pageMode || inputsMode) {
+      }else if(deleteMode && event.button==2){
+        deleteList.forEach(function(item){
+          console.log("DEL",item.name);
+          if (modules.removeModule(item)) {
+            selectedModule=false;
+            selectedInterface = false;
+            selectedModuleLoc=false;
+          }
+        });
+        myHardware.sendScreenA("deleted sel");
+        deleteMode = false;
+      } else if ( muteMode || pageMode || inputsMode) {
         if (event.button == 2 || event.button == 1 || event.button == 0) {
-          deleteMode = false;
+
           muteMode = false;
           inputsMode = false;
         }else if(event.button < 8 && event.button > 3){
