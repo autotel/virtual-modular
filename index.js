@@ -3,12 +3,12 @@
 
 var X28Hardware=require('./hardwares/DriverX28v0.js');
 var X16Hardware=require('./hardwares/DriverX16v0.js');
-var Http=require('./hardwares/Driver-http.js');
+//var Http=require('./hardwares/Driver-http.js');
 
 /** Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others */
 var environment = new(require('./environment'))();
 environment.useHardware(X28Hardware);
-environment.useHardware(Http);
+//environment.useHardware(Http);
 
 var modulesToLoad = {
   'Bus': {},
