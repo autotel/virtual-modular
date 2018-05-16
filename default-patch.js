@@ -20,7 +20,7 @@ module.exports=[
     outputs:['global']
   },{
     type:'Harmonizer',
-    outputs:['default midi out','O-to DAW']
+    outputs:['Daw send']
   },{
     type:'PresetKit',
     properties:{
@@ -30,7 +30,7 @@ module.exports=[
         [1,12,36,-1]
       ]
     },
-    outputs:['default midi out','O-to DAW']
+    outputs:['Daw send']
   },{
     type:'PresetKit',
     properties:{
@@ -39,7 +39,7 @@ module.exports=[
         [1,13,36,-1]
       ]
     },
-    outputs:['default midi out','O-to DAW']
+    outputs:['Daw send']
   },{
     type:'PresetKit',
     properties:{
@@ -48,15 +48,6 @@ module.exports=[
         [1,14,36,-1]
       ]
     },
-    outputs:['default midi out','O-to DAW']
-  },{
-    type:'PresetKit',
-    properties:{
-      autoMap:'note',
-      kit:[
-        [1,15,36,-1]
-      ]
-    },
-    outputs:[]
-  }
+    outputs:['Daw send']
+  },
 ]
