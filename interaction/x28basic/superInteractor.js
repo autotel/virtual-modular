@@ -45,10 +45,10 @@ var SuperInteractorsSingleton = function(environment) {
     return ret;
   }
   function tryGetLocOfModule(module){
-
     for(var x in moduleLocations){
       for(var y in moduleLocations[x]){
         if(moduleLocations[x][y]===module){
+          //console.log(`get location = ${x}(${y})`);
           return x;
         }
       }
@@ -57,9 +57,12 @@ var SuperInteractorsSingleton = function(environment) {
   function addModuleToLoc(module,location){
     if(location<0){ console.warn("loc is",location); return false};
     if(moduleLocations[location]){
-      moduleLocations[location].push(module);
+      var len=moduleLocations[location].push(module);
+      //console.log(`module in location ${location},${len-1}`);
     }else{
       moduleLocations[location]=[module];
+      //console.log(`module in location ${location},0`);
+
     }
   };
   environment.on('- module',function(event){
@@ -312,10 +315,8 @@ var SuperInteractorsSingleton = function(environment) {
             // engagedInterface=enviroVarConfig;
             // engagedInterface.engage(event);
           }else if (event.button == 2) {
-            // deleteMode=!deleteMode;
+            deleteList=new Set();
             deleteMode = true;
-            // console.log("DEL",deleteMode);
-            // console.log("DEL");
             updateHardware();
           } else if (event.button == 1) {
             // muteMode=!muteMode;
@@ -336,7 +337,6 @@ var SuperInteractorsSingleton = function(environment) {
             if(pageOffset<0){
               pageOffset=0;
             }
-            // console.log("PO",pageOffset);
             updateHardware();
           } else {
             thisInteractor.engage(event);
