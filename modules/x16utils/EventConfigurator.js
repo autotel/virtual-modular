@@ -14,10 +14,38 @@ var EventConfigurator=function(parentInteractor,properties){
   var thisInteractor=this;
   if(properties.name) this.name=properties.name;
   var selectedValueNumber=1;
-  var valueNames=["func","chan","number","prop"];
+  var presetMode=1;
+  var presets=[
+    {
+      name:"advanced",
+      value:[1,0,0,0],
+      settings:[0,1,2,3],
+      names:["head","num 1","num 2","num 3"]
+    },{
+      name:"trigger",
+      value:[1,-1,0,-1],
+      settings:[1,2,3],
+      names:['chan','number','velocity']
+    },{
+      name:"clock",
+      value:[0,6,6,-1],
+      settings:[1,2],
+      names:['cycle','micro step']
+    },{
+      name:"preset change",
+      value:[3,0,0,-1],
+      settings:[1],
+      names:['preset no']
+    },{
+      name:"rate change",
+      value:[4,12,12,-1],
+      settings:[1,2],
+      names:['division','denominator']
+    },
+  ]
   var extraValueNames=[];
   var extraVariables=[];
-  if(properties.valueNames) valueNames=properties.valueNames
+
   var engagedHardwares=new Set();
   /**
   the interface is based on an eventMessage, but the input and output is an eventPattern
@@ -34,6 +62,19 @@ var EventConfigurator=function(parentInteractor,properties){
     for(var a in properties.values){
       baseEvent.value[a]=properties.values[a];
     }
+  }
+  function setPreset(presetNumber){
+    if(!presets[presetNumber]){
+      console.warn("event configurator: preset "+presetNumber+" doesn't exist");
+      return false;
+    }
+    if(presets[presetNumber].settings.length < selectedValueNumber){
+      selectedValueNumber=0;
+    }
+    for(var a in baseEvent.value){
+      baseEvent.value[a]=presets[presetNumber].value[a];
+    }
+    presetMode=presetNumber;
   }
   this.addextraVariables=function(valuesList){
     for(var a in valuesList){
@@ -56,19 +97,31 @@ var EventConfigurator=function(parentInteractor,properties){
     }
   }
   var updateLeds=function(hardware){
-    var selectBmp=1<<selectedValueNumber;
-    var eventLengthBmp=~(0xFFFF<<baseEvent.value.length);
-    var extraVariablesBmp=eventLengthBmp^~(0xFFFF<<(baseEvent.value.length+extraValueNames.length));
+    var amountOfVariables = presets[presetMode].settings.length;
 
-    hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraVariablesBmp,selectBmp|eventLengthBmp|extraVariablesBmp]);
+    var eventLengthBmp=~(0xFFFF<<amountOfVariables);
+
+    console.log("PL",presets.length);
+    var presetsBmp=(0xFFFF<<(16-presets.length));
+    var selectedPresetBmp=0x1<<(16-presets.length+presetMode);
+
+    var extraVariablesBmp=(0xF0&~(0xF0<<(extraValueNames.length)));
+
+    var selectBmp=1<<selectedValueNumber;
+
+    selectBmp|=selectedPresetBmp;
+    hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraVariablesBmp,selectBmp|eventLengthBmp|extraVariablesBmp|presetsBmp]);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(thisInteractor.name);
-    if(selectedValueNumber<baseEvent.value.length){
+    hardware.sendScreenA(thisInteractor.name+":"+presets[presetMode].name);
+    if(selectedValueNumber<presets[presetMode].settings.length){
+      var absoluteSelectedValueNumber=presets[presetMode].settings[selectedValueNumber];
+
       hardware.sendScreenB(
-        valueNames[selectedValueNumber]
-        +"="+(baseEvent.value[selectedValueNumber]===-1?"transparent":baseEvent.value[selectedValueNumber])
+        presets[presetMode].names[selectedValueNumber]
+        +"="+(baseEvent.value[absoluteSelectedValueNumber]===-1?"transparent":baseEvent.value[ absoluteSelectedValueNumber ])
       );
+      console.log("Value->settings->",presets[presetMode].settings[selectedValueNumber] );
     }else{
       var selectedExtraValue=selectedValueNumber-baseEvent.value.length;
       if(extraValueNames[selectedExtraValue]){
@@ -81,10 +134,22 @@ var EventConfigurator=function(parentInteractor,properties){
     }
   }
   this.matrixButtonPressed=function(event){
+    var eventResponse={}
     var hardware=event.hardware;
-    selectedValueNumber=event.data[0];
+    if(event.data[0]<4){
+      selectedValueNumber=event.data[0];
+      console.log("event var select",presets[presetMode].name);
+    }else if(event.data[0] < extraVariables.length + 4){
+      selectedValueNumber=event.data[0];
+      console.log("extra var select",presets[presetMode].name);
+    }else if(event.data[0] - presets.length > 0){
+      setPreset(presets.length+(event.data[0]-16));
+      console.log("preset select",presets[presetMode].name);
+      eventResponse.presetSelected=true;
+    }
     updateLeds(hardware);
     updateScreen(hardware);
+    return eventResponse;
   };
   this.matrixButtonReleased=function(event){
     var hardware=event.hardware;
@@ -97,16 +162,18 @@ var EventConfigurator=function(parentInteractor,properties){
   };
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
+    var absoluteSelectedValueNumber=presets[presetMode].settings[selectedValueNumber];
     if(baseEvent.value.length>selectedValueNumber){
       // console.log("val:"+baseEvent.value[selectedValueNumber]);
-      baseEvent.value[selectedValueNumber]+=event.delta;
-      // console.log("->val:"+baseEvent.value[selectedValueNumber],event.data[1]);
+      baseEvent.value[absoluteSelectedValueNumber]+=event.delta;
+      presets[presetMode].value=baseEvent.value;
+      console.log("->val:"+baseEvent.value[absoluteSelectedValueNumber],absoluteSelectedValueNumber);
       updateScreen(hardware);
     }else if(extraValueNames.length>selectedValueNumber-baseEvent.value.length){
-      extraVariables[selectedValueNumber-baseEvent.value.length].value+=event.delta;
+      extraVariables[selectedValueNumber-4].value+=event.delta;
       updateScreen(hardware);
     }
-    return {currentEvent:baseEvent,selectedValueNumber:selectedValueNumber,selectedValueValue:baseEvent.value[selectedValueNumber]}
+    return {currentEvent:baseEvent,selectedValueNumber:absoluteSelectedValueNumber,selectedValueValue:baseEvent.value[absoluteSelectedValueNumber]}
   };
   this.encoderPressed=function(event){
     var hardware=event.hardware;
@@ -159,6 +226,7 @@ var EventConfigurator=function(parentInteractor,properties){
 
   }
   this.setFromEventMessage=function(EvMes,hardware){
+    console.log("setFromEventMessage");
     if(EvMes){
       baseEvent=new EventMessage(EvMes);
       if(hardware){
@@ -170,15 +238,17 @@ var EventConfigurator=function(parentInteractor,properties){
 
   }
   this.getEventPattern=function(){
-    // if(!newDest) newDest=options[0].valueNames(0);
+    // if(!newDest) newDest=options[0].presets[presetMode].names(0);
     var newEvPat=new EventPattern();
     newEvPat.fromEventMessage(baseEvent);
     newEvPat.stepLength=1;
     return newEvPat;
   }
   this.getEventMessage=function(){
-    // if(!newDest) newDest=options[0].valueNames(0);
+
+    // if(!newDest) newDest=options[0].presets[presetMode].names(0);
     var newEvMes=new EventMessage(baseEvent);
+    console.log("getEventMessage",newEvMes);
     return newEvMes;
   }
 

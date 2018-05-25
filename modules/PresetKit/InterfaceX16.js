@@ -30,7 +30,7 @@ module.exports = function(controlledModule, environment) {
   }
   configurators.event = new EventConfigurator(this, {
     name: 'event',
-    values: [1, 1, 45, 90]
+    values: [1, 0, 36, -1]
   });
   configurators.record = new RecordMenu(this, {
     environment: environment,
@@ -117,11 +117,20 @@ module.exports = function(controlledModule, environment) {
       muteAction(event);
       updateLeds(hardware);
     } else if (engagedConfigurator) {
-      engagedConfigurator.matrixButtonPressed(event);
+      var eventResponse=engagedConfigurator.matrixButtonPressed(event);
       if (engagedConfigurator == configurators.util) {
         updateLeds(hardware);
       } else {
         // engagedConfigurator.matrixButtonPressed(event);
+      }
+      if(eventResponse)if(eventResponse.presetSelected){
+        if(controlledModule.autoMap!==false){
+          controlledModule.kit[0] = configurators.event.getEventMessage();
+        }else{
+          eachSelectedPresetNumber(function(selectedPresetNumber) {
+            controlledModule.kit[selectedPresetNumber] = configurators.event.getEventMessage();
+          });
+        }
       }
     } else {
 
