@@ -68,7 +68,7 @@ var EventConfigurator=function(parentInteractor,properties){
       console.warn("event configurator: preset "+presetNumber+" doesn't exist");
       return false;
     }
-    if(presets[presetNumber].settings.length < selectedValueNumber){
+    if(presets[presetNumber].settings.length <= selectedValueNumber){
       selectedValueNumber=0;
     }
     for(var a in baseEvent.value){
@@ -113,7 +113,7 @@ var EventConfigurator=function(parentInteractor,properties){
     hardware.draw([selectBmp|eventLengthBmp,selectBmp|extraVariablesBmp,selectBmp|eventLengthBmp|extraVariablesBmp|presetsBmp]);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(thisInteractor.name+":"+presets[presetMode].name);
+    hardware.sendScreenA(""+presets[presetMode].name);
     if(selectedValueNumber<presets[presetMode].settings.length){
       var absoluteSelectedValueNumber=presets[presetMode].settings[selectedValueNumber];
 
@@ -137,12 +137,15 @@ var EventConfigurator=function(parentInteractor,properties){
     var eventResponse={}
     var hardware=event.hardware;
     if(event.data[0]<4){
+      //selection of the events variable
       selectedValueNumber=event.data[0];
       console.log("event var select",presets[presetMode].name);
     }else if(event.data[0] < extraVariables.length + 4){
+      //selection of added vars
       selectedValueNumber=event.data[0];
       console.log("extra var select",presets[presetMode].name);
     }else if(event.data[0] - presets.length > 0){
+      //selection of a preset event
       setPreset(presets.length+(event.data[0]-16));
       console.log("preset select",presets[presetMode].name);
       eventResponse.presetSelected=true;
