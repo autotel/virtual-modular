@@ -57,7 +57,15 @@ var EventMessage=function(inputValue){
   this.clone=function(){
     return new EventMessage(this);
   }
+  this.compareValuesTo=function(otherEvent,valuesList){
+    if(otherEvent===self)return true;
+    for(var index of valuesList){
+      if(otherEvent.value[index]!==self.value[index]) return false;
+    }
+    return true;
+  }
   this.compareTo=function(otherEvent,propertyList){
+    if(otherEvent===self) return true;
     function recurse(currentObject,pathArr,level=-1){
       // console.log("R",currentObject);
       var nextLevel=level+1;

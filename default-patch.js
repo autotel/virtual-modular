@@ -49,5 +49,10 @@ module.exports=[
       ]
     },
     outputs:['Daw send']
+  }, {
+    type: 'PianoRoll',
+    properties: {
+    },
+    outputs: ['nu presetKit']
   },
 ]

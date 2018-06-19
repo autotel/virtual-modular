@@ -8,9 +8,10 @@ user interface pattern that allows to tweak a note. A usage example is the event
 @param {interactor} parentInteractor the module interactor that posesses this EventConfigurator
 @param {Object} properties {values:{@link array}(deep copy),name:{@link String},valueNames:{@link Array} (shallow copy)}
 */
-var EventConfigurator=function(parentInteractor,properties){
+var EventConfigurator=function(parentInteractor,properties={}){
   MyInteractorBase.call(this);
   this.name="EventMessage";
+  var self=this;
   var thisInteractor=this;
   if(properties.name) this.name=properties.name;
   var selectedValueNumber=1;
@@ -51,16 +52,22 @@ var EventConfigurator=function(parentInteractor,properties){
   the interface is based on an eventMessage, but the input and output is an eventPattern
   */
   var baseEvent;
-  if(properties.baseEvent){
-    // console.log("NM");
-    baseEvent=properties.baseEvent;
-  }else{
-    // console.log("nono");
-    baseEvent=this.baseEvent=new EventMessage({value:[0]});
-  }
-  if(properties.values){
-    for(var a in properties.values){
-      baseEvent.value[a]=properties.values[a];
+  function applyProps(){
+    if(properties.baseEvent instanceof EventMessage){
+      // console.log("NM");
+      baseEvent = self.baseEvent = properties.baseEvent;
+    }else if(!isNaN(properties.preset)){
+      baseEvent = self.baseEvent = new EventMessage();
+      setPreset(properties.baseEvent);
+    }else{
+      // console.log("nono");
+      baseEvent=self.baseEvent=new EventMessage({value:[0,0,0,0]});
+      setPreset(0);
+    }
+    if(properties.values){
+      for(var a in properties.values){
+        baseEvent.value[a]=properties.values[a];
+      }
     }
   }
   function setPreset(presetNumber){
@@ -71,7 +78,7 @@ var EventConfigurator=function(parentInteractor,properties){
     if(presets[presetNumber].settings.length <= selectedValueNumber){
       selectedValueNumber=0;
     }
-    for(var a in baseEvent.value){
+    for (var a in presets[presetNumber].value){
       baseEvent.value[a]=presets[presetNumber].value[a];
     }
     presetMode=presetNumber;
@@ -121,7 +128,7 @@ var EventConfigurator=function(parentInteractor,properties){
         presets[presetMode].names[selectedValueNumber]
         +"="+(baseEvent.value[absoluteSelectedValueNumber]===-1?"transparent":baseEvent.value[ absoluteSelectedValueNumber ])
       );
-      console.log("Value->settings->",presets[presetMode].settings[selectedValueNumber] );
+      // console.log("Value->settings->",presets[presetMode].settings[selectedValueNumber] );
     }else{
       var selectedExtraValue=selectedValueNumber-baseEvent.value.length;
       if(extraValueNames[selectedExtraValue]){
@@ -229,7 +236,7 @@ var EventConfigurator=function(parentInteractor,properties){
 
   }
   this.setFromEventMessage=function(EvMes,hardware){
-    console.log("setFromEventMessage");
+    // console.log("setFromEventMessage");
     if(EvMes){
       baseEvent=new EventMessage(EvMes);
       if(hardware){
@@ -251,9 +258,9 @@ var EventConfigurator=function(parentInteractor,properties){
 
     // if(!newDest) newDest=options[0].presets[presetMode].names(0);
     var newEvMes=new EventMessage(baseEvent);
-    console.log("getEventMessage",newEvMes);
+    // console.log("getEventMessage",newEvMes);
     return newEvMes;
   }
-
+  applyProps();
 };
 module.exports=EventConfigurator;

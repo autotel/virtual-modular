@@ -53,7 +53,7 @@ var PresetKit = function(properties, environment) {
   var noteOnTracker = new NoteOnTracker(this);
 
   this.uiTriggerOn = function(presetNumber, velo) {
-    console.log("VELO",velo);
+    // console.log("VELO",velo);
     if(velo===false||velo===undefined){velo=-1}
     if (self.mute) return;
 

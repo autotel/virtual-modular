@@ -25,6 +25,7 @@ var modulesToLoad = {
   'Arpeggiator': {},
   'MultiTape': {},
   'Sequencer': {},
+  'PianoRoll': {},
 };
 for (var a in modulesToLoad) {
   console.log("requiring module " + a);
