@@ -67,6 +67,14 @@ var Operator = function(properties) {
     "!":function(signal,value){
       if(value!=signal) return signal;
       return false;
+    },
+    "s<": function (signal, value) {
+      if (value > signal) return signal;
+      return false;
+    },
+    "s>": function (signal, value) {
+      if (value < signal) return signal;
+      return false;
     }
   }
   //make lookup arrays

@@ -33,7 +33,7 @@ module.exports.LazyStack=function(properties) {
     }
     if(stack.length){
       setImmediate(deq);
-      console.warn("! EVENTS STACK: "+stack.length+"");
+      console.warn("! EVENTS FIFO: "+stack.length+"");
 
     }else{
       self.dequeuing=false;

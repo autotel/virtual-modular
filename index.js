@@ -26,6 +26,7 @@ var modulesToLoad = {
   'MultiTape': {},
   'Sequencer': {},
   'PianoRoll': {},
+  'DelayClockBased': {},
 };
 for (var a in modulesToLoad) {
   console.log("requiring module " + a);
