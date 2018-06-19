@@ -32,9 +32,6 @@ var PianoRoll = function(properties,environment) {
   this.memory.setLoopPoints(0,16);
   this.clock={
     rate:1,
-    loopStart:0,
-    loopEnd:16,
-    step:0,
     playHead:0,
     microStep:0,
     microSteps:12
@@ -61,11 +58,9 @@ var PianoRoll = function(properties,environment) {
       clock.microSteps=evt.eventMessage.value[1];
       var evtMicroStep=evt.eventMessage.value[2];
       if (evtMicroStep==0){
-        clock.step=ramp(clock.step+1,clock.loopEnd-clock.loopStart);
-        clock.playHead=clock.step+clock.loopStart;
         clock.microStep=0;
         self.handle('microstep', clock);
-        self.handle('step',clock);
+        // self.handle('step',clock);
 
         // console.log("STEP EXT", teststep++, "------------------------------------");
         // console.log(clock);

@@ -30,10 +30,11 @@ var TapeMem=function(props={}){
         // console.log(stepIncrement%frameIncrement);
         currentFrame = lastFrame + frameIncrement;
         // console.log(currentFrame%(framesPerStep/12));
-        // if(currentFrame%framesPerStep==0){
-        //     console.log("STEP int", teststep++);
-        // }
         if(currentFrame>=loopEnd) currentFrame=loopStart;
+        
+        if(currentFrame%framesPerStep==0 || lastFrame>currentFrame){
+            self.handle("step",self.getPlayhead());
+        }
         //scan all memory from last frame to current frame and trigger all those events.
         //...
         var eventsInRange = [];
@@ -74,18 +75,37 @@ var TapeMem=function(props={}){
         self.eventTriggerFunction(eventsInRange);
         // console.log("currentFrame",stepToFrame(stepIncrement),currentFrame);
     }
+    this.getPlayhead=function(){
+        return { frame: currentFrame, step: frameToStep(currentFrame), start:frameToStep(loopStart),end:frameToStep(loopEnd) }
+    }
     this.setLoopPoints=function(start,end){
-        loopEnd=stepToFrame(end);
+        if(start) loopStart=stepToFrame(start);
+        if(end) loopEnd=stepToFrame(end);
         // loopLastFrame=loopEnd-1;
-        loopStart=stepToFrame(start);
         loopLength=loopEnd-loopStart;
     }
+    this.setLoopLength=function(to){
+        loopEnd = loopStart+stepToFrame(to);
+        // loopLastFrame=loopEnd-1;
+        loopLength = loopEnd - loopStart;
+    }
+    this.setLoopDisplacement=function(start){
+        loopStart = stepToFrame(start);
+        loopEnd=loopStart+loopLength;
+    }
     this.eventTriggerFunction=function(eventsList){
-
     }
     var noteOnRecordTracker={};
     this.recordEvent=function(event){
         var eventFrame=currentFrame;
+        //prevent more than one same event in the same spot..
+        for(var n in memory[eventFrame]){
+            if (memory[eventFrame][n].compareValuesTo(event,[0,1,2,3])){
+                console.log("duplicate prevented"); 
+                return;
+            }
+        }
+        //manage noteon and offs
         if (event.value[0] == TRIGGERONHEADER) {
             noteOnRecordTracker[event.value[1],event.value[2]]=event;
             event.started=currentFrame;
@@ -144,23 +164,15 @@ var TapeMem=function(props={}){
     this.clearStep=function(step){
         self.clearStepRange(step,step+1);
     }
+    
+    //TODO: create a tape view object, which defines view start and end, and addresses all modification/ request functions in accordnce to view's position & zoom.
+    //this would also be good for multi-controller sequencing
+    //these functions return relative event positions!
     this.getStepRange=function(start,end,quantization=false){
         var frameStart = stepToFrame(start);
         var frameEnd = stepToFrame(end);
         var ret = self.getFrameRange(frameStart, frameEnd-1);
-        if(quantization){
-            var qret={};
-            for(var stindex in ret){
-                var round=Math.round(stindex*quantization)/quantization;
-                if(!qret[round])qret[round]=[];
-                if(!isNaN(round)){
-                    qret[round] = qret[round].concat(ret[stindex]);
-                }
-            
-            }
-            // console.log("QINDEX",qret);
-            return qret
-        }
+        
         return ret;
     }
     this.getFrameRange=function(frameStart,frameEnd){
@@ -168,7 +180,7 @@ var TapeMem=function(props={}){
         for (var index in memory) {
             if (index >= frameStart && index <= frameEnd) {
                 var thisStep = frameToStep(index);
-                var thisRelativeStep = thisStep - frameStart;
+                var thisRelativeStep = thisStep - frameToStep(frameStart);
                 ret[thisRelativeStep] = memory[index];
             }
         }

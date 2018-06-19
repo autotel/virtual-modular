@@ -27,23 +27,28 @@ module.exports = function(controlledModule,environment) {
     // baseEvent: new EventMessage({ value: [TRIGGERONHEADER,0,-1,-1]})
     preset:1
   });
+  var memPlayHead = controlledModule.memory.getPlayhead();
   configurators.time = new BlankConfigurator(this, {
     name: "",
     vars: {
       "loop start": { 
-        value: controlledModule.clock.loopStart,
+        value: memPlayHead.start,
         changeFunction(thisvar,delta){
+          thisvar.value = memPlayHead.start;
           thisvar.value+=delta;
           if(thisvar.value<0) thisvar.value=0;
-          controlledModule.clock.loopStart=thisvar.value;
+          controlledModule.memory.setLoopDisplacement(thisvar.value);
+          redrawSequenceOnNextUpdate=true;
         }
        },
-      "loop end": { 
-        value: controlledModule.clock.loopEnd,
+      "loop len": { 
+        value: memPlayHead.end,
         changeFunction(thisvar,delta){
-          thisvar.value+=delta;
-          if(thisvar.value<0) thisvar.value=0;
-          controlledModule.clock.loopEnd=thisvar.value;
+          thisvar.value = memPlayHead.end-memPlayHead.start;
+          thisvar.value += delta;
+          if (thisvar.value < 1) thisvar.value = 1;
+          controlledModule.memory.setLoopLength(thisvar.value);
+          redrawSequenceOnNextUpdate = true;
         }
       }
     }
@@ -59,8 +64,8 @@ module.exports = function(controlledModule,environment) {
     return listOfEventsInView[button].length;
   }
 
-  controlledModule.on('step', function(clock) {
-    stepOnScreen = clock.playHead-clock.loopStart;
+  controlledModule.memory.on('step', function(clock) {
+    stepOnScreen = clock.step-clock.start;
     // console.log("step",stepOnScreen);
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
@@ -93,7 +98,7 @@ module.exports = function(controlledModule,environment) {
         }
       }
       if(!thereWasEvent){
-        controlledModule.memory.addEvent(configurators.event.getEventMessage(),event.button);
+        controlledModule.memory.addEvent(configurators.event.getEventMessage(),event.button+memPlayHead.start);
       }
     }
   };
@@ -165,17 +170,40 @@ module.exports = function(controlledModule,environment) {
   var focusSequenceBitmap=0;
   var listOfEventsInView={};
   var updateSequence=function(){
-    listOfEventsInView=controlledModule.memory.getStepRange(0, 16, 1);
+    memPlayHead=controlledModule.memory.getPlayhead();
+
+    var firstStep=memPlayHead.start;
+    var lastStep=memPlayHead.end;
+    
+    listOfEventsInView = controlledModule.memory.getStepRange(firstStep, lastStep+firstStep);
+    
+    var offsetView=firstStep;
+    var quantizeView=1;
+
+    var relist = {};
+    for (var stindex in listOfEventsInView) {
+      var viewIndex = Math.round(stindex * quantizeView) / quantizeView;
+      // viewIndex-=offsetView;
+      if (!relist[viewIndex]) relist[viewIndex] = [];
+      if (!isNaN(viewIndex)) {
+        relist[viewIndex] = relist[viewIndex].concat(listOfEventsInView[stindex]);
+      }
+
+    }
+    listOfEventsInView = relist;
+    console.log(listOfEventsInView);
+
     let list = listOfEventsInView;
     let currentEventMessage=configurators.event.getEventMessage();
     var baseBmp = 0;
     var fBmp=0;
     for(var step in list){
-      if(buttonHasEvent(step))  baseBmp|=1<<step;
+      var viewStep = step;
+      if(buttonHasEvent(step))  baseBmp|=1<<viewStep;
       for(var evt of list[step]){
         if (evt.compareValuesTo){
           if (evt.compareValuesTo(currentEventMessage, getContextFilter())){
-            fBmp |= 1 << step;
+            fBmp |= 1 << viewStep;
           }
         }
       }
