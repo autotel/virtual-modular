@@ -144,7 +144,7 @@ module.exports=function(properties,environment){
     // console.log("RECO");
 
     recordOutputs.forEach(function(tModule){
-      console.log("RECO ",eventMessage.value,">",tModule.name);
+      // console.log("RECO ",eventMessage.value,">",tModule.name);
 
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(RECORDINGHEADER);

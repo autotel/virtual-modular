@@ -21,7 +21,7 @@ require to moduleBase.call
 */
 var Arpeggiator = function(properties) {
 
-  var thisInstance = this;
+  var self = this;
   var myBitmap = 0;
   var settings=this.settings={
     duration:{value:false},
@@ -80,7 +80,7 @@ var Arpeggiator = function(properties) {
 
         noteOnTracker.empty(function(noff){
 
-          thisInstance.output(noff, true);
+          self.output(noff, true);
         });
         arpOperation();
         this.handle('step');
@@ -94,7 +94,7 @@ var Arpeggiator = function(properties) {
     } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
       //shold for instance the arpeggiator proxy the recorder behind? it is possible to make this module send his recoding notes upward.
       evt.eventMessage.value.shift();
-      thisInstance.eventReceived(evt);
+      self.eventReceived(evt);
       // if(evt.eventMessage.value[0]==TRIGGERONHEADER){
       //   this.setFixedStep(evt.eventMessage.value[2]%16);
       // }else  if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
@@ -111,7 +111,7 @@ var Arpeggiator = function(properties) {
   }
   this.delete = function() {
     noteOnTracker.empty(function(noff){
-      thisInstance.output(noff, true);
+      self.output(noff, true);
     });
     return true;
   }
@@ -124,7 +124,7 @@ var Arpeggiator = function(properties) {
     if(settings.reset.value){
       runningNotes.splice(0);
       noteOnTracker.empty(function(noff){
-        thisInstance.output(noff, true);
+        self.output(noff, true);
       });
       settings.reset.value=false;
     }
@@ -146,12 +146,18 @@ var Arpeggiator = function(properties) {
 
   function removeNote(eventMessage){
     self.handleStepsChange();
+    // var noteWasRemoved=false;
 
-    eachRunningNote(function(index,rnote){
-      if(eventMessage.compareTo(rnote,['value.1','value.2'])){
-        runningNotes.splice(index,1);
+    for(var index = runningNotes.length-1; index>=0; index--){
+      var rnote=runningNotes[index];
+      // console.log("?",rnote.value);
+      if (eventMessage.compareValuesTo(rnote, [1, 2])) {
+        // noteWasRemoved = true;
+        runningNotes.splice(index, 1);
       }
-    });
+    }
+    // if(!noteWasRemoved) console.warn("note was not found to remove",eventMessage.value);
+    // console.log(runningNotes.length);
   }
 };
 

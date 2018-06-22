@@ -10,11 +10,11 @@ var InterfaceX16 = require('./InterfaceX16');
 
 
 var instanced = 0;
-var name = function() {
+var name = function () {
   this.name = this.baseName + " " + instanced;
   instanced++;
 }
-var PresetKit = function(properties, environment) {
+var PresetKit = function (properties, environment) {
   this.baseName = "preset kit";
 
   var self = this;
@@ -32,13 +32,13 @@ var PresetKit = function(properties, environment) {
   if (properties.name) this.name = properties.name;
 
 
-  this.interfaces.X16 =  InterfaceX16;
+  this.interfaces.X16 = InterfaceX16;
 
   var kit = this.kit = {};
 
 
-  for (var n=0; n<16; n++) {
-    this.kit[n] = new EventMessage({value:[TRIGGERONHEADER,-1,-1,-1]});
+  for (var n = 0; n < 16; n++) {
+    this.kit[n] = new EventMessage({ value: [TRIGGERONHEADER, -1, -1, -1] });
   }
 
   if (properties.kit) {
@@ -52,43 +52,51 @@ var PresetKit = function(properties, environment) {
 
   var noteOnTracker = new NoteOnTracker(this);
 
-  this.uiTriggerOn = function(presetNumber, velo) {
+  this.uiTriggerOn = function (presetNumber, velo) {
     // console.log("VELO",velo);
-    if(velo===false||velo===undefined){velo=-1}
+    if (velo === false || velo === undefined) { velo = -1 }
     if (self.mute) return;
 
-    if (kit[presetNumber]||self.autoMap!==false) {
+    if (kit[presetNumber] || self.autoMap !== false) {
       if (kit[presetNumber]) {
         if (kit[presetNumber].mute) {
           return;
         }
       }
 
-      var recMessage=new EventMessage({
+      var recMessage = new EventMessage({
         value: [TRIGGERONHEADER, 0, presetNumber, velo]
       });
 
-      self.triggerOn(presetNumber, recMessage);
-
+      self.triggerOn(presetNumber, recMessage,true);
+      console.log("ton",recMessage.value);
       if (self.recordingUi) {
         self.recordOutput(recMessage);
       }
     }
   }
 
-  this.uiTriggerOff = function(presetNumber) {
+  this.uiTriggerOff = function (presetNumber) {
+    // console.log("UI off");
     // console.log("koff=",noteOnTracker[presetNumber]);
-    noteOnTracker.ifNoteOff(presetNumber, function(noteOff) {
+    noteOnTracker.ifNoteOff(presetNumber + "ui", function (noteOff) {
       self.output(noteOff, true);
+      // console.log(" send off");
       if (self.recordingUi) {
-        self.recordOutput(new EventMessage({
-          value: [TRIGGEROFFHEADER, 0, presetNumber, 100]
-        }));
+        var recMessage = new EventMessage({
+          value: [TRIGGEROFFHEADER, 0, presetNumber, 0]
+        });
+
+        // console.log(" record off", recMessage.value);
+        self.recordOutput(recMessage);
+        /*new EventMessage({
+          value: [TRIGGEROFFHEADER, 0, presetNumber, 0]
+        })*/
       }
     });
   }
 
-  this.triggerOn = function(presetNumber, originalMessage) {
+  this.triggerOn = function (presetNumber, originalMessage, ui = false) {
     presetNumber %= 16;
     self.handle("extrigger", {
       preset: presetNumber
@@ -107,7 +115,9 @@ var PresetKit = function(properties, environment) {
       }
 
       newEvent.value[self.autoMap] += presetNumber;
-      noteOnTracker.add(newEvent, presetNumber);
+      var onkey=presetNumber;
+      if (ui == true) onkey += "ui";
+      noteOnTracker.add(newEvent, onkey);
       self.output(newEvent);
 
     } else {
@@ -115,33 +125,39 @@ var PresetKit = function(properties, environment) {
       if (kit[presetNumber]) {
         if (!kit[presetNumber].mute) {
           var outputMessage = kit[presetNumber].clone().underImpose(originalMessage);
-          noteOnTracker.add(kit[presetNumber], presetNumber);
+
+
+          var onkey = presetNumber;
+          if (ui == true) onkey += "ui";
+          noteOnTracker.add(kit[presetNumber], onkey);
+          // noteOnTracker.add(kit[presetNumber], presetNumber);
           self.output(outputMessage);
         }
       }
     }
   }
 
-  this.triggerOff = function(presetNumber) {
+  this.triggerOff = function (presetNumber) {
     presetNumber %= 16;
     self.handle("extrigger", {
       preset: presetNumber
     });
-    noteOnTracker.ifNoteOff(presetNumber, function(noteOff) {
+    noteOnTracker.ifNoteOff(presetNumber, function (noteOff) {
+      console.log("noteoff", noteOff.value);
       self.output(noteOff, true);
     });
   }
 
-  this.stepMicro = function() {}
+  this.stepMicro = function () { }
   var recordHead = 0;
-  this.recordEvent = function(evM) {
+  this.recordEvent = function (evM) {
     self.handle('kit changed');
     kit[recordHead] = new EventMessage(evM);
     // console.log("rec",kit[recordHead]);
     recordHead++;
     recordHead %= 16;
   }
-  this.togglePresetMute = function(presetNumber) {
+  this.togglePresetMute = function (presetNumber) {
     if (kit[presetNumber]) {
       kit[presetNumber].mute = !kit[presetNumber].mute === true;
       return kit[presetNumber].mute;
@@ -149,7 +165,7 @@ var PresetKit = function(properties, environment) {
       return false;
     }
   }
-  this.eventReceived = function(event) {
+  this.eventReceived = function (event) {
     var evM = event.eventMessage;
     // console.log(evM);
     self.handle('receive', event);
@@ -171,3 +187,15 @@ var PresetKit = function(properties, environment) {
 }
 PresetKit.color = [90, 70, 30];
 module.exports = PresetKit
+
+/*
+TEsting:
+- does it send notes upon tap?
+- does it record notes?
+- does it send notes off?
+- if anote is tapped, then asecond note is tapped and the first note released, does it send all the note off and on?
+- if another module sends a note off, does it stop an note that is going on in the interface?
+- does the note ons that are being tracked get removed when it receives note off from another module? (example recording to an arpeggiator)
+
+
+*/
