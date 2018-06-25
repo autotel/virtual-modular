@@ -216,7 +216,7 @@ var MidiIO = function(properties,environment) {
   // }, 3000);
 
   var baseRemove = this.remove;
-  this.eventReceived = function(evt) {
+  this.messageReceived = function(evt) {
     if (self.mute) return;
     var eventMessage = evt.eventMessage;
     eventMessage.underImpose(defaultMessage);

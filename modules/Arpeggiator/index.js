@@ -70,8 +70,14 @@ var Arpeggiator = function(properties) {
     recMessages.rate.value[2]=stepDivision.value*12;
     self.recordOutput(recMessages.rate);
   }
-
-  this.eventReceived = function(evt) {
+  this.recordingReceived=function(evt){
+    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+      //shold for instance the arpeggiator proxy the recorder behind? it is possible to make this module send his recoding notes upward.
+      evt.eventMessage.value.shift();
+      self.messageReceived(evt);
+    }  
+  }
+  this.messageReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
       clock.subStep++;
       if (clock.subStep >= clock.subSteps) {
@@ -91,16 +97,7 @@ var Arpeggiator = function(properties) {
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
       // this.clearFixedStep(evt.eventMessage.value[2]%16);
       removeNote(evt.eventMessage.clone());
-    } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-      //shold for instance the arpeggiator proxy the recorder behind? it is possible to make this module send his recoding notes upward.
-      evt.eventMessage.value.shift();
-      self.eventReceived(evt);
-      // if(evt.eventMessage.value[0]==TRIGGERONHEADER){
-      //   this.setFixedStep(evt.eventMessage.value[2]%16);
-      // }else  if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
-      //   this.clearFixedStep(evt.eventMessage.value[2]%16);
-      // }
-    } else  if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
       // console.log("CHANGERATEHEAER",evt.eventMessage.value);
       clock.subSteps=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
     }

@@ -9,7 +9,7 @@ var TRIGGEROFFHEADER = 0x02;
 var RECORDINGHEADER = 0xAA;
 
 var testcount = 0;
-var testGetName = function() {
+var testGetName = function () {
   this.name = this.baseName + " " + testcount;
   testcount++;
 }
@@ -18,12 +18,12 @@ var testGetName = function() {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var GameOfLife = function(properties) {
+var GameOfLife = function (properties) {
   var noteOnTracker = new NoteOnTracker();
   var thisInstance = this;
   var myBitmap = 0;
-  var settings=this.settings={
-    duration:{value:false}
+  var settings = this.settings = {
+    duration: { value: false }
   }
   var clock = this.clock = {
     subSteps: 4,
@@ -37,7 +37,7 @@ var GameOfLife = function(properties) {
     value: [TRIGGERONHEADER, -1, -1, -1]
   });
 
-  this.interfaces.X16 =  InterfaceX16;
+  this.interfaces.X16 = InterfaceX16;
 
   var cells = [
     [0, 0, 0, 0],
@@ -46,18 +46,18 @@ var GameOfLife = function(properties) {
     [0, 0, 0, 0]
   ];
   var fixedCells = 0;
-  var setStep = this.setStep = function(square) {
-    while(square<0) square+=16;
+  var setStep = this.setStep = function (square) {
+    while (square < 0) square += 16;
     // console.log("st",square);
     myBitmap |= 1 << square;
     cells[Math.floor(square / 4)][square % 4] = 1;
   }
-  var clearStep = this.clearStep = function(square) {
+  var clearStep = this.clearStep = function (square) {
     myBitmap &= ~(1 << square);
     cells[Math.floor(square / 4)][square % 4] = 0;
   }
 
-  var toggleStep = this.toggleStep = function(square) {
+  var toggleStep = this.toggleStep = function (square) {
     var x = Math.floor(square / 4);
     var y = square % 4;
     // console.log(x,y);
@@ -71,15 +71,15 @@ var GameOfLife = function(properties) {
     return myBitmap;
   }
 
-  var setFixedStep = this.setFixedStep = function(square) {
+  var setFixedStep = this.setFixedStep = function (square) {
     fixedCells |= 1 << square;
     setStep(square);
   }
-  var clearFixedStep = this.clearFixedStep = function(square) {
+  var clearFixedStep = this.clearFixedStep = function (square) {
     fixedCells &= ~(1 << square);
     clearStep(square);
   }
-  var toggleFixedStep = this.toggleFixedStep = function(square) {
+  var toggleFixedStep = this.toggleFixedStep = function (square) {
     var x = Math.floor(square / 4);
     var y = square % 4;
     if (cells[x][y]) {
@@ -90,43 +90,48 @@ var GameOfLife = function(properties) {
     return myBitmap;
   }
 
-  this.cellOutput = function(x, y, val) {
+  this.cellOutput = function (x, y, val) {
     if (self.mute) return;
     if (val) {
-      var outMessage=new EventMessage.from(baseEventMessage);
+      var outMessage = new EventMessage.from(baseEventMessage);
       outMessage.value[2] = baseEventMessage.value[2] + (x * 4 + y);
-      noteOnTracker.add(outMessage,[x,y]);
+      noteOnTracker.add(outMessage, [x, y]);
       // console.log("ON",outMessage.value);
       thisInstance.output(outMessage);
     } else {
 
     }
   }
-
-  this.eventReceived = function(evt) {
+  this.recordingReceived = function (evt) {
+    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+      evt.eventMessage.value.shift();
+      thisInstance.messageReceived(evt);
+    }
+  }
+  this.messageReceived = function (evt) {
     //to achieve microsteps divisions
 
-    var eventMessage=evt.eventMessage;
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER ) {
-      var microStep=eventMessage.value[2];
-      var microSteps=eventMessage.value[1];
-      if(clock.subSteps<1){
-        microSteps*=clock.subSteps;
-        console.log("MCL",microStep % microSteps);
+    var eventMessage = evt.eventMessage;
+    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+      var microStep = eventMessage.value[2];
+      var microSteps = eventMessage.value[1];
+      if (clock.subSteps < 1) {
+        microSteps *= clock.subSteps;
+        console.log("MCL", microStep % microSteps);
       }
-      if(microStep % microSteps == 0){
+      if (microStep % microSteps == 0) {
         clock.subStep++;
         if (clock.subStep >= clock.subSteps) {
           clock.subStep = 0;
-          if(settings.duration.value){
-            noteOnTracker.empty(function(noff){
+          if (settings.duration.value) {
+            noteOnTracker.empty(function (noff) {
               // console.log("OFF",noff.value);
               thisInstance.output(noff, true);
             });
             cellOperation();
-          }else{
+          } else {
             cellOperation();
-            noteOnTracker.empty(function(noff){
+            noteOnTracker.empty(function (noff) {
               // console.log("OFF",noff.value);
               thisInstance.output(noff, true);
             });
@@ -141,22 +146,14 @@ var GameOfLife = function(properties) {
       // this.clearFixedStep(evt.eventMessage.value[2]%16);
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {
       // this.setStep(evt.eventMessage.value[2]%16);
-    } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-      evt.eventMessage.value.shift();
-      thisInstance.eventReceived(evt);
-      // if(evt.eventMessage.value[0]==TRIGGERONHEADER){
-      //   this.setFixedStep(evt.eventMessage.value[2]%16);
-      // }else  if(evt.eventMessage.value[0]==TRIGGEROFFHEADER){
-      //   this.clearFixedStep(evt.eventMessage.value[2]%16);
-      // }
-    } else {}
+    }
   }
 
-  this.getBitmap16 = function() {
+  this.getBitmap16 = function () {
     return myBitmap;
   }
-  this.delete = function() {
-    noteOnTracker.empty(function(noff){
+  this.delete = function () {
+    noteOnTracker.empty(function (noff) {
       thisInstance.output(noff, true);
     });
     return true;
@@ -218,4 +215,4 @@ var GameOfLife = function(properties) {
 };
 
 GameOfLife.color = [255, 0, 233];
-module.exports=GameOfLife;
+module.exports = GameOfLife;

@@ -1,8 +1,8 @@
 'use strict';
 var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
-var InterfaceX16=require('./InterfaceX16');
-var InterfaceX28=require('./InterfaceX28');
+var InterfaceX16 = require('./InterfaceX16');
+var InterfaceX28 = require('./InterfaceX28');
 var CLOCKTICKHEADER = 0x00;
 var TRIGGERONHEADER = 0x01;
 var TRIGGEROFFHEADER = 0x02;
@@ -18,13 +18,13 @@ Sequencer
 TODO: module naming functions should be a static property, and thus defaults to "name+number"
 */
 var testcount = 0;
-var testGetName = function() {
+var testGetName = function () {
   this.name = baseName + " " + testcount;
   testcount++;
 }
 var baseName = "sequencer";
 
-var Sequencer = function(properties,environment) {
+var Sequencer = function (properties, environment) {
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
 
@@ -38,22 +38,22 @@ var Sequencer = function(properties,environment) {
   var currentModulus = 16;
   this.loopLength = {
     value: 16,
-    lastWatchedValue:16
+    lastWatchedValue: 16
   };
   this.stepLength = {
     value: 12
   }
   this.listenTransport = {
-    value:false
+    value: false
   }
-  this.recordSettings={
-    mode:3,
-    namesList:['overdub','grow','fold','grow & trim'/*,stop*/],
-    growStep:16,
-    recording:false,
-    switchOnEnd:0,
+  this.recordSettings = {
+    mode: 3,
+    namesList: ['overdub', 'grow', 'fold', 'grow & trim'/*,stop*/],
+    growStep: 16,
+    recording: false,
+    switchOnEnd: 0,
   }
-  let recordSettings=this.recordSettings;
+  let recordSettings = this.recordSettings;
 
   this.noteLenManager = sequencerFunctions.NoteLenManager(this);
   var patchMem = sequencerFunctions.PatchMem(this);
@@ -87,72 +87,72 @@ var Sequencer = function(properties,environment) {
   this.stepMicro = patchMem.stepMicro;
   var thisInstance = this;
 
-  this.compensatedOffsetSequence=function(steps){
+  this.compensatedOffsetSequence = function (steps) {
     self.offsetSequence(steps);
-    currentStep.value+=steps;
+    currentStep.value += steps;
   }
-  this.trimSequence=function(grid=1){
-    var bounds=self.sequenceBounds();
+  this.trimSequence = function (grid = 1) {
+    var bounds = self.sequenceBounds();
     //quantize trim to grid
-    bounds.start-=bounds.start%grid;
-    bounds.end-=bounds.end%grid;
+    bounds.start -= bounds.start % grid;
+    bounds.end -= bounds.end % grid;
 
     //trim first and last chunks
-    bounds.start+=grid;
-    bounds.end-=bounds.start;
-    bounds.end-=grid;
+    bounds.start += grid;
+    bounds.end -= bounds.start;
+    bounds.end -= grid;
 
-    self.loopLength.value=bounds.end;
+    self.loopLength.value = bounds.end;
 
-    console.log("trim from step",bounds.start);
-    if(bounds.start>0){
+    console.log("trim from step", bounds.start);
+    if (bounds.start > 0) {
       self.compensatedOffsetSequence(-bounds.start);
     }
 
 
   }
 
-  this.onPatchStep = function(evt) {
+  this.onPatchStep = function (evt) {
     if (recordSettings.recording) {
-      if (currentStep.value >= self.loopLength.value-2) {
+      if (currentStep.value >= self.loopLength.value - 2) {
         switch (recordSettings.mode) {
-          case 1:{
-              // console.log("Grow ");
-              self.loopLength.value += recordSettings.growStep;
-              break;
-            } case 2:{
-              // console.log("Fold");
-              self.loopLength.value *= 2;
-              break;
-            } case 3:{
-              // console.log("Fold");
-              self.loopLength.value += recordSettings.growStep;
-              break;
-            }/*case :{
+          case 1: {
+            // console.log("Grow ");
+            self.loopLength.value += recordSettings.growStep;
+            break;
+          } case 2: {
+            // console.log("Fold");
+            self.loopLength.value *= 2;
+            break;
+          } case 3: {
+            // console.log("Fold");
+            self.loopLength.value += recordSettings.growStep;
+            break;
+          }/*case :{
               console.log("Stop");
               controlledModule.loopLength.value *= 2;
               break;
             }*/
-            // default: console.log("overdub");
+          // default: console.log("overdub");
         }
       }
     }
     this.handle('step', evt);
-    if(self.loopLength.lastWatchedValue!=self.loopLength.value){
+    if (self.loopLength.lastWatchedValue != self.loopLength.value) {
       this.handleStepsChange();
     }
   }
   // self.on('~ module',console.log);
-  this.handleStepsChange=function(){
+  this.handleStepsChange = function () {
     // console.log("STEPCHANGE");
-    self.handle('~ module',{steps:self.loopLength.value});
-    self.loopLength.lastWatchedValue=self.loopLength.value;
+    self.handle('~ module', { steps: self.loopLength.value });
+    self.loopLength.lastWatchedValue = self.loopLength.value;
   }
-  this.play = function() {
+  this.play = function () {
     thisInstance.playing.value = true;
     // thisInstance.restart();
   }
-  this.stop = function() {
+  this.stop = function () {
     thisInstance.playing.value = false;
   }
   /**
@@ -170,32 +170,79 @@ var Sequencer = function(properties,environment) {
   * Header is 70: request of stored data, it will trigger a data response. Not implemented yet
 
   */
-
-
-  // x71: data response
-  this.eventReceived = function(event) {
+  this.recordingReceived = function (event) {
     var evt = event.eventMessage;
     // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
     // console.log(evt.value);
     switch (evt.value[0]) {
-      case CLOCKTICKHEADER:{
+      case RECORDINGHEADER: {
+        // console.log("sq:RECORDINGHEADER");
+        // console.log(evt.value);
+        // console.log("REC");
+        evt.value.shift();
+        // console.log(evt.value[0]);
+        if (evt.value[0] == TRIGGERONHEADER) {
+          recorder.recordNoteStart([evt.value[1], evt.value[2]], evt);
+          // console.log("ON",[evt.value[1],evt.value[2]]);
+        } else if (evt.value[0] == TRIGGEROFFHEADER) {
+          recorder.recordNoteEnd([evt.value[1], evt.value[2]]);
+        } else {
+          recorder.recordSingularEvent(evt);
+        }
+        // thisInstance.recorder.start();
+        break;
+      } case RECORDINGSTATUSHEADER: {
+        recordSettings.recording = evt.value[1];
+        if (!recordSettings.recording) {
+          if (recordSettings.mode == 3) {
+            //trimSequence uses the loopLength, so it must be floored
+            if (self.loopLength.value > recordSettings.growStep) {
+              self.loopLength.value -= recordSettings.growStep;
+            }
+            self.trimSequence(recordSettings.growStep / 2, true);
+            //quantize length to the growStep
+            if (self.loopLength.value > recordSettings.growStep) {
+              self.loopLength.value -= self.loopLength.value % recordSettings.growStep;
+            }
+            //prevent negative or zero length sequences
+            if (self.loopLength.value < recordSettings.growStep) {
+              self.loopLength.value = recordSettings.growStep;
+            }
+          }
+          if (recordSettings.switchOnEnd !== false) {
+            recordSettings.mode = recordSettings.switchOnEnd;
+          }
+        }
+        // console.log("RECSTATUS",evt.value);
+        break;
+      }
+    }
+  }
+
+  // x71: data response
+  this.messageReceived = function (event) {
+    var evt = event.eventMessage;
+    // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
+    // console.log(evt.value);
+    switch (evt.value[0]) {
+      case CLOCKTICKHEADER: {
         // console.log("sq:CLOCKTICKHEADER");
         thisInstance.stepMicro(evt.value[1], evt.value[2]);
-        thisInstance.lastMicroStepBase=evt.value[1];
+        thisInstance.lastMicroStepBase = evt.value[1];
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
         break;
       }
-      case TRIGGERONHEADER:{
+      case TRIGGERONHEADER: {
         // console.log("sq:TRIGGERONHEADER");
         thisInstance.stepAbsolute(evt.value[2]);
-        if(self.listenTransport.value){
+        if (self.listenTransport.value) {
           thisInstance.play();
         }
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
         break;
       } case TRIGGEROFFHEADER: {
         // console.log("sq:TRIGGEROFFHEADER");
-        if(self.listenTransport.value){
+        if (self.listenTransport.value) {
           thisInstance.stop();
         }
         // console.log("2 stop");
@@ -208,53 +255,13 @@ var Sequencer = function(properties,environment) {
       } case 0x04: {
         thisInstance.stepAbsolute(evt.value[1]);
         break;
-      } case RECORDINGHEADER: {
-        // console.log("sq:RECORDINGHEADER");
-        // console.log(evt.value);
-        // console.log("REC");
-        evt.value.shift();
-        // console.log(evt.value[0]);
-        if (evt.value[0] == TRIGGERONHEADER) {
-          recorder.recordNoteStart([evt.value[1],evt.value[2]], evt);
-          // console.log("ON",[evt.value[1],evt.value[2]]);
-        } else if (evt.value[0] == TRIGGEROFFHEADER) {
-          recorder.recordNoteEnd([evt.value[1],evt.value[2]]);
-        } else {
-          recorder.recordSingularEvent(evt);
-        }
-        // thisInstance.recorder.start();
-        break;
-      } case RECORDINGSTATUSHEADER: {
-        recordSettings.recording=evt.value[1];
-        if(!recordSettings.recording){
-          if(recordSettings.mode==3){
-            //trimSequence uses the loopLength, so it must be floored
-            if(self.loopLength.value>recordSettings.growStep){
-              self.loopLength.value-=recordSettings.growStep;
-            }
-            self.trimSequence(recordSettings.growStep/2,true);
-            //quantize length to the growStep
-            if(self.loopLength.value>recordSettings.growStep){
-              self.loopLength.value-=self.loopLength.value%recordSettings.growStep;
-            }
-            //prevent negative or zero length sequences
-            if(self.loopLength.value<recordSettings.growStep){
-              self.loopLength.value=recordSettings.growStep;
-            }
-          }
-          if(recordSettings.switchOnEnd!==false){
-            recordSettings.mode=recordSettings.switchOnEnd;
-          }
-        }
-        // console.log("RECSTATUS",evt.value);
-        break;
       }
-    this.handle('receive', evt);
+        this.handle('receive', evt);
     }
   }
   this.interfaces.X16 = InterfaceX16;
   this.interfaces.X28 = InterfaceX28;
 
 }
-Sequencer.color=[0,0,255];
+Sequencer.color = [0, 0, 255];
 module.exports = Sequencer

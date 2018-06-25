@@ -53,7 +53,13 @@ var PianoRoll = function(properties,environment) {
     }
   }
   var teststep=0;
-  this.eventReceived = function(evt) {
+  this.recordingReceived=function(evt){
+    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+      evt.eventMessage.value.shift();
+      self.memory.recordEvent(evt.eventMessage);
+    } 
+  }
+  this.messageReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
       clock.microSteps=evt.eventMessage.value[1];
       var evtMicroStep=evt.eventMessage.value[2];
@@ -74,10 +80,7 @@ var PianoRoll = function(properties,environment) {
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
     } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {
-    } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-      evt.eventMessage.value.shift();
-      self.memory.recordEvent(evt.eventMessage);
-    } else {}
+    } 
   }
   self.memory.eventTriggerFunction=function(triggeredEventsList){
     for(var evtn in triggeredEventsList){

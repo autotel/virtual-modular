@@ -14,7 +14,7 @@ var Bus = function(properties,environment) {
     compatibilityTags: []
   }
 
-  this.eventReceived = function(evt) {
+  this.messageReceived = function(evt) {
     this.output(evt.eventMessage);
   }
   this.preventBus = true;

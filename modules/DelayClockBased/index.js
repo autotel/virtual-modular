@@ -54,13 +54,15 @@ var DelayClockBased = function(properties) {
     recMessages.rate.value[2]=settings.delayMicro.value;
     self.recordOutput(recMessages.rate);
   }
-
-  this.eventReceived = function(evt) {
+  this.recordingReceived = function(evt){
     if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-      var event=evt.eventMessage;
+      var event = evt.eventMessage;
       event.value.shift();
       memory.add(event);
-    } else if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    }
+  }
+  this.messageReceived = function(evt) {
+    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
       memory.forEach(function (evt) {
         if (!evt.wait) evt.wait = settings.delayMicro.value;
         evt.wait--;

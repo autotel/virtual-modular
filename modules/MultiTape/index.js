@@ -2,7 +2,7 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 
 var Tape = require('./Tape.js');
-var InterfaceX28=require('./InterfaceX28');
+var InterfaceX28 = require('./InterfaceX28');
 // var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
 var CLOCKTICKHEADER = 0x00;
@@ -16,7 +16,7 @@ every module needs to run at the beginning of the runtime to register it's inter
 */
 
 var testcount = 0;
-var testGetName = function() {
+var testGetName = function () {
   this.name = this.baseName + " " + testcount;
   testcount++;
 }
@@ -25,10 +25,10 @@ var testGetName = function() {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var MultiTape = function(properties,environment) {
+var MultiTape = function (properties, environment) {
 
   this.baseName = "multitape";
-  this.interfaces.X28=InterfaceX28;
+  this.interfaces.X28 = InterfaceX28;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var noteOffSuperImpose = new EventMessage({
@@ -45,10 +45,10 @@ var MultiTape = function(properties,environment) {
 
 
   var tapes = [];
-  this.getTapes = function() {
+  this.getTapes = function () {
     return tapes;
   }
-  this.addNewTape = function() {
+  this.addNewTape = function () {
     let len = tapes.length;
     tapes.push(new Tape({
       outputFunction: self.memoryOutput,
@@ -56,10 +56,10 @@ var MultiTape = function(properties,environment) {
     }));
     return tapes[len];
   }
-  this.getTapeNum = function(tape) {
+  this.getTapeNum = function (tape) {
     return tapes.indexOf(tape);
   }
-  this.getNumTape = function(n) {
+  this.getNumTape = function (n) {
     if (tapes[n]) {
       return tapes[n]
     } else {
@@ -67,36 +67,36 @@ var MultiTape = function(properties,environment) {
       return false;
     }
   }
-  this.getCurrentTapeNumber = function() {
+  this.getCurrentTapeNumber = function () {
     let ret = tapes.indexOf(currentTape);
     return ret != -1 ? ret : false;
   }
-  this.tapeCount = function() {
+  this.tapeCount = function () {
     return tapes.length;
   }
-  this.selectTape = function(tape) {
+  this.selectTape = function (tape) {
     currentTape = tape;
     currentMemory = tape.memory;
   }
-  this.getCurrentTape = function() {
+  this.getCurrentTape = function () {
     return currentTape;
   }
-  this.removeTape = function(tape) {
+  this.removeTape = function (tape) {
     tapes.splice(tapes.indexOf(tape, 1));
   }
-  this.clearTape = function(tape) {
+  this.clearTape = function (tape) {
     tape.clearMemory();
   }
-  this.muteTape = function(tape) {
+  this.muteTape = function (tape) {
     tape.muted.value = true;
   }
-  this.unmuteTape = function(tape) {
+  this.unmuteTape = function (tape) {
     tape.muted.value = false;
   }
-  this.muteTapeToggle = function(tape) {
+  this.muteTapeToggle = function (tape) {
     tape.muted.value = !tape.muted.value;
   }
-  this.eachTape = function(cb) {
+  this.eachTape = function (cb) {
     for (var n in tapes) {
       cb.call(tapes[n], n);
     }
@@ -131,10 +131,10 @@ var MultiTape = function(properties,environment) {
   });
 
 
-  this.memoryOutput = function(eventMessage) {
+  this.memoryOutput = function (eventMessage) {
     if (self.mute) return;
     //add eventPattern to a lengthManager, play that
-    noteOnTracker.trackEventMessage(eventMessage, function(error) {
+    noteOnTracker.trackEventMessage(eventMessage, function (error) {
       if (error) {
         console.error(error);
         return
@@ -142,15 +142,24 @@ var MultiTape = function(properties,environment) {
       self.output(eventMessage);
     });
   }
-  var clockFunction = function() {
+  var clockFunction = function () {
     noteOnTracker.clockFunction(clock.historicStep, clock.microStep);
     for (var tape of tapes) {
       tape.clockFunction([clock.historicStep, clock.microStep]);
     }
   }
 
-
-  this.eventReceived = function(evt) {
+  this.recordingReceived = function (evt) {
+    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+      evt.eventMessage.value.shift();
+      // if (self.recording) {
+      // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
+      currentTape.record(evt.eventMessage);
+      self.handle('event recorded', evt);
+      // }
+    }
+  }
+  this.messageReceived = function (evt) {
 
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
       // console.log("CK");
@@ -166,19 +175,12 @@ var MultiTape = function(properties,environment) {
       // recorder.addEvent(evt.eventMessage);
       // noteLogger.addEvent(evt.eventMessage);
 
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-      evt.eventMessage.value.shift();
-      // if (self.recording) {
-      // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
-      currentTape.record(evt.eventMessage);
-      self.handle('event recorded', evt);
-      // }
-    } else {}
+    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) { }
   }
 
   setInitState();
 
-  this.delete = function() {
+  this.delete = function () {
     for (var noff of noteOnTracker) {
       noteOnTracker.setAllOff(noff);
     }

@@ -71,15 +71,16 @@ module.exports=function(properties,environment){
       self.enqueue(function(){
         outputs.forEach(function(tModule){
           // console.log(eventMessage.value);
-          tModule.eventReceived({eventMessage:eventMessage.clone(),origin:self});
+          tModule.messageReceived({eventMessage:eventMessage.clone(),origin:self});
           self.handle('> message',{origin:self,destination:tModule,val:eventMessage});
           // console.log("handle>",tModule.name);
         })
       });
     }
   }
-  this.eventReceived=function(evt){
+  this.messageReceived=function(evt){
   }
+  this.recordingReceived=function(evt){}
   this.removeInput=function(what){
     what.removeOutput(self)
   }
@@ -112,7 +113,7 @@ module.exports=function(properties,environment){
         recordOutputs.add(what);
         self.addInput(what);
         self.enqueue(function(){
-          what.eventReceived({eventMessage:recordStartedEm,origin:self});
+          what.recordingReceived({eventMessage:recordStartedEm,origin:self});
         });
 
       }else{
@@ -127,7 +128,7 @@ module.exports=function(properties,environment){
   this.removeRecordOutput=function(what){
     var rpt=recordOutputs.delete(what);
     self.enqueue(function(){
-      what.eventReceived({eventMessage:recordEndedEm,origin:self});
+      what.recordingReceived({eventMessage:recordEndedEm,origin:self});
     });
     console.log(self.name+" r"+(rpt?"X":" ")+"c> "+what.name);
     self.handle('- recopt',{origin:self,data:what});
@@ -149,10 +150,10 @@ module.exports=function(properties,environment){
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(RECORDINGHEADER);
       // console.log(recordEventMessage.value);
-      tModule.eventReceived({eventMessage:recordEventMessage,origin:self});
+      tModule.recordingReceived({eventMessage:recordEventMessage,origin:self});
     });
   }
-  // this.recordEventReceived=function(evt){
+  // this.recordmessageReceived=function(evt){
   //   // console.log(evt);
   // }
   this.remove=function(){
@@ -162,13 +163,13 @@ module.exports=function(properties,environment){
     for(let recoutput of recordOutputs){
       self.removeRecordOutput(recoutput);
     }
-    self.eventReceived=function(evt){
-      evt.origin.removeOutput(self);
-      evt.origin.removeRecordOutput(self);
-    }
-    self.eventReceived=function(evt){
+    self.messageReceived=function(evt){
       console.log("deleted module",evt);
-      if(evt.origin) self.removeInput(evt.origin);
+      if(evt.origin){
+        self.removeInput(evt.origin);
+        evt.origin.removeOutput(self);
+        evt.origin.removeRecordOutput(self);
+      }
     }
     self.handle('- module',{origin:self});
     if(self.onRemove){

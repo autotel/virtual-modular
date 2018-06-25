@@ -168,7 +168,7 @@ var Quarmonizer = function(properties,environment) {
       return false;
     }
   }
-  this.eventReceived = function(event) {
+  this.messageReceived = function(event) {
     /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
     var eventMessage = event.eventMessage
     if (!self.mute)

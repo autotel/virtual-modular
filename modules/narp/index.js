@@ -158,7 +158,7 @@ var Narp = function(properties,environment) {
     }
     return ret;
   }
-  this.eventReceived = function(evt) {
+  this.messageReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
       var clockBase = evt.eventMessage.value[1];
       var clockMicroStep = evt.eventMessage.value[2];
@@ -183,7 +183,7 @@ var Narp = function(properties,environment) {
     } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
       // console.log("CHANGERATEHEAER",evt.eventMessage.value);
       stepDivision.value=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {} else if (evt.eventMessage.value[0] == RECORDINGHEADER) {} else {}
+    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {}
   }
   this.getBitmaps16 = function() {
     return {

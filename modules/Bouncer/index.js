@@ -43,20 +43,25 @@ var Bouncer = function(properties,environment) {
   var noteOnTracker = new NoteOnTracker(this);
 
   this.interfaces.X16 =  InterfaceX16;
+  this.bounce = function (eventMessage) {
+    self.outputs.forEach(function (tModule) {
+      var recordEventMessage = eventMessage.clone();
+      recordEventMessage.value.unshift(RECORDINGHEADER);
+      tModule.recordingReceived({ eventMessage: recordEventMessage, origin: self });
+    });
+  }
 
-  this.eventReceived = function(evt) {
-    var eventMessage=evt.eventMessage;
-    // self.recordOutput(inEvt);
-    self.handle('received',eventMessage);
-    var recordEventMessage=eventMessage.clone();
-    recordEventMessage.value.unshift(RECORDINGHEADER);
-    self.output(recordEventMessage);
+  this.messageReceived = function(evt) {
+    // var eventMessage=evt.eventMessage;
+    self.handle('received',evt.eventMessage);
+    // var recordEventMessage=eventMessage.clone();
+    // recordEventMessage.value.unshift(RECORDINGHEADER);
+    self.bounce(evt.eventMessage);
   }
 
   this.delete = function() {
     this.interfaces=false;
     noteOnTracker.empty(function(noteOff){
-      // console.log("NOFF",noteOff.value);
       self.output(noteOff);
     });
     return true;

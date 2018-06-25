@@ -49,14 +49,13 @@ var NoteSustainer = function(properties) {
     polyphonyConstrainCheck();
   }
 
-  this.eventReceived = function(evt) {
+  this.messageReceived = function(evt) {
     if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
     } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
       addNote(evt.eventMessage.clone());
       self.output(evt.eventMessage);
     } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
-    } else if (evt.eventMessage.value[0] == RECORDINGHEADER) {
-    } else  if (evt.eventMessage.value[0] == CHANGEPOLYPHONYHEADER) {
+    } else if (evt.eventMessage.value[0] == CHANGEPOLYPHONYHEADER) {
       polyphony.value=evt.eventMessage.value[1];
     } else  if (evt.eventMessage.value[0] == KILLNOTESHEADER) {
       killAllNotes();
