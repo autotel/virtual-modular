@@ -3,11 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CHANGERATEHEADER = 0x04;
-var RECORDINGHEADER = 0xAA;
+var headers=EventMessage.headers;
 
 var testcount = 0;
 var testGetName = function() {
@@ -48,21 +44,21 @@ var DelayClockBased = function(properties) {
 
   var memory=new Set();
   var recMessages={
-    rate:new EventMessage({value:[CHANGERATEHEADER,12,-1]})
+    rate:new EventMessage({value:[headers.changeRate,12,-1]})
   }
   this.recordRate=function(){
     recMessages.rate.value[2]=settings.delayMicro.value;
     self.recordOutput(recMessages.rate);
   }
   this.recordingReceived = function(evt){
-    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+    if (evt.eventMessage.value[0] == headers.record) {
       var event = evt.eventMessage;
       event.value.shift();
       memory.add(event);
     }
   }
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick) {
       memory.forEach(function (evt) {
         if (!evt.wait) evt.wait = settings.delayMicro.value;
         evt.wait--;
@@ -71,7 +67,7 @@ var DelayClockBased = function(properties) {
           memory.delete(evt);
         }
       })
-    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.changeRate) {
       clock.subSteps = evt.eventMessage.value[2] / (evt.eventMessage.value[1] || 1);
     } else {
       memory.add(evt.eventMessage);

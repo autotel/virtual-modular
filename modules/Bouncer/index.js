@@ -11,11 +11,9 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 
 */
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
-var CHORDCHANGEHEADER = 0x03;
+var headers = EventMessage.headers;
+
+
 var instancesCount = 0;
 var getName = function() {
   this.name = this.baseName + " " + instancesCount;
@@ -46,7 +44,7 @@ var Bouncer = function(properties,environment) {
   this.bounce = function (eventMessage) {
     self.outputs.forEach(function (tModule) {
       var recordEventMessage = eventMessage.clone();
-      recordEventMessage.value.unshift(RECORDINGHEADER);
+      recordEventMessage.value.unshift(headers.record);
       tModule.recordingReceived({ eventMessage: recordEventMessage, origin: self });
     });
   }
@@ -55,7 +53,7 @@ var Bouncer = function(properties,environment) {
     // var eventMessage=evt.eventMessage;
     self.handle('received',evt.eventMessage);
     // var recordEventMessage=eventMessage.clone();
-    // recordEventMessage.value.unshift(RECORDINGHEADER);
+    // recordEventMessage.value.unshift(headers.record);
     self.bounce(evt.eventMessage);
   }
 

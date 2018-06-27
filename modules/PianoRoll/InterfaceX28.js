@@ -3,7 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-var TRIGGERONHEADER = 0x01;
+// var headers = EventMessage.headers;
 
 var RecordMenu = require('../x28utils/RecordMenu.js');
 
@@ -24,7 +24,7 @@ module.exports = function(controlledModule,environment) {
     }
   }
   configurators.event = new EventConfigurator(this, {
-    // baseEvent: new EventMessage({ value: [TRIGGERONHEADER,0,-1,-1]})
+    // baseEvent: new EventMessage({ value: [headers.triggerOn,0,-1,-1]})
     preset:1
   });
   var memPlayHead = controlledModule.memory.getPlayhead();

@@ -1,8 +1,7 @@
 'use strict';
 var onHandlers=require('onhandlers');
 var EventMessage=require('../datatypes/EventMessage');
-var RECORDINGHEADER = 0xAA;
-var RECORDINGSTATUSHEADER = 0xAB;
+var headers = EventMessage.headers;
 
 module.exports=function(properties,environment){
   onHandlers.call(this);
@@ -102,8 +101,8 @@ module.exports=function(properties,environment){
     return recordOutputs.has(what);
   }
 
-  var recordStartedEm=new EventMessage({value:[RECORDINGSTATUSHEADER,1,0,0]});
-  var recordEndedEm=new EventMessage({value:[RECORDINGSTATUSHEADER,0,0,0]});
+  var recordStartedEm=new EventMessage({value:[headers.recordStatus,1,0,0]});
+  var recordEndedEm=new EventMessage({value:[headers.recordStatus,0,0,0]});
 
   this.addRecordOutput=function(what){
     if(what){
@@ -148,7 +147,7 @@ module.exports=function(properties,environment){
       // console.log("RECO ",eventMessage.value,">",tModule.name);
 
       var recordEventMessage=eventMessage.clone();
-      recordEventMessage.value.unshift(RECORDINGHEADER);
+      recordEventMessage.value.unshift(headers.record);
       // console.log(recordEventMessage.value);
       tModule.recordingReceived({eventMessage:recordEventMessage,origin:self});
     });

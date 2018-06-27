@@ -1,7 +1,6 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var Observable = require('onhandlers');
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
+var headers = EventMessage.headers;
 
 var TapeMem=function(props={}){
     Observable.call(this);
@@ -45,7 +44,7 @@ var TapeMem=function(props={}){
         }
         
         eventsInRange.map(function(evt){
-            if(evt.value[0]==TRIGGERONHEADER){
+            if(evt.value[0]==headers.triggerOn){
                 notesOn.add(evt);
                 if(!evt.duration){
                     console.warn("note on without duration in tape:",evt);
@@ -65,7 +64,7 @@ var TapeMem=function(props={}){
             
             if (note.life <= 0) { 
                 var noff = note.clone();
-                noff.value[0] = TRIGGEROFFHEADER;
+                noff.value[0] = headers.triggerOff;
                 eventsInRange.push(noff) 
                 notesOn.delete(note);
             };
@@ -106,11 +105,11 @@ var TapeMem=function(props={}){
             }
         }
         //manage noteon and offs
-        if (event.value[0] == TRIGGERONHEADER) {
+        if (event.value[0] == headers.triggerOn) {
             noteOnRecordTracker[event.value[1],event.value[2]]=event;
             event.started=currentFrame;
             return;
-        } else if (event.value[0] = TRIGGEROFFHEADER) {
+        } else if (event.value[0] = headers.triggerOff) {
             event=noteOnRecordTracker[event.value[1],event.value[2]];
             if(!event) return;
             if(event.started!==undefined) {

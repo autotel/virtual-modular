@@ -1,12 +1,8 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
-var patternEvent = require('../../datatypes/EventPattern.js');
 var scaleNames = require('./scaleNames.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
-var CHORDCHANGEHEADER = 0x03;
+var headers = EventMessage.headers;
+var CHORDCHANGEHEADER = headers.changePreset;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
 var InterfaceX16 = require('./InterfaceX16');
@@ -76,7 +72,7 @@ var Quarmonizer = function(properties,environment) {
       if (underImpose) newEvent.underImpose(underImpose);
       if (self.recordingUi) {
         var uiGeneratedEvent = new EventMessage({
-          value: [TRIGGERONHEADER, self.baseEventMessage.value[1], gradeNumber, 100]
+          value: [headers.triggerOn, self.baseEventMessage.value[1], gradeNumber, 100]
         });
         if (underImpose) {
           uiGeneratedEvent.underImpose(underImpose);
@@ -99,7 +95,7 @@ var Quarmonizer = function(properties,environment) {
     });
     noteOnTracker.ifNoteOff(["REC", gradeNumber], function(noteOff) {
       let nnoff = noteOff.clone();
-      nnoff.value[0] = TRIGGEROFFHEADER;
+      nnoff.value[0] = headers.triggerOff;
       self.recordOutput(nnoff);
     });
   }

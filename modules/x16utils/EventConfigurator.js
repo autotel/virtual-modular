@@ -1,5 +1,4 @@
 'use strict';
-var EventPattern=require('../../datatypes/EventPattern.js');
 var EventMessage=require('../../datatypes/EventMessage.js');
 
 var MyInteractorBase=require('../../interaction/x16basic/interactorBase.js');
@@ -103,6 +102,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
       updateScreen(hardware);
     }
   }
+  this.passiveUpdateScreen=passiveUpdateScreen;
   var updateLeds=function(hardware){
     var amountOfVariables = presets[presetMode].settings.length;
 
@@ -222,19 +222,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
     }
   }
 
-  this.setFromEventPattern=function(EvPat,hardware){
-    if(EvPat){
-      if(EvPat.on){
-        baseEvent=new EventMessage(EvPat.on);
-        if(hardware){
-          updateScreen(hardware);
-        }else{
-          passiveUpdateScreen();
-        }
-      }
-    }
-
-  }
+  
   this.setFromEventMessage=function(EvMes,hardware){
     // console.log("setFromEventMessage");
     if(EvMes){
@@ -247,13 +235,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
     }
 
   }
-  this.getEventPattern=function(){
-    // if(!newDest) newDest=options[0].presets[presetMode].names(0);
-    var newEvPat=new EventPattern();
-    newEvPat.fromEventMessage(baseEvent);
-    newEvPat.stepLength=1;
-    return newEvPat;
-  }
+  
   this.getEventMessage=function(){
 
     // if(!newDest) newDest=options[0].presets[presetMode].names(0);

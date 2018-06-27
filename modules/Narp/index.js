@@ -5,11 +5,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 // var InterfaceHttp = require('./HttpGui');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CHANGERATEHEADER = 0x04;
-var RECORDINGHEADER = 0xAA;
+var headers = EventMessage.headers;
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
@@ -47,16 +43,16 @@ var Narp = function(properties,environment) {
   if (properties.name) this.name = properties.name;
 
   var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [TRIGGERONHEADER, -1, -1, -1]
+    value: [headers.triggerOn, -1, -1, -1]
   });
 
 
   this.recordingUi=true;
 
   var recMessages = {
-    set:new EventMessage({value:[TRIGGERONHEADER,-1,-1]}),
-    clear:new EventMessage({value:[TRIGGEROFFHEADER,-1,-1]}),
-    rate:new EventMessage({value:[CHANGERATEHEADER,12,-1]}),
+    set:new EventMessage({value:[headers.triggerOn,-1,-1]}),
+    clear:new EventMessage({value:[headers.triggerOff,-1,-1]}),
+    rate:new EventMessage({value:[headers.changeRate,12,-1]}),
   }
 
   this.recordStepDivision=function(){
@@ -159,7 +155,7 @@ var Narp = function(properties,environment) {
     return ret;
   }
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick) {
       var clockBase = evt.eventMessage.value[1];
       var clockMicroStep = evt.eventMessage.value[2];
       if ((evt.eventMessage.value[2] / stepDivision.value) % clockBase == 0) {
@@ -176,14 +172,14 @@ var Narp = function(properties,environment) {
           self.output(noteOnTracker.noteOff(identifier));
         }
       });
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       this.setStep(evt.eventMessage.value[2] % 16);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       this.clearStep(evt.eventMessage.value[2] % 16);
-    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.changeRate) {
       // console.log("CHANGERATEHEAER",evt.eventMessage.value);
       stepDivision.value=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {}
+    } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {}
   }
   this.getBitmaps16 = function() {
     return {

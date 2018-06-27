@@ -3,12 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CHANGERATEHEADER = 0x04;
-var RECORDINGHEADER = 0xAA;
-
+var headers=EventMessage.headers;
 var testcount = 0;
 var testGetName = function() {
   this.name = this.baseName + " " + testcount;
@@ -64,21 +59,21 @@ var Arpeggiator = function(properties) {
 
   var memory=[];
   var recMessages={
-    rate:new EventMessage({value:[CHANGERATEHEADER,12,-1]})
+    rate:new EventMessage({value:[headers.changeRate,12,-1]})
   }
   this.recordStepDivision=function(){
     recMessages.rate.value[2]=stepDivision.value*12;
     self.recordOutput(recMessages.rate);
   }
   this.recordingReceived=function(evt){
-    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+    if (evt.eventMessage.value[0] == headers.record) {
       //shold for instance the arpeggiator proxy the recorder behind? it is possible to make this module send his recoding notes upward.
       evt.eventMessage.value.shift();
       self.messageReceived(evt);
     }  
   }
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
+    if (evt.eventMessage.value[0] == headers.clockTick && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
       clock.subStep++;
       if (clock.subStep >= clock.subSteps) {
         clock.subStep = 0;
@@ -91,13 +86,13 @@ var Arpeggiator = function(properties) {
         arpOperation();
         this.handle('step');
       }
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       // this.setFixedStep(evt.eventMessage.value[2]%16);
       addNote(evt.eventMessage.clone());
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       // this.clearFixedStep(evt.eventMessage.value[2]%16);
       removeNote(evt.eventMessage.clone());
-    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.changeRate) {
       // console.log("CHANGERATEHEAER",evt.eventMessage.value);
       clock.subSteps=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
     }

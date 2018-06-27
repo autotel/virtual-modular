@@ -3,11 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX28');
 var TapeMem=require('./TapeMem.js');
 
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CHANGERATEHEADER = 0x04;
-var RECORDINGHEADER = 0xAA;
+var headers = EventMessage.headers;
 
 var instancesCount = 0;
 var testGetName = function() {
@@ -54,13 +50,13 @@ var PianoRoll = function(properties,environment) {
   }
   var teststep=0;
   this.recordingReceived=function(evt){
-    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+    if (evt.eventMessage.value[0] == headers.record) {
       evt.eventMessage.value.shift();
       self.memory.recordEvent(evt.eventMessage);
     } 
   }
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick) {
       clock.microSteps=evt.eventMessage.value[1];
       var evtMicroStep=evt.eventMessage.value[2];
       if (evtMicroStep==0){
@@ -76,10 +72,10 @@ var PianoRoll = function(properties,environment) {
       }
       self.memory.tapeFrame(1/clock.microSteps);
       
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
-    } else if (evt.eventMessage.value[0] == CHANGERATEHEADER) {
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
+    } else if (evt.eventMessage.value[0] == headers.changeRate) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {
     } 
   }
   self.memory.eventTriggerFunction=function(triggeredEventsList){

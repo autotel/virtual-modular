@@ -5,10 +5,7 @@ var Tape = require('./Tape.js');
 var InterfaceX28 = require('./InterfaceX28');
 // var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
+var headers=EventMessage.headers;
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
@@ -32,7 +29,7 @@ var MultiTape = function (properties, environment) {
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var noteOffSuperImpose = new EventMessage({
-    value: [TRIGGEROFFHEADER]
+    value: [headers.triggerOff]
   });
   var self = this;
   var myBitmap = 0;
@@ -127,7 +124,7 @@ var MultiTape = function (properties, environment) {
   var noteOnTracker = new NoteOnTracker(self);
 
   var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [TRIGGERONHEADER, -1, -1, -1]
+    value: [headers.triggerOn, -1, -1, -1]
   });
 
 
@@ -150,10 +147,10 @@ var MultiTape = function (properties, environment) {
   }
 
   this.recordingReceived = function (evt) {
-    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+    if (evt.eventMessage.value[0] == headers.record) {
       evt.eventMessage.value.shift();
       // if (self.recording) {
-      // if(evt.eventMessage.value[0]==TRIGGEROFFHEADER)console.log("LOGOFF");
+      // if(evt.eventMessage.value[0]==headers.triggerOff)console.log("LOGOFF");
       currentTape.record(evt.eventMessage);
       self.handle('event recorded', evt);
       // }
@@ -161,7 +158,7 @@ var MultiTape = function (properties, environment) {
   }
   this.messageReceived = function (evt) {
 
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick) {
       // console.log("CK");
       clock.microStep = evt.eventMessage.value[2];
       clock.microSteps = evt.eventMessage.value[1];
@@ -171,11 +168,11 @@ var MultiTape = function (properties, environment) {
         clock.historicStep++;
       }
       clockFunction();
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       // recorder.addEvent(evt.eventMessage);
       // noteLogger.addEvent(evt.eventMessage);
 
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) { }
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) { }
   }
 
   setInitState();

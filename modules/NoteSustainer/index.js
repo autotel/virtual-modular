@@ -3,13 +3,9 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CHANGEPOLYPHONYHEADER = 0x04;
-var KILLNOTESHEADER = 0x05;
-
-var RECORDINGHEADER = 0xAA;
+var headers = EventMessage.headers;
+var CHANGEPOLYPHONYHEADER = headers.changeRate;
+var KILLNOTESHEADER = headers.killNotes;
 
 var testcount = 0;
 /**
@@ -50,11 +46,11 @@ var NoteSustainer = function(properties) {
   }
 
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       addNote(evt.eventMessage.clone());
       self.output(evt.eventMessage);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
     } else if (evt.eventMessage.value[0] == CHANGEPOLYPHONYHEADER) {
       polyphony.value=evt.eventMessage.value[1];
     } else  if (evt.eventMessage.value[0] == KILLNOTESHEADER) {
@@ -71,7 +67,7 @@ var NoteSustainer = function(properties) {
     var shut=runningNotes.indexOf(note);
     if(shut>-1){
       shut=runningNotes.splice(shut,1)[0];
-      shut.value[0]=TRIGGEROFFHEADER;
+      shut.value[0]=headers.triggerOff;
       self.output(shut);
       self.handle('noff',shut);
       return shut;
@@ -83,7 +79,7 @@ var NoteSustainer = function(properties) {
   function killOldestNote(){
     var shut=runningNotes.shift();
     if(shut){
-      shut.value[0]=TRIGGEROFFHEADER;
+      shut.value[0]=headers.triggerOff;
       self.output(shut);
       self.handle('noff',shut);
     }

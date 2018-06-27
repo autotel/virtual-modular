@@ -1,18 +1,11 @@
 "use strict";
-
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CLOCKABSOLUTEHEADER = 0x03;
-
-var RECORDINGHEADER = 0xAA;
-var RECORDINGSTATUSHEADER = 0xAB;
-
 var EventMessage = require('../../datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 var RecordMenu = require('../x16utils/RecordMenu.js');
 var NoteLengthner = require('./sequencerGuts/NoteLengthner.js');
+var EventPattern = require('./EventPattern');
+var headers = EventMessage.headers;
 
 var base = require('../../interaction/x16basic/interactorBase.js');
 
@@ -22,14 +15,14 @@ function log(b, n) {
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports = function(controlledModule, environment) {
+module.exports = function (controlledModule, environment) {
   base.call(this);
-  var self=this;
+  var self = this;
   //boilerplate
 
   base.call(this, controlledModule);
   var thisInterface = this;
-  var currentViewStartStep=0;
+  var currentViewStartStep = 0;
   var engagedHardwares = new Set();
 
   //tracking vars
@@ -39,7 +32,7 @@ module.exports = function(controlledModule, environment) {
   var noteLengthnerStartPointsBitmap = 0x0;
   var noteLengthnerLengthsBitmap = 0x0;
   var noteLengthner = new NoteLengthner(controlledModule);
-  noteLengthner.onStep(function(thisNoteLengthner, nicCount) {
+  noteLengthner.onStep(function (thisNoteLengthner, nicCount) {
     //TODO lengthsBitmap should be on scope of interface, not noteLengthner
     // console.log(nicCount);
     if (nicCount > 0) {
@@ -58,6 +51,25 @@ module.exports = function(controlledModule, environment) {
   configurators.event = new EventConfigurator(this, {
     values: [1, 1, 0, 90]
   });
+
+
+  configurators.event.getEventPattern = function () {
+    var newEvPat = new EventPattern();
+    newEvPat.fromEventMessage(this.getEventMessage());
+    newEvPat.stepLength = 1;
+    return newEvPat;
+  }
+  configurators.event.setFromEventPattern = function (EvPat) {
+    if (EvPat) {
+      if (EvPat.on) {
+        this.setFromEventMessage(evPat.on);
+        // baseEvent = new EventMessage(EvPat.on);
+        this.passiveUpdateScreen();
+      }
+    }
+
+  }
+
   var lastEngagedConfigurator = configurators.event;
   var loopDisplace = controlledModule.loopDisplace;
   configurators.record = new RecordMenu(this, {
@@ -75,61 +87,61 @@ module.exports = function(controlledModule, environment) {
     name: "",
     vars: {
       "loop length": loopLength,
-      "fold": {value:controlledModule.loopLength.value,base:2},
-      "fold!": {value:controlledModule.loopLength.value,base:2},
-      "shift+cpte.": { value:0 },
+      "fold": { value: controlledModule.loopLength.value, base: 2 },
+      "fold!": { value: controlledModule.loopLength.value, base: 2 },
+      "shift+cpte.": { value: 0 },
       "loop look": lookLoop,
-      "page": {value:0},
-      "step length": {value:controlledModule.stepDivide.value},
+      "page": { value: 0 },
+      "step length": { value: controlledModule.stepDivide.value },
       "drift substep": controlledModule.loopDisplace,
       "microstep offset": controlledModule.microStepDisplace,
       "playing": controlledModule.playing,
       "stoppable": controlledModule.listenTransport,
-      "rec mode": {value:controlledModule.recordSettings.mode},
-      "on rec end":{value: controlledModule.recordSettings.switchOnEnd },
+      "rec mode": { value: controlledModule.recordSettings.mode },
+      "on rec end": { value: controlledModule.recordSettings.switchOnEnd },
     }
   });
 
-  configurators.time.vars["step length"].changeFunction=function(thisVar,delta){
-    thisVar.value+=delta;
-    if(thisVar.value<-4){
-      thisVar.value-=delta;
-    }else if(thisVar.value<1){
-      controlledModule.stepDivide.value=Math.pow(2,thisVar.value);//go by 12 divisible numbers: Math.floor( Math.pow(2,-1)/(1/12) )/12
-    }else{
-      controlledModule.stepDivide.value=thisVar.value;
+  configurators.time.vars["step length"].changeFunction = function (thisVar, delta) {
+    thisVar.value += delta;
+    if (thisVar.value < -4) {
+      thisVar.value -= delta;
+    } else if (thisVar.value < 1) {
+      controlledModule.stepDivide.value = Math.pow(2, thisVar.value);//go by 12 divisible numbers: Math.floor( Math.pow(2,-1)/(1/12) )/12
+    } else {
+      controlledModule.stepDivide.value = thisVar.value;
     }
   }
-  configurators.time.vars["step length"].nameFunction=function(thisVar){
-    return "to "+controlledModule.stepDivide.value;
+  configurators.time.vars["step length"].nameFunction = function (thisVar) {
+    return "to " + controlledModule.stepDivide.value;
   }
-  configurators.time.vars["shift+cpte."].changeFunction=function(v,d){
-    v.value+=d;
+  configurators.time.vars["shift+cpte."].changeFunction = function (v, d) {
+    v.value += d;
     controlledModule.offsetSequence(d);
-    controlledModule.currentStep.value+=d;
+    controlledModule.currentStep.value += d;
   };
-  configurators.time.vars["shift+cpte."].selectFunction = function(v){
-    v.value=0;
+  configurators.time.vars["shift+cpte."].selectFunction = function (v) {
+    v.value = 0;
   }
 
   configurators.time.vars["loop length"].min = 1;
-  configurators.time.vars["loop length"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["loop length"].changeFunction = function (thisVar, delta) {
     if (thisVar.value + delta >= 1)
       thisVar.value += delta;
     controlledModule.handleStepsChange();
 
   }
 
-  configurators.time.vars["fold"].nameFunction=configurators.time.vars["fold!"].nameFunction=function(thisVar){
+  configurators.time.vars["fold"].nameFunction = configurators.time.vars["fold!"].nameFunction = function (thisVar) {
     //TODO: ensure that the thisVar.value ends up being the actual length
-    return `${thisVar.base}^${Math.round(thisVar.power*100)/100}>${Math.round(thisVar.value)}`;
+    return `${thisVar.base}^${Math.round(thisVar.power * 100) / 100}>${Math.round(thisVar.value)}`;
 
   }
-  configurators.time.vars["fold"].selectFunction = configurators.time.vars["fold!"].selectFunction = function(thisVar){
+  configurators.time.vars["fold"].selectFunction = configurators.time.vars["fold!"].selectFunction = function (thisVar) {
     thisVar.value = controlledModule.loopLength.value;
-    thisVar.power = log(thisVar.base,thisVar.value);
+    thisVar.power = log(thisVar.base, thisVar.value);
   }
-  configurators.time.vars["fold!"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["fold!"].changeFunction = function (thisVar, delta) {
     var oldLength = thisVar.value;
     if (shiftPressed) {
       thisVar.base += delta;
@@ -137,21 +149,21 @@ module.exports = function(controlledModule, environment) {
       thisVar.power += delta;
     }
     thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
-    if(thisVar.value<1){
-      thisVar.value=1;
+    if (thisVar.value < 1) {
+      thisVar.value = 1;
     }
-    if(thisVar.base<1){
-      thisVar.base=1;
+    if (thisVar.base < 1) {
+      thisVar.base = 1;
     }
-    if(thisVar.power<1){
-      thisVar.power=1;
+    if (thisVar.power < 1) {
+      thisVar.power = 1;
     }
     // console.log("FOLD",thisVar.value);
     controlledModule.duplicateSequence(0, oldLength, thisVar.value / oldLength);
     controlledModule.loopLength.value = thisVar.value;
     controlledModule.handleStepsChange();
   }
-  configurators.time.vars["fold"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["fold"].changeFunction = function (thisVar, delta) {
     var oldLength = thisVar.value;
     if (shiftPressed) {
       thisVar.base += delta;
@@ -159,76 +171,76 @@ module.exports = function(controlledModule, environment) {
       thisVar.power += delta;
     }
     thisVar.value = Math.round(Math.pow(thisVar.base, thisVar.power));
-    if(thisVar.value<1){
-      thisVar.value=1;
+    if (thisVar.value < 1) {
+      thisVar.value = 1;
     }
-    if(thisVar.base<1){
-      thisVar.base=1;
+    if (thisVar.base < 1) {
+      thisVar.base = 1;
     }
-    if(thisVar.power<1){
-      thisVar.power=1;
+    if (thisVar.power < 1) {
+      thisVar.power = 1;
     }
     controlledModule.loopLength.value = thisVar.value;
     controlledModule.handleStepsChange();
   }
 
-  configurators.time.vars["loop look"].nameFunction = function(thisVar) {
+  configurators.time.vars["loop look"].nameFunction = function (thisVar) {
     return (thisVar.value == 0 ? "off" : "" + thisVar.value);
   };
-  configurators.time.vars["loop look"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["loop look"].changeFunction = function (thisVar, delta) {
     if (thisVar.value + delta >= 0)
       thisVar.value += delta;
   }
-  configurators.time.vars["page"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["page"].changeFunction = function (thisVar, delta) {
     if (thisVar.value + delta >= 0)
       thisVar.value += delta;
-    thisVar.value=thisVar.value%controlledModule.loopLength.value;
-    currentViewStartStep=thisVar.value*16;
+    thisVar.value = thisVar.value % controlledModule.loopLength.value;
+    currentViewStartStep = thisVar.value * 16;
   }
 
-  configurators.time.vars["drift substep"].nameFunction = function(thisVar) {
+  configurators.time.vars["drift substep"].nameFunction = function (thisVar) {
     return (thisVar.value > 0 ? "+" : " ") + thisVar.value;
   };
   // configurators.time.vars["time displace"].changeFunction = function(thisVar,delta){
   //   if(thisVar.value+delta>=0)
   //   thisVar.value+=delta;
   // }
-  configurators.time.vars["microstep offset"].nameFunction = function(thisVar) {
+  configurators.time.vars["microstep offset"].nameFunction = function (thisVar) {
     return thisVar.value + "/" + controlledModule.microStepDivide.value;
   };
 
-  configurators.time.vars["playing"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["playing"].changeFunction = function (thisVar, delta) {
     if (delta > 0) {
       thisVar.value = true;
     } else {
       thisVar.value = false;
     }
   }
-  configurators.time.vars["stoppable"].changeFunction = function(thisVar, delta) {
-    thisVar.value=!thisVar.value;
+  configurators.time.vars["stoppable"].changeFunction = function (thisVar, delta) {
+    thisVar.value = !thisVar.value;
   }
 
-  configurators.time.vars["rec mode"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["rec mode"].changeFunction = function (thisVar, delta) {
     var possible = controlledModule.recordSettings.namesList.length;
-    thisVar.value=controlledModule.recordSettings.mode;
-    thisVar.value+=delta;
-    if(thisVar.value<0) thisVar.value=possible-1;
-    thisVar.value%=possible;
-    controlledModule.recordSettings.mode=thisVar.value;
+    thisVar.value = controlledModule.recordSettings.mode;
+    thisVar.value += delta;
+    if (thisVar.value < 0) thisVar.value = possible - 1;
+    thisVar.value %= possible;
+    controlledModule.recordSettings.mode = thisVar.value;
   }
-  configurators.time.vars["rec mode"].nameFunction = function(thisVar) {
-    return controlledModule.recordSettings.namesList[thisVar.value]||"nothing";
+  configurators.time.vars["rec mode"].nameFunction = function (thisVar) {
+    return controlledModule.recordSettings.namesList[thisVar.value] || "nothing";
   }
   configurators.time.vars["on rec end"].nameFunction = configurators.time.vars["rec mode"].nameFunction;
-  configurators.time.vars["on rec end"].changeFunction = function(thisVar, delta) {
+  configurators.time.vars["on rec end"].changeFunction = function (thisVar, delta) {
     var possible = controlledModule.recordSettings.namesList.length;
-    thisVar.value=controlledModule.recordSettings.switchOnEnd;
-    thisVar.value+=delta;
-    if(thisVar.value<0) thisVar.value=possible;
-    thisVar.value%=possible+1;
-    controlledModule.recordSettings.switchOnEnd=thisVar.value;
-    if(thisVar.value>possible){
-      controlledModule.recordSettings.switchOnEnd=false;
+    thisVar.value = controlledModule.recordSettings.switchOnEnd;
+    thisVar.value += delta;
+    if (thisVar.value < 0) thisVar.value = possible;
+    thisVar.value %= possible + 1;
+    controlledModule.recordSettings.switchOnEnd = thisVar.value;
+    if (thisVar.value > possible) {
+      controlledModule.recordSettings.switchOnEnd = false;
     }
   }
 
@@ -253,9 +265,9 @@ module.exports = function(controlledModule, environment) {
   }
 
   //does the event under the button repeat througout all the repetitions of lookLoop?
-  var getThroughfoldBoolean = function(button, filterFunction) {
+  var getThroughfoldBoolean = function (button, filterFunction) {
     var ret = 0;
-    var stepFolds = eachFold(button, function(step) {
+    var stepFolds = eachFold(button, function (step) {
       if (controlledModule.patData[step])
         if (typeof filterFunction === "function") {
           //yes, every step is an array
@@ -275,17 +287,17 @@ module.exports = function(controlledModule, environment) {
     return ret;
   };
 
-  var getBitmapx16 = function(filter, requireAllFold, representLength) {
+  var getBitmapx16 = function (filter, requireAllFold, representLength) {
     var ret = 0x0000;
-    let buttonStart=currentViewStartStep;
+    let buttonStart = currentViewStartStep;
     if (requireAllFold) {
       for (var button = 0; button < 16; button++)
-        if (getThroughfoldBoolean(button+buttonStart, filter) === requireAllFold) ret |= 0x1 << button;
+        if (getThroughfoldBoolean(button + buttonStart, filter) === requireAllFold) ret |= 0x1 << button;
     } else {
       if (filter) {
         for (var button = 0; button < 16; button++)
-          if (controlledModule.patData[button+buttonStart])
-            for (var stepData of controlledModule.patData[button+buttonStart])
+          if (controlledModule.patData[button + buttonStart])
+            for (var stepData of controlledModule.patData[button + buttonStart])
               if (filter(stepData)) {
                 /*  if(representLength){
                     ret|=~(0xffff<<stepData.stepLength)<<button;
@@ -296,8 +308,8 @@ module.exports = function(controlledModule, environment) {
               }
       } else {
         for (var button = 0; button < 16; button++)
-          if (controlledModule.patData[button+buttonStart])
-            for (var stepData of controlledModule.patData[button+buttonStart])
+          if (controlledModule.patData[button + buttonStart])
+            for (var stepData of controlledModule.patData[button + buttonStart])
               if (stepData) {
                 ret |= 0x1 << button;
               }
@@ -309,10 +321,10 @@ module.exports = function(controlledModule, environment) {
 
 
 
-  controlledModule.on('noteOnRecorded', function(event) {
+  controlledModule.on('noteOnRecorded', function (event) {
     configurators.event.setFromEventPattern(event.eventPattern);
   });
-  controlledModule.on('step', function(event) {
+  controlledModule.on('step', function (event) {
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         if (engagedConfigurator === false)
@@ -321,10 +333,10 @@ module.exports = function(controlledModule, environment) {
     // loopDisplace.value=controlledModule.loopDisplace.value;
   });
 
-  this.matrixButtonPressed = function(event) {
+  this.matrixButtonPressed = function (event) {
     // console.log(event.data);
     var button = event.button;
-    var targetButton=button+currentViewStartStep;
+    var targetButton = button + currentViewStartStep;
     var hardware = event.hardware;
     if (skipMode) {
       controlledModule.restart(targetButton);
@@ -341,16 +353,16 @@ module.exports = function(controlledModule, environment) {
       }
       // console.log(throughfold);
       if (throughfold) {
-        var removedEvent=false;
+        var removedEvent = false;
         //there is an event on every fold of the lookloop
-        eachFold(targetButton, function(step) {
-          removedEvent=controlledModule.clearStepByFilter(step, currentFilter)
+        eachFold(targetButton, function (step) {
+          removedEvent = controlledModule.clearStepByFilter(step, currentFilter)
         });
 
-        if(removedEvent && shiftPressed){
+        if (removedEvent && shiftPressed) {
           // console.log(removedEvent);
-          configurators.event.setFromEventPattern(removedEvent[0],event.hardware);
-          lastEngagedConfigurator=configurators.event;
+          configurators.event.setFromEventPattern(removedEvent[0], event.hardware);
+          lastEngagedConfigurator = configurators.event;
         }
       }
       /*else if(trhoughFold>0){
@@ -362,7 +374,7 @@ module.exports = function(controlledModule, environment) {
               }*/
       else {
         //on every repetition is empty
-        var targetEventPattern=configurators.event.getEventPattern();
+        var targetEventPattern = configurators.event.getEventPattern();
 
         noteLengthner.startAdding(targetButton, targetEventPattern);
 
@@ -375,11 +387,11 @@ module.exports = function(controlledModule, environment) {
       engagedConfigurator.matrixButtonPressed(event);
     } // console.log(event.data);
   };
-  this.matrixButtonReleased = function(event) {
+  this.matrixButtonReleased = function (event) {
     var hardware = event.hardware;
-    var targetButton=event.button+currentViewStartStep;
-    noteLengthner.finishAdding(targetButton, function(differenciator, sequencerEvent, nicCount) {
-      eachFold(differenciator, function(step) {
+    var targetButton = event.button + currentViewStartStep;
+    noteLengthner.finishAdding(targetButton, function (differenciator, sequencerEvent, nicCount) {
+      eachFold(differenciator, function (step) {
         /*var added=*/
         controlledModule.storeNoDup(step, sequencerEvent);
       });
@@ -388,7 +400,7 @@ module.exports = function(controlledModule, environment) {
         noteLengthnerLengthsBitmap = 0;
       }
       // console.log(nicCount);
-    } /*,configurators.event.getEventPattern()*/ );
+    } /*,configurators.event.getEventPattern()*/);
 
 
 
@@ -399,8 +411,8 @@ module.exports = function(controlledModule, environment) {
       engagedConfigurator.matrixButtonPressed(event);
     }
   };
-  this.matrixButtonHold = function(event) {};
-  this.selectorButtonPressed = function(event) {
+  this.matrixButtonHold = function (event) { };
+  this.selectorButtonPressed = function (event) {
     var hardware = event.hardware;
 
     if (engagedConfigurator)
@@ -408,7 +420,7 @@ module.exports = function(controlledModule, environment) {
     // console.log(event);
     //keep trak of pressed buttons for button combinations
     configuratorsPressed[event.data[0]] = true;
-    if (configuratorsPressed[0] && configuratorsPressed[1]||configuratorsPressed[3] && configuratorsPressed[1]) {
+    if (configuratorsPressed[0] && configuratorsPressed[1] || configuratorsPressed[3] && configuratorsPressed[1]) {
       if (lastEngagedConfigurator)
         lastEngagedConfigurator.disengage(hardware);
       lastEngagedConfigurator = engagedConfigurator = false;
@@ -431,8 +443,8 @@ module.exports = function(controlledModule, environment) {
       shiftPressed = true;
       hardware.sendScreenA("select through");
       self.updateLeds(hardware);
-    } else if (event.data[0] >= 4){
-      var wouldPage=(event.data[0]-4)*16;
+    } else if (event.data[0] >= 4) {
+      var wouldPage = (event.data[0] - 4) * 16;
       //pressed the same button for a second time, and is one of both extreme buttons
       // if(currentViewStartStep==wouldPage){
       //   if(event.data[0]==7){
@@ -443,16 +455,16 @@ module.exports = function(controlledModule, environment) {
       //     }
       //   }
       // }else{
-        currentViewStartStep=wouldPage;
+      currentViewStartStep = wouldPage;
       // }
-    } else if (event.data[0] >= 8){
+    } else if (event.data[0] >= 8) {
       engagedConfigurator = configurators.record;
       lastEngagedConfigurator = configurators.record;
       engagedConfigurator.engage(event);
     }
 
   };
-  this.selectorButtonReleased = function(event) {
+  this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
     configuratorsPressed[event.data[0]] = false;
 
@@ -467,16 +479,16 @@ module.exports = function(controlledModule, environment) {
 
     updateHardware(hardware);
   };
-  this.encoderScrolled = function(event) {
+  this.encoderScrolled = function (event) {
     var hardware = event.hardware;
     if (lastEngagedConfigurator) {
       lastEngagedConfigurator.encoderScrolled(event);
     }
     self.updateLeds(hardware);
   };
-  this.encoderPressed = function(event) {};
-  this.encoderReleased = function(event) {};
-  this.engage = function(event) {
+  this.encoderPressed = function (event) { };
+  this.encoderReleased = function (event) { };
+  this.engage = function (event) {
     var hardware = event.hardware;
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
@@ -494,12 +506,12 @@ module.exports = function(controlledModule, environment) {
     }
     self.updateLeds(hardware);
   };
-  this.disengage = function(event) {
+  this.disengage = function (event) {
     engagedHardwares.delete(event.hardware);
   }
 
   //feedback functions
-  var updateHardware = function(hardware) {
+  var updateHardware = function (hardware) {
     // hardware.sendScreenA(controlledModule.name);
     self.updateLeds(hardware);
   }
@@ -523,7 +535,7 @@ module.exports = function(controlledModule, environment) {
   var filterNone = new configurators.event.Filter({
   });
 
-  self.updateLeds=function(hardware) {
+  self.updateLeds = function (hardware) {
     //actually should display also according to the currently being tweaked
     var showThroughfold = lastEngagedConfigurator == configurators.time;
     var mostImportant = getBitmapx16(shiftPressed ? moreBluredFilter : focusedFilter, showThroughfold);
@@ -546,14 +558,14 @@ module.exports = function(controlledModule, environment) {
     } else {
       //otherwise, normal one header
       drawStep = currentStep.value % loopLength.value;
-      var playHeadBmp = 0x1 << (drawStep+currentViewStartStep);
+      var playHeadBmp = 0x1 << (drawStep + currentViewStartStep);
     }
 
     hardware.draw([
-      (playHeadBmp ^ mostImportant)|(shiftPressed?(everyEvent^mediumImportant):0),
+      (playHeadBmp ^ mostImportant) | (shiftPressed ? (everyEvent ^ mediumImportant) : 0),
       playHeadBmp | mostImportant | mediumImportant,
       mostImportant | mediumImportant | leastImportant,
     ]);
-    return [mostImportant,mediumImportant,leastImportant,everyEvent];
+    return [mostImportant, mediumImportant, leastImportant, everyEvent];
   }
 }

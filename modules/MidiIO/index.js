@@ -2,15 +2,12 @@
 Module that enables interconnectivity with midi inputs and midi outputs, presumably via USB.
 */
 'use strict';
-var CLOCKABSOLUTEHEADER = 0x03;
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
 
 
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InteractorX16 = require('./InteractorX16');
+
+var headers = EventMessage.headers;
 
 var fs = require('fs');
 var path = require('path');
@@ -105,19 +102,19 @@ var MidiIO = function(properties,environment) {
     switch (outputMessage.value[0]) {
       case 0x90:{
         if(outputMessage.value[3]){
-          outputMessage.value[0] = TRIGGERONHEADER;
+          outputMessage.value[0] = headers.triggerOn;
         }else{
-          outputMessage.value[0] = TRIGGEROFFHEADER;
+          outputMessage.value[0] = headers.triggerOff;
         }
         break;
       }
       case 0x80:
-        outputMessage.value[0] = TRIGGEROFFHEADER;
+        outputMessage.value[0] = headers.triggerOff;
         break;
       case 0xF0:
         {
           if (outputMessage.value[1] == 0x8) {
-            outputMessage.value[0] = CLOCKTICKHEADER;
+            outputMessage.value[0] = headers.clockTick;
             outputMessage.value[1] = 6;
             outputMessage.value[2] = inputClockCount % 6;
             inputClockCount += 1;
@@ -129,10 +126,10 @@ var MidiIO = function(properties,environment) {
             inputClockCount = 0;
             break;
           } else if (outputMessage.value[1] == 0xb) {
-            outputMessage.value[0] = TRIGGERONHEADER;
+            outputMessage.value[0] = headers.triggerOn;
             break;
           } else if (outputMessage.value[1] == 0xc) {
-            outputMessage.value[0] = TRIGGEROFFHEADER;
+            outputMessage.value[0] = headers.triggerOff;
             break;
           }
         }
@@ -222,13 +219,13 @@ var MidiIO = function(properties,environment) {
     eventMessage.underImpose(defaultMessage);
     var midiOut = [0, 0, 0];
     // console.log("MIDI",evt);
-    if (eventMessage.value[0] == TRIGGERONHEADER) {
+    if (eventMessage.value[0] == headers.triggerOn) {
       // console.log("mnoton");
       midiOut[0] = 0x90 | eventMessage.value[1];
       midiOut[1] = eventMessage.value[2];
       midiOut[2] = eventMessage.value[3];
     }
-    if (eventMessage.value[0] == TRIGGEROFFHEADER) {
+    if (eventMessage.value[0] == headers.triggerOff) {
       // console.log("mnotff");
       midiOut[0] = 0x80 | eventMessage.value[1];
       midiOut[1] = eventMessage.value[2];

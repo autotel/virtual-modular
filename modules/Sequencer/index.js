@@ -1,17 +1,12 @@
 'use strict';
 var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
+var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 var InterfaceX28 = require('./InterfaceX28');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var CLOCKABSOLUTEHEADER = 0x03;
+var headers = EventMessage.headers;
 
-var RECORDINGHEADER = 0xAA;
-var RECORDINGSTATUSHEADER = 0xAB;
 
-var EventMessage = require('../../datatypes/EventMessage.js');
 const sequencerFunctions = require("./sequencerGuts");
 /**
 Sequencer
@@ -172,26 +167,26 @@ var Sequencer = function (properties, environment) {
   */
   this.recordingReceived = function (event) {
     var evt = event.eventMessage;
-    // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
+    // if(evt.value[0]!=headers.clockTick) console.log(evt);
     // console.log(evt.value);
     switch (evt.value[0]) {
-      case RECORDINGHEADER: {
-        // console.log("sq:RECORDINGHEADER");
+      case headers.record: {
+        // console.log("sq:headers.record");
         // console.log(evt.value);
         // console.log("REC");
         evt.value.shift();
         // console.log(evt.value[0]);
-        if (evt.value[0] == TRIGGERONHEADER) {
+        if (evt.value[0] == headers.triggerOn) {
           recorder.recordNoteStart([evt.value[1], evt.value[2]], evt);
           // console.log("ON",[evt.value[1],evt.value[2]]);
-        } else if (evt.value[0] == TRIGGEROFFHEADER) {
+        } else if (evt.value[0] == headers.triggerOff) {
           recorder.recordNoteEnd([evt.value[1], evt.value[2]]);
         } else {
           recorder.recordSingularEvent(evt);
         }
         // thisInstance.recorder.start();
         break;
-      } case RECORDINGSTATUSHEADER: {
+      } case headers.recordStatus: {
         recordSettings.recording = evt.value[1];
         if (!recordSettings.recording) {
           if (recordSettings.mode == 3) {
@@ -222,26 +217,26 @@ var Sequencer = function (properties, environment) {
   // x71: data response
   this.messageReceived = function (event) {
     var evt = event.eventMessage;
-    // if(evt.value[0]!=CLOCKTICKHEADER) console.log(evt);
+    // if(evt.value[0]!=headers.clockTick) console.log(evt);
     // console.log(evt.value);
     switch (evt.value[0]) {
-      case CLOCKTICKHEADER: {
-        // console.log("sq:CLOCKTICKHEADER");
+      case headers.clockTick: {
+        // console.log("sq:headers.clockTick");
         thisInstance.stepMicro(evt.value[1], evt.value[2]);
         thisInstance.lastMicroStepBase = evt.value[1];
         // console.log("0 stepMicro("+evt.value[1]+","+evt.value[2]+");");
         break;
       }
-      case TRIGGERONHEADER: {
-        // console.log("sq:TRIGGERONHEADER");
+      case headers.triggerOn: {
+        // console.log("sq:headers.triggerOn");
         thisInstance.stepAbsolute(evt.value[2]);
         if (self.listenTransport.value) {
           thisInstance.play();
         }
         // console.log("1 thisInstance.stepAbsolute("+evt.value[1]+");");
         break;
-      } case TRIGGEROFFHEADER: {
-        // console.log("sq:TRIGGEROFFHEADER");
+      } case headers.triggerOff: {
+        // console.log("sq:headers.triggerOff");
         if (self.listenTransport.value) {
           thisInstance.stop();
         }

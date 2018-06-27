@@ -3,10 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
+var headers = EventMessage.headers;
 
 var testcount = 0;
 var testGetName = function () {
@@ -34,7 +31,7 @@ var GameOfLife = function (properties) {
   if (properties.name) this.name = properties.name;
   var self = this;
   var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [TRIGGERONHEADER, -1, -1, -1]
+    value: [headers.triggerOn, -1, -1, -1]
   });
 
   this.interfaces.X16 = InterfaceX16;
@@ -103,7 +100,7 @@ var GameOfLife = function (properties) {
     }
   }
   this.recordingReceived = function (evt) {
-    if (evt.eventMessage.value[0] == RECORDINGHEADER) {
+    if (evt.eventMessage.value[0] == headers.record) {
       evt.eventMessage.value.shift();
       thisInstance.messageReceived(evt);
     }
@@ -112,7 +109,7 @@ var GameOfLife = function (properties) {
     //to achieve microsteps divisions
 
     var eventMessage = evt.eventMessage;
-    if (evt.eventMessage.value[0] == CLOCKTICKHEADER) {
+    if (evt.eventMessage.value[0] == headers.clockTick) {
       var microStep = eventMessage.value[2];
       var microSteps = eventMessage.value[1];
       if (clock.subSteps < 1) {
@@ -139,12 +136,12 @@ var GameOfLife = function (properties) {
           this.handle('step');
         }
       }
-    } else if (evt.eventMessage.value[0] == TRIGGERONHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       // this.setFixedStep(evt.eventMessage.value[2]%16);
       this.setStep(evt.eventMessage.value[2] % 16);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       // this.clearFixedStep(evt.eventMessage.value[2]%16);
-    } else if (evt.eventMessage.value[0] == TRIGGEROFFHEADER + 1) {
+    } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {
       // this.setStep(evt.eventMessage.value[2]%16);
     }
   }

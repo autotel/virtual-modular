@@ -1,10 +1,6 @@
 'use strict';
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
 var EventMessage = require('../../datatypes/EventMessage.js');
-// var EventPattern=require('../../datatypes/EventPattern.js');
+var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var InterfaceX16 = require('./InterfaceX16');
 
@@ -38,7 +34,7 @@ var PresetKit = function(properties, environment) {
 
 
     for (var n = 0; n < 16; n++) {
-        this.kit[n] = new EventMessage({ value: [TRIGGERONHEADER, -1, -1, -1] });
+        this.kit[n] = new EventMessage({ value: [headers.triggerOn, -1, -1, -1] });
     }
 
     if (properties.kit) {
@@ -65,7 +61,7 @@ var PresetKit = function(properties, environment) {
             }
 
             var recMessage = new EventMessage({
-                value: [TRIGGERONHEADER, 0, presetNumber, velo]
+                value: [headers.triggerOn, 0, presetNumber, velo]
             });
 
             self.triggerOn(presetNumber, recMessage, true);
@@ -84,13 +80,13 @@ var PresetKit = function(properties, environment) {
             // console.log(" send off");
             if (self.recordingUi) {
                 var recMessage = new EventMessage({
-                    value: [TRIGGEROFFHEADER, 0, presetNumber, 0]
+                    value: [headers.triggerOff, 0, presetNumber, 0]
                 });
 
                 // console.log(" record off", recMessage.value);
                 self.recordOutput(recMessage);
                 /*new EventMessage({
-                  value: [TRIGGEROFFHEADER, 0, presetNumber, 0]
+                  value: [headers.triggerOff, 0, presetNumber, 0]
                 })*/
             }
         });
@@ -168,7 +164,7 @@ var PresetKit = function(properties, environment) {
     this.recordingReceived = function(event) {
         var evM = event.eventMessage;
 
-        if (evM.value[0] == RECORDINGHEADER) {
+        if (evM.value[0] == headers.record) {
             evM.value.shift();
             // console.log("rec",evm);
             this.recordEvent(evM);
@@ -178,12 +174,12 @@ var PresetKit = function(properties, environment) {
         var evM = event.eventMessage;
         // console.log(evM);
         self.handle('receive', event);
-        if (evM.value[0] == CLOCKTICKHEADER) {
+        if (evM.value[0] == headers.clockTick) {
             self.stepMicro(evM.value[1], evM.value[2]);
-        } else if (evM.value[0] == TRIGGERONHEADER) {
+        } else if (evM.value[0] == headers.triggerOn) {
             //nton
             self.triggerOn(evM.value[2], evM);
-        } else if (evM.value[0] == TRIGGEROFFHEADER) {
+        } else if (evM.value[0] == headers.triggerOff) {
             //ntoff
             self.triggerOff(evM.value[2]);
         }

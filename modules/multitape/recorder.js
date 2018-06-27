@@ -1,8 +1,6 @@
 'use strict';
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
+var EventMessage=require('../../datatypes/EventMessage');
+var headers = EventMessage.headers;
 /**
 @param ownerModule: the module that will use this Recorder
 @param memoryArray: the array where the recorded events go. The events will be indexed using [step, microStep] as index.
@@ -89,10 +87,10 @@ var Recorder = function(ownerModule,memoryArray){
     // console.log("0rec",eventMessage.value);
     var timeNow=[self.clock.step,self.clock.microStep];
     var eventKey=[ eventMessage.value[1],eventMessage.value[2] ];
-    if(eventMessage.value[0]==TRIGGERONHEADER){
+    if(eventMessage.value[0]==headers.triggerOn){
       eventMessage.starts=timeNow;
       trackedNotes[eventKey]=eventMessage;
-    }else if(eventMessage.value[0]==TRIGGEROFFHEADER){
+    }else if(eventMessage.value[0]==headers.triggerOff){
       var trackedNote=trackedNotes[eventKey];
       if(trackedNote){
         //started looks like: [step,microStep]

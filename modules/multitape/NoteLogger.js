@@ -1,8 +1,6 @@
 'use strict';
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
+var EventMessage=require('../../datatypes/EventMessage');
+var headers=EventMessage.headers;
 
 
 
@@ -38,10 +36,10 @@ var NoteLogger = function( _settings) {
     // console.log("ADDD2");
     var timeNow = [self.clock.historicStep, self.clock.microStep];
     var eventKey = [eventMessage.value[1], eventMessage.value[2]];
-    if (eventMessage.value[0] == TRIGGERONHEADER) {
+    if (eventMessage.value[0] == headers.triggerOn) {
       eventMessage.starts = timeNow;
       trackedNotes[eventKey] = eventMessage;
-    } else if (eventMessage.value[0] == TRIGGEROFFHEADER) {
+    } else if (eventMessage.value[0] == headers.triggerOff) {
       var trackedNote = trackedNotes[eventKey];
       if (trackedNote) {
         //started looks like: [step,microStep]
@@ -98,7 +96,7 @@ var NoteLogger = function( _settings) {
     // (eventMessage.starts!==undefined && eventMessage.duration!==undefined)
     // console.log("EVALUTUB",eventMessage);
 
-    if (eventMessage.value[0] == TRIGGERONHEADER) {
+    if (eventMessage.value[0] == headers.triggerOn) {
       return (eventMessage.starts!==undefined && eventMessage.duration!==undefined);
     } else {
       return true;

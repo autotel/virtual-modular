@@ -12,13 +12,6 @@ var InterfaceX28=function(controlledModule,environment){
       self.page();
     }
   };
-  // var _UPL=this.updateLeds;
-  // this.updateLeds=function(hardware){
-  //   var upl=_UPL(hardware);
-  //   hardware.drawColor(upl[3]^upl[2],[60,60,60]);//(upl[3])
-  //   // console.log("CALL#");
-  //   // hardware.setLedsToColor(0xFFFF);
-  // }
   this.bottomButtonReleased=function(event){};
 }
 module.exports=InterfaceX28;

@@ -11,9 +11,9 @@ var EventMessage=function(inputValue){
 
   [0]=function header, indicates the receiving module what function to perform with the following data
 
-  [1]=submode/ voice specification (channel), indicates a variation of the mode or what voice to play. Sometimes unused
-
-  [2]=main event number, indicates information such as what note to play, what cc to change, or what event to trigger.
+  [1]=main event number, indicates information such as what note to play, what cc to change, or what event to trigger.
+  
+  [2]=submode/ voice specification (channel), indicates a variation of the mode or what voice to play. Sometimes unused
 
   [3 ... ]= more data, depending on the particular function of the receiver following data may make sense or not.
 
@@ -161,6 +161,17 @@ EventMessage.test=function(){
   for(var scr of scripts){
     console.log(String(scr)+'\n\n>',eval(scr)(),"\n");
   }
+}
+
+EventMessage.headers={
+  clockTick:0x0,
+  triggerOn:0x01,
+  triggerOff:0x02,
+  changePreset: 0x03,
+  changeRate: 0x04,
+  killNotes: 0x05,//TODO: find a more general purpose name
+  record:0xAA,
+  recordStatus:0xAB
 }
 // EventMessage.test();
 module.exports=EventMessage;

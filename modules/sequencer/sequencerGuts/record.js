@@ -1,6 +1,6 @@
 var NoteLengthner=require('./NoteLengthner.js');
 var EventMessage=require('../../../datatypes/EventMessage.js');
-var EventPattern=require('../../../datatypes/EventPattern.js');
+var EventPattern=require('../EventPattern.js');
 
 module.exports=function(controlledModule){
   var noteLengthner=new NoteLengthner(controlledModule);

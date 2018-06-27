@@ -1,7 +1,7 @@
 
 'use strict';
 var EventMessage=require('../../../datatypes/EventMessage.js');
-var EventPattern=require('../../../datatypes/EventPattern.js');
+var EventPattern=require('../EventPattern.js');
 
 module.exports=function(sequencerModule){ return new(function(){
   var self=this;

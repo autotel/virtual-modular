@@ -2,8 +2,7 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 // var clockSpec=require('../standards/clock.js');
-var CLOCKTICKHEADER = 0x00;
-var CLOCKABSOLUTEHEADER = 0x03;
+var headers=EventMessage.headers;
 var instanced = 0;
 var name = function() {
   this.name = this.baseName + " " + instanced;
@@ -15,7 +14,7 @@ var ClockGenerator = function(properties={bpm:60}) {
   this.preventBus = true;
 
   var myEventMessage = new EventMessage({
-    value: [CLOCKTICKHEADER, 12 /*ck per step*/ , 0 /* step number*/ ]
+    value: [headers.clockTick, 12 /*ck per step*/ , 0 /* step number*/ ]
   });
   var step = this.step = {
     value: 0,

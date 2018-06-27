@@ -11,10 +11,7 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 
 */
-var CLOCKTICKHEADER = 0x00;
-var TRIGGERONHEADER = 0x01;
-var TRIGGEROFFHEADER = 0x02;
-var RECORDINGHEADER = 0xAA;
+var headers = EventMessage.headers;
 var instancesCount = 0;
 var testGetName = function () {
   this.name = this.baseName + " " + instancesCount;
@@ -98,7 +95,7 @@ var Operator = function (properties) {
   this.recordingReceived = function (evt) {
     var inEvt = evt.eventMessage;
 
-    if (inEvt.value[0] == RECORDINGHEADER) {
+    if (inEvt.value[0] == headers.record) {
       inEvt.value.shift();
       for (var a in inEvt.value) {
         baseEventMessage.value[a] = inEvt.value[a];
@@ -109,7 +106,7 @@ var Operator = function (properties) {
     var inEvt = evt.eventMessage;
     var outEvt = inEvt.clone();
     var cancelEvent = false;
-    if (inEvt.value[0] == TRIGGEROFFHEADER) {
+    if (inEvt.value[0] == headers.triggerOff) {
       var noteTrackerKey = [inEvt.value[1], inEvt.value[2]];
       // console.log(noteTrackerKey);
       noteOnTracker.ifNoteOff(noteTrackerKey, function (noteOff) {
@@ -133,7 +130,7 @@ var Operator = function (properties) {
     }
 
     if (!cancelEvent) {
-      if (inEvt.value[0] == TRIGGERONHEADER) {
+      if (inEvt.value[0] == headers.triggerOn) {
         var noteTrackerKey = [inEvt.value[1], inEvt.value[2]];
         noteOnTracker.add(outEvt, noteTrackerKey);
       }
