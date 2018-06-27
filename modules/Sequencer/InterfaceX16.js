@@ -59,9 +59,9 @@ module.exports = function (controlledModule, environment) {
     newEvPat.stepLength = 1;
     return newEvPat;
   }
-  configurators.event.setFromEventPattern = function (EvPat) {
-    if (EvPat) {
-      if (EvPat.on) {
+  configurators.event.setFromEventPattern = function (evPat) {
+    if (evPat) {
+      if (evPat.on) {
         this.setFromEventMessage(evPat.on);
         // baseEvent = new EventMessage(EvPat.on);
         this.passiveUpdateScreen();

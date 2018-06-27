@@ -17,15 +17,15 @@ var EventConfigurator=function(parentInteractor,properties={}){
   var presetMode=1;
   var presets=[
     {
-      name:"advanced",
-      value:[1,0,0,0],
+      name:"manual",
+      value:[-1,-1,-1,-1],
       settings:[0,1,2,3],
       names:["head","num 1","num 2","num 3"]
     },{
-      name:"trigger",
-      value:[1,-1,0,-1],
+      name:"note trigger",
+      value:[1,0,-1,-1],
       settings:[1,2,3],
-      names:['chan','number','velocity']
+      names:['note','timbre','velocity']
     },{
       name:"clock",
       value:[0,6,6,-1],

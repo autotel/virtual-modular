@@ -5,7 +5,7 @@ var InterfaceX16 = require('./InterfaceX16');
 
 var headers = EventMessage.headers;
 var CHANGEPOLYPHONYHEADER = headers.changeRate;
-var KILLNOTESHEADER = headers.killNotes;
+var KILLNOTESHEADER = headers.choke;
 
 var testcount = 0;
 /**

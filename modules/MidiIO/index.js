@@ -21,7 +21,7 @@ singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 */
 var defaultMessage = new EventMessage({
-  value: [0, 0, 45, 90]
+  value: [0, 36, 0, 90]
 });
 var instanced = 0;
 var getName = function() {
@@ -91,17 +91,16 @@ var MidiIO = function(properties,environment) {
   var inputClockCount = 0;
   var midiReceived=function(t, midiMessage) {
     // console.log("MIDIIN");
+    var fnHeader = midiMessage[0] & 0xf0;
+    var channel = midiMessage[0] & 0xf;
+    var num=midiMessage[1];
+    var numb=midiMessage[2];
     var outputMessage = new EventMessage({
-      value: [
-        (midiMessage[0] & 0xf0),
-        (midiMessage[0] & 0xf),
-        midiMessage[1],
-        midiMessage[2]
-      ]
+      value: [fnHeader,num,channel,numb]
     });
     switch (outputMessage.value[0]) {
       case 0x90:{
-        if(outputMessage.value[3]){
+        if(numb){
           outputMessage.value[0] = headers.triggerOn;
         }else{
           outputMessage.value[0] = headers.triggerOff;
@@ -120,7 +119,7 @@ var MidiIO = function(properties,environment) {
             inputClockCount += 1;
             break;
           } else if (outputMessage.value[1] == 0xa) {
-            outputMessage.value[0] = CLOCKABSOLUTEHEADER;
+            outputMessage.value[0] = headers.playhead;
             outputMessage.value[1] = 0;
             outputMessage.value[2] = 0;
             inputClockCount = 0;
@@ -218,20 +217,37 @@ var MidiIO = function(properties,environment) {
     var eventMessage = evt.eventMessage;
     eventMessage.underImpose(defaultMessage);
     var midiOut = [0, 0, 0];
-    // console.log("MIDI",evt);
     if (eventMessage.value[0] == headers.triggerOn) {
-      // console.log("mnoton");
-      midiOut[0] = 0x90 | eventMessage.value[1];
-      midiOut[1] = eventMessage.value[2];
+      midiOut[0] = 0x90 | eventMessage.value[2];
+      midiOut[1] = eventMessage.value[1];
       midiOut[2] = eventMessage.value[3];
     }
     if (eventMessage.value[0] == headers.triggerOff) {
-      // console.log("mnotff");
-      midiOut[0] = 0x80 | eventMessage.value[1];
-      midiOut[1] = eventMessage.value[2];
+      midiOut[0] = 0x80 | eventMessage.value[2];
+      midiOut[1] = eventMessage.value[1];
       midiOut[2] = 0;
     }
     // console.log("  sendMidi("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
+    // function msgToString(arr){
+    //   function pad(n, width = 3, z = 0) { return (String(z).repeat(width) + String(n)).slice(String(n).length) } 
+    //   var ret="[";
+    //   for(var n in arr){
+    //     var a=arr[n];
+    //     if(a===null){
+    //       ret+="NUL";
+    //     }else{
+    //       ret+=pad(a.toString(16));
+    //     }
+    //     if(n<arr.length-1) ret+=",";
+    //   }
+    //   return ret+"]";
+    // }
+    // evt.eventMessage.print();
+    // console.log("EVMES",
+    //   msgToString(evt.eventMessage.value),
+    //   "= MIDI ",
+    //   msgToString(midiOut)
+    // );
     sendMidi(midiOut[0], midiOut[1], midiOut[2]);
   };
   this.onRemove = function() {

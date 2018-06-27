@@ -38,7 +38,7 @@ module.exports = function(controlledModule,environment) {
   };
 
   configurators.event = new EventConfigurator(this, {
-    baseEvent: controlledModule.baseEventMessage,
+    baseEvent: controlledModule.defaultNote,
     extraVariables: {
       "keyboard base": keyboardRoot,
       "keyboard chan": keyboardChan
@@ -59,7 +59,7 @@ module.exports = function(controlledModule,environment) {
   var engagedHardwares = new Set();
   controlledModule.on('note played', function(evt) {
 
-    var relativeNote = (evt.triggeredNote-controlledModule.baseEventMessage.value[2])%12;
+    var relativeNote = (evt.triggeredNote-controlledModule.defaultNote.note())%12;
     // console.log(relativeNote);
     var newH = noteHiglightMap |= 4097 << relativeNote;
 
@@ -110,7 +110,6 @@ module.exports = function(controlledModule,environment) {
   controlledModule.on('messagesend', function(ev) {
     //hmm... that check sould be inside, right?
     // if(configurators.recorder.recording)
-    // configurators.recorder.recordOptEvent(ev.eventMessage);
   });
 
   //interaction setup
@@ -124,7 +123,7 @@ module.exports = function(controlledModule,environment) {
       if (performMode) {
         var triggerKey = event.data[0] + keyboardRoot.value;
         controlledModule.uiTriggerOn(triggerKey, new EventMessage({
-          value: [-1, keyboardChan.value, triggerKey]
+          value: [-1, triggerKey, keyboardChan.value]
         }));
       } else {
         var grade=event.data[0]%12;

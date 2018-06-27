@@ -51,6 +51,9 @@ var Operator = function (properties) {
     "+": function (signal, value) {
       return signal + value
     },
+    "-": function (signal, value) {
+      return signal - value
+    },
     "*": function (signal, value) {
       return signal * value;
     },

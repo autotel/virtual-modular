@@ -105,10 +105,8 @@ var EventMessage=function(inputValue){
   /**apply all the characteristics of other event message to this one, except the ones that are
   "transparent" in the other (value==-1)*/
   this.superImpose=function(otherEvent){
-    //if otherEvent doesn't have any transparent value, then just return otherEvent
-    if(otherEvent.value.indexOf(-1)===-1) return otherEvent;
     for(var a in otherEvent.value){
-      if(otherEvent.value[a]!=-1){
+      if(otherEvent.value[a]>=0){
         thisEm.value[a]=otherEvent.value[a];
       }
     }
@@ -116,11 +114,9 @@ var EventMessage=function(inputValue){
   }
   /**apply only the characteristics of other event message if the ones in  this are transparent*/
   this.underImpose=function(otherEvent){
-    //if otherEvent doesn't have any transparent value, then just return this
-    if(thisEm.value.indexOf(-1)===-1) return thisEm;
-    for(var a in thisEm.value){
-      if(thisEm.value[a]==-1){
-        thisEm.value[a]=otherEvent.value[a];
+    for (var a in otherEvent.value) {
+      if (!(thisEm.value[a] >= 0)) {
+        thisEm.value[a] = otherEvent.value[a];
       }
     }
     return thisEm;
@@ -169,7 +165,8 @@ EventMessage.headers={
   triggerOff:0x02,
   changePreset: 0x03,
   changeRate: 0x04,
-  killNotes: 0x05,//TODO: find a more general purpose name
+  choke: 0x05,
+  playhead:0x06,
   record:0xAA,
   recordStatus:0xAB
 }

@@ -121,7 +121,7 @@ module.exports = function(controlledModule,environment) {
           //scale section pressed
           var triggerKey = event.data[0] + keyboardRoot.value - 4;
           controlledModule.uiTriggerOn(triggerKey, new EventMessage({
-            value: [-1, keyboardChan.value, triggerKey]
+            value: [-1, triggerKey, keyboardChan.value]
           }));
 
           // if(configurators.recorder.recording){

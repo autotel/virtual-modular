@@ -1,4 +1,5 @@
 var EventMessage = require('../../datatypes/EventMessage.js');
+var Note = require('./Note');
 var headers = EventMessage.headers;
 
 var NoteOnTracker = function(controlledModule) {

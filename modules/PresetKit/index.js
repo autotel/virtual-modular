@@ -65,7 +65,7 @@ var PresetKit = function(properties, environment) {
             });
 
             self.triggerOn(presetNumber, recMessage, true);
-            console.log("ton", recMessage.value);
+            // console.log("ton", recMessage.value);
             if (self.recordingUi) {
                 self.recordOutput(recMessage);
             }

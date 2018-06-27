@@ -1,5 +1,6 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
+var Note=require('../moduleUtils/Note');
 var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;
 var CHORDCHANGEHEADER = headers.changePreset;
@@ -38,9 +39,10 @@ var Harmonizer = function(properties,environment) {
   this.mapMode=true;
   // this.baseNote={value:0};
 
-  this.baseEventMessage = new EventMessage({
-    value: [1, -1, 20, 90]
-  });
+  var defaultNote=new Note();
+  defaultNote.note(36);
+  this.defaultNote=defaultNote;
+
   var scaleMap = {};
   //keep track of triggered notes
   this.scaleArray = {};
@@ -57,9 +59,7 @@ var Harmonizer = function(properties,environment) {
     if (self.recordingUi) {
       self.recordOutput(new EventMessage({
         value: [
-          CHORDCHANGEHEADER,
-          self.baseEventMessage.value[1],
-          scalen, -1
+          CHORDCHANGEHEADER, scalen
         ]
       }));
     }
@@ -67,13 +67,17 @@ var Harmonizer = function(properties,environment) {
 
   this.uiTriggerOn = function(gradeNumber, underImpose = false) {
     if (self.mute) return;
-    var newEvent = getOutputMessageFromNumber(gradeNumber);
-    if (newEvent) {
+    var transformedNumber = inputTransformNumber(gradeNumber);
+    if(transformedNumber!==false){
+      var newEvent = new Note(defaultNote);
+      newEvent.note(transformedNumber);
       if (underImpose) newEvent.underImpose(underImpose);
       if (self.recordingUi) {
-        var uiGeneratedEvent = new EventMessage({
-          value: [headers.triggerOn, self.baseEventMessage.value[1], gradeNumber, 100]
-        });
+        var uiGeneratedEvent = new Note();
+        uiGeneratedEvent.note(gradeNumber);
+        uiGeneratedEvent.timbre(defaultNote.timbre());
+        uiGeneratedEvent.velo(newEvent.velo());
+
         if (underImpose) {
           uiGeneratedEvent.underImpose(underImpose);
         }
@@ -84,7 +88,7 @@ var Harmonizer = function(properties,environment) {
       noteOnTracker.add(newEvent, ["UI", gradeNumber]);
       self.handle('note played', {
         triggeredGrade: gradeNumber,
-        triggeredNote: newEvent.value[2]
+        triggeredNote: newEvent.value[1]
       });
     }
   }
@@ -102,23 +106,22 @@ var Harmonizer = function(properties,environment) {
 
   this.triggerOn = function(gradeNumber, underImpose = false) {
     if (self.mute) return;
-    var newEvent = getOutputMessageFromNumber(gradeNumber);
-    if (newEvent) {
+    var transformedNumber = inputTransformNumber(gradeNumber);
+    if (transformedNumber !== false) {
+      var newEvent = new Note(defaultNote);
+      newEvent.note(transformedNumber);
       if (underImpose) newEvent.underImpose(underImpose);
       noteOnTracker.add(newEvent, ["EX", gradeNumber, underImpose.value[1]]);
       self.output(newEvent);
       self.handle('note played', {
         triggeredGrade: gradeNumber,
-        triggeredNote: newEvent.value[2]
+        triggeredNote: newEvent.value[1]
       });
     }
   }
 
   this.triggerOff = function(gradeNumber, underImpose) {
-    // var newEvent=self.baseEventMessage.clone();
-    // if(underImpose) newEvent.underImpose(underImpose);
     noteOnTracker.ifNoteOff(["EX", gradeNumber, underImpose.value[1]], function(noteOff) {
-      // console.log("NTOFF",noteOff);
       self.output(noteOff);
     });
   }
@@ -147,29 +150,19 @@ var Harmonizer = function(properties,environment) {
         }
         ret = nearestGrade + (12 * octave);
       }
-      return ret + self.baseEventMessage.value[2];
+      return ret + defaultNote.note();
     } else {
       return false;
     }
   }
 
-  var getOutputMessageFromNumber = function(number) {
-    var outputMessage = new EventMessage(self.baseEventMessage);
-    var num = inputTransformNumber(number);
-    // console.log("itn",num);
-    if (num) {
-      outputMessage.value[2] = num;
-      return outputMessage;
-    } else {
-      return false;
-    }
-  }
+ 
   this.messageReceived = function(event) {
     /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
     var eventMessage = event.eventMessage
     if (!self.mute)
       if (eventMessage.value[0] == 2 || eventMessage.value[3] == 0) {
-        self.triggerOff(eventMessage.value[2], eventMessage);
+        self.triggerOff(eventMessage.value[1], eventMessage);
       } else {
         this.handle('receive', eventMessage);
         if (eventMessage.value[0] == 3) {
@@ -180,7 +173,7 @@ var Harmonizer = function(properties,environment) {
           // console.log("chordchange",event);
         } else if (eventMessage.value[0] == 1) {
           // console.log("TRIGGERON");
-          self.triggerOn(eventMessage.value[2], eventMessage);
+          self.triggerOn(eventMessage.value[1], eventMessage);
         } else {
           // console.log("wasted event",eventMessage,(eventMessage.value[0]|0xf)+"=!"+0);
         }
