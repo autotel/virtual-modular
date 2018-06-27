@@ -19,9 +19,9 @@ var PresetKit = function(properties, environment) {
 
     this.autoMap = false;
 
-    if (properties.autoMap == true) this.autoMap = 2;
-    if (properties.autoMap == 'channel') this.autoMap = 1;
-    if (properties.autoMap == 'note') this.autoMap = 2;
+    if (properties.autoMap == true) this.autoMap = 1;
+    if (properties.autoMap == 'timbre') this.autoMap = 2;
+    if (properties.autoMap == 'note') this.autoMap = 1;
 
     this.recordingUi = true;
 
@@ -61,7 +61,7 @@ var PresetKit = function(properties, environment) {
             }
 
             var recMessage = new EventMessage({
-                value: [headers.triggerOn, 0, presetNumber, velo]
+                value: [headers.triggerOn, presetNumber, 0, velo]
             });
 
             self.triggerOn(presetNumber, recMessage, true);
@@ -80,7 +80,7 @@ var PresetKit = function(properties, environment) {
             // console.log(" send off");
             if (self.recordingUi) {
                 var recMessage = new EventMessage({
-                    value: [headers.triggerOff, 0, presetNumber, 0]
+                    value: [headers.triggerOff, presetNumber, 0, 0]
                 });
 
                 // console.log(" record off", recMessage.value);
@@ -178,10 +178,10 @@ var PresetKit = function(properties, environment) {
             self.stepMicro(evM.value[1], evM.value[2]);
         } else if (evM.value[0] == headers.triggerOn) {
             //nton
-            self.triggerOn(evM.value[2], evM);
+            self.triggerOn(evM.value[1], evM);
         } else if (evM.value[0] == headers.triggerOff) {
             //ntoff
-            self.triggerOff(evM.value[2]);
+            self.triggerOff(evM.value[1]);
         }
     }
 

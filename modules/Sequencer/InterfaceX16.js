@@ -527,7 +527,7 @@ module.exports = function (controlledModule, environment) {
   });
   var bluredFilter = new configurators.event.Filter({
     header: true,
-    value_a: true
+    value_b: true
   });
   var moreBluredFilter = new configurators.event.Filter({
     header: true

@@ -15,23 +15,16 @@ definition of a presetkit interactor for the x16basic controller hardware
 module.exports = function(controlledModule, environment) {
   base.call(this);
   var engagedHardwares = new Set();
-  var thisInteractor = this;
-  //configurators setup
+  var self=this;
   var engagedConfigurator = false;
   var configurators = this.configurators = {};
-
-
   var muteBmp = 0;
   var muteMode = false;
-  var muteAction = function(event) {
-    var muted = controlledModule.togglePresetMute(event.button);
-    (muted ? muteBmp |= 1 << event.button : muteBmp &= ~(1 << event.button));
-    updateLeds(event.hardware);
+  var muteAction = function(button) {
+    var muted = controlledModule.togglePresetMute(button);
+    (muted ? muteBmp |= 1 << button : muteBmp &= ~(1 << button));
   }
-  configurators.event = new EventConfigurator(this, {
-    name: 'event',
-    values: [1, 0, 36, -1]
-  });
+  configurators.event = new EventConfigurator(this);
   configurators.record = new RecordMenu(this, {
     environment: environment,
     controlledModule: controlledModule
@@ -59,16 +52,26 @@ module.exports = function(controlledModule, environment) {
   };
 
   configurators.global.vars["auto map"].nameFunction = function(thisVar) {
-    switch (thisVar.value) {
-      case 0:
-        return "off";
-      case 1:
-        return "1 (chan)";
-      case 2:
-        return "2 (num)";
-      case 3:
-        return "3 (prop)";
-      default: console.log("invalid var:",thisVar); return "?";
+    if(controlledModule.kit[0].value[0]==EventMessage.headers.triggerOn){
+      switch (thisVar.value) {
+        case 0:
+          return "off";
+        case 1:
+          return "1 (note)";
+        case 2:
+          return "2 (timbre)";
+        case 3:
+          return "3 (velo)";
+        default: console.log("invalid var:",thisVar); return "?";
+      }
+    }else{
+      switch (thisVar.value) {
+        case 0:
+          return "off";
+        case 1:
+          return num+thisVar.value;
+        default: console.log("invalid var:", thisVar); return "?";
+      }
     }
   };
 
@@ -114,7 +117,7 @@ module.exports = function(controlledModule, environment) {
   this.matrixButtonPressed = function(event) {
     var hardware = event.hardware;
     if (muteMode) {
-      muteAction(event);
+      muteAction(event.button);
       updateLeds(hardware);
     } else if (engagedConfigurator) {
       var eventResponse=engagedConfigurator.matrixButtonPressed(event);

@@ -91,7 +91,7 @@ var GameOfLife = function (properties) {
     if (self.mute) return;
     if (val) {
       var outMessage = new EventMessage.from(baseEventMessage);
-      outMessage.value[2] = baseEventMessage.value[2] + (x * 4 + y);
+      outMessage.value[1] = baseEventMessage.value[1] + (x * 4 + y);
       noteOnTracker.add(outMessage, [x, y]);
       // console.log("ON",outMessage.value);
       thisInstance.output(outMessage);
@@ -138,7 +138,7 @@ var GameOfLife = function (properties) {
       }
     } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       // this.setFixedStep(evt.eventMessage.value[2]%16);
-      this.setStep(evt.eventMessage.value[2] % 16);
+      this.setStep(evt.eventMessage.value[1] % 16);
     } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       // this.clearFixedStep(evt.eventMessage.value[2]%16);
     } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {

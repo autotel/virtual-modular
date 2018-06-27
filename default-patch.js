@@ -27,7 +27,7 @@ module.exports=[
       name:'nu presetKit',
       autoMap:'note',
       kit:[
-        [1,12,36,-1]
+        [1,36,12,-1]
       ]
     },
     outputs:['Daw send']
@@ -36,7 +36,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,13,36,-1]
+        [1,36,13,-1]
       ]
     },
     outputs:['Daw send']
@@ -45,7 +45,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,15,36,-1]
+        [1,36,15,-1]
       ]
     },
     outputs:['Daw send']
