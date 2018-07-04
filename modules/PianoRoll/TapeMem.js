@@ -167,7 +167,7 @@ var TapeMem=function(props={}){
     //TODO: create a tape view object, which defines view start and end, and addresses all modification/ request functions in accordnce to view's position & zoom.
     //this would also be good for multi-controller sequencing
     //these functions return relative event positions!
-    this.getStepRange=function(start,end,quantization=false){
+    this.getStepRange=function(start,end){
         var frameStart = stepToFrame(start);
         var frameEnd = stepToFrame(end);
         var ret = self.getFrameRange(frameStart, frameEnd-1);
@@ -184,6 +184,43 @@ var TapeMem=function(props={}){
             }
         }
         return ret;
+    }
+    this.View=function(){
+        var start=0;
+        var end=0;
+        var cursor=0;
+        this.properties = function () {
+            return { cursorFrame: cursor, cursor: frameToStep(cursor), start: frameToStep(start), end: frameToStep(end) }
+        }
+        this.set=function(to){
+            if(to.cursor!==undefined){
+                cursor=stepToFrame(to.cursor);
+            }
+            if (to.cursorFrame !== undefined) {
+                cursor = to.currentFrame;
+            }
+            if (to.start !== undefined) {
+                start = stepToFrame(to.start);
+            } 
+            if (to.end !== undefined) {
+                end = stepToFrame(to.end);
+            }
+        }
+        this.setLoopPoints = function (start, end) {
+            if (start) loopStart = stepToFrame(start);
+            if (end) loopEnd = stepToFrame(end);
+            // loopLastFrame=loopEnd-1;
+            loopLength = loopEnd - loopStart;
+        }
+        this.setLoopLength = function (to) {
+            loopEnd = loopStart + stepToFrame(to);
+            // loopLastFrame=loopEnd-1;
+            loopLength = loopEnd - loopStart;
+        }
+        this.setLoopDisplacement = function (start) {
+            loopStart = stepToFrame(start);
+            loopEnd = loopStart + loopLength;
+        }
     }
 }
 module.exports=TapeMem;

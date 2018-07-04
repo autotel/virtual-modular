@@ -45,7 +45,7 @@ module.exports=[
     properties:{
       autoMap:'note',
       kit:[
-        [1,36,15,-1]
+        [1,36,14,-1]
       ]
     },
     outputs:['Daw send']

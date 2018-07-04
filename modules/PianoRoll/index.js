@@ -26,6 +26,7 @@ var PianoRoll = function(properties,environment) {
   })();
   this.memory=new TapeMem();
   this.memory.setLoopPoints(0,16);
+  var memory=this.memory;
   this.clock={
     rate:1,
     playHead:0,
@@ -48,30 +49,51 @@ var PianoRoll = function(properties,environment) {
       return range - Math.abs(t % range);
     }
   }
-  var teststep=0;
-  this.recordingReceived=function(evt){
-    if (evt.eventMessage.value[0] == headers.record) {
-      evt.eventMessage.value.shift();
-      self.memory.recordEvent(evt.eventMessage);
-    } 
+
+  var rec={}
+  memory.on('step',function(a){
+    if(rec.status){
+      console.log("REC",a);
+      rec.duration++;
+    }
+  });
+
+  var quantize={
+    state:true,
+    steps:0.5,
+    offset:0,
   }
+
+  this.recordingReceived=function(evt){
+    var message=evt.eventMessage;
+    if (message.value[0] == headers.record) {
+      message.value.shift();
+      self.memory.recordEvent(message);
+    } else if (message.value[0]==headers.recordStatus){
+      rec.status = message.value[1];
+      if(rec.status){
+        rec.duration=0;
+        rec.started=memory.getPlayhead();
+      }else{
+        console.log("recording ended:",rec);
+      }
+    }
+  }
+
   this.messageReceived = function(evt) {
     if (evt.eventMessage.value[0] == headers.clockTick) {
       clock.microSteps=evt.eventMessage.value[1];
       var evtMicroStep=evt.eventMessage.value[2];
       if (evtMicroStep==0){
         clock.microStep=0;
-        self.handle('microstep', clock);
-        // self.handle('step',clock);
-
-        // console.log("STEP EXT", teststep++, "------------------------------------");
-        // console.log(clock);
       }else{
         clock.microStep++;
-        self.handle('microstep',clock);
       }
+      self.handle('microstep',clock);
       self.memory.tapeFrame(1/clock.microSteps);
-      
+      // if(rec.status){
+      //   rec.duration++;
+      // }
     } else if (evt.eventMessage.value[0] == headers.triggerOn) {
     } else if (evt.eventMessage.value[0] == headers.triggerOff) {
     } else if (evt.eventMessage.value[0] == headers.changeRate) {
