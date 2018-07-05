@@ -4,7 +4,8 @@
   "description": "environment for the improvisation of electronic music using discrete events",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev-electron": "webpack --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js"
   },
   "author": "autotel",
   "license": "ISC",
@@ -16,6 +17,7 @@
     "serialport": "^6.0.4"
   },
   "devDependencies": {
-    "documentation": "^5.3.5"
+    "webpack": "^4.15.0",
+    "webpack-cli": "^3.0.8"
   }
 }
