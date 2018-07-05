@@ -7,7 +7,6 @@
 //   Defcli:require("../hardwares/driver-defcli.js")
 // };
 
-var SerialPort = require('serialport');
 /**
 Hardware manager
 */

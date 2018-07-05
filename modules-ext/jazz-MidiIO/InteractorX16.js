@@ -1,13 +1,15 @@
 "use strict";
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../src/datatypes/EventMessage');
 var getHeaderName = {
   0x03: "abs.clock",
   0x00: "clock tick",
   0x01: "on/start",
   0x02: "off/stop"
 };
-var base = require('../../interaction/x16basic/interactorBase.js');
-var RecordMenu = require('../x28utils/RecordMenu.js');
+
+//TODO: this stuff should be provided by the environment
+var base = require('../../src/interaction/x16basic/interactorBase.js');
+var RecordMenu = require('../../src/modules/x28utils/RecordMenu');// interaction / x28utils / RecordMenu.js
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware

@@ -4,7 +4,7 @@ Module that enables interconnectivity with midi inputs and midi outputs, presuma
 'use strict';
 
 
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../src/datatypes/EventMessage');
 var InteractorX16 = require('./InteractorX16');
 
 var headers = EventMessage.headers;

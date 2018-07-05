@@ -1,13 +1,14 @@
 'use strict';
-/**/console.log("-----------start-------------");
 
-var X28Hardware=require('./hardwares/DriverX28v0.js');
 // var X16Hardware=require('./hardwares/DriverX16v0.js');
 // var Http=require('./hardwares/Driver-http.js');
 
 /** Environment is the lower-level global scope, objects that have environment can access the hardware, modules and others */
 var environment = new(require('./environment'))();
-environment.useHardware(X28Hardware);
+
+// examples
+// var X28Hardware=require('./hardwares/DriverX28v0.js');
+// environment.useHardware(X28Hardware);
 // environment.useHardware(Http);
 
 var modulesToLoad = {
@@ -16,7 +17,6 @@ var modulesToLoad = {
   'FixNoteLen': {},
   'Operator': {},
   'Bouncer': {},
-  'MidiIO': {},
   'Harmonizer': {},
   'PresetKit': {},
   'NoteSustainer': {},
@@ -28,6 +28,7 @@ var modulesToLoad = {
   'PianoRoll': {},
   'DelayClockBased': {},
 };
+
 for (var a in modulesToLoad) {
   console.log("requiring module " + a);
   modulesToLoad[a] = require('./modules/' + a);
@@ -48,6 +49,7 @@ environment.vars = {
   interfacePriority: 15,
   interfaceMaxStack: 15,
 }
+
 environment.modules.instantiate('Bus',{name:"global"});
 
 setTimeout(function(){
@@ -58,7 +60,7 @@ setTimeout(function(){
   }
 },100);
 
-environment.handle('created');
-
+// environment.handle('created');
 
 module.exports = environment;
+

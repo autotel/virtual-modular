@@ -1,5 +1,5 @@
 'use strict'
-var utils = require('../environment/utils.js');
+var utils = require('./utils.js');
 var SerialHardwareDetector = require('./SerialHardwareDetector.js');
 var requireProperties = utils.requireProperties;
 var LazyStack = utils.LazyStack;

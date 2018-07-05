@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-electron": "webpack --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js"
+    "dev-electron": "webpack --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
+    "dev-cmd": "webpack --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
+    "cmd": "node ./build-cmd",
+    "src": "node ./src"
   },
   "author": "autotel",
   "license": "ISC",
