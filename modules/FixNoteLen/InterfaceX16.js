@@ -3,6 +3,7 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 
+
 //instance section
 module.exports = function (controlledModule) {
   base.call(this);
@@ -10,10 +11,10 @@ module.exports = function (controlledModule) {
   configurators.global = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "delay (micro)": controlledModule.settings.delayMicro,
+      "duration (micro)": controlledModule.settings.delayMicro,
     }
   });
-  configurators.global.vars['delay (micro)'].changeFunction=function(thisVar, delta) {
+  configurators.global.vars['duration (micro)'].changeFunction=function(thisVar, delta) {
     thisVar.value += delta;
     stepsBmp = numbers[thisVar.value] || 0b111;
     passiveUpdateHardware();

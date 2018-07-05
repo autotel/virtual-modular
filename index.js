@@ -13,6 +13,7 @@ environment.useHardware(Http);
 var modulesToLoad = {
   'Bus': {},
   'ClockGenerator': {},
+  'FixNoteLen': {},
   'Operator': {},
   'Bouncer': {},
   'MidiIO': {},

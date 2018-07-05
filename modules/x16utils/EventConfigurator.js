@@ -28,7 +28,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
       names:['note','timbre','velocity']
     },{
       name:"clock",
-      value:[0,6,6,-1],
+      value:[0,1,1,-1],
       settings:[1,2],
       names:['cycle','micro step']
     },{
