@@ -11,5 +11,5 @@ module.exports = {
         libraryTarget: 'this',
         library: 'environment',
     },
-    node: { fs: 'empty' } //cargo cult
+    node: { fs: 'empty' } //I don't know how, it fixes a problem
 };

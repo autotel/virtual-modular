@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "electron": "^2.0.4"
+  "dependencies": {
+    "serialport": "^6.2.1"
   }
 }
