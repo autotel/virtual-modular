@@ -1,14 +1,16 @@
 
 var JZZ = require('jzz');
+// var midiengine=JZZ.requestMIDIAccess().then(function(a){
+//     console.log("midi ready",a);
+    
+// },console.error);
 console.log("interface starting MIDI engine..");
-var midiengine = JZZ().or('Cannot start MIDI engine!');
+var midiengine = JZZ(function(a){
+    console.log("JZZ call",a);
+}).or('Cannot start MIDI engine!');
 console.log("engine", midiengine.info());
-// JZZ.openMidiOut(console.log);
 
 var MidiInterface = function () {
-    /**
-    environment will call the static initialization function when it registers a new module; if such function is present.
-    */
     var midi = false;
     var self = this;
     this.name = "unnamed";
@@ -18,12 +20,6 @@ var MidiInterface = function () {
         self.name = midiref;
         midi=midiengine.openMidiOut(midiref);
         self.deviceName = self.name;
-        // self.out = function (a, b, c) {
-        //     console.log("out", a, b, c);
-        //     midi.send([a, b, c]);
-        // };
-        // self.out=function(){}
-        // self.out.call(midi.send);
         self.out=function(a){midi.send(a)};
         return this.name;
     }
@@ -58,6 +54,9 @@ MidiInterface.listPorts = function () {
     }
     return ret;
     // return info;
+}
+MidiInterface.onNewMidiDevice = function (cb) {
+    //no runtime detection for now
 }
 MidiInterface.list = [];
 

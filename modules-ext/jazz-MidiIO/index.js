@@ -3,14 +3,16 @@ Module that enables interconnectivity with midi inputs and midi outputs, presuma
 */
 'use strict';
 
-var MidiInterface=require('./MidiInterface');
+var MidiInterface = undefined;
+
+
 var EventMessage = require('../../src/datatypes/EventMessage');
 var InteractorX16 = require('./InteractorX16');
 
 var headers = EventMessage.headers;
 
-var fs = require('fs');
-var path = require('path');
+// var fs = require('fs');
+// var path = require('path');
 // var midiOptions = require('./midi-options.js');
 //detect if running on electron 
 // var userAgent = navigator.userAgent.toLowerCase();
@@ -33,18 +35,6 @@ var getName = function () {
   instanced++;
 }
 
-//open every possible midi ports i/o
-var midiOpenFail = false;
-var midiDevicesAmount = 1;
-var currentPortNumber = 0;
-var openedMidiPorts = [];
-
-// if (!midiOptions.outputs) {
-//   midiOptions.outputs = {};
-// }
-// if (!midiOptions.inputs) {
-//   midiOptions.inputs = {}
-// }
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -182,16 +172,13 @@ var MidiIO = function (properties, environment) {
           hangingNotes[[a, b]] = [a, b, c];
         }
         if (isOff) {
-          // console.log("DEL hangingNotes");
           delete hangingNotes[[a, b]];
         }
-        // console.log("hanging notes"+self.name+":"+Object.keys(hangingNotes).length);
       }
     }
   };
 
   this.choke = function () {
-    // console.log("choke "+Object.keys(hangingNotes).length+" hanging notes");
     let choked = false;
     for (var a in hangingNotes) {
       choked = true;
@@ -207,14 +194,6 @@ var MidiIO = function (properties, environment) {
     }
     return choked;
   }
-  //todo: rename midi input listener to midi.in();
-  //console.log(midi);
-
-  // sendMidi(0x90,60,100); sendMidi(0x90,64,100); sendMidi(0x90,67,100);
-  // setTimeout(function(){
-  //   sendMidi(0x80,60,0); sendMidi(0x80,64,0); sendMidi(0x80,67,0);
-  // }, 3000);
-
   var baseRemove = this.remove;
   this.messageReceived = function (evt) {
     if (self.mute) return;
@@ -231,35 +210,11 @@ var MidiIO = function (properties, environment) {
       midiOut[1] = eventMessage.value[1];
       midiOut[2] = 0;
     }
-    // console.log("  sendMidi("+midiOut[0]+","+midiOut[1]+","+midiOut[2]+");");
-    // function msgToString(arr){
-    //   function pad(n, width = 3, z = 0) { return (String(z).repeat(width) + String(n)).slice(String(n).length) } 
-    //   var ret="[";
-    //   for(var n in arr){
-    //     var a=arr[n];
-    //     if(a===null){
-    //       ret+="NUL";
-    //     }else{
-    //       ret+=pad(a.toString(16));
-    //     }
-    //     if(n<arr.length-1) ret+=",";
-    //   }
-    //   return ret+"]";
-    // }
-    // evt.eventMessage.print();
-    // console.log("EVMES",
-    //   msgToString(evt.eventMessage.value),
-    //   "= MIDI ",
-    //   msgToString(midiOut)
-    // );
-    console.log("sendimid",midiOut);
+    // console.log("sendimid", midiOut);
     sendMidi(midiOut);
   };
   this.onRemove = function () {
     return true;
-    //for some reason app crashes deleting midi
-    // if(midi.input) midi.input.MidiInClose();
-    // if(sendMidiput) sendMidiput.MidiOutClose();
     baseRemove();
   }
 }
@@ -276,9 +231,14 @@ function tryGetDeviceNamed(name) {
   return false;
 }
 
+MidiIO.setMidiInterface = function (_MidiInterface) {
+  MidiInterface = _MidiInterface;
+}
+
+
 MidiIO.initialization = function (environment) {
-  // fs.writeFile(path.join(__dirname, '/midi-options.js'), "module.exports=" + JSON.stringify(midiOptions, null, "\t"), 'utf8', console.log);
-  environment.on('created', function () {
+  var nameToInterfaceList = {};
+  function reMidiPort() {
     var fail = false;
     var pNum = 0;
     // var midi = new jazz.MIDI();
@@ -289,19 +249,26 @@ MidiIO.initialization = function (environment) {
     var ioList = Array.from(new Set(inList.concat(outList)));
     // console.log("iolist",ioList);
     for (var portName of ioList) {
-      var midiInterface = new MidiInterface();
-      if (inList.indexOf(portName) !== -1) {
+      var midiInterface;
+      if (nameToInterfaceList[portName] === undefined) {
+        midiInterface = new MidiInterface();
+        nameToInterfaceList[portName] = midiInterface;
+      } else {
+        midiInterface = nameToInterfaceList[portName];
+      }
+      if ((!midiInterface.in) && inList.indexOf(portName) !== -1) {
         midiInterface.openMidiIn(portName);
+        console.log("connect new Midi in",portName);
       }
-      if (outList.indexOf(portName) !== -1) {
-        midiInterface.openMidiOut(portName);
+      if ((!midiInterface.out) && outList.indexOf(portName) !== -1) {
+        midiInterface.openMidiOut(portName)
+        console.log("connect new Midi out",portName);
       }
-      // console.log(midiInterface);
     }
     for (var midiInterface of MidiInterface.list) {
       if (midiInterface.in || midiInterface.out) {
         console.log("     - instancing midi");
-        console.log("           -interface.name:",midiInterface.name);
+        console.log("           -interface.name:", midiInterface.name);
         var ioString = "";
         if (midiInterface.in) ioString += "I";
         if (midiInterface.out) ioString += "O";
@@ -309,6 +276,11 @@ MidiIO.initialization = function (environment) {
         midiInterface.name = ioString;
       }
     }
+  }
+  environment.on('created', reMidiPort);
+  MidiInterface.onNewMidiDevice(function () {
+    console.log("new Midi ports available");
+    reMidiPort();
   });
 }
 MidiIO.color = [127, 127, 127];

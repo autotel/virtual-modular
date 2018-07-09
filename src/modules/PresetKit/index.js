@@ -139,7 +139,7 @@ var PresetKit = function(properties, environment) {
             preset: presetNumber
         });
         noteOnTracker.ifNoteOff(presetNumber, function(noteOff) {
-            console.log("noteoff", noteOff.value);
+            // console.log("noteoff", noteOff.value);
             self.output(noteOff, true);
         });
     }

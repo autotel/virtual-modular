@@ -6,7 +6,9 @@ console.log("W",environment);
 
 var X28Hardware=require('../hardwares-serial/DriverX28v0.js');
 
-environment.module(require('../modules-ext/jazz-MidiIO'));
+var MidiIO = require('../modules-ext/jazz-MidiIO');
+MidiIO.setMidiInterface(require('./CmdMidiInterface.js'));
+environment.module(MidiIO);
 
 environment.useHardware(X28Hardware);
 
