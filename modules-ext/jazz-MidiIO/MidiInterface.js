@@ -1,23 +1,30 @@
 
 var JZZ = require('jzz');
 console.log("interface starting MIDI engine..");
-var midi = JZZ().or('Cannot start MIDI engine!');
-console.log("engine",midi.info());
+var midiengine = JZZ().or('Cannot start MIDI engine!');
+console.log("engine", midiengine.info());
 // JZZ.openMidiOut(console.log);
 
 var MidiInterface = function () {
     /**
     environment will call the static initialization function when it registers a new module; if such function is present.
-    
     */
+    var midi = false;
     var self = this;
     this.name = "unnamed";
     this.deviceName = "none";
     this.out = false;
     this.openMidiOut = function (midiref) {
-        self.name = midi.openMidiOut(midiref);
+        self.name = midiref;
+        midi=midiengine.openMidiOut(midiref);
         self.deviceName = self.name;
-        self.out = function (a, b, c) { midi.send([a, b, c]) };
+        // self.out = function (a, b, c) {
+        //     console.log("out", a, b, c);
+        //     midi.send([a, b, c]);
+        // };
+        // self.out=function(){}
+        // self.out.call(midi.send);
+        self.out=function(a){midi.send(a)};
         return this.name;
     }
     this.onIn = false;
@@ -27,19 +34,31 @@ var MidiInterface = function () {
         var inCaller = function (a, b) {
             // console.log("HELLOOO",self.onIn);
             if (self.in) {
-                // console.log("in");
+                console.log("in");
                 self.onIn(a, b);
             }
         };
-        self.name = midi.openMidiIn(midiref, inCaller);
+        midi = midiengine.openMidiIn(midiref, inCaller);
+        self.name = midiref;
         self.in = true;
-        return this.name;
+        return self.name;
     }
     MidiInterface.list.push(this);
 }
 MidiInterface.listPorts = function () {
-    return midi.info();
+    var info = midiengine.info();
+    var ret = { inputs: [], outputs: [] }
+    for (var n in info.inputs) {
+        ret.inputs.push(info.inputs[n].name);
+        console.log(" MIDI input ", info.inputs[n].name);
+    }
+    for (var n in info.outputs) {
+        ret.outputs.push(info.outputs[n].name);
+        console.log(" MIDI output ", info.outputs[n].name);
+    }
+    return ret;
+    // return info;
 }
 MidiInterface.list = [];
 
-module.exports=MidiInterface;
+module.exports = MidiInterface;

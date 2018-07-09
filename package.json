@@ -5,16 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cmd-dev": "webpack --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
+    "cmd-dev": "webpack --watch --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
     "cmd": "node ./build-cmd",
     "src": "node ./src",
-    "electron-dev": "webpack --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
+    "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
     "electron": "electron ./build-electron",
     "electron-rebuild": "electron-rebuild"
   },
   "author": "autotel",
   "license": "ISC",
   "dependencies": {
+    "browser-process-hrtime": "^0.1.2",
     "fifo": "^2.3.0",
     "jazz-midi": "^1.6.0",
     "jazz-midi-electron": "^1.0.0",

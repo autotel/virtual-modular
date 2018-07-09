@@ -4,8 +4,8 @@ var SerialHardware=require('./SerialHardware.js');
 /**/console.log("x28v0 serial on ", process.platform);
 
 //TODO:cache to save startup time
-var fs = require('fs');
-var file = fs.readFileSync('./src/firmware/x28/_name_signals.h', "utf8");
+const fs = require('fs');
+var file = fs.readFileSync('./hardwares-serial/name_signals-x28.h', "utf8");
 
 var lines = file.split('\n');
 

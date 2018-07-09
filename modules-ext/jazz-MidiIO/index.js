@@ -252,7 +252,8 @@ var MidiIO = function (properties, environment) {
     //   "= MIDI ",
     //   msgToString(midiOut)
     // );
-    sendMidi(midiOut[0], midiOut[1], midiOut[2]);
+    console.log("sendimid",midiOut);
+    sendMidi(midiOut);
   };
   this.onRemove = function () {
     return true;
@@ -286,19 +287,21 @@ MidiIO.initialization = function (environment) {
     var inList = info.inputs;
     var outList = info.outputs;
     var ioList = Array.from(new Set(inList.concat(outList)));
+    // console.log("iolist",ioList);
     for (var portName of ioList) {
-      var midiInterface = new MidiInterface(midi);
+      var midiInterface = new MidiInterface();
       if (inList.indexOf(portName) !== -1) {
         midiInterface.openMidiIn(portName);
       }
       if (outList.indexOf(portName) !== -1) {
         midiInterface.openMidiOut(portName);
       }
-      console.log(midiInterface);
+      // console.log(midiInterface);
     }
     for (var midiInterface of MidiInterface.list) {
       if (midiInterface.in || midiInterface.out) {
         console.log("     - instancing midi");
+        console.log("           -interface.name:",midiInterface.name);
         var ioString = "";
         if (midiInterface.in) ioString += "I";
         if (midiInterface.out) ioString += "O";

@@ -1,9 +1,16 @@
 'use strict';
+var hrtime = require('browser-process-hrtime');
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 // var clockSpec=require('../standards/clock.js');
 var headers=EventMessage.headers;
 var instanced = 0;
+
+if(typeof process.hrtime!=="function"){
+  console.log("shim process.hrtime");
+  process.hrtime=hrtime;
+}
+
 var name = function() {
   this.name = this.baseName + " " + instanced;
   instanced++;
