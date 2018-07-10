@@ -25,7 +25,10 @@ var modulesToLoad = {
   'Arpeggiator': {},
   // 'MultiTape': {},
   'Sequencer': {},
+  'RouteSequencer': {},
   'PianoRoll': {},
+  'Alteration': {},
+  // 'EasyChord': {},
   'DelayClockBased': {},
 };
 

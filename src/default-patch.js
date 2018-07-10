@@ -50,9 +50,14 @@ module.exports=[
     },
     outputs:['Daw send']
   }, {
-    type: 'PianoRoll',
+    type: 'Alteration',
     properties: {
     },
-    outputs: ['nu presetKit']
+    outputs: ['Daw send']
+  }, {
+    type: 'RouteSequencer',
+    properties: {
+    },
+    outputs: ['nu presetKit', 'preset kit 1']
   },
 ]

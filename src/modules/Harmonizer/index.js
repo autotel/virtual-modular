@@ -111,6 +111,7 @@ var Harmonizer = function(properties,environment) {
       var newEvent = new Note(defaultNote);
       newEvent.note(transformedNumber);
       if (underImpose) newEvent.underImpose(underImpose);
+      //underimpose.value, should't be index 2 actually?
       noteOnTracker.add(newEvent, ["EX", gradeNumber, underImpose.value[1]]);
       self.output(newEvent);
       self.handle('note played', {
