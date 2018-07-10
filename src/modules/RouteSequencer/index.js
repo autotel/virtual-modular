@@ -118,5 +118,5 @@ var RouteSequencer = function (properties) {
 
 };
 
-RouteSequencer.color = [105, 0, 233];
+RouteSequencer.color = [125, 0, 233];
 module.exports = RouteSequencer;

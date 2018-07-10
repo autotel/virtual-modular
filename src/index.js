@@ -12,24 +12,24 @@ var environment = new(require('./environment'))();
 // environment.useHardware(Http);
 
 var modulesToLoad = {
-  'Bus': {},
-  'ClockGenerator': {},
-  'FixNoteLen': {},
-  'Operator': {},
-  'Bouncer': {},
-  'Harmonizer': {},
-  'PresetKit': {},
-  'NoteSustainer': {},
-  'Narp': {},
-  'GameOfLife': {},
-  'Arpeggiator': {},
-  // 'MultiTape': {},
   'Sequencer': {},
-  'RouteSequencer': {},
   'PianoRoll': {},
+  'NoteSustainer': {},
+  'PresetKit': {},
   'Alteration': {},
-  // 'EasyChord': {},
+  'Harmonizer': {},
+  'Arpeggiator': {},
+  'Narp': {},
+  'Operator': {},
+  'GameOfLife': {},
+  'Bouncer': {},
+  'RouteSequencer': {},
+  'FixNoteLen': {},
   'DelayClockBased': {},
+  'MultiTape': {},
+  'ClockGenerator': {},
+  'Bus': {},
+  // 'EasyChord': {},
 };
 
 for (var a in modulesToLoad) {

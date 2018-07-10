@@ -135,5 +135,5 @@ var Alteration = function (properties) {
 
 };
 
-Alteration.color = [210, 0, 233];
+Alteration.color = [160, 200, 20];
 module.exports = Alteration;

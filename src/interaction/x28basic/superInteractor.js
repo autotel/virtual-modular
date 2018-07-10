@@ -298,11 +298,14 @@ var SuperInteractorsSingleton = function(environment) {
       //if the button is the patchMenu button}
       //  console.log(event.button);
       if (event.button == 3) {
+
         if (engagedInterface) {
           engagedInterface.disengage(event);
           thisInteractor.engage();
           engageOnRelease=false;
         }
+      }else if(myModuleCreator.engaged){
+        myModuleCreator.selectorButtonPressed(event);
       }else{
         //  event.button=event.data[0];
         if (engagedInterface) {
@@ -338,6 +341,7 @@ var SuperInteractorsSingleton = function(environment) {
               pageOffset=0;
             }
             updateHardware();
+            paintSelectButtons();
           } else {
             thisInteractor.engage(event);
           }
@@ -350,7 +354,7 @@ var SuperInteractorsSingleton = function(environment) {
         if(event.button==0){
           enviroVarConfig.disengage(event);
         }
-      }else if(deleteMode && event.button==2){
+      } else if(deleteMode && event.button==2){
         deleteList.forEach(function(item){
           console.log("DEL",item.name);
           if (modules.removeModule(item)) {
@@ -373,7 +377,7 @@ var SuperInteractorsSingleton = function(environment) {
       } else if (selectorButtonOwners[event.data[0]]) {
         selectorButtonOwners[event.data[0]].selectorButtonReleased(event);
         delete selectorButtonOwners[event.data[0]];
-      } else {
+      } else if(event.button==3) {
         var newCreated = false;
         var create=false;
         if (myModuleCreator.engaged) create = myModuleCreator.disengage();
@@ -399,6 +403,15 @@ var SuperInteractorsSingleton = function(environment) {
 
         if (!engagedInterface)
           updateHardware();
+      } else if (myModuleCreator.engaged && event.button == 2){
+
+        if (myModuleCreator.engaged) {
+          console.log("cancel creation");
+          myModuleCreator.disengage();
+          thisInteractor.engage();          
+        }
+      }else if (myModuleCreator.engaged) {
+        myModuleCreator.selectorButtonReleased(event);
       }
     });
     this.on('encoderPressed', function(event) {
@@ -524,15 +537,18 @@ var SuperInteractorsSingleton = function(environment) {
       events:1<<1,
       config:1<<2,
       shift:1,
-      whites:0xf<<4
+      // whites:0xf<<4,
+      whites: 1 << (Math.round(pageOffset / 16) + 4)
     }
-    bpaint.result=[
-      bpaint.patching | bpaint.events                 | bpaint.whites,
-      bpaint.patching                 | bpaint.shift  | bpaint.whites,
-      bpaint.config   | bpaint.events | bpaint.shift  | bpaint.whites
 
-    ];
     function paintSelectButtons() {
+      bpaint.whites = 1 << (Math.round(pageOffset/16) + 4)
+      console.log(bpaint.whites);
+        bpaint.result=[
+          bpaint.patching | bpaint.events                 | bpaint.whites,
+          bpaint.patching                 | bpaint.shift  | bpaint.whites,
+          bpaint.config   | bpaint.events | bpaint.shift  | bpaint.whites
+        ];
       myHardware.drawSelectors(bpaint.result);
     }
 
