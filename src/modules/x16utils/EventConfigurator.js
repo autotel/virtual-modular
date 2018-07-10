@@ -77,6 +77,10 @@ var EventConfigurator=function(parentInteractor,properties={}){
     if(presets[presetNumber].settings.length <= selectedValueNumber){
       selectedValueNumber=0;
     }
+    //for every value that is settable in the preset, set it to the baseEvent value
+    for(var setnum of  presets[presetNumber].settings){
+      presets[presetNumber].value[setnum] = baseEvent.value[setnum];
+    }
     for (var a in presets[presetNumber].value){
       baseEvent.value[a]=presets[presetNumber].value[a];
     }
