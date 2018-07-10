@@ -160,10 +160,13 @@ var MidiIO = function (properties, environment) {
       eventMessage: outputMessage
     });
   };
-  var sendMidi = function (a, b, c) {
+  var sendMidi = function (sig) {
+    var a=sig[0];
+    var b=sig[1];
+    var c=sig[2];
     if (midi) {
       if (midi.out) {
-        midi.out(a, b, c);
+        midi.out([a,b,c]);
         var isOn = (a & 0xf0) == 0x90;
         var isOff = (a & 0xf0) == 0x80;
         isOff |= isOn && (c == 0);
@@ -183,12 +186,12 @@ var MidiIO = function (properties, environment) {
     for (var a in hangingNotes) {
       choked = true;
       let h = hangingNotes[a];
-      sendMidi((h[0] & 0x0f) | 0x80, h[1], h[2]);
+      sendMidi([(h[0] & 0x0f) | 0x80, h[1], h[2]]);
     }
     if (!choked) {
       for (let a = 0; a < 16; a++) {
         for (let b = 0; b < 127; b++) {
-          sendMidi(0x80 | a, b, 0);
+          sendMidi([0x80 | a, b, 0]);
         }
       }
     }
