@@ -65,6 +65,26 @@ var SuperInteractorsSingleton = function(environment) {
 
     }
   };
+  function delocateModule(module){
+    for (var x in moduleLocations) {
+      var locy = false;
+      for (var y in moduleLocations[x]) {
+        if (moduleLocations[x][y] === module) {
+          locy = y;
+          break;
+        }
+      }
+      if (locy !== false) moduleLocations[x].splice(locy, 1);
+      if(moduleLocations[x].length==0){
+        delete moduleLocations[x];
+      }
+    }
+  }
+  function moveModuleToLoc(module,location){
+    console.log("move module",module.name,"to",location);
+    delocateModule(module);
+    addModuleToLoc(module,location);
+  }
   environment.on('- module',function(event){
 
     for(var x in moduleLocations){
@@ -205,13 +225,17 @@ var SuperInteractorsSingleton = function(environment) {
           var modulea = tryGetModuleInLoc(firstPressedMatrixLoc);
           var moduleb = tryGetModuleInLoc(location);
 
-          if (modulea && moduleb) try {
-            var connected = modulea.toggleOutput(moduleb);
-            myHardware.sendScreenB((connected ? RARROW : XMARK) + moduleb.name);
-          } catch (e) {
-            console.error(e);
-            myHardware.sendScreenB("X");
-            updateLeds();
+          if (modulea && moduleb){ 
+            try {
+              var connected = modulea.toggleOutput(moduleb);
+              myHardware.sendScreenB((connected ? RARROW : XMARK) + moduleb.name);
+            } catch (e) {
+              console.error(e);
+              myHardware.sendScreenB("X");
+              updateLeds();
+            }
+          }else if(modulea && moduleb===false){
+            moveModuleToLoc(modulea,location);
           }
 
         }
