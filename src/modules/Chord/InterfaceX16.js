@@ -14,15 +14,21 @@ module.exports = function (controlledModule) {
       "offset": controlledModule.offset,
     }
   });
+
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
   var engagedHardwares = new Set();
-
+  configurators.global.vars.offset.changeFunction = function (thisVar, delta) {
+    thisVar.value += delta;
+    if (thisVar.value > 0) thisVar.value = 0;
+    if (thisVar.value < -15) thisVar.value = -15
+    passiveUpdateHardware();
+  }
   this.matrixButtonPressed = function (event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
-      controlledModule.bitmap^=1<<event.button;
+      controlledModule.bitmap ^= 1 << event.button;
       // console.log(controlledModule.bitmap.toString(2));
       updateHardware(event.hardware);
     }
@@ -76,18 +82,20 @@ module.exports = function (controlledModule) {
     hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
-  var passiveUpdateHardware=function(){
+  var passiveUpdateHardware = function () {
     engagedHardwares.forEach(function (hardware) {
       updateLeds(hardware);
     })
   }
-  var animf=0;
+  var animf = 0;
   var updateLeds = function (hardware) {
     // controlledModule.bitmap = makeAnimationBitmap({x:2,y:2},animf);
-    
+    var centerBitmap = 1 << -controlledModule.offset.value;
     hardware.draw([0, controlledModule.bitmap, controlledModule.bitmap]);
+    var t = centerBitmap & controlledModule.bitmap;
+    hardware.drawColor(centerBitmap, [(t ? 127 : 60), (t ? 60 : 0), (t ? 60 : 0)]);
     animf++;
-    if(animf>8) animf=0;
+    if (animf > 8) animf = 0;
   }
   // setInterval(function(){
   //   engagedHardwares.forEach(function(hardware){
