@@ -2,11 +2,11 @@
 var JZZ = require('jzz');
 // var midiengine=JZZ.requestMIDIAccess().then(function(a){
 //     console.log("midi ready",a);
-    
+
 // },console.error);
 console.log("interface starting MIDI engine..");
-var midiengine = JZZ(function(a){
-    console.log("JZZ call",a);
+var midiengine = JZZ(function (a) {
+    console.log("JZZ call", a);
 }).or('Cannot start MIDI engine!');
 console.log("engine", midiengine.info());
 
@@ -18,9 +18,16 @@ var MidiInterface = function () {
     this.out = false;
     this.openMidiOut = function (midiref) {
         self.name = midiref;
-        midi=midiengine.openMidiOut(midiref);
+        midi = midiengine.openMidiOut(midiref);
         self.deviceName = self.name;
-        self.out=function(a){midi.send(a)};
+        self.out = function (a) {
+            for (var n in a) {
+                if (a[n] < 0) a[n] = 0;
+                if (isNaN(a[n])) a = 0;
+                a[n] %= 0xFF;
+            }
+            midi.send(a);
+        };
         return this.name;
     }
     this.onIn = false;

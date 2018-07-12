@@ -55,9 +55,9 @@ module.exports=[
     },
     outputs: ['Daw send']
   }, {
-    type: 'RouteSequencer',
+    type: 'Chord',
     properties: {
     },
-    outputs: ['nu presetKit', 'preset kit 1']
+    outputs: ['Daw send']
   },
 ]

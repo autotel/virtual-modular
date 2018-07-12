@@ -52,7 +52,11 @@ var EventConfigurator=function(parentInteractor,properties={}){
   */
   var baseEvent;
   function applyProps(){
-    if(properties.baseEvent instanceof EventMessage){
+    if(!properties.baseEvent){
+      // console.log("nono");
+      baseEvent=self.baseEvent=new EventMessage({value:[0,0,0,0]});
+      setPreset(0);
+    } else if(properties.baseEvent.isEventMessage){
       // console.log("NM");
       baseEvent = self.baseEvent = properties.baseEvent;
     }else if(!isNaN(properties.preset)){
@@ -112,7 +116,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
 
     var eventLengthBmp=~(0xFFFF<<amountOfVariables);
 
-    console.log("PL",presets.length);
+    // console.log("PL",presets.length);
     var presetsBmp=(0xFFFF<<(16-presets.length));
     var selectedPresetBmp=0x1<<(16-presets.length+presetMode);
 
@@ -150,7 +154,7 @@ var EventConfigurator=function(parentInteractor,properties={}){
     if(event.data[0]<4){
       //selection of the events variable
       selectedValueNumber=event.data[0];
-      console.log("event var select",presets[presetMode].name);
+      // console.log("event var select",presets[presetMode].name);
     }else if(event.data[0] < extraVariables.length + 4){
       //selection of added vars
       selectedValueNumber=event.data[0];

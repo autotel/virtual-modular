@@ -20,6 +20,7 @@ var modulesToLoad = {
   'Harmonizer': {},
   'Arpeggiator': {},
   'Narp': {},
+  'Chord': {},
   'Operator': {},
   'GameOfLife': {},
   'Bouncer': {},
@@ -29,7 +30,6 @@ var modulesToLoad = {
   'MultiTape': {},
   'ClockGenerator': {},
   'Bus': {},
-  // 'EasyChord': {},
 };
 
 for (var a in modulesToLoad) {

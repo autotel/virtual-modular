@@ -59,6 +59,8 @@ module.exports = function(controlledModule,environment) {
   var engagedHardwares = new Set();
   controlledModule.on('note played', function(evt) {
 
+    // console.log(controlledModule.defaultNote.testvar);
+    // console.log(configurators.event.baseEvent);
     var relativeNote = (evt.triggeredNote-controlledModule.defaultNote.note())%12;
     // console.log(relativeNote);
     var newH = noteHiglightMap |= 4097 << relativeNote;
@@ -207,6 +209,7 @@ module.exports = function(controlledModule,environment) {
     updateHardware(hardware);
   };
   this.encoderScrolled = function(event) {
+
     var hardware = event.hardware;
     if (lastEngagedConfigurator) {
       lastEngagedConfigurator.encoderScrolled(event);

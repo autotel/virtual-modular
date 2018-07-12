@@ -11,43 +11,19 @@ module.exports = function (controlledModule) {
   configurators.global = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "duration (micro)": controlledModule.settings.delayMicro,
+      "offset": controlledModule.offset,
     }
   });
-  configurators.global.vars['duration (micro)'].changeFunction=function(thisVar, delta) {
-    thisVar.value += delta;
-    stepsBmp = numbers[thisVar.value] || 0b111;
-    passiveUpdateHardware();
-  }
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
-  var stepsBmp = 0b0111100110010111;
-
-  var numbers=[
-    0b100101010100100,
-    0b100011001001110,
-    0b1110110000101110,
-    0b1110010010001110,
-    0b1010111010001000,
-    0b1110011010001110,
-    0b1110001011101110,
-    0b1110100001000100,
-    0b1110111010101110,
-    0b1110101011101000,
-    0b101101110110101,
-    0b101010101010101,
-    0b1101101101011111,
-    0b1111010110011111,
-  ]
-
   var engagedHardwares = new Set();
 
   this.matrixButtonPressed = function (event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
-      stepsBmp^=1<<event.button;
-      console.log(stepsBmp.toString(2));
+      controlledModule.bitmap^=1<<event.button;
+      // console.log(controlledModule.bitmap.toString(2));
       updateHardware(event.hardware);
     }
   };
@@ -107,9 +83,9 @@ module.exports = function (controlledModule) {
   }
   var animf=0;
   var updateLeds = function (hardware) {
-    // stepsBmp = makeAnimationBitmap({x:2,y:2},animf);
+    // controlledModule.bitmap = makeAnimationBitmap({x:2,y:2},animf);
     
-    hardware.draw([0, stepsBmp, stepsBmp]);
+    hardware.draw([0, controlledModule.bitmap, controlledModule.bitmap]);
     animf++;
     if(animf>8) animf=0;
   }

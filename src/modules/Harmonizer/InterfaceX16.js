@@ -36,7 +36,7 @@ module.exports = function(controlledModule,environment) {
   };
 
   configurators.event = new EventConfigurator(this, {
-    baseEvent: controlledModule.baseEventMessage,
+    baseEvent: controlledModule.defaultNote,
     extraVariables: {
       "keyboard base": keyboardRoot,
       "keyboard chan": keyboardChan

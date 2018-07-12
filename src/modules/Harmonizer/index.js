@@ -31,7 +31,6 @@ var Harmonizer = function(properties,environment) {
   }else{
     name.call(this);
   };
-  /** TODO: this naming convention **/
   var self = this;
   this.recordingUi = true;
   this.currentScale = 0;
@@ -39,9 +38,9 @@ var Harmonizer = function(properties,environment) {
   this.mapMode=true;
   // this.baseNote={value:0};
 
-  var defaultNote=new Note();
-  defaultNote.note(36);
-  this.defaultNote=defaultNote;
+  this.defaultNote=new Note();
+  // this.defaultNote.testvar="hi";
+  this.defaultNote.note(36);
 
   var scaleMap = {};
   //keep track of triggered notes
@@ -69,14 +68,14 @@ var Harmonizer = function(properties,environment) {
     if (self.mute) return;
     var transformedNumber = inputTransformNumber(gradeNumber);
     if(transformedNumber!==false){
-      var newEvent = new Note(defaultNote);
+      var newEvent = new Note(self.defaultNote);
       newEvent.note(transformedNumber);
       if (underImpose) newEvent.underImpose(underImpose);
       if (self.recordingUi) {
         var uiGeneratedEvent = new Note();
         uiGeneratedEvent.note(gradeNumber);
-        uiGeneratedEvent.timbre(defaultNote.timbre());
-        uiGeneratedEvent.velo(newEvent.velo());
+        uiGeneratedEvent.timbre(-1);
+        uiGeneratedEvent.velo(-1);
 
         if (underImpose) {
           uiGeneratedEvent.underImpose(underImpose);
@@ -84,6 +83,8 @@ var Harmonizer = function(properties,environment) {
         noteOnTracker.add(uiGeneratedEvent, ["REC", gradeNumber]);
         self.recordOutput(uiGeneratedEvent);
       }
+      applyDefaultNote(newEvent);
+
       self.output(newEvent);
       noteOnTracker.add(newEvent, ["UI", gradeNumber]);
       self.handle('note played', {
@@ -103,16 +104,27 @@ var Harmonizer = function(properties,environment) {
       self.recordOutput(nnoff);
     });
   }
-
+  function applyDefaultNote(event){
+    // console.log("APP",event.value);
+    var keepNote = self.defaultNote.note();
+    self.defaultNote.note(-1);
+    event.superImpose(self.defaultNote);
+    self.defaultNote.note(keepNote);
+    event.value[1]+=keepNote;
+    // console.log(" --", event.value);
+  }
   this.triggerOn = function(gradeNumber, underImpose = false) {
     if (self.mute) return;
     var transformedNumber = inputTransformNumber(gradeNumber);
     if (transformedNumber !== false) {
-      var newEvent = new Note(defaultNote);
+      var newEvent = new Note(self.defaultNote);
       newEvent.note(transformedNumber);
       if (underImpose) newEvent.underImpose(underImpose);
+     
+      applyDefaultNote(newEvent);
+      
       //underimpose.value, should't be index 2 actually?
-      noteOnTracker.add(newEvent, ["EX", gradeNumber, underImpose.value[1]]);
+      noteOnTracker.add(newEvent, ["EX", gradeNumber, underImpose.value[2]]);
       self.output(newEvent);
       self.handle('note played', {
         triggeredGrade: gradeNumber,
@@ -122,7 +134,7 @@ var Harmonizer = function(properties,environment) {
   }
 
   this.triggerOff = function(gradeNumber, underImpose) {
-    noteOnTracker.ifNoteOff(["EX", gradeNumber, underImpose.value[1]], function(noteOff) {
+    noteOnTracker.ifNoteOff(["EX", gradeNumber, underImpose.value[2]], function(noteOff) {
       self.output(noteOff);
     });
   }
@@ -151,7 +163,7 @@ var Harmonizer = function(properties,environment) {
         }
         ret = nearestGrade + (12 * octave);
       }
-      return ret + defaultNote.note();
+      return ret;// + self.defaultNote.note();
     } else {
       return false;
     }
@@ -159,7 +171,6 @@ var Harmonizer = function(properties,environment) {
 
  
   this.messageReceived = function(event) {
-    /**TODO: event.eventMessage is not a constructor, don't pass the mame in caps!*/
     var eventMessage = event.eventMessage
     if (!self.mute)
       if (eventMessage.value[0] == 2 || eventMessage.value[3] == 0) {
@@ -230,8 +241,6 @@ var Harmonizer = function(properties,environment) {
 
     return ret;
   }
-
-  //TODO: there should be no need to isntantiate every interface for each module. most of them will probably not be used. maybe each interface is a function that gets called by the module creator or hardware manager.
   this.interfaces.X16 =  InterfaceX16;
   this.interfaces.X28 =  InterfaceX28;
 
