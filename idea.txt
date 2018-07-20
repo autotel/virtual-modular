@@ -1,0 +1,5 @@
+clocks with first number 0 means one whole step advance,
+or perhaps substep advance indicated by second number. In this way
+triggering clocks from one sequencer to another module is easier. 
+
+replace name of lazystack to lazyqueue
