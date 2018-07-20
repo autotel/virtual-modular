@@ -14,5 +14,15 @@ environment.useHardware(X28Hardware);
 
 environment.handle('created');
 
+
+setTimeout(function () {
+    try {
+        environment.modules.applyProperties(require('../patches/default-patch.js'));
+    } catch (e) {
+        console.error("error while loading default patch: ", e);
+    }
+}, 100);
+
+
 module.exports = environment;
 // return environment;
