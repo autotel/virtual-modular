@@ -121,9 +121,10 @@ module.exports = function(controlledModule,environment) {
     }else if (event.button >= 8) {
       lastEngagedConfigurator = engagedConfigurator = configurators.record;
     }
-    engagedConfigurator.engage(event);
-    lastEngagedConfigurator = engagedConfigurator;
-
+    if(engagedConfigurator){
+      engagedConfigurator.engage(event);
+      lastEngagedConfigurator = engagedConfigurator;
+    }
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;

@@ -50,14 +50,24 @@ module.exports=[
     },
     outputs:['Daw send']
   }, {
-    type: 'Alteration',
+    type: 'Sequencer',
     properties: {
     },
-    outputs: ['Daw send']
+    outputs: ['harmonizer 0']
   }, {
-    type: 'Chord',
+    type: 'Sequencer',
     properties: {
     },
-    outputs: ['Daw send']
-  },
+    outputs: ['nu presetkit']
+  }, {
+    type: 'Sequencer',
+    properties: {
+    },
+    outputs: ['preset kit 1']
+  }, {
+    type: 'Sequencer',
+    properties: {
+    },
+    outputs: ['preset kit 2']
+  }, 
 ]

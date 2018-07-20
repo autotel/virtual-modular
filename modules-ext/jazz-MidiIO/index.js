@@ -214,12 +214,14 @@ var MidiIO = function (properties, environment) {
       midiOut[2] = 0;
     }
     // console.log("sendimid", midiOut);
-    
-    sendMidi(midiOut.map(function(a){
-      var a=parseInt(a);
-      if(isNaN(a))a=0;
+    midiOut = midiOut.map(function (a,b) {
+      var a = parseInt(a);
+      a %= b>0?127:0xff;
+      if (isNaN(a)) a = 0;
       return a;
-    }));
+    });
+    console.log(midiOut);
+    sendMidi(midiOut);
   };
   this.onRemove = function () {
     return true;
