@@ -35,7 +35,7 @@ var ModulesManager=function(environment){
 
 
   //this prevents the program from freezing in a case of extreme module feedback
-  var lazyStack = new utils.LazyStack();
+  var lazyQueue = new utils.LazyQueue();
 
   this.getModuleWithName=function(name){
     // console.log(modules);
@@ -79,7 +79,7 @@ var ModulesManager=function(environment){
       console.log("+ module "+moduleName);
       newInstance=new ModuleInstanceBase(properties,environment)
       constructors[moduleName].call(newInstance,properties,environment);
-      newInstance.enqueue=lazyStack.enq;
+      newInstance.enqueue=lazyQueue.enq;
       newInstance.type=moduleName;
       if(constructors[moduleName].color){
         newInstance.color=constructors[moduleName].color;

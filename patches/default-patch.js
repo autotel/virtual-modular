@@ -24,7 +24,7 @@ module.exports=[
   },{
     type:'PresetKit',
     properties:{
-      name:'nu presetKit',
+      name:'main drumkit',
       autoMap:'note',
       kit:[
         [1,36,12,-1]
@@ -58,7 +58,7 @@ module.exports=[
     type: 'Sequencer',
     properties: {
     },
-    outputs: ['nu presetkit']
+    outputs: ['main drumkit']
   }, {
     type: 'Sequencer',
     properties: {

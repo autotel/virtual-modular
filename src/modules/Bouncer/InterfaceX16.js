@@ -11,7 +11,7 @@ module.exports = function(controlledModule,environment) {
   var lastEngagedConfigurator=false;
   var engagedConfigurator = false;
   var engagedHardwares = new Set();
-  var lazyStack=new environment.utils.LazyStack();
+  var lazyQueue=new environment.utils.LazyQueue();
 
   configurators.record = new RecordMenu(this, {
     environment: environment,
@@ -25,7 +25,7 @@ module.exports = function(controlledModule,environment) {
     updateLeds();
     var TFunc=function(newBitmap){
       this.do=function(){
-        lazyStack.enq(function(){
+        lazyQueue.enq(function(){
           bitmap&=~(newBitmap);
           updateLeds();
         });
