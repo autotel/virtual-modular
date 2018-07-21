@@ -5,7 +5,7 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 // var RecordMenu = require('../x28utils/RecordMenu.js');
 
-module.exports = function(controlledModule,environment) {
+module.exports = function (controlledModule, environment) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};
@@ -13,41 +13,43 @@ module.exports = function(controlledModule,environment) {
 
 
 
-  var OpSetter=function(varn){
-    var self=this;
-    this.value=0;
-    this.op=0;
-    var opChangeFunction=function(thisVar, delta){
+  var OpSetter = function (varn) {
+    var self = this;
+    this.value = 0;
+    this.op = 0;
+    var opChangeFunction = function (thisVar, delta) {
       console.log(self.value);
-      self.op+=delta;
-      if(self.op>=controlledModule.availOps){
-        self.op=0;
-      }else if(self.op<0){
-        self.op=controlledModule.availOps-1;
+      self.op += delta;
+      if (self.op >= controlledModule.availOps) {
+        self.op = 0;
+      } else if (self.op < 0) {
+        self.op = controlledModule.availOps - 1;
       }
-      controlledModule.opMap[varn]=self.op;
+      controlledModule.opMap[varn] = self.op;
+      controlledModule.handle('~');
     }
-    var valChangeFunction=function(thisVar, delta){
+    var valChangeFunction = function (thisVar, delta) {
       console.log(self.value);
-      self.value+=delta;
-      controlledModule.baseEventMessage.value[varn]=self.value;
+      self.value += delta;
+      controlledModule.baseEventMessage.value[varn] = self.value;
+      controlledModule.handle('~');
     }
-    var nameFunction=function(thisVar){
-      if(!self.op) return "nothing"
-      return controlledModule.opNames[self.op]+""+controlledModule.baseEventMessage.value[varn];
+    var nameFunction = function (thisVar) {
+      if (!self.op) return "nothing"
+      return controlledModule.opNames[self.op] + "" + controlledModule.baseEventMessage.value[varn];
     }
-    this.valu=function(){
+    this.valu = function () {
       return {
         // value:0,
-        nameFunction:nameFunction,
-        changeFunction:valChangeFunction
+        nameFunction: nameFunction,
+        changeFunction: valChangeFunction
       }
     }
-    this.operator=function(){
+    this.operator = function () {
       return {
         // value:0,
-        nameFunction:nameFunction,
-        changeFunction:opChangeFunction
+        nameFunction: nameFunction,
+        changeFunction: opChangeFunction
       }
     }
   }
@@ -61,14 +63,14 @@ module.exports = function(controlledModule,environment) {
   configurators.ops = new BlankConfigurator(this, {
     name: "operate",
     vars: {
-      "fn head": opSetters[0].operator(),
-      "ch/sub": opSetters[1].operator(),
-      "num": opSetters[2].operator(),
-      "prop": opSetters[3].operator(),
-      "val fn head": opSetters[0].valu(),
-      "val ch/sub": opSetters[1].valu(),
-      "val num": opSetters[2].valu(),
-      "val prop": opSetters[3].valu(),
+      "head 0": opSetters[0].operator(),
+      "n 1": opSetters[1].operator(),
+      "n 2": opSetters[2].operator(),
+      "n 3": opSetters[3].operator(),
+      "val head 0": opSetters[0].valu(),
+      "val n 1": opSetters[1].valu(),
+      "val n 2": opSetters[2].valu(),
+      "val n 3": opSetters[3].valu(),
     }
   });
 
@@ -77,7 +79,7 @@ module.exports = function(controlledModule,environment) {
   //   controlledModule: controlledModule
   // });
 
-  var lastEngagedConfigurator=false;
+  var lastEngagedConfigurator = false;
   var engagedConfigurator = false;
 
 
@@ -85,7 +87,7 @@ module.exports = function(controlledModule,environment) {
     return 0 != (controlledModule.getBitmap16() & (1 << button));
   }
   var engagedHardwares = new Set();
-  controlledModule.on('step', function(step) {
+  controlledModule.on('step', function (step) {
     // console.log("STPP");
     currentStep = step;
     if (!engagedConfigurator)
@@ -93,44 +95,46 @@ module.exports = function(controlledModule,environment) {
         updateLeds(hardware);
       }
   });
-  this.matrixButtonPressed = function(event) {
+  this.matrixButtonPressed = function (event) {
+    
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     }
   };
-  this.matrixButtonReleased = function(event) {
+  this.matrixButtonReleased = function (event) {
   };
-  this.selectorButtonPressed = function(event) {
+
+  this.selectorButtonPressed = function (event) {
     var hardware = event.hardware;
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 1) {
-        engagedConfigurator = configurators.ops;
-        configurators.ops.engage(event);
-      }else if (event.data[0] == 2) {
-        // engagedConfigurator = configurators.time;
-        // configurators.time.engage(event);
-      }else if (event.button >= 8) {
-        // engagedConfigurator = configurators.record;
-      }
-      if(engagedConfigurator){
-        lastEngagedConfigurator = engagedConfigurator;
-        engagedConfigurator.engage(event);
-      }
+      // if (event.data[0] == 1) {
+      //   engagedConfigurator = configurators.ops;
+      //   configurators.ops.engage(event);
+      // }else if (event.data[0] == 2) {
+      //   // engagedConfigurator = configurators.time;
+      //   // configurators.time.engage(event);
+      // }else if (event.button >= 8) {
+      //   // engagedConfigurator = configurators.record;
+      // }
+      // if(engagedConfigurator){
+      //   lastEngagedConfigurator = engagedConfigurator;
+      //   engagedConfigurator.engage(event);
+      // }
 
     }
   };
-  this.selectorButtonReleased = function(event) {
+  this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
-    if (engagedConfigurator) {
-      if (event.button == 1) {
-        engagedConfigurator.disengage(event);
-      }
-      engagedConfigurator=false;
-    }
+    // if (engagedConfigurator) {
+    //   if (event.button == 1) {
+    //     engagedConfigurator.disengage(event);
+    //   }
+    //   engagedConfigurator=false;
+    // }
   };
-  this.encoderScrolled = function(event) {
+  this.encoderScrolled = function (event) {
     if (engagedConfigurator) {
       engagedConfigurator.encoderScrolled(event);
     } else {
@@ -139,26 +143,30 @@ module.exports = function(controlledModule,environment) {
       }
     }
   };
-  this.encoderPressed = function(event) {};
-  this.encoderReleased = function(event) {};
-  this.engage = function(event) {
+  this.encoderPressed = function (event) { };
+  this.encoderReleased = function (event) { };
+  this.engage = function (event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
-    event.hardware.draw([0,0,0]);
+    event.hardware.draw([0, 0, 0]);
+
+    engagedConfigurator = configurators.ops;
+    configurators.ops.engage(event);
+
     // configurators.record.redraw(event.hardware);
   };
-  this.disengage = function(event) {
+  this.disengage = function (event) {
     engagedHardwares.delete(event.hardware);
   }
-  var updateHardware = function(hardware) {
+  var updateHardware = function (hardware) {
     updateLeds(hardware);
     updateScreen(hardware);
   }
-  var updateScreen = function(hardware) {
+  var updateScreen = function (hardware) {
     hardware.sendScreenA(controlledModule.name);
     // hardware.sendScreenB("n:"+currentStep);
   }
-  var updateLeds = function(hardware) {
+  var updateLeds = function (hardware) {
 
   }
 }
