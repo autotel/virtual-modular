@@ -16,14 +16,15 @@
   "license": "ISC",
   "dependencies": {
     "browser-process-hrtime": "^0.1.2",
+    "dat.gui": "^0.7.2",
     "fifo": "^2.3.0",
     "jazz-midi": "^1.6.0",
     "jazz-midi-electron": "^1.0.0",
     "jzz": "^0.5.0",
     "onhandlers": "^1.0.3",
     "prompt": "^1.0.0",
-    "svg.js": "^2.6.5",
-    "serialport": "^6.2.1"
+    "serialport": "^6.2.1",
+    "svg.js": "^2.6.5"
   },
   "devDependencies": {
     "electron": "^2.0.4",

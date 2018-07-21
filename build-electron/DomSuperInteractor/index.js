@@ -1,15 +1,45 @@
 'use strict';
 var $ = require('jquery');
 var SVG = require('svg.js');
+const dat = require('dat.gui');
+
+var guiProps = {
+    f: 0.5,
+    linkTension: 2.3,
+    vlinktension: 0.7,
+    centerTension: 0.15,
+    maxRepulsion: 0.32,
+}
+window.onload = function () {
+    var gui = new dat.GUI();
+    // window.datgui=gui;
+    gui.closed = true;
+
+    gui.add(guiProps, 'f',0,5);
+    gui.add(guiProps, 'linkTension',0,5);
+    gui.add(guiProps, 'vlinktension',0,5);
+    gui.add(guiProps, 'centerTension',0,5);
+    gui.add(guiProps, 'maxRepulsion',0,5);
+};
+
 
 var DomSuperInteractor = function (environment) {
 
     var $mainEl = $("#domDraw");
     var svg = SVG('svgDraw');
 
+    
     var autoPlacer = new (function (environment) {
         var links = [];
         this.update = function () {
+
+            var f = guiProps.f;
+            var linkTension = f * guiProps.linkTension;
+            var vlinktension = f * guiProps.vlinktension;
+            var centerTension = f * guiProps.centerTension;
+            var maxRepulsion = f * guiProps.maxRepulsion;
+
+            //TODO: this needs optimization
             var linkNum = 0;
             for (var thismodule of environment.modules.list) {
                 for (var othermodule of environment.modules.list) {
@@ -51,7 +81,7 @@ var DomSuperInteractor = function (environment) {
                             width: thisSize.width + otherSize.width,
                             height: thisSize.height + otherSize.height,
                         };
-                        var tension = 90;
+
 
                         var toward = {
                             x: thispos.x,
@@ -61,8 +91,8 @@ var DomSuperInteractor = function (environment) {
                             toward.x = otherPos.x - otherSize.width;
                             toward.y = otherPos.y;
                             var force = {
-                                x: (toward.x - thispos.x),
-                                y: (toward.y - thispos.y),
+                                x: (toward.x - thispos.x) * linkTension,
+                                y: (toward.y - thispos.y) * linkTension * vlinktension,
                             }
                             links[linkNum].forces.push(force);
                         }
@@ -71,68 +101,31 @@ var DomSuperInteractor = function (environment) {
                             toward.x = otherPos.x + otherSize.width;
                             toward.y = otherPos.y;
                             var force = {
-                                x: (toward.x - thispos.x),
-                                y: (toward.y - thispos.y),
+                                x: (toward.x - thispos.x) * linkTension,
+                                y: (toward.y - thispos.y) * linkTension * vlinktension,
                             }
                             links[linkNum].forces.push(force);
                         }
-                        // if (!(isInput || isOutput)) {
-
-                        //trigVer
                         var d = {
                             x: thispos.x - otherPos.x,
                             y: thispos.y - otherPos.y,
                         };
 
                         var aan = Math.atan2(d.y, d.x);
-
-                        // var dist = Math.sqrt(d.x ^ 2 + d.y ^ 2);
-                        // console.log(dist);
                         var repel = 0.3;
-                        // if(dist>sizeSum.width) repel=0.00001;
                         var distx = Math.abs(d.x);
                         var disty = Math.abs(d.y);
-
-                        if (distx > sizeSum.width)
-                            if (disty > sizeSum.height) repel = 0;
-                        // if (    Math.abs(thispos.y - otherPos.y) < sizeSum.height/2 
-                        //     &&  Math.abs(thispos.x - otherPos.x) < sizeSum.width/2) {
-                        //     repel=0.2;
-                        // }
-
+                        repel = Math.min(maxRepulsion, 0.0001 + (Math.sqrt((d.x * d.x) + (d.y * d.y))))
                         links[linkNum].forces.push({
                             x: (Math.cos(aan) * sizeSum.width * repel),
                             y: (Math.sin(aan) * sizeSum.height * repel),
                         });
-
-                        //cartesian ver, incomplere
-                        var pad = 0;
-                        var speed = 100;
-                        // if (thispos.x + thisSize.width > otherPos.x + otherSize.width + pad) {
-                        //     toward.x = thispos.x + speed;
-                        // } else if (thispos.x < otherPos.x + pad + sizeSum.width) {
-                        //     toward.x = thispos.x - speed;
-                        // }
-                        // if (Math.abs(thispos.y - otherPos.y) < sizeSum.height) {
-                        //     toward.y = Math.sign(otherPos.y - thispos.y) * 10;
-                        // }
-                        // if (Math.abs(thispos.x - otherPos.x) < sizeSum.width) {
-                        //     toward.x = Math.sign(otherPos.x - thispos.x) * 10;
-                        // }
-
-                        // }
-
-
-
                         links[linkNum].position = thispos;
-
-
 
                     } else {
                         console.warn("no dom sprite in one of these modules:",
                             [module.name, startSprite], [output.name, endSprite]);
                     }
-                    // console.log("module",module.name,"->",output.name);
                 }
                 linkNum++;
             }
@@ -140,13 +133,13 @@ var DomSuperInteractor = function (environment) {
             for (var link of links) {
                 link.force = { x: 0, y: 0 };
                 // link.forces=[];
-
-                if (!linkNum) {
-                    var cx = window.innerWidth / 8
-                    var cy = window.innerHeight / 2
-                    link.forces.push({ x: (cx - link.position.x) * 10, y: (cy - link.position.y) * 10 });
-                }
-                if (!mouse.isDragging(link.$el)) {
+                // 
+                // if (!linkNum) {
+                var cx = window.innerWidth / 3
+                var cy = window.innerHeight / 2
+                link.forces.push({ x: (cx - link.position.x) * centerTension, y: (cy - link.position.y) * centerTension });
+                // }
+                if (!(mouse.isDragging(link.$el) || link.$el.lockPosition)) {
                     for (var force of link.forces) {
                         link.force.x += force.x / link.forces.length;
                         link.force.y += force.y / link.forces.length;
@@ -186,9 +179,9 @@ var DomSuperInteractor = function (environment) {
                             linkSprites[linkNum].plot(pstr)
                         } else {
                             var p = svg.path(pstr);
-                            p.attr({ fill: "transparent", stroke: '#000', 'stroke-width': 1 });
-                            linkSprites.push(p);
+                            linkSprites[linkNum] = (p);
                         }
+                        linkSprites[linkNum].attr({ fill: "transparent", stroke: '#000', 'stroke-width': 1 });
                         linkNum++;
 
                     } else {
@@ -197,6 +190,11 @@ var DomSuperInteractor = function (environment) {
                     }
                     // console.log("module",module.name,"->",output.name);
                 }
+            }
+            //hide the remaining links
+            while (linkNum < linkSprites.length) {
+                linkSprites[linkNum].attr({ fill: "transparent", stroke: 'transparent', 'stroke-width': 0 });
+                linkNum++;
             }
         }
         // setInterval(this.update, 200);
@@ -231,7 +229,14 @@ var DomSuperInteractor = function (environment) {
         });
         this.makeMovable = function ($el) {
             $el.movable = {};
-
+            $el.lockPosition = false;
+            var $lockButton = $('<div>');
+            $lockButton.addClass('button lock');
+            $lockButton.text('lock');
+            $el.append($lockButton);
+            $lockButton.on('click', function () {
+                $el.lockPosition = $el.lockPosition == false;
+            });
             $el.on('mousedown', function (evt) {
                 evt.preventDefault();
                 $el.addClass("dragging");
@@ -261,7 +266,7 @@ var DomSuperInteractor = function (environment) {
         $el.html(`<p class="modulename">${controlledModule.name}</p>`);
 
         $el.addClass("module");
-        $el.css({ position: "absolute" });
+        $el.css({ position: "absolute", top: Math.random(), left: Math.random() });
 
         var $patchOutEl = $('<div class="patch-out"></div>');
         var $patchInEl = $('<div class="patch-in"></div>');
@@ -287,6 +292,7 @@ var DomSuperInteractor = function (environment) {
         this.$el = $el;
 
         $el.addClass("sequencer");
+        $el.css({ width: 300 });
         let $seqEl = $('<p></p>');
         $el.append($seqEl);
         let updateSequence = function () {
