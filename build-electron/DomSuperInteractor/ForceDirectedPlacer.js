@@ -2,8 +2,8 @@
 const dat = require('dat.gui');
 var guiProps = {
     f: 0.5,
-    linkTension: 2.3,
-    vlinktension: 0.7,
+    linkTension: 3,
+    vlinktension: 1,
     centerTension: 0.15,
     maxRepulsion: 0.32,
 }

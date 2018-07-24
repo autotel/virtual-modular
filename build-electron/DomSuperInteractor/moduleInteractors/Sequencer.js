@@ -1,4 +1,5 @@
 var Base = require('./Base');
+var btnArray=require('./utils/btnArray');
 module.exports = function (controlledModule, environment, superInteractor) {
     let ext = Base.call(this, controlledModule, environment, superInteractor);
     // var mouse = superInteractor.mouse;
@@ -9,25 +10,26 @@ module.exports = function (controlledModule, environment, superInteractor) {
     this.$el = $el;
 
     $el.addClass("sequencer");
-    $el.css({ width: 180 });
-    let $seqEl = $('<p></p>');
+    $el.css({ width: 275 });
+    let $seqEl = $('<p class="monospace"></p>');
     $el.append($seqEl);
+
     let updateSequence = function () {
-        var str = "";
-        var stepn = ' [_]';
-        var stepc = ' [x]';
-        var steph = ' [+]';
-        var stepch = ' [*]';
         var playHead = controlledModule.currentStep.value;
         var loopLength = controlledModule.loopLength.value;
-        for (var step = 0; step < loopLength; step++) {
-            if (step == playHead) {
-                str += stepc;
-            } else {
-                str += stepn;
+        var patData = controlledModule.patData;
+        var arr=new Array(loopLength % 127);
+        arr.fill(false);
+        arr[playHead]="white";
+        for(var step in patData){
+            if (patData[step]) if (patData[step].length){
+                arr[step]=true;
             }
         }
-        $seqEl.text(str);
+        var $bnts = $( btnArray(arr) );
+        $bnts.css({width:30, margin:2, cursor:"pointer"});
+        $seqEl.html('');
+        $seqEl.append($bnts);
     }
 
     controlledModule.on('step', updateSequence);

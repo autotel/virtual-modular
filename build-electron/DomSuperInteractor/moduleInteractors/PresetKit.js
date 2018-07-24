@@ -1,4 +1,6 @@
 var Base = require('./Base');
+var btnArray = require('./utils/btnArray');
+
 module.exports = function (controlledModule, environment, superInteractor) {
     let ext = Base.call(this, controlledModule, environment, superInteractor);
     // var mouse = superInteractor.mouse;
@@ -9,19 +11,21 @@ module.exports = function (controlledModule, environment, superInteractor) {
     this.$el = $el;
 
     $el.addClass("presetkit");
-    $el.css({ width: 100 });
-    let $kitEl = $('<p></p>');
+    $el.css({ width: 150 });
+    let $kitEl = $('<p class="monospace"></p>');
     $el.append($kitEl);
     let updateSequence = function () {
-        var str = "";
-        var stepn = ' [_]';
-        for (var step = 0; step < 16; step++) {
-            str += stepn;
-        }
-        $kitEl.text(str);
+
+        var arr = new Array(16);
+        arr.fill("white");
+
+        var $bnts = $(btnArray(arr));
+        $bnts.css({ width: 36, margin:"-3px 0px" });
+        $kitEl.html("");
+        $kitEl.append($bnts);
     }
 
-    controlledModule.on('step', updateSequence);
+    // controlledModule.on('step', updateSequence);
     updateSequence();
 
 }

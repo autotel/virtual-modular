@@ -10,7 +10,7 @@ module.exports = function (controlledModule, environment, superInteractor) {
 
     $el.addClass("harmonizer");
     $el.css({ width: 100 });
-    let $keyboardEl = $('<p></p>');
+    let $keyboardEl = $('<p class="monospace"></p>');
     $el.append($keyboardEl);
     let updateKeyboard = function () {
         var currentScale = controlledModule.currentScale;

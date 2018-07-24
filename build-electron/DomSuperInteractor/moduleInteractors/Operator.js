@@ -10,7 +10,7 @@ module.exports = function (controlledModule, environment, superInteractor) {
 
     $el.addClass("operator");
     $el.css({ width: 100 });
-    let $operationEl = $('<p></p>');
+    let $operationEl = $('<p class="monospace"></p>');
     $el.append($operationEl);
     let updateOp = function () {
         var opNames = controlledModule.opMap.map(function (val, i) {
