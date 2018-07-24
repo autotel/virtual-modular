@@ -32,7 +32,7 @@ var RouteSequencer = function (properties) {
     substeps: 1
   }
   let sequenceBitmap = this.sequenceBitmap = {
-    value:0
+    value:properties.bitmap||0
   }
 
   this.baseName = "RouteSequencer";

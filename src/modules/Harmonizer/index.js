@@ -31,6 +31,8 @@ var Harmonizer = function (properties, environment) {
   } else {
     name.call(this);
   };
+  this.preventBus = true;
+
   var self = this;
   this.recordingUi = true;
   this.currentScale = 0;

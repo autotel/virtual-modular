@@ -16,9 +16,9 @@ var PresetKit = function(properties, environment) {
     var self = this;
     //get my unique name
     name.call(this);
-
+    this.preventBus=true;
     this.autoMap = false;
-
+    
     if (properties.autoMap == true) this.autoMap = 1;
     if (properties.autoMap == 'timbre') this.autoMap = 2;
     if (properties.autoMap == 'note') this.autoMap = 1;
