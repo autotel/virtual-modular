@@ -220,7 +220,7 @@ var MidiIO = function (properties, environment) {
       if (isNaN(a)) a = 0;
       return a;
     });
-    console.log(midiOut);
+    // console.log(midiOut);
     sendMidi(midiOut);
   };
   this.onRemove = function () {
