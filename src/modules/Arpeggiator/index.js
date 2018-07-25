@@ -97,6 +97,12 @@ var Arpeggiator = function(properties) {
       clock.subSteps=evt.eventMessage.value[2]/(evt.eventMessage.value[1]||1);
     }
   }
+  this.messageStream=function(evt){
+    console.log("message stream ("+evt.messages.length+")");
+    for(var mes of evt.messages){
+      console.log(" ",mes.value);
+    }
+  }
 
   this.getBitmap16 = function() {
     return myBitmap;
