@@ -122,19 +122,19 @@ var EventMessage = function (inputValue) {
     return thisEm;
   }
 
-  var next=false;
-  Object.defineProperty(this, "next", {
-    get: function () {
-      return next;
-    },
-    set: function (a) {
-      if (otherEvent.isEventMessage) {
-        next = otherEvent;
-      } else {
-        next=false;
-      }
-    }
-  });
+  this.next=false;
+  // Object.defineProperty(this, "next", {
+  //   get: function () {
+  //     return next;
+  //   },
+  //   set: function (otherEvent) {
+  //     if (otherEvent.isEventMessage) {
+  //       next = otherEvent;
+  //     } else {
+  //       next=false;
+  //     }
+  //   }
+  // });
   
   this.set(inputValue);
 }

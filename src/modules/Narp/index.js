@@ -154,6 +154,14 @@ var Narp = function (properties, environment) {
     return ret;
   }
   this.messageReceived = function (evt) {
+    if(evt.eventMessage.next){
+      console.log("evt has chain:");
+      var logEvent=evt.eventMessage;
+      while(logEvent){
+        console.log(" ",logEvent.value);
+        logEvent=logEvent.next;
+      }
+    }
     if (evt.eventMessage.value[0] == headers.clockTick) {
       var clockBase = evt.eventMessage.value[1];
       var clockMicroStep = evt.eventMessage.value[2];

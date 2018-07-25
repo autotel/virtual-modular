@@ -257,8 +257,7 @@ module.exports=function(sequencerModule){ return new(function(){
         // console.log("memem");
         // console.log(patData[currentStep.value].length);
         for(var stepData of patData[currentStep.value]){
-          sequencerModule.output(stepData.on);
-          sequencerModule.noteLenManager.noteStarted(stepData);
+          sequencerModule.eventTriggered(stepData);
         }
       }
       sequencerModule.onPatchStep();

@@ -137,6 +137,14 @@ var Sequencer = function (properties, environment) {
       this.handleStepsChange();
     }
   }
+  this.eventTriggered = function (stepData) {
+    var op=stepData.on.clone();
+    if(currentClockTickEvent){
+      op.next=currentClockTickEvent;
+    }
+    self.output(op);
+    self.noteLenManager.noteStarted(stepData);
+  }
   // self.on('~ module',console.log);
   this.handleStepsChange = function () {
     // console.log("STEPCHANGE");
@@ -213,7 +221,7 @@ var Sequencer = function (properties, environment) {
       }
     }
   }
-
+  var currentClockTickEvent = false;
   // x71: data response
   this.messageReceived = function (event) {
     var evt = event.eventMessage;
@@ -221,6 +229,7 @@ var Sequencer = function (properties, environment) {
     // console.log(evt.value);
     switch (evt.value[0]) {
       case headers.clockTick: {
+        currentClockTickEvent = evt;
         // console.log("sq:headers.clockTick");
         thisInstance.stepMicro(evt.value[1], evt.value[2]);
         thisInstance.lastMicroStepBase = evt.value[1];
