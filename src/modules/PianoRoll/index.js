@@ -108,7 +108,7 @@ var PianoRoll = function(properties,environment) {
       noteOnTracker.add(evt);
     }
   }
-  this.delete = function() {
+  this.onRemove = function() {
     console.warn(self.name,"delete noteoffing due");
     clearAll();
     return true;

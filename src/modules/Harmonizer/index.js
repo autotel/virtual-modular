@@ -253,7 +253,7 @@ var Harmonizer = function (properties, environment) {
 
   defaultState();
 
-  this.delete = function () {
+  this.onRemove = function () {
     noteOnTracker.empty(function (noteOff) {
       self.output(noteOff);
     });

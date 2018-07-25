@@ -58,7 +58,7 @@ var NoteSustainer = function(properties) {
     }
   }
 
-  this.delete = function() {
+  this.onRemove = function() {
     killAllNotes();
     return true;
   }

@@ -95,7 +95,7 @@ var DelayClockBased = function (properties) {
     self.handle('~ module', { steps: runningNotes.length });
   }
   
-  this.delete = function () {
+  this.onRemove = function () {
     memory.forEach(function (evt) {
       memory.delete(evt);
     });

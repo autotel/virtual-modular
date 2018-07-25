@@ -141,7 +141,7 @@ var Operator = function (properties) {
     }
 
   }
-  this.delete = function () {
+  this.onRemove = function () {
     for (let a in opMap) {
       opMap[a] = 0;
     }

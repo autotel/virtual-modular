@@ -65,7 +65,7 @@ var Chord = function (properties) {
   this.getBitmap16 = function () {
     return myBitmap;
   }
-  this.delete = function () {
+  this.onRemove = function () {
     noteOnTracker.empty(function (noff) {
       thisInstance.output(noff, true);
     });

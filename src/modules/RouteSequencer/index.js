@@ -105,7 +105,7 @@ var RouteSequencer = function (properties) {
     }
   }
 
-  this.delete = function () {
+  this.onRemove = function () {
     noteOnTracker.empty(function (noff) {
       thisInstance.output(noff, true);
     });

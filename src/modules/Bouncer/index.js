@@ -57,7 +57,7 @@ var Bouncer = function(properties,environment) {
     self.bounce(evt.eventMessage);
   }
 
-  this.delete = function() {
+  this.onRemove = function() {
     this.interfaces=false;
     noteOnTracker.empty(function(noteOff){
       self.output(noteOff);

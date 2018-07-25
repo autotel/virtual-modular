@@ -177,7 +177,7 @@ var MultiTape = function (properties, environment) {
 
   setInitState();
 
-  this.delete = function () {
+  this.onRemove = function () {
     for (var noff of noteOnTracker) {
       noteOnTracker.setAllOff(noff);
     }

@@ -45,7 +45,7 @@ var Knob = function (properties) {
 
   }
 
-  this.delete = function () {
+  this.onRemove = function () {
     return true;
   }
 }

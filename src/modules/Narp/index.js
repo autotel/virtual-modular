@@ -187,7 +187,7 @@ var Narp = function (properties, environment) {
     };
   }
 
-  this.delete = function () {
+  this.onRemove = function () {
     noteOnTracker.each(function (noteOff, identifier) {
       self.output(noteOff, false);
     });
