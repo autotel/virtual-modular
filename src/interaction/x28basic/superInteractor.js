@@ -29,7 +29,7 @@ var SuperInteractorsSingleton = function (environment) {
   * @returns {undefined} no return
   */
   var modules = environment.modules;
-  environment.on('+ modulesManager', function (man) {
+  environment.on('+modulesManager', function (man) {
     modules = man;
   });
   // fail();
@@ -86,7 +86,7 @@ var SuperInteractorsSingleton = function (environment) {
     delocateModule(module);
     addModuleToLoc(module, location);
   }
-  environment.on('- module', function (event) {
+  environment.on('-module', function (event) {
 
     for (var x in moduleLocations) {
       for (var y in moduleLocations[x]) {
@@ -101,11 +101,14 @@ var SuperInteractorsSingleton = function (environment) {
     }
   });
   var defaultButtonForNewModule = 0;
-  environment.on('+ module', function (event) {
+  environment.on('+module', function (event) {
 
     if (tryGetLocOfModule(event.module) === undefined) {
+      console.log("superinteractor add loc");
       addModuleToLoc(event.module, defaultButtonForNewModule);
       defaultButtonForNewModule++;
+    }else{
+      console.log("new module already has loc");
     }
   });
   function tryGetModuleInterface(moduleInstance) {
@@ -197,12 +200,12 @@ var SuperInteractorsSingleton = function (environment) {
         engagedInterface.handle('interaction', event);
       }
     });
-    environment.on('+ module', function (evt) {
+    environment.on('+module', function (evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }
     });
-    environment.on('- module', function (evt) {
+    environment.on('-module', function (evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }

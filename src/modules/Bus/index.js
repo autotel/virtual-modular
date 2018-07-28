@@ -20,7 +20,7 @@ var Bus = function(properties,environment) {
   this.preventBus = true;
   this.preventRecord=true;
   if (properties.name) this.name = properties.name
-  environment.on('+ module', function(evt) {
+  environment.on('+module', function(evt) {
     var module = evt.module;
     if (!module.preventBus) {
       if (module.baseName !== "bus") {

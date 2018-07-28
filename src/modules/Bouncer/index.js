@@ -57,13 +57,13 @@ var Bouncer = function(properties,environment) {
     self.bounce(evt.eventMessage);
   }
 
-  this.onRemove = function() {
-    this.interfaces=false;
-    noteOnTracker.empty(function(noteOff){
-      self.output(noteOff);
-    });
-    return true;
-  }
+  // this.onRemove = function() {
+  //   this.interfaces=false;
+  //   noteOnTracker.empty(function(noteOff){
+  //     self.output(noteOff);
+  //   });
+  //   return true;
+  // }
 }
 Bouncer.color = [255, 0, 255];
 module.exports = Bouncer;

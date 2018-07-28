@@ -72,7 +72,7 @@ var RouteSequencer = function (properties) {
         outputs.forEach(function (tModule) {
           if (sequenceBitmap.value & (1 << (clock.step + chan * 4))){
             tModule.messageReceived({ eventMessage: eventMessage.clone(), origin: self });
-            self.handle('> message', { origin: self, destination: tModule, val: eventMessage });
+            self.handle('>message', { origin: self, destination: tModule, val: eventMessage });
           }
           chan++;
           chan %= 4;
@@ -105,15 +105,15 @@ var RouteSequencer = function (properties) {
     }
   }
 
-  this.onRemove = function () {
-    noteOnTracker.empty(function (noff) {
-      thisInstance.output(noff, true);
-    });
-    return true;
-  }
+  // this.onRemove = function () {
+  //   noteOnTracker.empty(function (noff) {
+  //     thisInstance.output(noff, true);
+  //   });
+  //   return true;
+  // }
 
   this.handleStepsChange = function () {
-    self.handle('~ module', { steps: runningNotes.length });
+    self.handle('~module', { steps: runningNotes.length });
   }
 
 };

@@ -41,7 +41,7 @@ var NoteSustainer = function(properties) {
   this.triggerPolyphonyChange=function(){
     recMessages.polyphony.value[1]=polyphony.value;
     self.recordOutput(recMessages.rate);
-    self.handle('~ module',{polyphony:polyphony.value});
+    self.handle('~module',{polyphony:polyphony.value});
     polyphonyConstrainCheck();
   }
 

@@ -24,19 +24,19 @@ module.exports=function(environment){
         frameRate = frame.frameRate;
     }, layer);
     anim.start();
-    environment.on('server start',function(){
+    environment.on('serverstart',function(){
       for(var module of moduleSprites){
         // module.remove();
       }
     });
-    environment.on('module reset',function(event){
+    environment.on('modulereset',function(event){
       var module=event.module;
       if(module.sprite){
         module.sprite.remove();
       }
 
     });
-    environment.on('+ module',function(event){
+    environment.on('+module',function(event){
       var module=event.module;
       // console.log("SPRIOTE",event);
       if(moduleSprites[module.properties.unique]){
@@ -54,21 +54,21 @@ module.exports=function(environment){
       moduleSprites[module.properties.unique]=(newSprite);
       module.sprite=newSprite;
     });
-    environment.on('- module',function(event){
+    environment.on('-module',function(event){
       var module=event.module;
       moduleSprites[module.properties.unique].remove();
     });
-    environment.on('~ module',function(event){
+    environment.on('~module',function(event){
       var module=event.module;
       moduleSprites[module.properties.unique].applyChanges(event);
     });
-    environment.on('+ connection',function(event){
+    environment.on('+connection',function(event){
       event.origin.sprite.connectTo(event.destination.sprite);
     });
-    environment.on('- connection',function(event){
+    environment.on('-connection',function(event){
       event.origin.sprite.disconnectTo(event.destination.sprite);
     });
-    environment.on('> message',function(event){
+    environment.on('>message',function(event){
       // console.log(event);
       event.origin.sprite.messageOut(event.destination,event.value);
       if(event.destination.sprite.messageIn){

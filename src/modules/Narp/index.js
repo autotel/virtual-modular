@@ -70,7 +70,7 @@ var Narp = function (properties, environment) {
       self.recordOutput(recMessages.set);
       // console.log("RECO");
     }
-    self.handle('~ bitmap', { bmp: myBitmap, operation: "+" });
+    self.handle('~bitmap', { bmp: myBitmap, operation: "+" });
     self.handleStepsChange();
   }
 
@@ -81,7 +81,7 @@ var Narp = function (properties, environment) {
       self.recordOutput(recMessages.clear);
       // console.log("RECO");
     }
-    self.handle('~ bitmap', { bmp: myBitmap, operation: "-" });
+    self.handle('~bitmap', { bmp: myBitmap, operation: "-" });
     self.handleStepsChange();
   }
 
@@ -96,12 +96,12 @@ var Narp = function (properties, environment) {
 
   var clearAll = this.clearAll = function () {
     myBitmap = 0;
-    self.handle('~ bitmap', { bmp: myBitmap, operation: "=" });
+    self.handle('~bitmap', { bmp: myBitmap, operation: "=" });
   }
 
   this.handleStepsChange = function () {
     var active = activeNumbers();
-    self.handle('~ module', { steps: active.length });
+    self.handle('~module', { steps: active.length });
   }
 
   var generatedOutput = function (eventMessage, buttonNumber) {
@@ -187,14 +187,14 @@ var Narp = function (properties, environment) {
     };
   }
 
-  this.onRemove = function () {
-    noteOnTracker.each(function (noteOff, identifier) {
-      self.output(noteOff, false);
-    });
-    noteOnTracker.empty();
-    clearAll();
-    return true;
-  }
+  // this.onRemove = function () {
+  //   noteOnTracker.each(function (noteOff, identifier) {
+  //     self.output(noteOff, false);
+  //   });
+  //   noteOnTracker.empty();
+  //   clearAll();
+  //   return true;
+  // }
 }
 
 Narp.color = [255, 0, 255];

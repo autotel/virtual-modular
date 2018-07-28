@@ -37,7 +37,7 @@ var Arpeggiator = function(properties) {
     subStep: 0,
     step:0
   }
-  let noteOnTracker = new NoteOnTracker();
+  let noteOnTracker = new NoteOnTracker(this);
 
   let runningNotes = [];
   let runningNotesSorted = [];
@@ -109,7 +109,7 @@ var Arpeggiator = function(properties) {
   }
 
   this.handleStepsChange=function(){
-    self.handle('~ module',{steps:runningNotes.length});
+    self.handle('~module',{steps:runningNotes.length});
   }
 
   function arpOperation() {

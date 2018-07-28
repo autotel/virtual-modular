@@ -8,8 +8,8 @@ module.exports=[
   },{
     type:"MidiIO",
     properties:{
-      name:"to beatslicer",
-      midi:"to beatslicer"
+      name:"sync in",
+      midi:"to sequencer"
     },outpupts:[]
   },{
     type:'ClockGenerator',

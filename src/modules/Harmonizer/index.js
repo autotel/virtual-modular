@@ -90,7 +90,7 @@ var Harmonizer = function (properties, environment) {
 
       self.output(newEvent);
       noteOnTracker.add(newEvent, ["UI", gradeNumber]);
-      self.handle('note played', {
+      self.handle('noteplayed', {
         triggeredGrade: gradeNumber,
         triggeredNote: newEvent.value[1]
       });
@@ -129,7 +129,7 @@ var Harmonizer = function (properties, environment) {
       //underimpose.value, should't be index 2 actually?
       noteOnTracker.add(newEvent, ["EX", gradeNumber, underImpose.value[2]]);
       self.output(newEvent);
-      self.handle('note played', {
+      self.handle('noteplayed', {
         triggeredGrade: gradeNumber,
         triggeredNote: newEvent.value[1]
       });
@@ -253,12 +253,12 @@ var Harmonizer = function (properties, environment) {
 
   defaultState();
 
-  this.onRemove = function () {
-    noteOnTracker.empty(function (noteOff) {
-      self.output(noteOff);
-    });
-    return true;
-  }
+  // this.onRemove = function () {
+  //   noteOnTracker.empty(function (noteOff) {
+  //     self.output(noteOff);
+  //   });
+  //   return true;
+  // }
 }
 
 Harmonizer.color = [255, 255, 127];

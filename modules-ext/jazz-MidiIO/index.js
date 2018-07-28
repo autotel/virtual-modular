@@ -84,7 +84,7 @@ var MidiIO = function (properties, environment) {
   this.interfaces.X16 = InteractorX16;
   var inputClockCount = 0;
   var midiReceived = function (t, midiMessage) {
-    // console.log("MIDIIN");
+    console.log("MIDIIN");
     var fnHeader = midiMessage[0] & 0xf0;
     var channel = midiMessage[0] & 0xf;
     var num = midiMessage[1];
@@ -154,7 +154,7 @@ var MidiIO = function (properties, environment) {
     }
 
 
-    self.handle('midi in', {
+    self.handle('midiin', {
       inputMidi: midiMessage,
       outputMessage: outputMessage,
       eventMessage: outputMessage

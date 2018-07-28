@@ -13,7 +13,7 @@ module.exports=function(controlledModule, environment, gui){
   controlledModule.on('step',function(evt){
     gui.update('grid',{highlight:evt.bmp});
   });
-  controlledModule.on('~ bitmap',function(evt){
+  controlledModule.on('~bitmap',function(evt){
     gui.update('grid',{bitmap:evt.bmp});
   });
 }

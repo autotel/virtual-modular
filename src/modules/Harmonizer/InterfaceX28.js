@@ -57,7 +57,7 @@ module.exports = function(controlledModule,environment) {
   var currentStep = controlledModule.currentStep;
   var loopLength = controlledModule.loopLength;
   var engagedHardwares = new Set();
-  controlledModule.on('note played', function(evt) {
+  controlledModule.on('noteplayed', function(evt) {
 
     // console.log(controlledModule.defaultNote.testvar);
     // console.log(configurators.event.baseEvent);

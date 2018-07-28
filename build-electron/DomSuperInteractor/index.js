@@ -40,7 +40,7 @@ var DomSuperInteractor = function (environment) {
     }
     environment.on('created', function () {
         console.log("DOMSUPER CREATED");
-        environment.on('+ module', newModuleCallback);
+        environment.on('+module', newModuleCallback);
         for (var mm of environment.modules.list) {
             newModuleCallback({ module: mm });
         }
@@ -53,10 +53,10 @@ var DomSuperInteractor = function (environment) {
         upfn();
     });
 
-    environment.on('- module', function (evt) {
+    environment.on('-module', function (evt) {
         console.log("DOMSUPER", evt);
     });
-    environment.on('~ module', function (evt) {
+    environment.on('~module', function (evt) {
         console.log("DOMSUPER", evt);
     });
 }

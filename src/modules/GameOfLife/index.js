@@ -16,7 +16,7 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var GameOfLife = function (properties) {
-  var noteOnTracker = new NoteOnTracker();
+  var noteOnTracker = new NoteOnTracker(this);
   var thisInstance = this;
   var myBitmap = 0;
   var settings = this.settings = {
@@ -149,12 +149,12 @@ var GameOfLife = function (properties) {
   this.getBitmap16 = function () {
     return myBitmap;
   }
-  this.onRemove = function () {
-    noteOnTracker.empty(function (noff) {
-      thisInstance.output(noff, true);
-    });
-    return true;
-  }
+  // this.onRemove = function () {
+  //   noteOnTracker.empty(function (noff) {
+  //     thisInstance.output(noff, true);
+  //   });
+  //   return true;
+  // }
 
   function cellOperation() {
     // console.log("step");

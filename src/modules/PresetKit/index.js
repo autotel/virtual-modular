@@ -43,7 +43,7 @@ var PresetKit = function(properties, environment) {
                 value: properties.kit[n]
             });
         }
-        self.handle('kit changed');
+        self.handle('kitchanged');
     }
 
     var noteOnTracker = new NoteOnTracker(this);
@@ -147,7 +147,7 @@ var PresetKit = function(properties, environment) {
     this.stepMicro = function() { }
     var recordHead = 0;
     this.recordEvent = function(evM) {
-        self.handle('kit changed');
+        self.handle('kitchanged');
         kit[recordHead] = new EventMessage(evM);
         // console.log("rec",kit[recordHead]);
         recordHead++;

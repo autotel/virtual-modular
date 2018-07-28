@@ -92,7 +92,7 @@ var DelayClockBased = function (properties) {
   }
   
   this.handleStepsChange = function () {
-    self.handle('~ module', { steps: runningNotes.length });
+    self.handle('~module', { steps: runningNotes.length });
   }
   
   this.onRemove = function () {

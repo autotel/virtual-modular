@@ -40,7 +40,7 @@ module.exports = function(controlledModule,environment) {
     environment: environment,
     controlledModule: controlledModule
   });
-  // controlledModule.on('midi in',function(event){
+  // controlledModule.on('midiin',function(event){
   //
   // });
   //this because on midi in could become too frequent

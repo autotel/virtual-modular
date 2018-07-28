@@ -11,12 +11,12 @@ var environment=new(function(){
     this.properties=properties;
     this.reset=function(properties){
       this.properties=properties;
-      environment.handle('module reset',{module:self});
+      environment.handle('modulereset',{module:self});
     };
     this.connectTo=function(to){
       if(to.properties){
         console.log(self.properties.name,"--->",to.properties.name);
-        environment.handle('+ connection',{origin:self,destination:to});
+        environment.handle('+connection',{origin:self,destination:to});
       }else{
         console.warn(self,"-!->",to);
       }
@@ -24,7 +24,7 @@ var environment=new(function(){
     this.disconnectTo=function(to){
       if(to.properties){
         console.log(self.properties.name,"-X->",to.properties.name);
-        environment.handle('- connection',{origin:self,destination:to});
+        environment.handle('-connection',{origin:self,destination:to});
       }else{
         console.warn(self,"X!->",to);
       }
@@ -32,7 +32,7 @@ var environment=new(function(){
     // this.messageTo=function(to,message){
     //   self.handle('> message',{destination:to,value:message});
     // }
-    environment.handle('+ module',{module:self})
+    environment.handle('+module',{module:self})
     Module.list.push(this);
   }
   Module.list=[];
@@ -55,7 +55,7 @@ var environment=new(function(){
     // return false;
   }
   Module.delete=function(what){
-    environment.handle('- module',{module:what});
+    environment.handle('-module',{module:what});
     console.log("DEL",what);
     what.properties.unique=undefined;
     var iof = Module.list.indexOf(what)
@@ -87,7 +87,7 @@ var environment=new(function(){
     var exists=Module.getByUnique(properties.origin,false);
     if(exists){
       properties.module=exists;
-      environment.handle('~ module',properties);
+      environment.handle('~module',properties);
       // exists.applyChanges(properties);
     }else{
       console.warn("module change error: uid "+properties.unique+" doesn't exist");
@@ -117,7 +117,7 @@ var environment=new(function(){
     var a = Module.getByUnique(properties.origin,true);
     var b = Module.getByUnique(properties.destination,true);
     if(a&&b){
-      environment.handle('> message',{
+      environment.handle('>message',{
         origin:a,
         destination:b,
         value:properties.val

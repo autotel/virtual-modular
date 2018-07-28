@@ -33,7 +33,7 @@ module.exports=function(environment,parentInteractor){
       }
     }
   });
-  controlledModule.on('event recorded',function(){
+  controlledModule.on('eventrecorded',function(){
     needUpdateSequence=true;
   });
 
