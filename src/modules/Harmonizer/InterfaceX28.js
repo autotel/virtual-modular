@@ -241,6 +241,7 @@ module.exports = function(controlledModule,environment) {
       }
   }
   var updateHardware=function(hardware){
+    currentScale=controlledModule.currentScale;
     updateLeds(hardware);
     updateScreen(hardware);
   }

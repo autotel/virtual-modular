@@ -3,7 +3,6 @@ var EventMessage = require('../../datatypes/EventMessage.js');
 var Note = require('../moduleUtils/Note');
 var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;
-var CHORDCHANGEHEADER = headers.changePreset;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
 var InterfaceX16 = require('./InterfaceX16');
@@ -61,7 +60,7 @@ var Harmonizer = function (properties, environment) {
     if (self.recordingUi) {
       self.recordOutput(new EventMessage({
         value: [
-          CHORDCHANGEHEADER, scalen
+          headers.changePreset, scalen
         ]
       }));
     }
@@ -176,16 +175,14 @@ var Harmonizer = function (properties, environment) {
   this.messageReceived = function (event) {
     var eventMessage = event.eventMessage
     if (!self.mute)
-      if (eventMessage.value[0] == 2 || eventMessage.value[3] == 0) {
+      if (eventMessage.value[0] == headers.triggerOff || eventMessage.value[3] == 0) {
         self.triggerOff(eventMessage.value[1], eventMessage);
       } else {
         this.handle('receive', eventMessage);
-        if (eventMessage.value[0] == 3) {
-          //header 3 is change chord
-          // if(!self.currentScale)self.cu
-          self.currentScale = eventMessage.value[2];
+        if (eventMessage.value[0] == headers.changePreset) {
+          self.currentScale = eventMessage.value[1];
+          // console.log("change preset", self.currentScale);
           self.handle('chordchange');
-          // console.log("chordchange",event);
         } else if (eventMessage.value[0] == 1) {
           // console.log("TRIGGERON");
           self.triggerOn(eventMessage.value[1], eventMessage);
