@@ -157,7 +157,7 @@ var Narp = function (properties, environment) {
     if (evt.eventMessage.value[0] == headers.clockTick) {
       var clockBase = evt.eventMessage.value[1];
       var clockMicroStep = evt.eventMessage.value[2];
-      if ((evt.eventMessage.value[2] / stepDivision.value) % clockBase == 0) {
+      if ((clockMicroStep / stepDivision.value) % clockBase == 0) {
         substep++;
         if (substep >= stepDivision.value) {
           substep = 0;

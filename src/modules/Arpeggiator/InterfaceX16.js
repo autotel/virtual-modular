@@ -15,16 +15,30 @@ module.exports = function(controlledModule) {
     name: "",
     vars: {
       "clear":controlledModule.settings.reset,
-      "step div": {
+      "step ratio": {
         value: controlledModule.clock.subSteps,
-        changeFunction:function(thisVar,delta){
-          thisVar.value+=delta;
-          controlledModule.clock.subSteps=thisVar.value;
-          console.log(controlledModule.clock);
-        }
       },
     }
   });
+  configurators.global.vars["step ratio"].changeFunction = function (thisVar, delta) {
+    thisVar.value = controlledModule.clock.subSteps
+    if (delta > 0) {
+      if (thisVar.value < 2) {
+        thisVar.value *= 2;
+      } else {
+        thisVar.value++
+      }
+    } else {
+      if (thisVar.value < 2) {
+        thisVar.value /= 2;
+      } else {
+        thisVar.value--;
+      }
+    }
+    controlledModule.clock.subSteps = thisVar.value;
+    controlledModule.recordStepDivision();
+  };
+
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
   var stepsBmp = 0;

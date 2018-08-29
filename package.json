@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "cmd-dev": "webpack --watch --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
+    "dev": "webpack --watch --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
     "cmd": "node ./build-cmd",
     "src": "node ./src",
     "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
@@ -28,10 +29,10 @@
     "svg.js": "^2.6.5"
   },
   "devDependencies": {
-    "electron": "^2.0.5",
-    "electron-rebuild": "^1.8.1",
+    "electron": "^2.0.6",
+    "electron-rebuild": "^1.8.2",
     "jquery": "^3.3.1",
-    "webpack": "^4.16.2",
+    "webpack": "^4.16.3",
     "webpack-cli": "^3.1.0"
   }
 }

@@ -49,7 +49,7 @@ module.exports = function (controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
-    values: [1, 1, 0, 90]
+    values: [1, 0, -1, -1]
   });
 
 

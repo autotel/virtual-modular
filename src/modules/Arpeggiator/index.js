@@ -62,7 +62,7 @@ var Arpeggiator = function(properties) {
     rate:new EventMessage({value:[headers.changeRate,12,-1]})
   }
   this.recordStepDivision=function(){
-    recMessages.rate.value[2]=stepDivision.value*12;
+    recMessages.rate.value[2] = self.clock.subSteps*12;
     self.recordOutput(recMessages.rate);
   }
   this.recordingReceived=function(evt){
@@ -73,19 +73,25 @@ var Arpeggiator = function(properties) {
     }  
   }
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == headers.clockTick && (evt.eventMessage.value[2] % evt.eventMessage.value[1] == 0)) {
-      clock.subStep++;
-      if (clock.subStep >= clock.subSteps) {
-        clock.subStep = 0;
-        clock.step++;
+    if (evt.eventMessage.value[0] == headers.clockTick) {
+      
+      var clockBase = evt.eventMessage.value[1];
+      var clockMicroStep = evt.eventMessage.value[2];
 
-        noteOnTracker.empty(function(noff){
-
-          self.output(noff, true);
-        });
-        arpOperation();
-        this.handle('step');
+      if ((clockMicroStep / clock.subSteps) % clockBase == 0) {
+        clock.subStep++;
+        if (clock.subStep >= clock.subSteps) {
+          clock.subStep = 0;
+          clock.step++;
+          noteOnTracker.empty(function (noff) {
+            self.output(noff, true);
+          });
+          arpOperation();
+          this.handle('step');
+        }
       }
+
+        
     } else if (evt.eventMessage.value[0] == headers.triggerOn) {
       // this.setFixedStep(evt.eventMessage.value[2]%16);
       addNote(evt.eventMessage.clone());

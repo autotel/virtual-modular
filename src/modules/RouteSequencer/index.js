@@ -1,7 +1,6 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
-var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
@@ -20,6 +19,9 @@ var testGetName = function () {
 var RouteSequencer = function (properties) {
   var thisInstance = this;
   var myBitmap = 0;
+
+  var noteOnTracker = [];
+
   var settings = this.settings = {
     // feedback:{
     //   value:0,
@@ -32,7 +34,7 @@ var RouteSequencer = function (properties) {
     substeps: 1
   }
   let sequenceBitmap = this.sequenceBitmap = {
-    value:properties.bitmap||0
+    value: properties.bitmap || 0
   }
 
   this.baseName = "RouteSequencer";
@@ -64,23 +66,36 @@ var RouteSequencer = function (properties) {
     outputs = self.getOutputs();
   }
   //this module has a special case where output function is redefined
-  this.output = function (eventMessage, overrideMute) {
+  this.output = function (eventMessage, overrideMute, properties={}) {
     updateOutputs();
     if ((!self.mute) || overrideMute) {
       self.enqueue(function () {
         var chan = 0;
-        outputs.forEach(function (tModule) {
-          if (sequenceBitmap.value & (1 << (clock.step + chan * 4))){
-            tModule.messageReceived({ eventMessage: eventMessage.clone(), origin: self });
-            self.handle('>message', { origin: self, destination: tModule, val: eventMessage });
+        if (properties.destination) {
+          if (self.outputs.has(properties.destination)) {
+            properties.destination.messageReceived({ eventMessage: eventMessage.clone(), origin: self });
           }
-          chan++;
-          chan %= 4;
-        })
+        } else {
+          outputs.forEach(function (tModule) {
+            if (sequenceBitmap.value & (1 << (clock.step + chan * 4))) {
+              tModule.messageReceived({ eventMessage: eventMessage.clone(), origin: self });
+              self.handle('>message', { origin: self, destination: tModule, val: eventMessage, eventMessage: eventMessage });
+            }
+            chan++;
+            chan %= 4;
+          })
+        }
       });
     }
   }
-  var stepFunction=function(){
+
+  this.on(">message", function (evt) {
+    if (evt.eventMessage.value[0] == headers.triggerOn) {
+      noteOnTracker[evt.eventMessage.value[1]] = evt;
+    }
+  });
+
+  var stepFunction = function () {
     clock.step++;
     clock.step %= 4;
     self.handle('step');
@@ -92,7 +107,7 @@ var RouteSequencer = function (properties) {
       if ((clockMicroStep / clock.substeps) % clockBase == 0) {
 
         clock.substep++;
-        
+
         // console.log("T",clock);
         if (clock.substep >= clock.substeps) {
 
@@ -100,7 +115,12 @@ var RouteSequencer = function (properties) {
           stepFunction();
         }
       }
+    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
+      var tracked = noteOnTracker[evt.eventMessage.value[1]];
+      if (tracked)
+          self.output(evt.eventMessage, false, tracked);
     } else {
+
       self.output(evt.eventMessage);
     }
   }

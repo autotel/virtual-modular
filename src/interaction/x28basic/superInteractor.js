@@ -107,7 +107,7 @@ var SuperInteractorsSingleton = function (environment) {
       console.log("superinteractor add loc");
       addModuleToLoc(event.module, defaultButtonForNewModule);
       defaultButtonForNewModule++;
-    }else{
+    } else {
       console.log("new module already has loc");
     }
   });
@@ -133,6 +133,7 @@ var SuperInteractorsSingleton = function (environment) {
     return ret;
   }
   this.SuperInteractor = function (myHardware) {
+
     var pageOffset = 0;
 
     /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
@@ -195,9 +196,10 @@ var SuperInteractorsSingleton = function (environment) {
     let lCompConfigurator = enviroVarConfig.vars["ambt. light"];
 
     this.on('interaction', function (event) {
-
       if (engagedInterface) {
-        engagedInterface.handle('interaction', event);
+        try {
+          engagedInterface.handle('interaction', event);
+        } catch (e) { console.error(e) };
       }
     });
     environment.on('+module', function (evt) {
@@ -269,8 +271,13 @@ var SuperInteractorsSingleton = function (environment) {
           updateLeds();
         }
       } else {
-        engagedInterface.matrixButtonPressed(event);
-        matrixButtonOwners[event.data[0]] = engagedInterface;
+        
+        try {
+          engagedInterface.matrixButtonPressed(event);
+          matrixButtonOwners[event.data[0]] = engagedInterface;
+        } catch (e) { console.error(e) };
+
+        
       }
 
     });
@@ -282,7 +289,10 @@ var SuperInteractorsSingleton = function (environment) {
       }
       // event.button=event.data[0];
       if (matrixButtonOwners[event.data[0]]) {
-        matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
+        try {
+          matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
+        } catch (e) { console.error(e) };
+
         delete matrixButtonOwners[event.data[0]];
       } else { }
     });
@@ -328,7 +338,10 @@ var SuperInteractorsSingleton = function (environment) {
       if (event.button == 3) {
 
         if (engagedInterface) {
-          engagedInterface.disengage(event);
+          try {
+            engagedInterface.disengage(event);
+          } catch (e) { console.error(e) };
+
           thisInteractor.engage();
           engageOnRelease = false;
         }
@@ -337,7 +350,10 @@ var SuperInteractorsSingleton = function (environment) {
       } else {
         //  event.button=event.data[0];
         if (engagedInterface) {
-          engagedInterface.selectorButtonPressed(event);
+          try {
+            engagedInterface.selectorButtonPressed(event);
+          } catch (e) { console.error(e) };
+
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
           if (event.button == 0) {
@@ -444,12 +460,18 @@ var SuperInteractorsSingleton = function (environment) {
     });
     this.on('encoderPressed', function (event) {
       if (!engagedInterface) { } else {
-        engagedInterface.encoderPressed(event);
+        try {
+          engagedInterface.encoderPressed(event);
+        } catch (e) { console.error(e) };
+
       }
     });
     this.on('encoderReleased', function (event) {
       if (!engagedInterface) { } else {
-        engagedInterface.encoderReleased(event);
+        try {
+          engagedInterface.encoderReleased(event);
+        } catch (e) { console.error(e) };
+
       }
     });
     this.on('encoderScrolled', function (event) {
@@ -465,7 +487,10 @@ var SuperInteractorsSingleton = function (environment) {
           }
         }
       } else {
-        engagedInterface.encoderScrolled(event);
+        try {
+          engagedInterface.encoderScrolled(event);
+        } catch (e) { console.error(e) };
+
       }
     });
     this.engage = function (evt) {
