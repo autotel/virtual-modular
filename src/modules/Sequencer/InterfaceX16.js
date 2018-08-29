@@ -342,7 +342,7 @@ module.exports = function (controlledModule, environment) {
       controlledModule.restart(targetButton);
 
     } else if (engagedConfigurator === false) {
-      var currentFilter = shiftPressed ? moreBluredFilter : focusedFilter;
+      var currentFilter = shiftPressed ? moreBluredFilter : bluredFilter;
       var throughfold = getThroughfoldBoolean(targetButton, currentFilter);
       // console.log("THEREIS",throughfold);
       //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
@@ -527,7 +527,7 @@ module.exports = function (controlledModule, environment) {
   });
   var bluredFilter = new configurators.event.Filter({
     header: true,
-    value_b: true
+    value_a: true
   });
   var moreBluredFilter = new configurators.event.Filter({
     header: true
