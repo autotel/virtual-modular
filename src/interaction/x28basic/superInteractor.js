@@ -373,13 +373,13 @@ var SuperInteractorsSingleton = function (environment) {
           } else if (event.button < 8) {
             pageMode = true;
             if (event.button == 4) {
-              pageOffset -= 16;
+              pageOffset -= 8;
             } else if (event.button == 5) {
               pageOffset -= 4;
             } else if (event.button == 6) {
               pageOffset += 4;
             } else if (event.button == 7) {
-              pageOffset += 16;
+              pageOffset += 8;
             }
             if (pageOffset < 0) {
               pageOffset = 0;
@@ -434,10 +434,12 @@ var SuperInteractorsSingleton = function (environment) {
           });
         }
 
-        if (newCreated) {
-          selectedModule = newCreated;
-          selectedInterface = tryGetModuleInterface(newCreated);
-        };
+        //opens the just-created module.
+        // if (newCreated) {
+        //   selectedModule = newCreated;
+        //   selectedInterface = tryGetModuleInterface(newCreated);
+        // };
+
         if (selectedInterface && engageOnRelease) {
           engagedInterface = selectedInterface;
           // console.log("engaged",engagedInterface);
@@ -459,11 +461,15 @@ var SuperInteractorsSingleton = function (environment) {
       }
     });
     this.on('encoderPressed', function (event) {
-      if (!engagedInterface) { } else {
+      if (engagedInterface) { 
         try {
           engagedInterface.encoderPressed(event);
         } catch (e) { console.error(e) };
-
+      } else {
+        // selectedModule = false;
+        // selectedInterface = false;
+        // selectedModuleLoc = false;
+        // updateHardware();
       }
     });
     this.on('encoderReleased', function (event) {
@@ -476,16 +482,16 @@ var SuperInteractorsSingleton = function (environment) {
     });
     this.on('encoderScrolled', function (event) {
       if (!engagedInterface) {
-        if (pageMode) {
-          pageOffset += event.delta * 4;
-          if (pageOffset < 0) pageOffset = 0;
-          updateHardware();
-        } else if (selectedInterface) {
+        if (selectedInterface) {
           let str = selectedInterface.outsideScroll(event);
           if (str) {
             myHardware.sendScreenB(str);
           }
-        }
+        } else {
+          pageOffset += event.delta * 4;
+          if (pageOffset < 0) pageOffset = 0;
+          updateHardware();
+        } 
       } else {
         try {
           engagedInterface.encoderScrolled(event);
