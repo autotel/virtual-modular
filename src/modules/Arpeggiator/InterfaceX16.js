@@ -1,23 +1,27 @@
 "use strict";
 var EventMessage = require('../../datatypes/EventMessage.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
-var base=require('../../interaction/x16basic/interactorBase.js');
+var base = require('../../interaction/x16basic/interactorBase.js');
 
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
 
 //instance section
-module.exports = function(controlledModule) {
+module.exports = function (controlledModule) {
+
   base.call(this);
+  var sequence = controlledModule.monosequence;
+  var view = { step: 0 }
   var configurators = {};
   configurators.global = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "clear":controlledModule.settings.reset,
+      "clear": controlledModule.settings.reset,
       "step ratio": {
         value: controlledModule.clock.subSteps,
       },
+      "sequence length": sequence.length,
     }
   });
   configurators.global.vars["step ratio"].changeFunction = function (thisVar, delta) {
@@ -45,20 +49,21 @@ module.exports = function(controlledModule) {
 
   var engagedHardwares = new Set();
 
-  this.matrixButtonPressed = function(event) {
+  this.matrixButtonPressed = function (event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
+      sequence.toggleStep(event.button + view.step);
       updateHardware(event.hardware);
     }
   };
-  this.matrixButtonReleased = function(event) {
-    if (engagedConfigurator) {} else {
+  this.matrixButtonReleased = function (event) {
+    if (engagedConfigurator) { } else {
       updateHardware(event.hardware);
     }
   };
-  this.matrixButtonHold = function(event) {};
-  this.selectorButtonPressed = function(event) {
+  this.matrixButtonHold = function (event) { };
+  this.selectorButtonPressed = function (event) {
     var hardware = event.hardware;
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
@@ -66,10 +71,13 @@ module.exports = function(controlledModule) {
       if (event.data[0] == 2) {
         engagedConfigurator = configurators.global;
         configurators.global.engage(event);
+      } else if (event.data[0] > 3) {
+        view.step = (event.data[0] - 4) * 16;
+        updateLeds(event.hardware);
       }
     }
   };
-  this.selectorButtonReleased = function(event) {
+  this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
     if (event.data[0] == 2) {
       if (engagedConfigurator == configurators.global) {
@@ -79,7 +87,7 @@ module.exports = function(controlledModule) {
       }
     }
   };
-  this.encoderScrolled = function(event) {
+  this.encoderScrolled = function (event) {
     if (engagedConfigurator) {
       engagedConfigurator.encoderScrolled(event);
     } else {
@@ -88,20 +96,35 @@ module.exports = function(controlledModule) {
       }
     }
   };
-  this.encoderPressed = function(event) {};
-  this.encoderReleased = function(event) {};
-  this.engage = function(event) {
+  this.encoderPressed = function (event) { };
+  this.encoderReleased = function (event) { };
+  this.engage = function (event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
   };
-  this.disengage = function(event) {
+  this.disengage = function (event) {
     engagedHardwares.delete(event.hardware);
   }
-  var updateHardware = function(hardware) {
+  var updateHardware = function (hardware) {
     hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
-  var updateLeds = function(hardware) {
-    hardware.draw([0, stepsBmp, stepsBmp]);
+  var updateLeds = function (hardware) {
+    if (engagedConfigurator) return;
+    stepsBmp = (sequence.getBitmap() >> (view.step)) & 0xFFFF;
+    // console.log(sequence.playhead.value);
+    var playheadBmp = 0;
+
+    if (sequence.playhead.value >= view.step && sequence.playhead.value < view.step + 16) {
+      playheadBmp = (0x1 << Math.abs(sequence.playhead.value - view.step)) & 0xFFFF
+    }
+    hardware.draw([stepsBmp | playheadBmp, playheadBmp, stepsBmp | playheadBmp]);
   }
+  var passiveUpdateLeds = function () {
+    // console.log("PUL");
+    engagedHardwares.forEach(function (hardware) {
+      updateLeds(hardware);
+    })
+  }
+  sequence.on('step', passiveUpdateLeds);
 }
