@@ -11,7 +11,7 @@ module.exports = function(controlledModule) {
   var microStepsBmp;
   var shiftPressed=false;
   base.call(this);
-  // controlledModule.on('micro step',function(event){
+  // controlledModule.on('microstep',function(event){
   // });
   //microStep event happens too often, instead I am setting an interval to updte the leds
   setInterval(function() {

@@ -84,7 +84,7 @@ var MidiIO = function (properties, environment) {
   this.interfaces.X16 = InteractorX16;
   var inputClockCount = 0;
   var midiReceived = function (t, midiMessage) {
-    // console.log("MIDIIN");
+    console.log("MIDIIN");
     var fnHeader = midiMessage[0] & 0xf0;
     var channel = midiMessage[0] & 0xf;
     var num = midiMessage[1];
@@ -154,19 +154,19 @@ var MidiIO = function (properties, environment) {
     }
 
 
-    self.handle('midi in', {
+    self.handle('midiin', {
       inputMidi: midiMessage,
       outputMessage: outputMessage,
       eventMessage: outputMessage
     });
   };
   var sendMidi = function (sig) {
-    var a=sig[0];
-    var b=sig[1];
-    var c=sig[2];
+    var a = sig[0];
+    var b = sig[1];
+    var c = sig[2];
     if (midi) {
       if (midi.out) {
-        midi.out([a,b,c]);
+        midi.out([a, b, c]);
         var isOn = (a & 0xf0) == 0x90;
         var isOff = (a & 0xf0) == 0x80;
         isOff |= isOn && (c == 0);
@@ -203,24 +203,29 @@ var MidiIO = function (properties, environment) {
     var eventMessage = evt.eventMessage;
     eventMessage.underImpose(defaultMessage);
     var midiOut = [0, 0, 0];
+    if (eventMessage.value[0] == headers.changeRate) {
+      midiOut[0] = 0xB0 | (0x0F & eventMessage.value[2]);
+      midiOut[1] = eventMessage.value[3]; //is the controller number.
+      midiOut[2] = eventMessage.value[1]; //is the value
+    }
     if (eventMessage.value[0] == headers.triggerOn) {
-      midiOut[0] = 0x90 | eventMessage.value[2];
+      midiOut[0] = 0x90 | (0x0F & eventMessage.value[2]);
       midiOut[1] = eventMessage.value[1];
       midiOut[2] = eventMessage.value[3];
     }
     if (eventMessage.value[0] == headers.triggerOff) {
-      midiOut[0] = 0x80 | eventMessage.value[2];
+      midiOut[0] = 0x80 | (0x0F & eventMessage.value[2]);
       midiOut[1] = eventMessage.value[1];
       midiOut[2] = 0;
     }
     // console.log("sendimid", midiOut);
-    midiOut = midiOut.map(function (a,b) {
+    midiOut = midiOut.map(function (a, b) {
       var a = parseInt(a);
-      a %= b>0?127:0xff;
+      a %= b > 0 ? 127 : 0xff;
       if (isNaN(a)) a = 0;
       return a;
     });
-    console.log(midiOut);
+    // console.log(midiOut);
     sendMidi(midiOut);
   };
   this.onRemove = function () {
@@ -268,11 +273,11 @@ MidiIO.initialization = function (environment) {
       }
       if ((!midiInterface.in) && inList.indexOf(portName) !== -1) {
         midiInterface.openMidiIn(portName);
-        console.log("connect new Midi in",portName);
+        console.log("connect new Midi in", portName);
       }
       if ((!midiInterface.out) && outList.indexOf(portName) !== -1) {
         midiInterface.openMidiOut(portName)
-        console.log("connect new Midi out",portName);
+        console.log("connect new Midi out", portName);
       }
     }
     for (var midiInterface of MidiInterface.list) {

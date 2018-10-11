@@ -152,7 +152,7 @@ var MultiTape = function (properties, environment) {
       // if (self.recording) {
       // if(evt.eventMessage.value[0]==headers.triggerOff)console.log("LOGOFF");
       currentTape.record(evt.eventMessage);
-      self.handle('event recorded', evt);
+      self.handle('eventrecorded', evt);
       // }
     }
   }
@@ -177,11 +177,11 @@ var MultiTape = function (properties, environment) {
 
   setInitState();
 
-  this.delete = function () {
-    for (var noff of noteOnTracker) {
-      noteOnTracker.setAllOff(noff);
-    }
-  }
+  // this.onRemove = function () {
+  //   for (var noff of noteOnTracker) {
+  //     noteOnTracker.setAllOff(noff);
+  //   }
+  // }
 
 }
 

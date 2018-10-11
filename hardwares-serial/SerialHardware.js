@@ -2,7 +2,7 @@
 var utils = require('./utils.js');
 var SerialHardwareDetector = require('./SerialHardwareDetector.js');
 var requireProperties = utils.requireProperties;
-var LazyStack = utils.LazyStack;
+var LazyQueue = utils.LazyQueue;
 
 
 var DataChopper = function(rLengths) {
@@ -70,7 +70,7 @@ var SerialHardware = function(properties, environment) {
   var rLengths=properties.rLengths;
   var tLengths=properties.tLengths;
   var dataChopper = new DataChopper(rLengths);
-  var lazyStack = new LazyStack({messagePriority:15,maxStack:15});
+  var lazyQueue = new LazyQueue({messagePriority:15,maxStack:15});
   var serial;
   var self = this;
 
@@ -84,7 +84,7 @@ var SerialHardware = function(properties, environment) {
   this.newSerial(properties.serial);
 
   this.sendx8 = function(header, dataArray) {
-    lazyStack.enq(function() {
+    lazyQueue.enq(function() {
       if (dataArray.constructor !== Array)
         dataArray = Array.from(dataArray);
       dataArray.unshift(header & 0xff);
@@ -95,7 +95,7 @@ var SerialHardware = function(properties, environment) {
   }
 
   this.sendx8_16 = function(header, dataArray) {
-    lazyStack.enq(function() {
+    lazyQueue.enq(function() {
       var arr8 = [];
       for (var a of dataArray) {
         arr8.push(a & 0xff);
@@ -113,7 +113,7 @@ var SerialHardware = function(properties, environment) {
     });
   }
   this.sendx8_32 = function(header, dataArray) {
-    lazyStack.enq(function() {
+    lazyQueue.enq(function() {
       var arr8 = [];
       for (var a of dataArray) {
         arr8.push(a & 0xff);
@@ -136,7 +136,7 @@ var SerialHardware = function(properties, environment) {
     if (tLengths[header] !== -1) {
       console.warn("warning: this header is not specified for unknown lengths");
     }
-    lazyStack.enq(function() {
+    lazyQueue.enq(function() {
       // console.log(header,string);
 
       var arr8 = [];
@@ -158,7 +158,7 @@ var SerialHardware = function(properties, environment) {
     });
   }
   this.sendArray = function(header, array) {
-    lazyStack.enq(function() {
+    lazyQueue.enq(function() {
       if (tLengths[header] !== -1) {
         console.warn("warning: this header is not specified for unknown lengths");
       }

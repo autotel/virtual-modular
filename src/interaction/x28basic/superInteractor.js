@@ -29,7 +29,7 @@ var SuperInteractorsSingleton = function (environment) {
   * @returns {undefined} no return
   */
   var modules = environment.modules;
-  environment.on('+ modulesManager', function (man) {
+  environment.on('+modulesManager', function (man) {
     modules = man;
   });
   // fail();
@@ -86,7 +86,7 @@ var SuperInteractorsSingleton = function (environment) {
     delocateModule(module);
     addModuleToLoc(module, location);
   }
-  environment.on('- module', function (event) {
+  environment.on('-module', function (event) {
 
     for (var x in moduleLocations) {
       for (var y in moduleLocations[x]) {
@@ -101,13 +101,17 @@ var SuperInteractorsSingleton = function (environment) {
     }
   });
   var defaultButtonForNewModule = 0;
-  environment.on('+ module', function (event) {
+  environment.on('+module', function (event) {
 
     if (tryGetLocOfModule(event.module) === undefined) {
+      console.log("superinteractor add loc");
       addModuleToLoc(event.module, defaultButtonForNewModule);
       defaultButtonForNewModule++;
+    } else {
+      console.log("new module already has loc");
     }
   });
+
   function tryGetModuleInterface(moduleInstance) {
     var ret = false;
     if (moduleInstance) {
@@ -129,7 +133,9 @@ var SuperInteractorsSingleton = function (environment) {
     }
     return ret;
   }
+  
   this.SuperInteractor = function (myHardware) {
+
     var pageOffset = 0;
 
     /** @private @var engagedInterface stores the module that is currently engaged, the interaction events are forwarded to the {@link moduleInterface} that is referenced here*/
@@ -192,17 +198,18 @@ var SuperInteractorsSingleton = function (environment) {
     let lCompConfigurator = enviroVarConfig.vars["ambt. light"];
 
     this.on('interaction', function (event) {
-
       if (engagedInterface) {
-        engagedInterface.handle('interaction', event);
+        try {
+          engagedInterface.handle('interaction', event);
+        } catch (e) { console.error(e) };
       }
     });
-    environment.on('+ module', function (evt) {
+    environment.on('+module', function (evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }
     });
-    environment.on('- module', function (evt) {
+    environment.on('-module', function (evt) {
       if (!(engagedInterface || myModuleCreator.engaged)) {
         updateHardware();
       }
@@ -212,7 +219,15 @@ var SuperInteractorsSingleton = function (environment) {
       if (location < 0) return false;
       if (myModuleCreator.engaged) {
         myModuleCreator.matrixButtonPressed(event);
-      } else if (!engagedInterface) {
+      }else if(engagedInterface) {
+        
+        try {
+          engagedInterface.matrixButtonPressed(event);
+          matrixButtonOwners[event.data[0]] = engagedInterface;
+        } catch (e) { console.error(e) };
+
+        
+      } else {
         if (firstPressedMatrixLoc === false) {
           selectedModule = tryGetModuleInLoc(location);
           selectedInterface = tryGetModuleInterface(selectedModule);
@@ -265,9 +280,6 @@ var SuperInteractorsSingleton = function (environment) {
           } else { }
           updateLeds();
         }
-      } else {
-        engagedInterface.matrixButtonPressed(event);
-        matrixButtonOwners[event.data[0]] = engagedInterface;
       }
 
     });
@@ -279,7 +291,10 @@ var SuperInteractorsSingleton = function (environment) {
       }
       // event.button=event.data[0];
       if (matrixButtonOwners[event.data[0]]) {
-        matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
+        try {
+          matrixButtonOwners[event.data[0]].matrixButtonReleased(event);
+        } catch (e) { console.error(e) };
+
         delete matrixButtonOwners[event.data[0]];
       } else { }
     });
@@ -325,7 +340,10 @@ var SuperInteractorsSingleton = function (environment) {
       if (event.button == 3) {
 
         if (engagedInterface) {
-          engagedInterface.disengage(event);
+          try {
+            engagedInterface.disengage(event);
+          } catch (e) { console.error(e) };
+
           thisInteractor.engage();
           engageOnRelease = false;
         }
@@ -334,7 +352,10 @@ var SuperInteractorsSingleton = function (environment) {
       } else {
         //  event.button=event.data[0];
         if (engagedInterface) {
-          engagedInterface.selectorButtonPressed(event);
+          try {
+            engagedInterface.selectorButtonPressed(event);
+          } catch (e) { console.error(e) };
+
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
           if (event.button == 0) {
@@ -354,13 +375,13 @@ var SuperInteractorsSingleton = function (environment) {
           } else if (event.button < 8) {
             pageMode = true;
             if (event.button == 4) {
-              pageOffset -= 16;
+              pageOffset -= 8;
             } else if (event.button == 5) {
               pageOffset -= 4;
             } else if (event.button == 6) {
               pageOffset += 4;
             } else if (event.button == 7) {
-              pageOffset += 16;
+              pageOffset += 8;
             }
             if (pageOffset < 0) {
               pageOffset = 0;
@@ -415,10 +436,12 @@ var SuperInteractorsSingleton = function (environment) {
           });
         }
 
-        if (newCreated) {
-          selectedModule = newCreated;
-          selectedInterface = tryGetModuleInterface(newCreated);
-        };
+        //opens the just-created module.
+        // if (newCreated) {
+        //   selectedModule = newCreated;
+        //   selectedInterface = tryGetModuleInterface(newCreated);
+        // };
+
         if (selectedInterface && engageOnRelease) {
           engagedInterface = selectedInterface;
           // console.log("engaged",engagedInterface);
@@ -440,29 +463,42 @@ var SuperInteractorsSingleton = function (environment) {
       }
     });
     this.on('encoderPressed', function (event) {
-      if (!engagedInterface) { } else {
-        engagedInterface.encoderPressed(event);
+      if (engagedInterface) { 
+        try {
+          engagedInterface.encoderPressed(event);
+        } catch (e) { console.error(e) };
+      } else {
+        // selectedModule = false;
+        // selectedInterface = false;
+        // selectedModuleLoc = false;
+        // updateHardware();
       }
     });
     this.on('encoderReleased', function (event) {
       if (!engagedInterface) { } else {
-        engagedInterface.encoderReleased(event);
+        try {
+          engagedInterface.encoderReleased(event);
+        } catch (e) { console.error(e) };
+
       }
     });
     this.on('encoderScrolled', function (event) {
       if (!engagedInterface) {
-        if (pageMode) {
-          pageOffset += event.delta * 4;
-          if (pageOffset < 0) pageOffset = 0;
-          updateHardware();
-        } else if (selectedInterface) {
+        if (selectedInterface) {
           let str = selectedInterface.outsideScroll(event);
           if (str) {
             myHardware.sendScreenB(str);
           }
-        }
+        } else {
+          pageOffset += event.delta * 4;
+          if (pageOffset < 0) pageOffset = 0;
+          updateHardware();
+        } 
       } else {
-        engagedInterface.encoderScrolled(event);
+        try {
+          engagedInterface.encoderScrolled(event);
+        } catch (e) { console.error(e) };
+
       }
     });
     this.engage = function (evt) {

@@ -24,7 +24,7 @@ var SocketMan=function(environment){
       console.log('received malformed message',msg);
     }
   });
-  socket.on('emit test',console.log);
+  socket.on('emittest',console.log);
   this.testMessage=function(text){
     socket.send('test',text);
   }
@@ -32,7 +32,7 @@ var SocketMan=function(environment){
   var messageCallbacks={
     'start':function(){
       // window.location.href=window.location.href;
-      environment.handle('server start');
+      environment.handle('serverstart');
     },
     '+ module':function(msg){
       // console.log("NEW MODULE",msg);

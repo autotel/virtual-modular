@@ -110,7 +110,7 @@ module.exports=function(environment,socket){
 
   }
 
-  environment.on('+ module', function(evt) {
+  environment.on('+module', function(evt) {
     moduleCreatedCallback(evt.module);
   });
 

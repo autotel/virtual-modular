@@ -102,7 +102,7 @@ module.exports = function(controlledModule, environment) {
     passiveUpdateLeds();
   }, 1000 / 20);
 
-  controlledModule.on('kit changed', function() {
+  controlledModule.on('kitchanged', function() {
     updateAvailablePresetsBitmap();
   });
 

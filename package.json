@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "cmd-dev": "webpack --watch --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
+    "dev": "webpack --watch --mode development ./src/index.js --output ./build-cmd/virtualModularEnvironment.js",
     "cmd": "node ./build-cmd",
     "src": "node ./src",
     "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
@@ -15,19 +16,24 @@
   "author": "autotel",
   "license": "ISC",
   "dependencies": {
+    "1.0.3": "^1.0.3",
     "browser-process-hrtime": "^0.1.2",
+    "dat.gui": "^0.7.2",
+    "express": "^4.16.4",
     "fifo": "^2.3.0",
-    "jazz-midi": "^1.6.0",
+    "jazz-midi": "^1.6.4",
     "jazz-midi-electron": "^1.0.0",
-    "jzz": "^0.5.0",
-    "onhandlers": "^1.0.3",
+    "jzz": "^0.5.2",
+    "onhandlers": "^1.1.1",
     "prompt": "^1.0.0",
-    "serialport": "^6.2.1"
+    "serialport": "^6.2.2",
+    "svg.js": "^2.6.5"
   },
   "devDependencies": {
-    "webpack": "^4.15.0",
-    "webpack-cli": "^3.0.8",
-    "electron": "^2.0.4",
-    "electron-rebuild": "^1.8.1"
+    "electron": "^2.0.6",
+    "electron-rebuild": "^1.8.2",
+    "jquery": "^3.3.1",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0"
   }
 }

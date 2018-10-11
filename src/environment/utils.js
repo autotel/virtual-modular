@@ -1,4 +1,4 @@
-module.exports.LazyStack=function(properties) {
+module.exports.LazyQueue=function(properties) {
   var stackLimit = false;
   var stack = [];
   var self=this;

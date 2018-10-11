@@ -44,7 +44,7 @@ var interactionManager=function(environment){ return new(function(){
     moduleInteractorSingletons.push(interactorSingleton);
   }
 
-  // environment.on('+ module',function(evt){
+  // environment.on('+module',function(evt){
     // var newInteractor=evt.module.interactor;
     // moduleInteractorInstances.push(newInteractor);
     // for(var sis of superInteractorSingletons){

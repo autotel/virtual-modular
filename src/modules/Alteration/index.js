@@ -122,15 +122,15 @@ var Alteration = function (properties) {
   this.getBitmap16 = function () {
     return myBitmap;
   }
-  this.delete = function () {
-    noteOnTracker.empty(function (noff) {
-      thisInstance.output(noff, true);
-    });
-    return true;
-  }
+  // this.onRemove = function () {
+  //   noteOnTracker.empty(function (noff) {
+  //     thisInstance.output(noff, true);
+  //   });
+  //   return true;
+  // }
 
   this.handleStepsChange = function () {
-    self.handle('~ module', { steps: runningNotes.length });
+    self.handle('~module', { steps: runningNotes.length });
   }
 
 };

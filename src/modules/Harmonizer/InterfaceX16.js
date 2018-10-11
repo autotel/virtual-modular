@@ -55,7 +55,7 @@ module.exports = function(controlledModule,environment) {
   var currentStep = controlledModule.currentStep;
   var loopLength = controlledModule.loopLength;
   var engagedHardwares = new Set();
-  controlledModule.on('note played', function(evt) {
+  controlledModule.on('noteplayed', function(evt) {
     var grade = evt.triggeredGrade;
     var note = evt.triggeredNote % 12;
     var newH = noteHiglightMap |= 1 << note + 4;

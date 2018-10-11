@@ -4,3 +4,4 @@ midi-options.js
 http/client/js/main.js
 firmware
 .vscode/
+build-electron/res

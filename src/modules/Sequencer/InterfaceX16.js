@@ -49,7 +49,7 @@ module.exports = function (controlledModule, environment) {
   var engagedConfigurator = false;
   var configurators = {};
   configurators.event = new EventConfigurator(this, {
-    values: [1, 1, 0, 90]
+    values: [1, 0, -1, -1]
   });
 
 
@@ -196,6 +196,7 @@ module.exports = function (controlledModule, environment) {
       thisVar.value += delta;
     thisVar.value = thisVar.value % controlledModule.loopLength.value;
     currentViewStartStep = thisVar.value * 16;
+
   }
 
   configurators.time.vars["drift substep"].nameFunction = function (thisVar) {
@@ -325,10 +326,12 @@ module.exports = function (controlledModule, environment) {
     configurators.event.setFromEventPattern(event.eventPattern);
   });
   controlledModule.on('step', function (event) {
+
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         if (engagedConfigurator === false)
           self.updateLeds(hardware);
+        self.updatePageDisplay(hardware);
       }
     // loopDisplace.value=controlledModule.loopDisplace.value;
   });
@@ -342,7 +345,7 @@ module.exports = function (controlledModule, environment) {
       controlledModule.restart(targetButton);
 
     } else if (engagedConfigurator === false) {
-      var currentFilter = shiftPressed ? moreBluredFilter : focusedFilter;
+      var currentFilter = shiftPressed ? moreBluredFilter : bluredFilter;
       var throughfold = getThroughfoldBoolean(targetButton, currentFilter);
       // console.log("THEREIS",throughfold);
       //if shift is pressed, there is only one repetition throughfold required, making the edition more prone to delete.
@@ -456,6 +459,7 @@ module.exports = function (controlledModule, environment) {
       //   }
       // }else{
       currentViewStartStep = wouldPage;
+      self.updatePageDisplay(event.hardware);
       // }
     } else if (event.data[0] >= 8) {
       engagedConfigurator = configurators.record;
@@ -505,6 +509,7 @@ module.exports = function (controlledModule, environment) {
       lastRecordedNote = false;
     }
     self.updateLeds(hardware);
+    self.updatePageDisplay(hardware);
   };
   this.disengage = function (event) {
     engagedHardwares.delete(event.hardware);
@@ -527,14 +532,20 @@ module.exports = function (controlledModule, environment) {
   });
   var bluredFilter = new configurators.event.Filter({
     header: true,
-    value_b: true
+    value_a: true
   });
   var moreBluredFilter = new configurators.event.Filter({
     header: true
   });
   var filterNone = new configurators.event.Filter({
   });
-
+  this.updatePageDisplay = function (hardware) {
+    var currentPageBmp = (1 << (Math.floor(currentViewStartStep / 16))) & 0xF;
+    var playheadPageBmp = (1 << (Math.floor(currentStep.value / 16))) & 0xF;
+    hardware.paintColorFromLedN([currentPageBmp], [255, 255, 255], 4);
+    hardware.paintColorFromLedN([playheadPageBmp & ~currentPageBmp], [127, 127, 0], 4);
+    hardware.paintColorFromLedN([(currentPageBmp | playheadPageBmp) ^ 0xF], [0, 0, 0], 4);
+  }
   self.updateLeds = function (hardware) {
     //actually should display also according to the currently being tweaked
     var showThroughfold = lastEngagedConfigurator == configurators.time;
@@ -546,6 +557,7 @@ module.exports = function (controlledModule, environment) {
     leastImportant |= noteLengthnerLengthsBitmap;
     var drawStep = 0;
     var playHeadBmp = 0;
+
     //"render" play header:
     //if we are in modulus view, it renders many playheads
     if (lastEngagedConfigurator == "time") {
@@ -566,6 +578,7 @@ module.exports = function (controlledModule, environment) {
       playHeadBmp | mostImportant | mediumImportant,
       mostImportant | mediumImportant | leastImportant,
     ]);
+
     return [mostImportant, mediumImportant, leastImportant, everyEvent];
   }
 }

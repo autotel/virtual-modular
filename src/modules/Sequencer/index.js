@@ -137,10 +137,10 @@ var Sequencer = function (properties, environment) {
       this.handleStepsChange();
     }
   }
-  // self.on('~ module',console.log);
+  // selfm.on('~module',console.log);
   this.handleStepsChange = function () {
     // console.log("STEPCHANGE");
-    self.handle('~ module', { steps: self.loopLength.value });
+    self.handle('~module', { steps: self.loopLength.value });
     self.loopLength.lastWatchedValue = self.loopLength.value;
   }
   this.play = function () {
@@ -242,15 +242,7 @@ var Sequencer = function (properties, environment) {
         }
         // console.log("2 stop");
         break;
-      } case CLOCKABSOLUTEHEADER: {
-        // console.log("sq:CLOCKABSOLUTEHEADER");
-        thisInstance.stepAbsolute(evt.value[1]);
-        // console.log("3 thisInstance.stepAbsolute("+evt.value[1]+");");
-        break;
-      } case 0x04: {
-        thisInstance.stepAbsolute(evt.value[1]);
-        break;
-      }
+      } 
         this.handle('receive', evt);
     }
   }

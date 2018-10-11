@@ -1,4 +1,5 @@
 "use strict";
+var RARROW = String.fromCharCode(199);
 var EventMessage = require('../../datatypes/EventMessage.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
@@ -11,18 +12,31 @@ module.exports = function (controlledModule) {
     name: "",
     vars: {
       "delay (micro)": controlledModule.settings.delayMicro,
+      "f.back opearator": controlledModule.settings.feedback,
     }
   });
-  configurators.global.vars['delay (micro)'].changeFunction=function(thisVar, delta) {
+  configurators.global.vars['delay (micro)'].changeFunction = function (thisVar, delta) {
     thisVar.value += delta;
     stepsBmp = numbers[thisVar.value] || 0b111;
     passiveUpdateHardware();
+  }
+  configurators.global.vars['f.back opearator'].nameFunction = function (thisVar) {
+    if (thisVar.value == 0) {
+      return "no feedback"
+    } else {
+      return "e[3]-" + thisVar.value + "; e[3]>0"
+    }
+  }
+  configurators.global.vars['f.back opearator'].changeFunction = function (thisVar, delta) {
+    thisVar.value += -delta;
+    if (thisVar.value < 0) thisVar.value = 128;
+    if (thisVar.value > 128) thisVar.value = 0;
   }
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
   var stepsBmp = 0b0111100110010111;
 
-  var numbers=[
+  var numbers = [
     0b100101010100100,
     0b100011001001110,
     0b1110110000101110,
@@ -45,7 +59,7 @@ module.exports = function (controlledModule) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
     } else {
-      stepsBmp^=1<<event.button;
+      stepsBmp ^= 1 << event.button;
       console.log(stepsBmp.toString(2));
       updateHardware(event.hardware);
     }
@@ -99,18 +113,18 @@ module.exports = function (controlledModule) {
     hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
-  var passiveUpdateHardware=function(){
+  var passiveUpdateHardware = function () {
     engagedHardwares.forEach(function (hardware) {
       updateLeds(hardware);
     })
   }
-  var animf=0;
+  var animf = 0;
   var updateLeds = function (hardware) {
     // stepsBmp = makeAnimationBitmap({x:2,y:2},animf);
-    
+
     hardware.draw([0, stepsBmp, stepsBmp]);
     animf++;
-    if(animf>8) animf=0;
+    if (animf > 8) animf = 0;
   }
   // setInterval(function(){
   //   engagedHardwares.forEach(function(hardware){

@@ -6,11 +6,11 @@ var onHandlers=require('onhandlers');
 */
 var interactorBase=function(controlledModule){
   onHandlers.call(this);
-  if(controlledModule){
-    // this.name=controlledModule.name;
-  }else{
-    console.warn("call interactor base providing controlledModule");
-  }
+  // if(controlledModule){
+  //    this.name=controlledModule.name;
+  // }else{
+  //   console.warn("call interactor base providing controlledModule");
+  // }
   this.compatibilityTags=[];
   this.name="empty interactor";
   this.type="interactor";

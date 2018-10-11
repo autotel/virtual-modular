@@ -55,14 +55,6 @@ environment.vars = {
 
 environment.modules.instantiate('Bus',{name:"global"});
 
-setTimeout(function(){
-  try{
-    environment.modules.applyProperties(require('./default-patch.js'));
-  }catch(e){
-    console.error("error while loading default patch: ",e);
-  }
-},100);
-
 // environment.handle('created');
 
 module.exports = environment;
