@@ -19,6 +19,7 @@
     "1.0.3": "^1.0.3",
     "browser-process-hrtime": "^0.1.2",
     "dat.gui": "^0.7.2",
+    "express": "^4.16.4",
     "fifo": "^2.3.0",
     "jazz-midi": "^1.6.4",
     "jazz-midi-electron": "^1.0.0",
