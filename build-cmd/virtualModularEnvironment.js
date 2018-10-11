@@ -327,17 +327,6 @@ eval("\r\nvar onHandlers=__webpack_require__(/*! onhandlers */ \"./node_modules/
 
 /***/ }),
 
-/***/ "./src/interaction/http-server/InteractorBase.js":
-/*!*******************************************************!*\
-  !*** ./src/interaction/http-server/InteractorBase.js ***!
-  \*******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-eval("var Observable=__webpack_require__(/*! onhandlers */ \"./node_modules/onhandlers/on.js\");\r\nmodule.exports=function(controlledModule, environment){\r\n  var self=this;\r\n  Observable.call(this);\r\n  // console.log(\"HTTPSUPER\",controlledModule.name);\r\n  \r\n  //to get module's initial configuration\r\n  this.triggerModuleData=function(callback){\r\n    var outputList=controlledModule.getOutputs();\r\n    for(var output of outputList){\r\n      // self.handle('+ connection',{origin:self,destination:what});\r\n      callback({'output':output});\r\n    }\r\n  }\r\n}\n\n//# sourceURL=webpack://environment/./src/interaction/http-server/InteractorBase.js?");
-
-/***/ }),
-
 /***/ "./src/interaction/interactionManager.js":
 /*!***********************************************!*\
   !*** ./src/interaction/interactionManager.js ***!
@@ -876,9 +865,9 @@ eval("\r\nvar EventMessage=__webpack_require__(/*! ../../datatypes/EventMessage.
   !*** ./src/modules/Narp/HttpGui.js ***!
   \*************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-eval("var Base=__webpack_require__(/*! ../../interaction/http-server/InteractorBase.js */ \"./src/interaction/http-server/InteractorBase.js\");\r\nmodule.exports=function(controlledModule, environment, gui){\r\n  Base.call(this,controlledModule,environment,gui);\r\n  this.features={\r\n    grid:{type:'grid',w:4,h:4},\r\n    console:{type:'text'}\r\n  }\r\n\r\n  gui.on('input',function(){\r\n    console.log('user input on http');\r\n  });\r\n\r\n  controlledModule.on('step',function(evt){\r\n    gui.update('grid',{highlight:evt.bmp});\r\n  });\r\n  controlledModule.on('~bitmap',function(evt){\r\n    gui.update('grid',{bitmap:evt.bmp});\r\n  });\r\n}\r\n\n\n//# sourceURL=webpack://environment/./src/modules/Narp/HttpGui.js?");
+eval("// var Base=require('../../interaction/http-server/InteractorBase.js');\r\nmodule.exports=function(controlledModule, environment, gui){\r\n  // Base.call(this,controlledModule,environment,gui);\r\n  this.features={\r\n    grid:{type:'grid',w:4,h:4},\r\n    console:{type:'text'}\r\n  }\r\n\r\n  gui.on('input',function(){\r\n    console.log('user input on http');\r\n  });\r\n\r\n  controlledModule.on('step',function(evt){\r\n    gui.update('grid',{highlight:evt.bmp});\r\n  });\r\n  controlledModule.on('~bitmap',function(evt){\r\n    gui.update('grid',{bitmap:evt.bmp});\r\n  });\r\n}\r\n\n\n//# sourceURL=webpack://environment/./src/modules/Narp/HttpGui.js?");
 
 /***/ }),
 

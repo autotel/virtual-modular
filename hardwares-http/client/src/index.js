@@ -127,7 +127,7 @@ var environment=new(function(){
     }
   }
   this.start=function(){
-    console.log("START");
+    console.log("graphics start");
     self.handle('start');
   }
   return this;

@@ -1,1 +1,0 @@
-webpack -w -d ./src/index.js ./js/main.js
