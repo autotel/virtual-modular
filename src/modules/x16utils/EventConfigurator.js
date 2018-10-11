@@ -189,7 +189,13 @@ var EventConfigurator = function (parentInteractor, properties = {}) {
       console.log("->val:" + baseEvent.value[absoluteSelectedValueNumber], absoluteSelectedValueNumber);
       updateScreen(hardware);
     } else if (extraValueNames.length > selectedValueNumber - baseEvent.value.length) {
-      extraVariables[selectedValueNumber - 4].value += event.delta;
+      // value += event.delta;
+      var thisVar = extraVariables[selectedValueNumber - 4];
+      if (thisVar.changeFunction) {
+        thisVar.changeFunction(thisVar, event.delta, event);
+      } else {
+        thisVar.value += event.delta;
+      }
       updateScreen(hardware);
     }
     return { currentEvent: baseEvent, selectedValueNumber: absoluteSelectedValueNumber, selectedValueValue: baseEvent.value[absoluteSelectedValueNumber] }

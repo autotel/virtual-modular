@@ -54,6 +54,8 @@ var Harmonizer = function (properties, environment) {
       if (c++ > 15) break;
     }
   }
+
+
   this.uiScaleChange = function (scalen) {
     self.currentScale = scalen;
     self.handle('chordchange');
@@ -245,6 +247,7 @@ var Harmonizer = function (properties, environment) {
 
     return ret;
   }
+  
   this.interfaces.X16 = InterfaceX16;
   this.interfaces.X28 = InterfaceX28;
 

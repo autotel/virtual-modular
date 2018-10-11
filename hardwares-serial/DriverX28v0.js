@@ -101,6 +101,7 @@ var DriverX28v0 = function(properties, environment) {
   properties.recognitionString="28";
   SerialHardware.call(this,properties,environment);
   var myInstanceNumber = instances;
+  this.instanceNumber=myInstanceNumber;
   instances++;
   var self=this;
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
