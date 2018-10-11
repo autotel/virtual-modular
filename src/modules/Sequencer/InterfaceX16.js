@@ -326,7 +326,7 @@ module.exports = function (controlledModule, environment) {
     configurators.event.setFromEventPattern(event.eventPattern);
   });
   controlledModule.on('step', function (event) {
-    
+
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         if (engagedConfigurator === false)
@@ -541,7 +541,7 @@ module.exports = function (controlledModule, environment) {
   });
   this.updatePageDisplay = function (hardware) {
     var currentPageBmp = (1 << (Math.floor(currentViewStartStep / 16))) & 0xF;
-    var playheadPageBmp = (1 << (Math.floor(currentStep.value / 16)))&0xF;
+    var playheadPageBmp = (1 << (Math.floor(currentStep.value / 16))) & 0xF;
     hardware.paintColorFromLedN([currentPageBmp], [255, 255, 255], 4);
     hardware.paintColorFromLedN([playheadPageBmp & ~currentPageBmp], [127, 127, 0], 4);
     hardware.paintColorFromLedN([(currentPageBmp | playheadPageBmp) ^ 0xF], [0, 0, 0], 4);
