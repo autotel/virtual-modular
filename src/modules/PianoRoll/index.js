@@ -1,8 +1,7 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX28');
+var InterfaceX28 = require('./InterfaceX28');
 var TapeMem=require('./TapeMem.js');
-
 var headers = EventMessage.headers;
 
 var instancesCount = 0;
@@ -39,7 +38,8 @@ var PianoRoll = function(properties,environment) {
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
 
-  this.interfaces.X16 = InterfaceX16;
+  //defined as x16 because it probably is compatible
+  this.interfaces.X16 = InterfaceX28;
   // this.interfaces.Http = InterfaceHttp;
 
   function ramp(t, range) {
@@ -108,11 +108,7 @@ var PianoRoll = function(properties,environment) {
       noteOnTracker.add(evt);
     }
   }
-  this.onRemove = function() {
-    console.warn(self.name,"delete noteoffing due");
-    clearAll();
-    return true;
-  }
+  
 }
 
 PianoRoll.color = [50, 50, 120];

@@ -190,7 +190,12 @@ var TapeMem=function(props={}){
         var end=0;
         var cursor=0;
         this.properties = function () {
-            return { cursorFrame: cursor, cursor: frameToStep(cursor), start: frameToStep(start), end: frameToStep(end) }
+            return { 
+                cursorFrame: cursor, 
+                cursor: frameToStep(cursor), 
+                start: frameToStep(start), 
+                end: frameToStep(end) 
+            }
         }
         this.set=function(to){
             if(to.cursor!==undefined){

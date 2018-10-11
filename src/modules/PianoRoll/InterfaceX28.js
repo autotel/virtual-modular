@@ -7,15 +7,14 @@ var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 
 var RecordMenu = require('../x28utils/RecordMenu.js');
 
-
-/**
-definition of a monoSequencer interactor for the x16basic controller hardware
-*/
 module.exports = function(controlledModule,environment) {
   base.call(this);
   var self=this;
   var configurators = {};
   var shiftMode=false;
+
+  var sequenceView=new controlledModule.memory.View();
+
   function getContextFilter(){
     if(shiftMode){
       return [0]
@@ -171,6 +170,8 @@ module.exports = function(controlledModule,environment) {
   var listOfEventsInView={};
   var updateSequence=function(){
     memPlayHead=controlledModule.memory.getPlayhead();
+    
+    // var playhead=sequenceView.getPlayhead();
 
     var firstStep=memPlayHead.start;
     var lastStep=memPlayHead.end;
