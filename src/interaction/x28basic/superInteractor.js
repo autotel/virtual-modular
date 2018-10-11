@@ -111,6 +111,7 @@ var SuperInteractorsSingleton = function (environment) {
       console.log("new module already has loc");
     }
   });
+
   function tryGetModuleInterface(moduleInstance) {
     var ret = false;
     if (moduleInstance) {
@@ -132,6 +133,7 @@ var SuperInteractorsSingleton = function (environment) {
     }
     return ret;
   }
+  
   this.SuperInteractor = function (myHardware) {
 
     var pageOffset = 0;
@@ -217,7 +219,15 @@ var SuperInteractorsSingleton = function (environment) {
       if (location < 0) return false;
       if (myModuleCreator.engaged) {
         myModuleCreator.matrixButtonPressed(event);
-      } else if (!engagedInterface) {
+      }else if(engagedInterface) {
+        
+        try {
+          engagedInterface.matrixButtonPressed(event);
+          matrixButtonOwners[event.data[0]] = engagedInterface;
+        } catch (e) { console.error(e) };
+
+        
+      } else {
         if (firstPressedMatrixLoc === false) {
           selectedModule = tryGetModuleInLoc(location);
           selectedInterface = tryGetModuleInterface(selectedModule);
@@ -270,14 +280,6 @@ var SuperInteractorsSingleton = function (environment) {
           } else { }
           updateLeds();
         }
-      } else {
-        
-        try {
-          engagedInterface.matrixButtonPressed(event);
-          matrixButtonOwners[event.data[0]] = engagedInterface;
-        } catch (e) { console.error(e) };
-
-        
       }
 
     });
