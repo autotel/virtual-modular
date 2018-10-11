@@ -37,6 +37,8 @@ module.exports=function(environment){
 
     });
     environment.on('+module',function(event){
+      console.log('+module');
+
       var module=event.module;
       // console.log("SPRIOTE",event);
       if(moduleSprites[module.properties.unique]){
@@ -52,20 +54,29 @@ module.exports=function(environment){
         newSprite=new Elements.TestModule(self,module.properties);
       }
       moduleSprites[module.properties.unique]=(newSprite);
+
+      
+
       module.sprite=newSprite;
     });
     environment.on('-module',function(event){
+      console.log('-module');
+
       var module=event.module;
       moduleSprites[module.properties.unique].remove();
     });
     environment.on('~module',function(event){
+      console.log('~module');
+
       var module=event.module;
       moduleSprites[module.properties.unique].applyChanges(event);
     });
     environment.on('+connection',function(event){
+      console.log("+connection");
       event.origin.sprite.connectTo(event.destination.sprite);
     });
     environment.on('-connection',function(event){
+      console.log("+connection");
       event.origin.sprite.disconnectTo(event.destination.sprite);
     });
     environment.on('>message',function(event){

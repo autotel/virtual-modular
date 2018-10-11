@@ -7,16 +7,16 @@ module.exports=function(environment,socket){
   var instancedModules=new Set();
   var availableModules=new Set();
   var listeners=[
-    '+ module',
-    '- module',
-    '~ module',
-    'select module',
-    'deselect module',
-    'focus module',
-    'defocus module',
-    '> message',
-    '+ connection',
-    '- connection'];
+    '+module',
+    '-module',
+    '~module',
+    'select_module',
+    'deselect_module',
+    'focus_module',
+    'defocus_module',
+    '>message',
+    '+connection',
+    '-connection'];
   function getUniqueOf(module){
     //make sure module has http interface
     if(!module.interfaces) module.interfaces={};
@@ -46,7 +46,7 @@ module.exports=function(environment,socket){
       var nInterface=module._instancedInterfaces;
 
       socket.send({
-        type:'+ module',
+        type:'+module',
         unique:moduleUnique,
         name:module.name,
         kind:module.type
@@ -55,7 +55,7 @@ module.exports=function(environment,socket){
         if(data.output){
           //TODO: do actual cleanup
           if(active)socket.send({
-            type:'+ connection',
+            type:'+connection',
             origin:moduleUnique,
             destination:getUniqueOf(data.output)
           });
@@ -63,7 +63,7 @@ module.exports=function(environment,socket){
         if(data.steps){
           //TODO: do actual cleanup
           if(active)socket.send({
-            type:'~ module',
+            type:'~module',
             origin:moduleUnique
           });
         }
@@ -88,7 +88,7 @@ module.exports=function(environment,socket){
                 if(evtt.destination===false) return;
                 // console.log("DEST",(evtt.destination));
               }
-              if(eventName=="~ module"){
+              if(eventName=="~module"){
                 evtt.origin=moduleUnique;
                 // console.log("CHANGE",self.loopLength.value);
               }

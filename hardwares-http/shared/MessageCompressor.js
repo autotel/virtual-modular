@@ -5,27 +5,27 @@ var dataMap=[
   {
     header:'start',
   },{
-    header:'+ module',
+    header:'+module',
     attributes:['unique','name','kind'],
     compress:{},decompress:{}
   },{
-    header:'- module',
+    header:'-module',
     attributes:['origin'],
     compress:{},decompress:{}
   },{
-    header:'~ module',
+    header:'~module',
     attributes:['origin','steps'],
     compress:{},decompress:{}
   },{
-    header:'select module',
+    header:'select_module',
     attributes:['origin'],
     compress:{},decompress:{}
   },{
-    header:'deselect module',
+    header:'deselect_module',
     attributes:['origin'],
     compress:{},decompress:{}
   },{
-    header:'focus module',
+    header:'focus_module',
     attributes:['origin'],
     compress:{},decompress:{}
   },{
@@ -33,7 +33,7 @@ var dataMap=[
     attributes:['origin'],
     compress:{},decompress:{}
   },{
-    header:'> message',
+    header:'>message',
     attributes:['origin','destination','val'],
     compress:{
       val:function(val){return Array.from(val.value); }
@@ -42,11 +42,11 @@ var dataMap=[
       val:function(val){return Array.from(val.value); }
     }
   },{
-    header:'+ connection',
+    header:'+connection',
     attributes:['origin','destination'],
     compress:{},decompress:{}
   },{
-    header:'- connection',
+    header:'-connection',
     attributes:['origin','destination'],
     compress:{},decompress:{}
   }

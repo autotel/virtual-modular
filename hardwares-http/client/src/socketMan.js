@@ -34,27 +34,27 @@ var SocketMan=function(environment){
       // window.location.href=window.location.href;
       environment.handle('serverstart');
     },
-    '+ module':function(msg){
+    '+module':function(msg){
       // console.log("NEW MODULE",msg);
       environment.addModule(msg);
     },
-    '- module':function(msg){
+    '-module':function(msg){
       // console.log("NEW MODULE",msg);
       environment.removeModule(msg);
     },
-    '~ module':function(msg){
+    '~module':function(msg){
       // console.log("NEW MODULE",msg);
       environment.changeModule(msg);
     },
-    '+ connection':function(msg){
+    '+connection':function(msg){
       // console.log("CONNECT MODULE",msg);
       environment.connect(msg);
     },
-    '- connection':function(msg){
+    '-connection':function(msg){
       // console.log("CONNECT MODULE",msg);
       environment.disconnect(msg);
     },
-    '> message':function(msg){
+    '>message':function(msg){
       // console.log("CONNECT MODULE",msg);
       // environment.handle('eventMessage',msg);
       environment.makeEventMessageEvent(msg);

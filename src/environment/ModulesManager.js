@@ -76,7 +76,7 @@ var ModulesManager = function (environment) {
   this.instantiate = function (moduleName, properties = {}, callback = false) {
     var newInstance = false;
     try {
-      console.log("+ module " + moduleName);
+      console.log("+module " + moduleName);
       newInstance = new ModuleInstanceBase(properties, environment)
       constructors[moduleName].call(newInstance, properties, environment);
       newInstance.enqueue = lazyQueue.enq;
