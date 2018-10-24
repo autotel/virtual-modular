@@ -197,5 +197,5 @@ var Narp = function (properties, environment) {
   // }
 }
 
-Narp.color = [255, 0, 255];
+Narp.color = [100, 0, 190];
 module.exports = Narp
