@@ -34,6 +34,7 @@ var DelayClockBased = function (properties) {
     },
   }
   let clock = this.clock = {
+    microsteps: 12,
     subSteps: 1,
     subStep: 0,
     step: 0
@@ -65,6 +66,8 @@ var DelayClockBased = function (properties) {
 
   this.messageReceived = function (evt) {
     if (evt.eventMessage.value[0] == headers.clockTick) {
+      //microsteps are not taken into consideration by anything more than the user interface.
+      clock.microSteps=evt.eventMessage.value[1];
       memory.forEach(function (evt) {
         if (!evt.wait) evt.wait = settings.delayMicro.value;
         evt.wait--;
@@ -74,6 +77,8 @@ var DelayClockBased = function (properties) {
             if (evt.value[3] == -1) evt.value[3] = 100;
             if (evt.value[3] > 0) {
               evt.value[3] = Math.max(0, evt.value[3] - settings.feedback.value);
+            }else{
+              memory.delete(evt);
             }
           } else {
             memory.delete(evt);

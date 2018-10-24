@@ -20,6 +20,10 @@ module.exports = function (controlledModule) {
     stepsBmp = numbers[thisVar.value] || 0b111;
     passiveUpdateHardware();
   }
+  configurators.global.vars['delay (micro)'].nameFunction = function (thisVar) {
+    let ms = controlledModule.clock.microSteps;
+    return thisVar.value+" ("+Math.round(100*thisVar.value/ms)/100+"*"+ms+")";
+  }
   configurators.global.vars['f.back opearator'].nameFunction = function (thisVar) {
     if (thisVar.value == 0) {
       return "no feedback"
@@ -32,6 +36,18 @@ module.exports = function (controlledModule) {
     if (thisVar.value < 0) thisVar.value = 128;
     if (thisVar.value > 128) thisVar.value = 0;
   }
+
+
+
+  this.outsideScroll = function (event) {
+    configurators.global.vars["delay (micro)"].changeFunction(
+      configurators.global.vars["delay (micro)"],
+      event.delta);
+    return configurators.global.vars["delay (micro)"].nameFunction(
+      configurators.global.vars["delay (micro)"]);
+  }
+
+
   var engagedConfigurator = false;
   var lastEngagedConfigurator = configurators.event;
   var stepsBmp = 0b0111100110010111;
