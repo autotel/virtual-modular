@@ -40,7 +40,7 @@ var EventConfigurator = function (parentInteractor, properties = {}) {
       name: "rate change",
       value: [4, 12, 12, -1],
       settings: [1, 2],
-      names: ['division', 'denominator']
+      names: ['divided by', 'number']
     },
   ]
   var extraValueNames = [];
