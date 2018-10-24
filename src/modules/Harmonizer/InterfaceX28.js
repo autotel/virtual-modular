@@ -108,14 +108,14 @@ module.exports = function (controlledModule, environment) {
     if (performMode)
       controlledModule.uiScaleChange(currentScale);
     scaleIntervalsMap = controlledModule.getScaleMap(currentScale);
-    for(hin in hardwareLocals){
+    for(var hin in hardwareLocals){
       hardwareLocals[hin].compressedScaleMaps = undefined;
     }
   }
   var updateScaleMap = function (newScaleMap) {
     scaleIntervalsMap = newScaleMap;
     controlledModule.newScaleMap(currentScale, newScaleMap);
-    for(hin in hardwareLocals){
+    for(var hin in hardwareLocals){
       hardwareLocals[hin].compressedScaleMaps = undefined;
     }
   }
