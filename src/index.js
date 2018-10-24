@@ -20,6 +20,7 @@ var modulesToLoad = {
   'Harmonizer': {},
   'Arpeggiator': {},
   'Narp': {},
+  'Noise': {},
   'Chord': {},
   'Operator': {},
   'GameOfLife': {},
