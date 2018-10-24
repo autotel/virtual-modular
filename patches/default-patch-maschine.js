@@ -25,13 +25,31 @@ module.exports=[
     type:'PresetKit',
     properties:{
       name:'main drumkit',
-      autoMap:'timbre',
+      autoMap:'note',
       kit:[
-        [1,60,0,-1]
+        [1,36,12,-1]
       ]
     },
     outputs:['Daw send']
   },{
+    type:'PresetKit',
+    properties:{
+      autoMap:'note',
+      kit:[
+        [1,36,13,-1]
+      ]
+    },
+    outputs:['Daw send']
+  },{
+    type:'PresetKit',
+    properties:{
+      autoMap:'note',
+      kit:[
+        [1,36,14,-1]
+      ]
+    },
+    outputs:['Daw send']
+  }, {
     type: 'Sequencer',
     properties: {
     },
