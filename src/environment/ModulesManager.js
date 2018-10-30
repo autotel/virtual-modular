@@ -88,7 +88,7 @@ var ModulesManager = function (environment) {
       if (typeof callback === "function") {
         callback(newInstance);
       }
-      environment.handle('+module', { module: newInstance });
+      environment.handle('+module', { module: newInstance, properties:properties });
 
     } catch (e) {
       console.error("error instantiating module ", moduleName, e);
@@ -101,9 +101,10 @@ var ModulesManager = function (environment) {
     console.log("Creating modules net:");
     for (var n in props) {
       moduleDefinition = props[n];
-      var newModule = thisMan.instantiate(moduleDefinition.type, moduleDefinition.properties);
       if (!props[n].properties) props[n].properties = {};
+      var newModule = thisMan.instantiate(moduleDefinition.type, moduleDefinition.properties);
       props[n].properties.name = newModule.name;
+      
     }
     console.log("patching modules net:");
     for (var moduleDefinition of props) {

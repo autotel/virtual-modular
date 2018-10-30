@@ -102,11 +102,16 @@ var SuperInteractorsSingleton = function (environment) {
   });
   var defaultButtonForNewModule = 0;
   environment.on('+module', function (event) {
-
     if (tryGetLocOfModule(event.module) === undefined) {
       console.log("superinteractor add loc");
+      
+      if (event.properties.loc){
+        defaultButtonForNewModule=event.properties.loc;
+      }
+
       addModuleToLoc(event.module, defaultButtonForNewModule);
       defaultButtonForNewModule++;
+    
     } else {
       console.log("new module already has loc");
     }
