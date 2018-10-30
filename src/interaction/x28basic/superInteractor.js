@@ -104,7 +104,7 @@ var SuperInteractorsSingleton = function (environment) {
   environment.on('+module', function (event) {
     if (tryGetLocOfModule(event.module) === undefined) {
       console.log("superinteractor add loc");
-      
+
       if (event.properties.loc){
         defaultButtonForNewModule=event.properties.loc;
       }
@@ -318,27 +318,28 @@ var SuperInteractorsSingleton = function (environment) {
         // console.log("NO",matrixButtonOwners);
       }
     });
-    // this.on('bottomButtonPressed', function(event) {
-    //   console.log("BBP");
-    //   if (engagedInterface) {
-    //     // engagedInterface.bottomButtonPressed(event);
-    //   }else{
-    //     if(event.data[0]==0){
-    //       pageOffset-=4;
-    //     }else{
-    //       pageOffset+=4;
-    //     }
-    //     if(pageOffset<0) pageOffset=0;
-    //     pageMode=true;
-    //     updateHardware();
-    //     pageMode=false;
-    //   }
-    // });
-    // this.on('bottomButtonReleased', function(event) {
-    //   if (engagedInterface) {
-    //     // engagedInterface.bottomButtonReleased(event);
-    //   }
-    // });
+    this.on('bottomButtonPressed', function(event) {
+      // console.log("BBP");
+      if (engagedInterface) {
+        engagedInterface.bottomButtonPressed(event);
+      }else{
+        if(event.data[0]==0){
+          pageOffset-=8;
+        }else{
+          pageOffset+=8;
+        }
+        if(pageOffset<0) pageOffset=0;
+        pageMode=true;
+        updateHardware();
+        paintSelectButtons();
+        pageMode=false;
+      }
+    });
+    this.on('bottomButtonReleased', function(event) {
+      if (engagedInterface) {
+        engagedInterface.bottomButtonReleased(event);
+      }
+    });
     this.on('selectorButtonPressed', function (event) {
       //if the button is the patchMenu button}
       //  console.log(event.button);
@@ -377,25 +378,14 @@ var SuperInteractorsSingleton = function (environment) {
             muteMode = true;
             // console.log("DEL");
             updateHardware();
-          } else if (event.button < 8) {
+          } else {
             pageMode = true;
-            if (event.button == 4) {
-              pageOffset -= 8;
-            } else if (event.button == 5) {
-              pageOffset -= 4;
-            } else if (event.button == 6) {
-              pageOffset += 4;
-            } else if (event.button == 7) {
-              pageOffset += 8;
-            }
-            if (pageOffset < 0) {
-              pageOffset = 0;
+            if (event.button >= 4) {
+              pageOffset = (event.button-4)*16;
             }
             updateHardware();
             paintSelectButtons();
-          } else {
-            thisInteractor.engage(event);
-          }
+          } 
         }
       }
     });
@@ -406,7 +396,9 @@ var SuperInteractorsSingleton = function (environment) {
           enviroVarConfig.disengage(event);
         }
       } else if (deleteMode && event.button == 2) {
+        var del=0;
         deleteList.forEach(function (item) {
+          del++;
           console.log("DEL", item.name);
           if (modules.removeModule(item)) {
             selectedModule = false;
@@ -414,7 +406,7 @@ var SuperInteractorsSingleton = function (environment) {
             selectedModuleLoc = false;
           }
         });
-        myHardware.sendScreenA("deleted sel");
+        myHardware.sendScreenA("removed "+(del?del:"none"));
         deleteMode = false;
       } else if (muteMode || pageMode || inputsMode) {
         if (event.button == 2 || event.button == 1 || event.button == 0) {
@@ -495,9 +487,13 @@ var SuperInteractorsSingleton = function (environment) {
             myHardware.sendScreenB(str);
           }
         } else {
+          var cpm=pageMode;
+          pageMode=true;
           pageOffset += event.delta * 4;
           if (pageOffset < 0) pageOffset = 0;
           updateHardware();
+          paintSelectButtons();
+          pageMode=cpm;
         } 
       } else {
         try {
@@ -604,17 +600,18 @@ var SuperInteractorsSingleton = function (environment) {
       config: 1 << 2,
       shift: 1,
       // whites:0xf<<4,
-      whites: 1 << (Math.round(pageOffset / 16) + 4)
+      // whites: 1 << (Math.round(pageOffset / 16) + 4)
     }
 
     function paintSelectButtons() {
-      bpaint.whites = 1 << (Math.round(pageOffset / 16) + 4)
-      console.log(bpaint.whites);
+      bpaint.whites = 0x1 << (Math.round(pageOffset / 16) + 4)
+      // console.log(bpaint.whites);
       bpaint.result = [
         bpaint.patching | bpaint.events | bpaint.whites,
         bpaint.patching | bpaint.shift | bpaint.whites,
         bpaint.config | bpaint.events | bpaint.shift | bpaint.whites
       ];
+      // bpaint.result = [bpaint.events, bpaint.events, bpaint.whites];
       myHardware.drawSelectors(bpaint.result);
     }
 
