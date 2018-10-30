@@ -113,7 +113,7 @@ module.exports = function(controlledModule, environment) {
       controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
     }
   };
-
+  var pressedMatrixButtons=new Set();
   this.matrixButtonPressed = function(event) {
     var hardware = event.hardware;
     if (muteMode) {
@@ -145,6 +145,7 @@ module.exports = function(controlledModule, environment) {
       if(!usingVelocity.value){
         controlledModule.uiTriggerOn(event.button);
       }
+      pressedMatrixButtons.add(event.button);
       if(controlledModule.autoMap!==false){
         if (controlledModule.kit[0])
           configurators.event.setFromEventMessage(controlledModule.kit[0], hardware);
@@ -160,6 +161,8 @@ module.exports = function(controlledModule, environment) {
   };
 
   this.matrixButtonReleased = function(event) {
+    pressedMatrixButtons.delete(event.button);
+
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonReleased(event);
     } else {
@@ -205,6 +208,8 @@ module.exports = function(controlledModule, environment) {
     }
   }
   this.encoderScrolled = function(event) {
+    
+    
     if (engagedConfigurator) {
       engagedConfigurator.encoderScrolled(event);
     } else {
@@ -228,6 +233,12 @@ module.exports = function(controlledModule, environment) {
         };
       }
     }
+    
+    pressedMatrixButtons.forEach(function (itm) {
+      console.log("active change, button", itm);
+      controlledModule.uiTriggerOn(itm);
+    });
+
     updateHardware(event.hardware);
   };
   let outsideScrollHeader = 0;

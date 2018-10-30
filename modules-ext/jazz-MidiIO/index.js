@@ -204,9 +204,9 @@ var MidiIO = function (properties, environment) {
     eventMessage.underImpose(defaultMessage);
     var midiOut = [0, 0, 0];
     if (eventMessage.value[0] == headers.changeRate) {
-      midiOut[0] = 0xB0 | (0x0F & eventMessage.value[2]);
-      midiOut[1] = eventMessage.value[3]; //is the controller number.
-      midiOut[2] = eventMessage.value[1]; //is the value
+      midiOut[0] = 0xB0 | (0x0F & eventMessage.value[2]); //cc channel
+      midiOut[1] = eventMessage.value[1]; //is the controller number.
+      midiOut[2] = eventMessage.value[3]; //is the value
     }
     if (eventMessage.value[0] == headers.triggerOn) {
       midiOut[0] = 0x90 | (0x0F & eventMessage.value[2]);
