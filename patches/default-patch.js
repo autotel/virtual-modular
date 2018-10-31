@@ -6,6 +6,10 @@ module.exports=[
       bpm: 120
     },
     outputs: ['global']
+  }, {
+    type: 'Chord',
+    properties: {
+    }
   },{
     type: "MidiIO",
     properties: {
@@ -54,10 +58,10 @@ module.exports=[
         [1, 60, 2, -1],
         [4, 22, 100, 0],//control change!
         
-        [1, 56, 4, -1],
+        [1, 58, 0, -1],
         [1, 56, 5, -1],
         [1, 47, 2, -1],
-        [4, 22, 100, 126],//control change!
+        [4, 22, 100, 44],//control change!
         
         [1, 56, 8, -1],
         [1, 56, 9, -1],

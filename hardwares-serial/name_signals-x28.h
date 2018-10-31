@@ -4,14 +4,12 @@
 #define MIDI_noteOn 0x90
 #define MIDI_noteOff 0x80
 
-
 #define EH_NULL 0x00
 #define EH_CLOCKTICKHEADER 0xF
 #define EH_TRIGGERONHEADER 0x9
 #define EH_TRIGGEROFFHEADER 0x8
+#define EH_TWEAKHEADER 0xC
 #define EH_CLOCKABSOLUTEHEADER 0xA
-
-#define EH_RECORDINGHEADER 0xAA
 
 //computer interface related names
 //jsInterface{
@@ -39,14 +37,65 @@
 #define RH_setMatrixMonoMap_len 6 //like the x16 version
 #define RH_setSelectorMonoMap_head 0x36
 #define RH_setSelectorMonoMap_len 6 //like the x16 version
+
+/* additional colors */
+#define RH_defineColourA_head 0x87
+#define RH_defineColourA_len 3
+#define COLOURA_index 0
+#define RH_defineColourB_head 0x88
+#define RH_defineColourB_len 3
+#define COLOURB_index 1
+#define RH_defineColourC_head 0x89
+#define RH_defineColourC_len 3
+#define COLOURC_index 2
+#define RH_defineColourD_head 0x8a
+#define RH_defineColourD_len 3
+#define COLOURD_index 3
+#define RH_defineColourE_head 0x8b
+#define RH_defineColourE_len 3
+#define COLOURE_index 4
+#define RH_defineColourF_head 0x8c
+#define RH_defineColourF_len 3
+#define COLOURF_index 5
+
+#define RH_setMatrixMonoMapColourA_head 0x8d
+#define RH_setMatrixMonoMapColourA_len 2
+#define RH_setSelectorMonoMapColourA_head 0x8e
+#define RH_setSelectorMonoMapColourA_len 2
+
+#define RH_setMatrixMonoMapColourB_head 0x8f
+#define RH_setMatrixMonoMapColourB_len 2
+#define RH_setSelectorMonoMapColourB_head 0x90
+#define RH_setSelectorMonoMapColourB_len 2
+
+#define RH_setMatrixMonoMapColourC_head 0x91
+#define RH_setMatrixMonoMapColourC_len 2
+#define RH_setSelectorMonoMapColourC_head 0x92
+#define RH_setSelectorMonoMapColourC_len 2
+
+#define RH_setMatrixMonoMapColourD_head 0x93
+#define RH_setMatrixMonoMapColourD_len 2
+#define RH_setSelectorMonoMapColourD_head 0x94
+#define RH_setSelectorMonoMapColourD_len 2
+
+#define RH_setMatrixMonoMapColourE_head 0x95
+#define RH_setMatrixMonoMapColourE_len 2
+#define RH_setSelectorMonoMapColourE_head 0x96
+#define RH_setSelectorMonoMapColourE_len 2
+
+#define RH_setMatrixMonoMapColourF_head 0x97
+#define RH_setMatrixMonoMapColourF_len 2
+#define RH_setSelectorMonoMapColourF_head 0x98
+#define RH_setSelectorMonoMapColourF_len 2
+
 //sets the color of individual leds with a greater color depth
-#define RH_setLedN_head 0x37
+#define RH_setLedN_head 0x49
 #define RH_setLedN_len -1 //(led n, r, g, b, [led n+1 r, led n+1 g, led n+1 b, ...])
-#define RH_screenA_head 0x38
+#define RH_screenA_head 0x4a
 #define RH_screenA_len -1
-#define RH_screenB_head 0x39
+#define RH_screenB_head 0x4b
 #define RH_screenB_len -1
-#define RH_comTester_head 0x3a
+#define RH_comTester_head 0x4c
 #define RH_comTester_len 0x1
 
 #define RH_engageControllerMode_head 0xf
@@ -89,5 +138,5 @@
 #define TH_version_head 0x40
 #define TH_version_len 0x00
 
-
 #endif;
+//}
