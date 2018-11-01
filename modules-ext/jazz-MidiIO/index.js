@@ -85,50 +85,7 @@ var MidiIO = function (properties, environment) {
   var inputClockCount = 0;
   var midiReceived = function (t, midiMessage) {
     console.log("MIDIIN");
-    var fnHeader = midiMessage[0] & 0xf0;
-    var channel = midiMessage[0] & 0xf;
-    var num = midiMessage[1];
-    var numb = midiMessage[2];
-    var outputMessage = new EventMessage({
-      value: [fnHeader, num, channel, numb]
-    });
-    switch (outputMessage.value[0]) {
-      case 0x90: {
-        if (numb) {
-          outputMessage.value[0] = headers.triggerOn;
-        } else {
-          outputMessage.value[0] = headers.triggerOff;
-        }
-        break;
-      }
-      case 0x80:
-        outputMessage.value[0] = headers.triggerOff;
-        break;
-      case 0xF0:
-        {
-          if (outputMessage.value[1] == 0x8) {
-            outputMessage.value[0] = headers.clockTick;
-            outputMessage.value[1] = 6;
-            outputMessage.value[2] = inputClockCount % 6;
-            inputClockCount += 1;
-            break;
-          } else if (outputMessage.value[1] == 0xa) {
-            outputMessage.value[0] = headers.playhead;
-            outputMessage.value[1] = 0;
-            outputMessage.value[2] = 0;
-            inputClockCount = 0;
-            break;
-          } else if (outputMessage.value[1] == 0xb) {
-            outputMessage.value[0] = headers.triggerOn;
-            break;
-          } else if (outputMessage.value[1] == 0xc) {
-            outputMessage.value[0] = headers.triggerOff;
-            break;
-          }
-        }
-      default:
-      // console.log("message header not transformed:",outputMessage.value);
-    }
+    var outputMessage=EventMessage.fromMidi(midiMessage);
     // console.log(self.name,outputMessage.value);
     var msgFn = outputMessage.value[0];
     var msgFv = outputMessage.value[1];
@@ -200,33 +157,12 @@ var MidiIO = function (properties, environment) {
   var baseRemove = this.remove;
   this.messageReceived = function (evt) {
     if (self.mute) return;
-    var eventMessage = evt.eventMessage;
-    eventMessage.underImpose(defaultMessage);
-    var midiOut = [0, 0, 0];
-    if (eventMessage.value[0] == headers.changeRate) {
-      midiOut[0] = 0xB0 | (0x0F & eventMessage.value[2]); //cc channel
-      midiOut[1] = eventMessage.value[1]; //is the controller number.
-      midiOut[2] = eventMessage.value[3]; //is the value
-    }
-    if (eventMessage.value[0] == headers.triggerOn) {
-      midiOut[0] = 0x90 | (0x0F & eventMessage.value[2]);
-      midiOut[1] = eventMessage.value[1];
-      midiOut[2] = eventMessage.value[3];
-    }
-    if (eventMessage.value[0] == headers.triggerOff) {
-      midiOut[0] = 0x80 | (0x0F & eventMessage.value[2]);
-      midiOut[1] = eventMessage.value[1];
-      midiOut[2] = 0;
-    }
-    // console.log("sendimid", midiOut);
-    midiOut = midiOut.map(function (a, b) {
-      var a = parseInt(a);
-      a %= b > 0 ? 127 : 0xff;
-      if (isNaN(a)) a = 0;
-      return a;
-    });
-    // console.log(midiOut);
-    sendMidi(midiOut);
+    evt.eventMessage.underImpose(defaultMessage);
+    var midiOut = EventMessage.toMidi(evt.eventMessage);
+    if (midiOut)
+      sendMidi(midiOut);
+    else
+      console.warn("midiout is ", midiOut);
   };
   this.onRemove = function () {
     return true;
