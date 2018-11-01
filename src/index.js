@@ -31,6 +31,7 @@ var modulesToLoad = {
   'MultiTape': {},
   'ClockGenerator': {},
   'Bus': {},
+  'CalculeitorMidi': {},
 };
 
 for (var a in modulesToLoad) {
