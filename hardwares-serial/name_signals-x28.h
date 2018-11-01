@@ -22,6 +22,7 @@
 #define RH_null_len 0x0
 #define RH_hello_head 0x1
 #define RH_hello_len 0x0
+
 #define RH_setMonoMaps_head 0x32
 #define RH_setMonoMaps_len 0x12 //( red monomap 1, red monomap 2, red monomap 3, red monomap 4<<4 | intensity ... )
 //adds to the current red a monomap
@@ -103,6 +104,9 @@
 #define RH_disengageControllerMode_head 0x10
 #define RH_disengageControllerMode_len 0x0
 
+#define RH_sendMidi_head 0x20
+#define RH_sendMidi_len 3
+
 #define RH_version_head 0x40
 #define RH_version_len 0x00
 
@@ -135,6 +139,10 @@
 #define TH_encoderReleased_len 0x0
 #define TH_comTester_head 0xd
 #define TH_comTester_len 0x1
+
+#define TH_rcvMidi_head 0x20
+#define TH_rcvMidi_len 3
+
 #define TH_version_head 0x40
 #define TH_version_len 0x00
 

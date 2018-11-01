@@ -207,12 +207,25 @@ var DriverX28v0 = function (properties, environment) {
       self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
     }
   }
+  //midi in and out
+  this.sendMidi = function (signal) {
+    if (!Array.isArray(signal)) {
+      console.warn("outputMidi has to be array");
+      return;
+    }
+
+    while (signal.length > transmits.sendMidi.len) { signal.shift() }
+
+    self.sendx8(transmits.sendMidi.head, signal);
+  }
   //preset colour section
   var presetColoursList = {
   };
   this.definePresetColour = function (name, colour, slot) {
     if (slot)
       presetColoursList[name] = slot;
+    //prevent longer messages than specified by header
+    while (colour.length > transmits["defineColour" + presetColoursList[name]].len) { colour.shift() }
     self.sendx8(transmits["defineColour" + presetColoursList[name]].head, colour);
   }
   this.paintPresetColour = function (name, bitmap) {
@@ -481,6 +494,7 @@ var DriverX28v0 = function (properties, environment) {
       //     self.paintPresetColour(a[b%a.length], 1<<b);
       //   }
       // },200);
+
 
       myInteractionPattern.engage();
     }, 200);

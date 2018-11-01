@@ -7,7 +7,7 @@ module.exports=[
     },
     outputs: ['global']
   }, {
-    type: 'Chord',
+    type: 'CalculeitorMidi',
     properties: {
     }
   },{
@@ -37,7 +37,7 @@ module.exports=[
     }, outpupts: []
   },{
     type:'Harmonizer',
-    outputs:['OUT A']
+    outputs: ['OUT A','CalculeitorMidi 0']
   }, {
     type: 'PresetKit',
     properties: {
@@ -86,7 +86,7 @@ module.exports=[
     },
     outputs: ['OUT D']
   },{
-    type: 'Sequencer',
+    type: 'PianoRoll',
     properties: {
       loc:12,
     },
