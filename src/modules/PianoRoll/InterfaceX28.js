@@ -5,6 +5,11 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 // var headers = EventMessage.headers;
 
+var UARROW=String.fromCharCode(197);
+var DARROW=String.fromCharCode(198);
+var RARROW=String.fromCharCode(199);
+var LARROW=String.fromCharCode(200);
+
 var RecordMenu = require('../x28utils/RecordMenu.js');
 
 module.exports = function(controlledModule,environment) {
@@ -26,6 +31,8 @@ module.exports = function(controlledModule,environment) {
     // baseEvent: new EventMessage({ value: [headers.triggerOn,0,-1,-1]})
     preset:1
   });
+
+
   var memPlayHead = controlledModule.memory.getPlayhead();
   configurators.time = new BlankConfigurator(this, {
     name: "",
@@ -38,9 +45,9 @@ module.exports = function(controlledModule,environment) {
           if(thisvar.value<0) thisvar.value=0;
           controlledModule.memory.setLoopDisplacement(thisvar.value);
           redrawSequenceOnNextUpdate=true;
-        }
+        },
        },
-      "loop len": { 
+      "loop len": {
         value: memPlayHead.end,
         changeFunction(thisvar,delta){
           thisvar.value = memPlayHead.end-memPlayHead.start;
@@ -49,9 +56,36 @@ module.exports = function(controlledModule,environment) {
           controlledModule.memory.setLoopLength(thisvar.value);
           redrawSequenceOnNextUpdate = true;
         }
+      },
+      "shift playhead":{
+        value:0,
+        changeFunction(thisvar,delta){
+          var clock=controlledModule.clock;
+          if(!shiftMode) delta*=clock.microSteps;
+          thisvar.value+=delta;
+          controlledModule.memory.jog(delta / clock.microSteps);
+        },
+        nameFunction(thisVar) {
+          let micros = controlledModule.clock.microSteps;
+          if (shiftMode) {
+            return thisVar.value + "/" + micros +" steps";
+          } else {
+            return "" + DARROW +" micro "+thisVar.value / 12 + " steps";
+          }
+        }
+      },
+      "quantize": {
+        value: controlledModule.memory.quantize,
+        changeFunction(thisVar,delta){
+          thisVar.value+=delta;
+          if(thisVar.value<0) thisVar.value=controlledModule.clock.microSteps-1;
+          thisVar.value%=controlledModule.clock.microSteps;
+          controlledModule.memory.quantize=thisVar.value;
+        }
       }
     }
   });
+
   var engagedConfigurator=false;
   var semiEngagedConfigurator=false;
   var stepOnScreen=0;
@@ -80,7 +114,7 @@ module.exports = function(controlledModule,environment) {
       var thereWasEvent=false;
       if (bhe > 0){
         var listOfEventsInButton = listOfEventsInView[event.button];
-        console.log(listOfEventsInView);
+        // console.log(listOfEventsInView);
         //Potentially show a list of all the events in the step?
         if (shiftMode) {
           var rmev = listOfEventsInButton[listOfEventsInButton.length - 1];
@@ -182,17 +216,18 @@ module.exports = function(controlledModule,environment) {
     var quantizeView=1;
 
     var relist = {};
+    
     for (var stindex in listOfEventsInView) {
-      var viewIndex = Math.round(stindex * quantizeView) / quantizeView;
+      var viewIndex = Math.floor(stindex * quantizeView) / quantizeView;
       // viewIndex-=offsetView;
       if (!relist[viewIndex]) relist[viewIndex] = [];
       if (!isNaN(viewIndex)) {
         relist[viewIndex] = relist[viewIndex].concat(listOfEventsInView[stindex]);
       }
-
     }
+
     listOfEventsInView = relist;
-    console.log(listOfEventsInView);
+    // console.log(listOfEventsInView);
 
     let list = listOfEventsInView;
     let currentEventMessage=configurators.event.getEventMessage();
