@@ -253,7 +253,7 @@ var Sequencer = function (properties, environment) {
   }
   this.interfaces.X16 = InterfaceX16;
   this.interfaces.X28 = InterfaceX28;
-  // this.interfaces.Http = require("./InterfaceHttp.js");
+  this.interfaces.Http = require("./InterfaceHttp.js");
 
 }
 Sequencer.color = [0, 0, 255];
