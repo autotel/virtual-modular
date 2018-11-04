@@ -6,8 +6,10 @@ module.exports = function (environment, socket) {
   var active = true;
   var instancedModules = new Set();
   var availableModules = new Set();
- 
+  var myInstancedInterfaces=[];
   function getOrCreateInterface(module) {
+    //TODO: there is a problem here: the module._instancedInterfaces.http can get replaced by a new one
+
     //make sure module has http interface
     if (!module.interfaces) module.interfaces = {};
     if (!module.interfaces.Http) module.interfaces.Http = InteractorBase;
@@ -16,12 +18,14 @@ module.exports = function (environment, socket) {
     if (!module._instancedInterfaces.http) {
       module._instancedInterfaces.http = new module.interfaces.Http(module, environment);
       module._instancedInterfaces.http.serverUnique = uniquesCount;
+      myInstancedInterfaces.push(module._instancedInterfaces.http);
       uniquesCount++;
     }
 
     if (module._instancedInterfaces) {
       if (module._instancedInterfaces.http) {
-        return module._instancedInterfaces.http.serverUnique;
+        module._instancedInterfaces.http.engage(socket);
+        return module._instancedInterfaces.http;
       }
     }
     return false;
@@ -31,14 +35,15 @@ module.exports = function (environment, socket) {
   }
 
   function moduleCreatedCallback(newModule) {
-    var newModuleUnique=getOrCreateInterface(newModule);
+    var newModuleInterface = getOrCreateInterface(newModule);
+    var newModuleUnique=newModuleInterface.serverUnique;
+
     socket.send({
       type: '+module',
       unique: newModuleUnique,
       name: newModule.name,
       kind: newModule.type
     });
-    
   }
 
   for (var module of environment.modules.list) {
@@ -54,7 +59,9 @@ module.exports = function (environment, socket) {
   this.remove = function () {
     active = false;
     console.log("superinteractor delete not implemented");
-    
+    for(interface of myInstancedInterfaces){
+      interface.remove();
+    }
     socket.deactivate();
   }
   return this;
