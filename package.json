@@ -21,8 +21,8 @@
     "dat.gui": "^0.7.3",
     "express": "^4.16.4",
     "fifo": "^2.3.0",
-    "jazz-midi": "^1.6.4",
-    "jazz-midi-electron": "^1.0.3",
+    "jazz-midi": "^1.6.5",
+    "jazz-midi-electron": "^1.0.4",
     "jzz": "^0.5.9",
     "onhandlers": "^1.1.1",
     "prompt": "^1.0.0",
@@ -31,10 +31,10 @@
     "svg.js": "^2.6.6"
   },
   "devDependencies": {
-    "electron": "^2.0.12",
+    "electron": "^2.0.13",
     "electron-rebuild": "^1.8.2",
     "jquery": "^3.3.1",
-    "webpack": "^4.22.0",
+    "webpack": "^4.24.0",
     "webpack-cli": "^3.1.2"
   }
 }

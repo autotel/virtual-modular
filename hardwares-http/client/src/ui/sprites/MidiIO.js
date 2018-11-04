@@ -1,3 +1,5 @@
+var colours = require("../colours");
+
 var Base=require('./ModuleBase.js');
 module.exports=function(ui,properties){
   var node=this.node=properties.node;
@@ -9,7 +11,7 @@ module.exports=function(ui,properties){
     y: 0,
     radius: 5,
     fill: 'transparent',
-    stroke: 'white',
+    stroke: colours.lines,
     strokeWidth: 1
   });
   this.K.add(circle);

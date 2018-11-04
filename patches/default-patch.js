@@ -86,19 +86,19 @@ module.exports=[
     },
     outputs: ['OUT D']
   },{
-    type: 'PianoRoll',
+    type: 'Sequencer',
     properties: {
       loc:12,
     },
     outputs: ['harmonizer 0']
   }, {
     type: 'Sequencer',
-    outputs: ['main drumkit']
+    outputs: ['drumkit B']
   }, {
     type: 'Sequencer',
-    outputs: ['main drumkit']
+    outputs: ['drumkit climate']
   }, {
     type: 'Sequencer',
-    outputs: ['main drumkit']
+    outputs: ['drumkit D']
   }, 
 ]

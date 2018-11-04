@@ -1,41 +1,43 @@
-var Base=require('./ModuleBase.js');
+var colours = require("../colours");
+
+var Base = require('./ModuleBase.js');
 const TWO_PI = Math.PI * 2;
-module.exports=function(ui,properties){
-  var node=this.node=properties.node;
+module.exports = function (ui, properties) {
+  var node = this.node = properties.node;
 
-  Base.call(this,ui,properties);
-  var self=this;
-  var speed=Math.random();
-  var steps=0;
+  Base.call(this, ui, properties);
+  var self = this;
+  var speed = Math.random();
+  var steps = 0;
 
 
-  var circles=[];
-  var circlesGroup=new Konva.Group();
-  var rotation=0;
+  var circles = [];
+  var circlesGroup = new Konva.Group();
+  var rotation = 0;
   this.K.add(circlesGroup);
-  function setLength(to){
-    var obq=30;
-    for(var n=0; n<to; n++){
-      if(!circles[n]){
-        circles[n]=new Konva.Circle({
+  function setLength(to) {
+    var obq = 30;
+    for (var n = 0; n < to; n++) {
+      if (!circles[n]) {
+        circles[n] = new Konva.Circle({
           radius: 5,
           fill: 'transparent',
-          stroke: 'white',
+          stroke: colours.lines,
           strokeWidth: 1
         });
-        circlesGroup.add( circles[n] );
-      }else{
-        circles[n].setAttr('visible',true);
+        circlesGroup.add(circles[n]);
+      } else {
+        circles[n].setAttr('visible', true);
       }
-      steps=to;
+      steps = to;
 
-      var modPos=(n/16)%1;
-      circles[n].setX(Math.sin(modPos*TWO_PI)*(obq));
-      circles[n].setY(Math.cos(modPos*TWO_PI)*(obq));
-      if(to>16) obq-=0.5;
+      var modPos = (n / 16) % 1;
+      circles[n].setX(Math.sin(modPos * TWO_PI) * (obq));
+      circles[n].setY(Math.cos(modPos * TWO_PI) * (obq));
+      if (to > 16) obq -= 0.5;
     }
-    for(var n=to; n<circles.length; n++){
-      circles[n].setAttr('visible',false);
+    for (var n = to; n < circles.length; n++) {
+      circles[n].setAttr('visible', false);
 
     }
 
@@ -49,37 +51,39 @@ module.exports=function(ui,properties){
 
   }
 
-  function eachStepCircle(callback){
-    for(var n=0; n<circles.length; n++){
-      callback(circles[n],n);
+  function eachStepCircle(callback) {
+    for (var n = 0; n < circles.length; n++) {
+      callback(circles[n], n);
     }
   };
 
   setLength(16);
 
-  this.messageIn=function(from,val){
-    if(val[0]==0){
+  this.messageIn = function (from, val) {
+    if (val[0] == 0) {
 
-      if(steps>0){
+      if (steps > 0) {
         rotation++;
-        circlesGroup.setAttr('rotation',(3/steps)*rotation);
+        // circlesGroup.setAttr('rotation',(3/steps)*rotation);
       }
     }
 
   };
-  this.applyChanges=function(properties){
-    if(properties.steps) setLength(properties.steps);
+  this.applyChanges = function (properties) {
+    if (properties.steps) setLength(properties.steps);
+    // if (properties.patData) console.log(properties.patData);
+    console.log("applychanges",properties);
   }
 
-  var place={x:0,y:0}
-  place.x=Math.random()*100;
-  place.y=Math.random()*100;
+  var place = { x: 0, y: 0 }
+  place.x = Math.random() * 100;
+  place.y = Math.random() * 100;
 
   this.K.setX(place.x);
   this.K.setY(place.y);
 
-  var _upd=this.update;
-  var absTime=0;
+  var _upd = this.update;
+  var absTime = 0;
 
   // this.update=function(evt){
   //   _upd(evt);

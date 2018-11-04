@@ -1,3 +1,4 @@
+var colours = require("../colours");
 
 module.exports=function(ui,properties){
   var layer=ui.konvaLayer;

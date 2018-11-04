@@ -1,3 +1,5 @@
+var colours = require("../colours");
+
 var Base=require('./Base.js');
 module.exports=function(ui,properties){
   Base.call(this,ui,properties);
@@ -24,8 +26,9 @@ module.exports=function(ui,properties){
       x:10,
       y:-12,
       rotation:-30,
-      text:properties.name,
-      fill: 'rgba(255,127,150,0.2)'
+      text: properties.name,
+      fill: colours.lines,
+      // sttoke:colours.black
     });
     // text.setOffset({
     //   x: text.getWidth() / 2
@@ -60,9 +63,10 @@ module.exports=function(ui,properties){
   this.forceNode.tickFunction=function(evt){
     self.update(evt);
   }
+
   // var _remove=this.remove;
   // this.remove=function(){
   //   force.removeNode(self.forceNode);
-  //   _remove();
+  //   // _remove();
   // }
 }

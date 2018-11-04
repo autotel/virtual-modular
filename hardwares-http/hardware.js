@@ -18,7 +18,6 @@ var SocketMan = require('socket.io')(http);
 
 
 var MessageCompressor=require('./shared/MessageCompressor');
-
 var SuperInteractor=require('./interaction/SuperInteractor');
 
 var HttpGui=function(properties,environment){
@@ -41,8 +40,8 @@ var HttpGui=function(properties,environment){
       console.log('listening on :'+httpPort);
     });
     SocketMan.on('connection', function(socket){
-      var address = socket.handshake.address;
-      console.log('New connection from ' + address.address + ':' + address.port);
+      // var address = socket.handshake.address;
+      console.log('New connection'/*,socket*/);
 
       var socketInterface=new(function(inSocket){
         var active=true;

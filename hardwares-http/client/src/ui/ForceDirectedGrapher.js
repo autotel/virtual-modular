@@ -1,24 +1,24 @@
 //TODO. lazy stack of reconstructFunction
 'use strict'
-var ForceDirectedGrapher=function(){
-  var thisGrapher=this;
+var ForceDirectedGrapher = function () {
+  var thisGrapher = this;
   var width = window.innerWidth,
-      height = window.innerHeight;
+    height = window.innerHeight;
 
   var fill = d3.scale.category20();
 
   var force = d3.layout.force()
-      .size([width, height])
-      .nodes([]) // initialize with a single node
-      .linkDistance(150)
-      .charge(-60)
-      .on("tick", tick);
+    .size([width, height])
+    .nodes([]) // initialize with a single node
+    .linkDistance(150)
+    .charge(-60)
+    .on("tick", tick);
 
   var svg = d3.select("body").append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .on("mousemove", mousemove)
-      .on("mousedown", mousedownCanvas);
+    .attr("width", width)
+    .attr("height", height)
+    .on("mousemove", mousemove)
+    .on("mousedown", mousedownCanvas);
   // console.log("APPEND SVG",width,height);
 
   // svg.append("rect")
@@ -26,15 +26,15 @@ var ForceDirectedGrapher=function(){
   //     .attr("height", height);
 
   var nodes = force.nodes(),
-      links = force.links();
+    links = force.links();
 
   var _node = svg.selectAll(".node"),
-      _link = svg.selectAll(".link");
+    _link = svg.selectAll(".link");
 
   var cursor = svg.append("circle")
-      .attr("r", 30)
-      .attr("transform", "translate(-100,-100)")
-      .attr("class", "cursor");
+    .attr("r", 30)
+    .attr("transform", "translate(-100,-100)")
+    .attr("class", "cursor");
 
   restart();
 
@@ -59,40 +59,40 @@ var ForceDirectedGrapher=function(){
     // restart();
   }
 
-  var Node=function(props){
-    var props=props||{};
+  var Node = function (props) {
+    var props = props || {};
     // this.layoutNode=props;
-    var self=this;
-    var graphs=false;
+    var self = this;
+    var graphs = false;
 
-    for(var a in props){
-      self[a]=props[a];
+    for (var a in props) {
+      self[a] = props[a];
     }
 
-    var outputs=this.outputs=new Set();
+    var outputs = this.outputs = new Set();
 
-    self.connectTo=function(to){
+    self.connectTo = function (to) {
       outputs.add(to);
       // thisGrapher.addLink(self,to);
       // console.log(outputs.size);
       restart();
     }
-    self.disconnectTo=function(to){
+    self.disconnectTo = function (to) {
       outputs.delete(to);
       // console.log("disconnect",linkCache);
       // thisGrapher.setLinksTo(self,Array.from(linkCache));
       restart();
     }
-    this.links=[];
-    self.getLinkTo=function(to){
+    this.links = [];
+    self.getLinkTo = function (to) {
       // console.log(to);
-      for(var d of self.links){
-        if(d.target==to) return d;
+      for (var d of self.links) {
+        if (d.target == to) return d;
       }
       return false;
       // return self.links[to];
     }
-    self.tickFunction=function(evt){
+    self.tickFunction = function (evt) {
 
       // fail();
       // if(Math.random()>0.95){
@@ -118,39 +118,40 @@ var ForceDirectedGrapher=function(){
     //   console.log("CUSTOM",data);
     // }
   }
-  this.addNode=function(props){
-    var node=new Node(props);
+  this.addNode = function (props) {
+    var node = new Node(props);
     var n = nodes.push(node);
     //TODO: Lazy stack, replacing the restart because many node/ link calls can be done in fast succession
     restart();
     return node;
   }
-  this.getOrMakeNode=function(props,checkFn){
-    for(var a in nodes){
-      if(checkFn(nodes[a])){
+  this.getOrMakeNode = function (props, checkFn) {
+    for (var a in nodes) {
+      if (checkFn(nodes[a])) {
         return nodes[a];
       }
     }
     return thisGrapher.addNode(props);
   }
-  this.removeNode=function(nodeReference){
-    var d=nodeReference;
-    var i=nodes.indexOf(d);
-    if(i!==-1){
+  this.removeNode = function (nodeReference) {
+    var d = nodeReference;
+    var i = nodes.indexOf(d);
+    console.log("remove");
+    if (i !== -1) {
       return nodes.splice(i, 1);
-    }else{
+    } else {
       return false;
     }
   }
-  this.nodeHighlight=function(handler){
-    if(handler.grasa<20)
-    handler.grasa+=2;
+  this.nodeHighlight = function (handler) {
+    if (handler.grasa < 20)
+      handler.grasa += 2;
     // console.log(nodes[handler]);
   }
-  this.rebuild=restart;
+  this.rebuild = restart;
   function mousedownNode(d, i) {
-    d.grasa=10;
-    console.log(i,d);
+    d.grasa = 10;
+    console.log(i, d);
     //how on earth are node.id kept??
     // nodes.splice(i, 1);
     // links = links.filter(function(l) {
@@ -164,52 +165,51 @@ var ForceDirectedGrapher=function(){
 
   function tick(evt) {
     // console.log("TICL",evt);
-    // _link.attr("x1", function(d) { return d.source.x; })//for straight lines
-    //     .attr("y1", function(d) { return d.source.y; })
-    //     .attr("x2", function(d) { return d.target.x; })
-    //     .attr("y2", function(d) { return d.target.y; });
-    //thanks to Bob Haslett https://stackoverflow.com/questions/13455510/curved-line-on-d3-force-directed-tree#13456081
-    _link.attr("d", function(d) {
-      var dx = d.target.x - d.source.x,
-          dy = d.target.y - d.source.y,
-          dr = Math.sqrt(dx * dx + dy * dy);
-      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+
+
+    _link.attr("d", function (d) {
+      var dx = d.target.x - d.source.x;
+      var dy = d.target.y - d.source.y;
+      var dr = Math.sqrt(dx * dx + dy * dy) * d.h / 2;
+      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + (-dr) + " 0 0,1 " + d.target.x + "," + d.target.y;
     });
-    _node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; })
-        // .attr("r", function(d) {
-        //   if(!d.grasa) d.grasa=5;
-        //   if(d.grasa>5)d.grasa--;
-        //   return d.grasa;
-        // });
+
+    _node.attr("cx", function (d) { return d.x; })
+      .attr("cy", function (d) { return d.y; })
+    // .attr("r", function(d) {
+    //   if(!d.grasa) d.grasa=5;
+    //   if(d.grasa>5)d.grasa--;
+    //   return d.grasa;
+    // });
     // console.log(node);
 
   }
-  function animate(t){
+  function animate(t) {
     // console.log(evt);
     requestAnimationFrame(animate);
-    _node.each(function(node){
+    tick();
+    _node.each(function (node) {
       node.tickFunction({
-        type:'clock',
-        absTime:t
+        type: 'clock',
+        absTime: t
       });
     });
-    _node.attr("r", function(d) {
-          if(!d.grasa) d.grasa=5;
-          if(d.grasa>5)d.grasa--;
-          return d.grasa;
-        });
+    _node.attr("r", function (d) {
+      if (!d.grasa) d.grasa = 5;
+      if (d.grasa > 5) d.grasa--;
+      return d.grasa;
+    });
 
     // _node.each(function(node){
     //   node.tickFunction(t);
     // });
-    _link.each(function(link){
+    _link.each(function (link) {
       link.tickFunction({
-        type:'clock',
-        absTime:t
+        type: 'clock',
+        absTime: t
       });
-    }).style("stroke-width",function(d){
-      return (1+d.h)/4;
+    }).style("stroke-width", function (d) {
+      return (1 + d.h) / 4;
     })/*.style("stroke-dashoffset",function(d){return d.off + "%"})*/;
 
     // requestAnimationFrame(
@@ -221,35 +221,34 @@ var ForceDirectedGrapher=function(){
     _node = _node.data(nodes);
 
     _node.enter().insert("circle", ".cursor")
-      // .attr("class",function(d) { return "node "+d.grasa; })
-        .attr("class","node")
-        .attr("r", 5)
-        .on("mousedown", mousedownNode);
-    // console.log(node.enter());
+      .attr("class", "node")
+      .attr("r", 5)
+      .on("mousedown", mousedownNode);
 
 
     _node.exit()
-        .remove();
+      .remove();
 
-    var links=[];
-    for(var node of nodes){
-      node.links=[];
-      for(var output of node.outputs){
-        var newLink=new(function(){
-          var self=this;
-          this.source=node;
-          this.target=output;
-          this.h=0;
-          this.off=0;
-          this.highlight=function(){
-            self.h=10;
-            self.off--;
-            if(self.off<=0){
-              self.off=100;
-            }
+    
+    var links = [];
+    for (var node of nodes) {
+      node.links = [];
+      for (var output of node.outputs) {
+        var newLink = new (function () {
+          var self = this;
+          this.source = node;
+          this.target = output;
+          this.h = 0;
+          this.off = 0;
+          this.highlight = function () {
+            self.h = 5;
+            // self.off--;
+            // if (self.off <= 0) {
+            //   self.off = 100;
+            // }
           };
-          this.tickFunction=function(){
-            if(self.h>0){
+          this.tickFunction = function () {
+            if (self.h > 0) {
               self.h--;
             }
           }
@@ -262,25 +261,21 @@ var ForceDirectedGrapher=function(){
     _link = _link.data(links);
 
     force.nodes(nodes)
-    .links(links)
-    .linkDistance(150)
-    .charge(-600/*function(d){
-      if(d.grasa){
-        return -60*d.grasa
-      }else{
-        return -60;
-      }
-    }/**/)
-    .on("tick", tick);
+      .links(links)
+      .linkDistance(150)
+      .charge(-600)
+      // .on("tick", tick);
 
+
+    //https://stackoverflow.com/questions/18164230/add-text-label-to-d3-node-in-force-directed-graph-and-resize-on-hover
     _link.enter().insert("path", ".node")//"line"
-        .attr("class", "link");
+      .attr("class", "link");
     _link.exit()
-        .remove();
+      .remove();
 
     force.start();
   }
   return this;
 };
 
-module.exports=ForceDirectedGrapher;
+module.exports = ForceDirectedGrapher;

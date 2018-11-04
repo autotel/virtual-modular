@@ -1,3 +1,4 @@
+var colours=require("../colours");
 var Base=require('./ModuleBase.js');
 const TWO_PI = Math.PI * 2;
 module.exports=function(ui,properties){
@@ -22,7 +23,7 @@ module.exports=function(ui,properties){
         circles[n]=new Konva.Circle({
           radius: 5,
           fill: 'transparent',
-          stroke: 'white',
+          stroke: colours.lines,
           strokeWidth: 1
         });
         circlesGroup.add( circles[n] );
