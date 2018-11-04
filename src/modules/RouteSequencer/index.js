@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
+var InterfaceHttp = require('./InterfaceHttp');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
@@ -34,7 +35,7 @@ var RouteSequencer = function (properties) {
     substeps: 1
   }
   let sequenceBitmap = this.sequenceBitmap = {
-    value: properties.bitmap || 0
+    value: properties.bitmap || 0,
   }
 
   this.baseName = "RouteSequencer";
@@ -43,6 +44,7 @@ var RouteSequencer = function (properties) {
   var self = this;
 
   this.interfaces.X16 = InterfaceX16;
+  this.interfaces.Http = InterfaceHttp;
 
   var memory = new Set();
   var recMessages = {

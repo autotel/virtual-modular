@@ -47,11 +47,18 @@ var DelayClockBased = function (properties) {
 
 
   this.interfaces.X16 = InterfaceX16;
-
-  var memory = new Set();
+  this.interfaces.Http = require("./InterfaceHttp");
+  var memory = this.memory = new Set();
   var recMessages = {
     rate: new EventMessage({ value: [headers.changeRate, 12, -1] })
   }
+
+
+  var handleStepsChange = function () {
+    self.handle('~module', { steps: memory.size });
+  }
+
+
   this.recordRate = function () {
     recMessages.rate.value[2] = settings.delayMicro.value;
     self.recordOutput(recMessages.rate);
@@ -61,13 +68,15 @@ var DelayClockBased = function (properties) {
       var event = evt.eventMessage;
       event.value.shift();
       memory.add(event);
+      // handleStepsChange();
     }
   }
 
   this.messageReceived = function (evt) {
     if (evt.eventMessage.value[0] == headers.clockTick) {
       //microsteps are not taken into consideration by anything more than the user interface.
-      clock.microSteps=evt.eventMessage.value[1];
+      clock.microSteps = evt.eventMessage.value[1];
+      // var changed = false;
       memory.forEach(function (evt) {
         if (!evt.wait) evt.wait = settings.delayMicro.value;
         evt.wait--;
@@ -77,29 +86,29 @@ var DelayClockBased = function (properties) {
             if (evt.value[3] == -1) evt.value[3] = 100;
             if (evt.value[3] > 0) {
               evt.value[3] = Math.max(0, evt.value[3] - settings.feedback.value);
-            }else{
+            } else {
               memory.delete(evt);
+              // changed = true;
             }
           } else {
             memory.delete(evt);
+            // changed = true;
           }
         }
       })
+      // if (changed) handleStepsChange();
     } else if (evt.eventMessage.value[0] == headers.changeRate) {
       clock.subSteps = evt.eventMessage.value[2] / (evt.eventMessage.value[1] || 1);
     } else {
       memory.add(evt.eventMessage);
+      // handleStepsChange();
     }
   }
 
   this.getBitmap16 = function () {
     return myBitmap;
   }
-  
-  this.handleStepsChange = function () {
-    self.handle('~module', { steps: runningNotes.length });
-  }
-  
+
   this.onRemove = function () {
     memory.forEach(function (evt) {
       memory.delete(evt);

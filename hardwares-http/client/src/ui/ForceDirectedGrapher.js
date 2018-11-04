@@ -43,9 +43,9 @@ var ForceDirectedGrapher = function () {
   }
 
   function mousedownCanvas() {
-    // var point = d3.mouse(this),
-    //     node = {x: point[0], y: point[1]},
-    //     n = nodes.push(node);
+    var point = d3.mouse(this);
+    // var node = {x: point[0], y: point[1]},
+        // n = nodes.push(node);
     //
     // // add links to any nearby nodes
     // nodes.forEach(function(target) {

@@ -48,7 +48,7 @@ var environment=new(function(){
       environment.addModule({
         type:'placeholder',
         unique:uiq,
-        name:'?'+uiq
+        name:''//+uiq
       });
       return Module.getByUnique(uiq);
     }

@@ -12,10 +12,10 @@ var dataMap=[
     header:'-module',
     attributes:['origin'],
     compress:{},decompress:{}
-  },{
-    header:'~module',
-    attributes:['origin','steps'],
-    compress:{},decompress:{}
+  }, {
+    header: '~module',
+    attributes: ['origin', 'steps', 'step', 'bitmap'],
+    compress: {}, decompress: {}
   },{
     header:'select_module',
     attributes:['origin'],
