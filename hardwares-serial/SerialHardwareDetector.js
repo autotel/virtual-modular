@@ -45,11 +45,18 @@ var SerialHardwareDetector = function(properties,environment) {
       openPorts[portName]=newPort;
 
       newPort.on('open', function() {
-        newPort.write(new Buffer([0x40]), function(error) {
-          if (error) {
-            console.log("error sending init val", error);
-          }
-        });
+        function reqFn(){
+          newPort.write(new Buffer([0x40]), function (error) {
+            if (error) {
+              console.log("error sending init val", error);
+            } else {
+              console.log("sent 0X40 to " + portName + ", waiting for answer...");
+            }
+          });
+
+          
+        }
+        reqFn();
         //now we communicate with the serial device to define what kind of hardware controller to use
         //connect, request the hardware version, and expect it's response
         var alreadyCreated = false;
@@ -58,14 +65,7 @@ var SerialHardwareDetector = function(properties,environment) {
         newPort.on('data', (data) => {
           if (!alreadyCreated) {
             if (!getVersionInterval) {
-              getVersionInterval = setInterval(function() {
-                newPort.write(new Buffer([0x40]), function(error) {
-                  if (error) {
-                    console.log("error sending init val", error);
-                  }
-                });
-                console.log("req");
-              }, 500);
+              getVersionInterval = setInterval(reqFn, 500);
             }
 
             try {
@@ -85,7 +85,7 @@ var SerialHardwareDetector = function(properties,environment) {
                 }
               }
               console.log("RESP",data);
-              console.log(string);
+              console.log("string",string);
               var success=properties.onSerialConnected({response:data,serialPort:newPort,portName:portName});
               if(success){
                 clearInterval(getVersionInterval);
