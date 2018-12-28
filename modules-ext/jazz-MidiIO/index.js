@@ -14,7 +14,7 @@ var headers = EventMessage.headers;
 // var fs = require('fs');
 // var path = require('path');
 // var midiOptions = require('./midi-options.js');
-//detect if running on electron 
+//detect if running on electron
 // var userAgent = navigator.userAgent.toLowerCase();
 // if (userAgent.indexOf(' electron/') > -1) {
 //   jazz = require('jazz-midi-electron');
@@ -51,15 +51,22 @@ var MidiIO = function (properties, environment) {
   if (properties.name) this.name = properties.name;
   var midi = false;
 
+  var inList = false;
+  var outList = false;
+  var ioList = false;
+
   this.setMidi = function (to) {
     if (to) {
-      console.log("set midi", to);
+      // if(midi.in)
       midi = to;
       self.deviceName = to.name;
-      // if(midi.in)
       midi.onIn = function (a, b, c) { midiReceived(a, b, c) };
+
+      // midi.onIn = console.log;
+      console.log("set midi", to);
     }
   }
+
   if (properties.midi) {
     var midiDevice = tryGetDeviceNamed(properties.midi);
     if (midiDevice) {
@@ -123,12 +130,16 @@ var MidiIO = function (properties, environment) {
     var c = sig[2];
     if (midi) {
       if (midi.out) {
-        midi.out([a, b, c]);
         var isOn = (a & 0xf0) == 0x90;
         var isOff = (a & 0xf0) == 0x80;
+        // if(isOn){
+        //   c=Math.round(c/2);
+        // }
+        midi.out([a, b, c]);
         isOff |= isOn && (c == 0);
         if (isOn) {
           var chan = a & 0x0f;
+
           hangingNotes[[a, b]] = [a, b, c];
         }
         if (isOff) {
@@ -158,6 +169,7 @@ var MidiIO = function (properties, environment) {
   this.messageReceived = function (evt) {
     if (self.mute) return;
     evt.eventMessage.underImpose(defaultMessage);
+
     var midiOut = EventMessage.toMidi(evt.eventMessage);
     if (midiOut)
       sendMidi(midiOut);
@@ -208,6 +220,7 @@ MidiIO.initialization = function (environment) {
         midiInterface = nameToInterfaceList[portName];
       }
       if ((!midiInterface.in) && inList.indexOf(portName) !== -1) {
+
         midiInterface.openMidiIn(portName);
         console.log("connect new Midi in", portName);
       }
