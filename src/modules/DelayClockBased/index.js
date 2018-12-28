@@ -32,6 +32,9 @@ var DelayClockBased = function (properties) {
     feedback: {
       value: 0,
     },
+    sendClock: {
+      value: false,
+    }
   }
   let clock = this.clock = {
     microsteps: 12,
@@ -97,6 +100,9 @@ var DelayClockBased = function (properties) {
         }
       })
       // if (changed) handleStepsChange();
+      if (settings.sendClock.value)
+        memory.add(evt.eventMessage);
+
     } else if (evt.eventMessage.value[0] == headers.changeRate) {
       clock.subSteps = evt.eventMessage.value[2] / (evt.eventMessage.value[1] || 1);
     } else {

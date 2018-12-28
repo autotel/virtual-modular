@@ -11,8 +11,9 @@ module.exports = function (controlledModule) {
   configurators.global = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "step length": {value:controlledModule.clock.substeps},
-    }
+      "step length": { value: controlledModule.clock.substeps },
+      "send ck. (!)": {value: controlledModule.settings.sendClock },
+    },
   });
   configurators.global.vars['step length'].changeFunction=function(thisVar, delta) {
     thisVar.value += delta;
@@ -24,6 +25,12 @@ module.exports = function (controlledModule) {
       controlledModule.clock.substeps = thisVar.value;
     }
   }
+
+  configurators.global.vars["send ck. (!)"].changeFunction = function (thisVar, delta) {
+    thisVar.value=thisVar.value==false;
+    controlledModule.settings.sendClock=thisVar.value;
+  }
+
   configurators.global.vars['step length'].nameFunction = function (thisVar) {
     return "to " + controlledModule.clock.substeps;
   }
@@ -88,6 +95,7 @@ module.exports = function (controlledModule) {
     engagedHardwares.delete(event.hardware);
   }
   var updateHardware = function (hardware) {
+    if (engagedConfigurator) return;
     hardware.sendScreenA(controlledModule.name);
     updateLeds(hardware);
   }
@@ -99,6 +107,8 @@ module.exports = function (controlledModule) {
   controlledModule.on('step', passiveUpdateLeds);
   var animf=0;
   var updateLeds = function (hardware) {
+    if (engagedConfigurator) return;
+
     // stepsBmp = makeAnimationBitmap({x:2,y:2},animf);
     var playHeadBmp = 0x1111 << controlledModule.clock.step;
     hardware.draw([playHeadBmp, stepsBmp.value, stepsBmp.value]);

@@ -28,7 +28,9 @@ var RouteSequencer = function (properties) {
     //   value:0,
     //   valueNames:['no','yes'],
     // },
+    sendClock:false
   }
+
   let clock = this.clock = {
     substep: 0,
     step: 0,
@@ -116,6 +118,9 @@ var RouteSequencer = function (properties) {
           clock.substep = 0;
           stepFunction();
         }
+      }
+      if (settings.sendClock){
+        self.output(evt.eventMessage);
       }
     } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       var tracked = noteOnTracker[evt.eventMessage.value[1]];

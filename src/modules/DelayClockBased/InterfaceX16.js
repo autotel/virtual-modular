@@ -13,8 +13,10 @@ module.exports = function (controlledModule) {
     vars: {
       "delay (micro)": controlledModule.settings.delayMicro,
       "f.back opearator": controlledModule.settings.feedback,
+      "send ck. (!)":  controlledModule.settings.sendClock,
     }
   });
+
   configurators.global.vars['delay (micro)'].changeFunction = function (thisVar, delta) {
     thisVar.value += delta;
     stepsBmp = numbers[thisVar.value] || 0b111;
