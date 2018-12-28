@@ -1,5 +1,12 @@
 //TODO. lazy stack of reconstructFunction
 'use strict'
+
+var forceSetting={}
+forceSetting.linkDistance = 70;
+forceSetting.linkStrength= 1;
+forceSetting.charge = -1000;
+forceSetting.chargeDistance= 900;
+
 var ForceDirectedGrapher = function () {
   var thisGrapher = this;
   var width = window.innerWidth,
@@ -10,9 +17,13 @@ var ForceDirectedGrapher = function () {
   var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
-    .linkDistance(150)
-    .charge(-60)
+    // .linkDistance(3000)
+    // .linkStrength(10)
+    // .gravity(1)
+    // .charge(4)
+    // .chargeDistance(900)
     .on("tick", tick);
+  console.log(force);
 
   var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -259,11 +270,13 @@ var ForceDirectedGrapher = function () {
     }
 
     _link = _link.data(links);
-
+   
     force.nodes(nodes)
       .links(links)
-      .linkDistance(150)
-      .charge(-600)
+      .linkDistance(forceSetting.linkDistance)
+      .linkStrength(forceSetting.linkStrength)
+      .charge(forceSetting.charge)
+      .chargeDistance(forceSetting.chargeDistance)
       // .on("tick", tick);
 
 
