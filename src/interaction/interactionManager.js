@@ -2,7 +2,8 @@
 //this module handles what happen when there is a hardware event (such as pressing a button)
 let onHandlers=require('onhandlers');
 let X16bs=require('./x16basic');
-let X28bs=require('./x28basic');
+let X28bs = require('./x28basic');
+let X8bs=require('./x8basic');
 let DefCli=require('./DefCli');
 
 /**
@@ -22,8 +23,10 @@ var interactionManager=function(environment){ return new(function(){
   superInteractorSingletons.push(interfaces.x16basic.superInteractorSingleton);
   interfaces.x28basic=new X28bs(environment);
   superInteractorSingletons.push(interfaces.x28basic.superInteractorSingleton);
-  interfaces.DefCli=new DefCli(environment);
-  superInteractorSingletons.push(interfaces.DefCli.superInteractorSingleton);
+  // interfaces.DefCli = new DefCli(environment);
+  // superInteractorSingletons.push(interfaces.DefCli.superInteractorSingleton);
+  interfaces.x8basic = new X8bs(environment);
+  superInteractorSingletons.push(interfaces.x8basic.superInteractorSingleton);
   /**
     @function
     called by a hardwareManager: when there is a new hardware connected, it is associated with a {@link superInteractor}
@@ -31,6 +34,7 @@ var interactionManager=function(environment){ return new(function(){
     @param {Object} HardwareDriver instance. The hardware to which to assign this SuperInteractor
   */
   this.newSuperInteractor=function(type,hardware){
+    console.log("new superinteractor ",type);
     var ret=new interfaces[type].SuperInteractor(hardware);
     // console.log("...",ret);
     superInteractorInstances.push(ret);
