@@ -16,7 +16,7 @@ var modulesToLoad = {
   'PianoRoll': {},
   'NoteSustainer': {},
   'PresetKit': {},
-  'Alteration': {},
+  // 'Alteration': {},
   'Harmonizer': {},
   'Arpeggiator': {},
   'Narp': {},
@@ -60,4 +60,3 @@ environment.modules.instantiate('Bus',{name:"global"});
 // environment.handle('created');
 
 module.exports = environment;
-

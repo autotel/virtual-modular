@@ -28,11 +28,8 @@ module.exports = function (controlledModule, environment) {
   var currentScale = 0;
   var copyingScale = false;
   var engaged = false;
-
-  var shiftScrollingMode=false;
   //configurators setup
-
-
+  var engagedConfigurator = false;
   var configurators = {};
 
   var keyboardRoot = {
@@ -58,7 +55,6 @@ module.exports = function (controlledModule, environment) {
     }
   };
 
-
   var hardwareLocals = {}
 
 
@@ -73,42 +69,17 @@ module.exports = function (controlledModule, environment) {
     name: "Msg & Perform",
     valueNames: ["func", "set chan", "root n", "velo"]
   });
-
-  configurators.global = new BlankConfigurator(this, {
-    name:"",
-    vars: {
-      "expand mode": {
-        value:controlledModule.mapMode,
-        changeFunction:function(thisVar,delta){
-          thisVar.value=thisVar.value==false;
-          controlledModule.mapMode=thisVar.value;
-        }
-      },
-      "transpose input": {
-        value:controlledModule.transpose.input,
-        changeFunction:function(thisVar,delta){
-          if(shiftScrollingMode) delta*=12;
-          thisVar.value+=delta;
-          controlledModule.transpose.input=thisVar.value;
-        }
-      },
-      "transpose output": {
-        value:controlledModule.transpose.output,
-        changeFunction:function(thisVar,delta){
-          if(shiftScrollingMode) delta*=12;
-          thisVar.value+=delta;
-          controlledModule.transpose.output=thisVar.value;
-        }
-      },
-    }
-  });
-
-
+  // configurators.event.addextraVariables();
+  var lastEngagedConfigurator = configurators.event;
   configurators.record = new RecordMenu(this, {
     environment: environment,
     controlledModule: controlledModule
   })
 
+
+  //interaction with controlledModule
+  var currentStep = controlledModule.currentStep;
+  var loopLength = controlledModule.loopLength;
   var engagedHardwares = new Set();
   controlledModule.on('noteplayed', function (evt) {
 
@@ -160,12 +131,7 @@ module.exports = function (controlledModule, environment) {
     var hardware = event.hardware;
     var hin = event.hardware.instanceNumber;
 
-    if (!hardwareLocals[hin]) hardwareLocals[hin] = {
-      keyboardRoot: 0,
-      keyboardChan: 0,
-      engagedConfigurator: false,
-      lastEngagedConfigurator: configurators.event,
-    }
+    if (!hardwareLocals[hin]) hardwareLocals[hin] = { keyboardRoot: 0, keyboardChan: 0 }
 
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
@@ -192,7 +158,7 @@ module.exports = function (controlledModule, environment) {
     var button = event.data[0];
     var eventFingerMap = event.data[2];
     // console.log(eventFingerMap);
-    if (hardwareLocals[hin].engagedConfigurator === false) {
+    if (engagedConfigurator === false) {
       if (performMode) {
         var triggerKey = event.data[0] + hardwareLocals[hin].keyboardRoot;
         controlledModule.uiTriggerOn(triggerKey, new EventMessage({
@@ -204,64 +170,59 @@ module.exports = function (controlledModule, environment) {
         updateHardware(hardware);
       }
     } else {
-      hardwareLocals[hin].engagedConfigurator.matrixButtonPressed(event);
+      engagedConfigurator.matrixButtonPressed(event);
     }
   };
   this.matrixButtonReleased = function (event) {
     var hardware = event.hardware;
     var hin = hardware.instanceNumber;
-    if (hardwareLocals[hin].engagedConfigurator === false) {
+    if (engagedConfigurator === false) {
       controlledModule.uiTriggerOff(event.data[0] + hardwareLocals[hin].keyboardRoot, hardwareLocals[hin].keyboardChan);
       updateLeds(hardware);
 
     } else {
-      hardwareLocals[hin].engagedConfigurator.matrixButtonReleased(event);
+      engagedConfigurator.matrixButtonReleased(event);
     }
   };
   this.matrixButtonHold = function (event) { };
   this.selectorButtonPressed = function (event) {
-
-    var hin = event.hardware.instanceNumber;
-    if (hardwareLocals[hin].engagedConfigurator) {
-      hardwareLocals[hin].engagedConfigurator.selectorButtonPressed(event);
-    }
-
-    var hardware = event.hardware;
-    if (event.data[0] == 1) {
-      hardwareLocals[hin].engagedConfigurator = configurators.event;
-      configurators.event.engage(event);
-    } else if (event.data[0] == 2) {
-      if (performMode) {
-        hardwareLocals[hin].engagedConfigurator = configurators.global;
-        configurators.global.engage(event);
-      } else {
-        copyingScale = currentScale;
-        event.hardware.sendScreenA('copy scale to...');
-        event.hardware.sendScreenB('(release)');
+    if (engagedConfigurator) {
+      engagedConfigurator.selectorButtonPressed(event);
+    } else {
+      var hardware = event.hardware;
+      if (event.data[0] == 1) {
+        engagedConfigurator = configurators.event;
+        lastEngagedConfigurator = configurators.event;
+        configurators.event.engage(event);
+      } else if (event.data[0] == 2) {
+        if (performMode) {
+          engagedConfigurator = configurators.record;
+          lastEngagedConfigurator = configurators.record;
+          configurators.record.engage(event);
+        } else {
+          copyingScale = currentScale;
+          event.hardware.sendScreenA('copy scale to...');
+          event.hardware.sendScreenB('(release)');
+        }
+      } else if (event.data[0] == 0) {
+        performMode = !performMode;
+        updateHardware(hardware);
+      } else if (event.button >= 8) {
+        configurators.record.engage(event);
+      } else if (event.button >= 4) {
+        scaleSelectionMap ^= 1 << (event.data[0] - 4);
+        selectScaleMap(scaleSelectionMap);
+        // updateHardware(hardware);
       }
-    } else if (event.data[0] == 0) {
-      performMode = !performMode;
-      updateHardware(hardware);
-    } else if (event.button >= 8) {
-      configurators.record.engage(event);
-    } else if (event.button >= 4) {
-      scaleSelectionMap ^= 1 << (event.data[0] - 4);
-      selectScaleMap(scaleSelectionMap);
-      // updateHardware(hardware);
     }
-
-    hardwareLocals[hin].lastEngagedConfigurator = hardwareLocals[hin].engagedConfigurator;
   };
   this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
-
-    var hin = event.hardware.instanceNumber;
-    if (hardwareLocals[hin].engagedConfigurator) {
-      hardwareLocals[hin].engagedConfigurator.disengage(event);
-      hardwareLocals[hin].engagedConfigurator=false;
+    if (engagedConfigurator) {
+      engagedConfigurator.selectorButtonReleased(event);
     }
     if (event.data[0] == 1) {
-      hardwareLocals[hin].engagedConfigurator = false;
+      engagedConfigurator = false;
       configurators.event.disengage(hardware);
     } else if (event.data[0] == 2) {
       if (copyingScale !== false) {
@@ -269,14 +230,14 @@ module.exports = function (controlledModule, environment) {
         updateHardware(hardware);
         copyingScale = false;
       } else {
-        hardwareLocals[hin].engagedConfigurator = false;
-
+        engagedConfigurator = false;
+        configurators.record.disengage(hardware);
       }
     } else if (event.data[0] == 3) {
 
     } else if (event.button >= 8) {
       configurators.record.disengage(hardware);
-      hardwareLocals[hin].engagedConfigurator = false;
+      engagedConfigurator = false;
     } else if (event.button >= 4) {
       // scaleSelectionMap &= ~(1<<(event.data[0]-4));
       // selectScaleMap(scaleSelectionMap);
@@ -286,12 +247,11 @@ module.exports = function (controlledModule, environment) {
   };
   this.encoderScrolled = function (event) {
 
-    var hin = event.hardware.instanceNumber;
     var hardware = event.hardware;
     var hin=event.hardware.instanceNumber;
-    if (hardwareLocals[hin].lastEngagedConfigurator) {
-      hardwareLocals[hin].lastEngagedConfigurator.encoderScrolled(event);
-      if (hardwareLocals[hin].lastEngagedConfigurator == configurators.event) {
+    if (lastEngagedConfigurator) {
+      lastEngagedConfigurator.encoderScrolled(event);
+      if (lastEngagedConfigurator == configurators.event) {
         hardwareLocals[hin].compressedScaleMaps = undefined;
         updateLeds(event.hardware);
       }
@@ -304,12 +264,10 @@ module.exports = function (controlledModule, environment) {
   configurators.record.autoEngageWindow();
 
   var passiveUpdateLeds = function () {
-
-    for (var hardware of engagedHardwares) {
-      var hin = hardware.instanceNumber;
-      if (!hardwareLocals[hin].engagedConfigurator)
-      updateLeds(hardware);
-    }
+    if (!engagedConfigurator)
+      for (var hardware of engagedHardwares) {
+        updateLeds(hardware);
+      }
   }
   var updateHardware = function (hardware) {
     currentScale = controlledModule.currentScale;
@@ -320,7 +278,7 @@ module.exports = function (controlledModule, environment) {
     var selScaleMap = (scaleSelectionMap & 0xf);
     // hardware.paintColorFromLedN(0,[0,0,0],0,false);
     hardware.paintColorFromLedN(selScaleMap << 4, [255, 127, 0], 0, false);
-
+    
     var hin = hardware.instanceNumber;
     if (performMode) {
       if (hardwareLocals[hin].compressedScaleMaps === undefined) {
@@ -328,8 +286,8 @@ module.exports = function (controlledModule, environment) {
       }
 
       hardware.draw([
-        hardwareLocals[hin].compressedScaleMaps.roots,
-        hardwareLocals[hin].compressedScaleMaps.roots,
+        hardwareLocals[hin].compressedScaleMaps.roots, 
+        hardwareLocals[hin].compressedScaleMaps.roots, 
         hardwareLocals[hin].compressedScaleMaps.semitones[1]
       ]);
 
@@ -347,13 +305,12 @@ module.exports = function (controlledModule, environment) {
   }
   var updateScreen = function (hardware, upleds = true, upscreen = true) {
 
-    var hin = hardware.instanceNumber;
     var screenAString = "";
     var screenBString = "";
     if (performMode) {
-      if (!hardwareLocals[hin].engagedConfigurator) screenAString += "Perform "
+      if (!engagedConfigurator) screenAString += "Perform "
     } else {
-      if (!hardwareLocals[hin].engagedConfigurator) screenAString += "Edit ";
+      if (!engagedConfigurator) screenAString += "Edit ";
     }
     if (controlledModule.scaleArray[currentScale]) {
       var currentScaleName = scaleNames.scaleToName[scaleIntervalsMap];
