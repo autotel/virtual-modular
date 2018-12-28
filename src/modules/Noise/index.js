@@ -31,6 +31,16 @@ var Noise = function (properties, environment) {
   var stepDivision = this.stepDivision = {
     value: 2
   }
+  var probability = this.probability={
+    value:1,
+    nameFunction(thisVar){
+      return thisVar.value*100+"%";
+    },
+    changeFunction(thisVar,delta){
+      thisVar.value+=delta*0.01;
+      thisVar.value = Math.round(thisVar.value * 100) / 100;
+    }
+  }
 
   var noteDuration = this.noteDuration = {
     value: 1
@@ -44,7 +54,7 @@ var Noise = function (properties, environment) {
   if (properties.name) this.name = properties.name;
 
   var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [headers.triggerOn, -1, -1, -1]
+    value: [headers.triggerOn, 0, -1, -1]
   });
 
 
@@ -113,11 +123,19 @@ var Noise = function (properties, environment) {
   var headerBmp = 0;
   var stepFunction = function () {
     var active = patMem.size;
+    
     if (active) {
       
       var selectedNumber=0;
       
       var avail=Array.from(patMem);
+      
+      if (probability.value<1)
+        if (Math.random() > probability.value){
+          headerBmp=0;
+          return;
+        }
+
       selectedNumber=avail[Math.floor(Math.random()*avail.length)];
       // console.log(avail);
       // console.log(selectedNumber);

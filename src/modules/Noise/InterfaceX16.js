@@ -41,7 +41,8 @@ module.exports = function(controlledModule,environment) {
           }
         }
       },
-      "note duration": controlledModule.noteDuration
+      "note duration": controlledModule.noteDuration,
+      "probability":controlledModule.probability,
     }
   });
   configurators.time.vars["step ratio"].changeFunction = function(thisVar, delta) {
