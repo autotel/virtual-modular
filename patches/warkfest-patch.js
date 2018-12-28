@@ -15,7 +15,7 @@ module.exports=[
     properties: {
       name: "OUT A",
       midi: "UM-1",
-      loc:4
+      loc:8
     }, outpupts: []
   }, {
     type: "MidiIO",
@@ -51,27 +51,10 @@ module.exports=[
   }, {
     type: 'PresetKit',
     properties: {
-      name: 'drumkit climate',
+      name: 'drumkit C',
+      autoMap: 'timbre',
       kit: [
-        [1, 56, 0, -1],
-        [1, 56, 1, -1],
-        [1, 60, 2, -1],
-        [4, 22, 100, 0],//control change!
-        
-        [1, 58, 0, -1],
-        [1, 56, 5, -1],
-        [1, 47, 2, -1],
-        [4, 22, 100, 44],//control change!
-        
-        [1, 56, 8, -1],
-        [1, 56, 9, -1],
-        [1, 52, 2, -1],
-        [1, 56, 11, -1],
-
-        [1, 56, 12, -1],
-        [1, 56, 13, -1],
-        [1, 45, 2, -1],
-        [1, 56, 15, -1],
+        [1, 60, 0, -1]
       ],
     },
     outputs: ['OUT C']
@@ -85,20 +68,5 @@ module.exports=[
       ],
     },
     outputs: ['OUT D']
-  },{
-    type: 'Sequencer',
-    properties: {
-      loc:12,
-    },
-    outputs: ['harmonizer 0']
-  }, {
-    type: 'Sequencer',
-    outputs: ['drumkit B']
-  }, {
-    type: 'Sequencer',
-    outputs: ['drumkit climate']
-  }, {
-    type: 'Sequencer',
-    outputs: ['drumkit D']
-  }, 
+  }
 ]
