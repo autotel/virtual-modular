@@ -381,7 +381,7 @@ var SuperInteractorsSingleton = function (environment) {
           } else {
             pageMode = true;
             if (event.button >= 4) {
-              pageOffset = (event.button-4)*16;
+              pageOffset = (event.button-4)*8;
             }
             updateHardware();
             paintSelectButtons();
@@ -604,7 +604,7 @@ var SuperInteractorsSingleton = function (environment) {
     }
 
     function paintSelectButtons() {
-      bpaint.whites = 0x1 << (Math.round(pageOffset / 16) + 4)
+      bpaint.whites = 0x1 << (Math.round(pageOffset / 8) + 4)
       // console.log(bpaint.whites);
       bpaint.result = [
         bpaint.patching | bpaint.events | bpaint.whites,
