@@ -188,8 +188,8 @@ module.exports=function(sequencerModule){ return new(function(){
     currentStep.value=Math.floor(s/stepDivide.value);
     if(currentStep.value>=loopLength.value) currentStep.value%=loopLength.value;
     if(currentStep.value<0) currentStep.value%=loopLength.value;
-    if(substep.value==0)
-    step(s);
+    // if(substep.value==0)
+    // step(s);
     // console.log("memema");
     // console.log("aa",currentStep.value,loopLength.value);
     microStep.value=0;
