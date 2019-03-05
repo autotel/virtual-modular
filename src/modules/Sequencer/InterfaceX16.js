@@ -129,7 +129,6 @@ module.exports = function (controlledModule, environment) {
     if (thisVar.value + delta >= 1)
       thisVar.value += delta;
     controlledModule.handleStepsChange();
-
   }
 
   configurators.time.vars["fold"].nameFunction = configurators.time.vars["fold!"].nameFunction = function (thisVar) {
@@ -182,6 +181,15 @@ module.exports = function (controlledModule, environment) {
     }
     controlledModule.loopLength.value = thisVar.value;
     controlledModule.handleStepsChange();
+  }
+
+  this.outsideScroll = function(event) {
+    var change=configurators.time.vars["fold"];
+    // console.log(event);
+    change.selectFunction(change);
+    change.changeFunction(change,event.delta);
+    var ret="fold:"+change.nameFunction(change);
+    return (ret);
   }
 
   configurators.time.vars["loop look"].nameFunction = function (thisVar) {
