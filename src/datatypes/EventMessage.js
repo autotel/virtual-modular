@@ -12,7 +12,7 @@ var EventMessage=function(inputValue){
   [0]=function header, indicates the receiving module what function to perform with the following data
 
   [1]=main event number, indicates information such as what note to play, what cc to change, or what event to trigger.
-  
+
   [2]=submode/ voice specification (channel), indicates a variation of the mode or what voice to play. Sometimes unused
 
   [3 ... ]= more data, depending on the particular function of the receiver following data may make sense or not.
@@ -205,6 +205,7 @@ EventMessage.fromMidi=function(midiMessage){
     default:
     // console.log("message header not transformed:",outputMessage.value);
   }
+  return outputMessage;
 }
 EventMessage.toMidi=function(eventMessage){
   var headers = EventMessage.headers;

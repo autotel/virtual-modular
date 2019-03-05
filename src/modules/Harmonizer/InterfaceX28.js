@@ -75,7 +75,6 @@ module.exports = function (controlledModule, environment) {
   });
 
   configurators.global = new BlankConfigurator(this, {
-    name:"",
     vars: {
       "expand mode": {
         value:controlledModule.mapMode,
@@ -98,6 +97,30 @@ module.exports = function (controlledModule, environment) {
           if(shiftScrollingMode) delta*=12;
           thisVar.value+=delta;
           controlledModule.transpose.output=thisVar.value;
+        }
+      },
+      "(unfinished)": {//comp. transpose
+        value:false,
+        changeFunction:function(thisVar,delta){
+          // if(shiftScrollingMode) delta*=12;
+          //
+          // var oldInput=controlledModule.transpose.input;
+          // var oldOutput=controlledModule.transpose.output;
+          //
+          // controlledModule.transpose.input=0;
+          // controlledModule.transpose.output=0;
+          // //inputTransformNumber already uses transpose values;
+          // controlledModule.transpose.output = controlledModule.inputTransformNumber((oldOutput - oldInput) - delta);
+          //
+          // controlledModule.transpose.input=oldInput-delta;
+          //
+          // if(isNaN(controlledModule.transpose.output)){
+          //   console.warn("controlledModule.transpose.output is NaN, forcing it to 0");
+          //   controlledModule.transpose.output=0;
+          // }
+        },
+        nameFunction:function(){
+          return "in:"+controlledModule.transpose.input+" out:"+controlledModule.transpose.output;
         }
       },
     }
@@ -262,7 +285,7 @@ module.exports = function (controlledModule, environment) {
     }
     if (event.data[0] == 1) {
       hardwareLocals[hin].engagedConfigurator = false;
-      configurators.event.disengage(hardware);
+      configurators.event.disengage(event);
     } else if (event.data[0] == 2) {
       if (copyingScale !== false) {
         updateScaleMap(controlledModule.getScaleMap(copyingScale));
@@ -275,7 +298,7 @@ module.exports = function (controlledModule, environment) {
     } else if (event.data[0] == 3) {
 
     } else if (event.button >= 8) {
-      configurators.record.disengage(hardware);
+      configurators.record.disengage(event);
       hardwareLocals[hin].engagedConfigurator = false;
     } else if (event.button >= 4) {
       // scaleSelectionMap &= ~(1<<(event.data[0]-4));
@@ -288,7 +311,6 @@ module.exports = function (controlledModule, environment) {
 
     var hin = event.hardware.instanceNumber;
     var hardware = event.hardware;
-    var hin=event.hardware.instanceNumber;
     if (hardwareLocals[hin].lastEngagedConfigurator) {
       hardwareLocals[hin].lastEngagedConfigurator.encoderScrolled(event);
       if (hardwareLocals[hin].lastEngagedConfigurator == configurators.event) {

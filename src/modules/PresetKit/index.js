@@ -18,7 +18,7 @@ var PresetKit = function(properties, environment) {
     name.call(this);
     this.preventBus=true;
     this.autoMap = false;
-    
+
     if (properties.autoMap == true) this.autoMap = 1;
     if (properties.autoMap == 'timbre') this.autoMap = 2;
     if (properties.autoMap == 'note') this.autoMap = 1;
@@ -29,6 +29,7 @@ var PresetKit = function(properties, environment) {
 
 
     this.interfaces.X16 = InterfaceX16;
+    this.interfaces.Http = require("./InterfaceHttp.js");
 
     var kit = this.kit = {};
 

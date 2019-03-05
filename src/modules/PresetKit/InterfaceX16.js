@@ -93,9 +93,12 @@ module.exports = function(controlledModule, environment) {
   }
   controlledModule.on('extrigger', function(event) {
     highlightedBitmap |= 1 << event.preset;
+    controlledModule.handle('bitmap-triggered',{bitmap:highlightedBitmap});
     setTimeout(function() {
       var num = event.preset;
       highlightedBitmap &= ~(1 << num);
+      controlledModule.handle('bitmap-triggered',{bitmap:highlightedBitmap});
+
     }, 500);
   });
 

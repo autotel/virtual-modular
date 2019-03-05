@@ -60,7 +60,10 @@ var MidiIO = function (properties, environment) {
       // if(midi.in)
       midi = to;
       self.deviceName = to.name;
-      midi.onIn = function (a, b, c) { midiReceived(a, b, c) };
+      midi.onIn = function (a, b, c) {
+        // console.log("midi in");
+        midiReceived(a, b, c)
+       };
 
       // midi.onIn = console.log;
       console.log("set midi", to);
@@ -90,10 +93,10 @@ var MidiIO = function (properties, environment) {
 
   this.interfaces.X16 = InteractorX16;
   var inputClockCount = 0;
-  var midiReceived = function (t, midiMessage) {
-    console.log("MIDIIN");
+  var midiReceived = function (midiMessage) {
+    // console.log("MIDIIN",midiMessage);
     var outputMessage=EventMessage.fromMidi(midiMessage);
-    // console.log(self.name,outputMessage.value);
+    // console.log(self.name,outputMessage);
     var msgFn = outputMessage.value[0];
     var msgFv = outputMessage.value[1];
     var cachingIndex = msgFn; //[msgFn,msgFv]
@@ -211,7 +214,9 @@ MidiIO.initialization = function (environment) {
     var outList = info.outputs;
     var ioList = Array.from(new Set(inList.concat(outList)));
     // console.log("iolist",ioList);
-    for (var portName of ioList) {
+    for (var portNumber in ioList) {
+      var portName=ioList[portNumber];
+
       var midiInterface;
       if (nameToInterfaceList[portName] === undefined) {
         midiInterface = new MidiInterface();
@@ -221,7 +226,8 @@ MidiIO.initialization = function (environment) {
       }
       if ((!midiInterface.in) && inList.indexOf(portName) !== -1) {
 
-        midiInterface.openMidiIn(portName);
+        midiInterface.openMidiIn(portName,console.log);
+        // midiInterface.openMidiIn(portName);
         console.log("connect new Midi in", portName);
       }
       if ((!midiInterface.out) && outList.indexOf(portName) !== -1) {

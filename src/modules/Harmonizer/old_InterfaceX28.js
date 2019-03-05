@@ -223,7 +223,7 @@ module.exports = function (controlledModule, environment) {
     }
     if (event.data[0] == 1) {
       engagedConfigurator = false;
-      configurators.event.disengage(hardware);
+      configurators.event.disengage(event);
     } else if (event.data[0] == 2) {
       if (copyingScale !== false) {
         updateScaleMap(controlledModule.getScaleMap(copyingScale));
@@ -231,12 +231,12 @@ module.exports = function (controlledModule, environment) {
         copyingScale = false;
       } else {
         engagedConfigurator = false;
-        configurators.record.disengage(hardware);
+        configurators.record.disengage(event);
       }
     } else if (event.data[0] == 3) {
 
     } else if (event.button >= 8) {
-      configurators.record.disengage(hardware);
+      configurators.record.disengage(event);
       engagedConfigurator = false;
     } else if (event.button >= 4) {
       // scaleSelectionMap &= ~(1<<(event.data[0]-4));

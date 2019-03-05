@@ -66,7 +66,7 @@ module.exports = function (environment) {
       moduleSprites[module.properties.unique].remove();
     });
     environment.on('~module', function (event) {
-      console.log('~module');
+      // console.log('~module');
 
       var module = event.module;
       moduleSprites[module.properties.unique].applyChanges(event);

@@ -9,4 +9,5 @@ module.exports = {
   MidiIO: require('./MidiIO.js'),
   DelayClockBased: require('./Sequencer.js'),
   RouteSequencer: require('./Sequencer.js'),
+  PresetKit: require('./PresetKit.js'),
 }

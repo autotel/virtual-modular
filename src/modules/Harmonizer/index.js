@@ -143,7 +143,7 @@ var Harmonizer = function (properties, environment) {
     });
   }
 
-  var inputTransformNumber = function (inputNumber) {
+  var inputTransformNumber = this.inputTransformNumber = function (inputNumber) {
     var ret;
     inputNumber+=transpose.input;
     if (self.scaleArray[self.currentScale]) {
