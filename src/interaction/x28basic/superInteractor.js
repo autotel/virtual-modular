@@ -111,7 +111,7 @@ var SuperInteractorsSingleton = function (environment) {
 
       addModuleToLoc(event.module, defaultButtonForNewModule);
       defaultButtonForNewModule++;
-    
+
     } else {
       console.log("new module already has loc");
     }
@@ -138,7 +138,7 @@ var SuperInteractorsSingleton = function (environment) {
     }
     return ret;
   }
-  
+
   this.SuperInteractor = function (myHardware) {
 
     var pageOffset = 0;
@@ -225,13 +225,13 @@ var SuperInteractorsSingleton = function (environment) {
       if (myModuleCreator.engaged) {
         myModuleCreator.matrixButtonPressed(event);
       }else if(engagedInterface) {
-        
+
         try {
           engagedInterface.matrixButtonPressed(event);
           matrixButtonOwners[event.data[0]] = engagedInterface;
         } catch (e) { console.error(e) };
 
-        
+
       } else {
         if (firstPressedMatrixLoc === false) {
           selectedModule = tryGetModuleInLoc(location);
@@ -321,7 +321,8 @@ var SuperInteractorsSingleton = function (environment) {
     this.on('bottomButtonPressed', function(event) {
       // console.log("BBP");
       if (engagedInterface) {
-        engagedInterface.bottomButtonPressed(event);
+        if(typeof engagedInterface.bottomButtonPressed=="function")
+          engagedInterface.bottomButtonPressed(event);
       }else{
         if(event.data[0]==0){
           pageOffset-=8;
@@ -385,7 +386,7 @@ var SuperInteractorsSingleton = function (environment) {
             }
             updateHardware();
             paintSelectButtons();
-          } 
+          }
         }
       }
     });
@@ -460,7 +461,7 @@ var SuperInteractorsSingleton = function (environment) {
       }
     });
     this.on('encoderPressed', function (event) {
-      if (engagedInterface) { 
+      if (engagedInterface) {
         try {
           engagedInterface.encoderPressed(event);
         } catch (e) { console.error(e) };
@@ -494,7 +495,7 @@ var SuperInteractorsSingleton = function (environment) {
           updateHardware();
           paintSelectButtons();
           pageMode=cpm;
-        } 
+        }
       } else {
         try {
           engagedInterface.encoderScrolled(event);
