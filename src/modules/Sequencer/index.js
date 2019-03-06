@@ -3,7 +3,7 @@ var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
-var InterfaceX28 = require('./InterfaceX28');
+// var InterfaceX28 = require('./InterfaceX28');
 var headers = EventMessage.headers;
 
 
@@ -98,7 +98,7 @@ var Sequencer = function (properties, environment) {
 
     // bounds.start += grid;
     // bounds.end -= grid;
-    
+
 
     self.loopLength.value = bounds.end -bounds.start;
 
@@ -247,12 +247,12 @@ var Sequencer = function (properties, environment) {
         }
         // console.log("2 stop");
         break;
-      } 
+      }
         this.handle('receive', evt);
     }
   }
   this.interfaces.X16 = InterfaceX16;
-  this.interfaces.X28 = InterfaceX28;
+  // this.interfaces.X28 = InterfaceX28;
   this.interfaces.Http = require("./InterfaceHttp.js");
 
 }
