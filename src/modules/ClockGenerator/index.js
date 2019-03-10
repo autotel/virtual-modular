@@ -23,6 +23,7 @@ var ClockGenerator = function(properties={bpm:60}) {
   var myEventMessage = new EventMessage({
     value: [headers.clockTick, 12 /*ck per step*/ , 0 /* step number*/ ]
   });
+
   var step = this.step = {
     value: 0,
     microSteps: 12
@@ -39,8 +40,8 @@ var ClockGenerator = function(properties={bpm:60}) {
       myEventMessage.value[1] = step.microSteps;
       myEventMessage.value[2] = step.value;
       thisInstance.output(myEventMessage);
-      // thisInstance.handle('micro step'):
   }
+
   var metro=new MetronomePrototype();
   metro.onTick(tickFunction);
   this.metro=metro;
@@ -75,6 +76,9 @@ function MetronomePrototype(props={}) {
 
   var forcedDrift=0;
 
+
+  this.swing = 0;
+  
   function _onTick(){};
   this.onTick=function(fn){
     _onTick=fn;

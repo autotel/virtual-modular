@@ -26,12 +26,15 @@ var PianoRoll = function(properties,environment) {
   this.memory=new TapeMem();
   this.memory.setLoopPoints(0,16);
   var memory=this.memory;
+
+
   this.clock={
     rate:1,
     playHead:0,
     microStep:0,
     microSteps:12
   }
+  
   var clock=this.clock;
 
   this.baseName = "PianoRoll";
@@ -53,16 +56,10 @@ var PianoRoll = function(properties,environment) {
   var rec={}
   memory.on('step',function(a){
     if(rec.status){
-      console.log("REC",a);
+      // console.log("REC",a);
       rec.duration++;
     }
   });
-
-  var quantize={
-    state:true,
-    steps:0.5,
-    offset:0,
-  }
 
   this.recordingReceived=function(evt){
     var message=evt.eventMessage;
@@ -75,7 +72,7 @@ var PianoRoll = function(properties,environment) {
         rec.duration=0;
         rec.started=memory.getPlayhead();
       }else{
-        console.log("recording ended:",rec);
+        // console.log("recording ended:",rec);
       }
     }
   }
@@ -86,6 +83,7 @@ var PianoRoll = function(properties,environment) {
       var evtMicroStep=evt.eventMessage.value[2];
       if (evtMicroStep==0){
         clock.microStep=0;
+        memory.quantizePlayheadPosition();
       }else{
         clock.microStep++;
       }
@@ -100,12 +98,18 @@ var PianoRoll = function(properties,environment) {
     } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {
     } 
   }
+
   self.memory.eventTriggerFunction=function(triggeredEventsList){
+    var duPrevent={};
     for(var evtn in triggeredEventsList){
       var evt=triggeredEventsList[evtn];
-      // console.log(evt);
-      self.output(evt);
-      noteOnTracker.add(evt);
+      if (duPrevent[evt.value[1], evt.value[2], evt.value[3]]){
+      }else{
+        duPrevent[evt.value[1], evt.value[2], evt.value[3]] = true;
+        // console.log(evt);
+        self.output(evt);
+        noteOnTracker.add(evt);
+      }
     }
   }
   

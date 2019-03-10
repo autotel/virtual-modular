@@ -1,6 +1,6 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+var InterfaceX28 = require('./InterfaceX28');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -21,10 +21,11 @@ var Chord = function (properties) {
   var thisInstance = this;
   this.preventBus=true;
   this.baseName = "Chord";
+  this.color=Chord.color;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var self = this;
-  this.interfaces.X16 = InterfaceX16;
+  this.interfaces.X16 = InterfaceX28;
 
   var noteOnTracker={}
   

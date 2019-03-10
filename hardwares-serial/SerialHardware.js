@@ -6,7 +6,7 @@ var LazyQueue = utils.LazyQueue;
 
 
 var DataChopper = function(rLengths) {
-  var inBuff;
+  var inBuff=new Buffer(1);
   var expectedLength;
   var byteNumber = 0;
   var recordingBuffer = false;

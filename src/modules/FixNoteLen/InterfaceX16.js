@@ -20,7 +20,7 @@ module.exports = function (controlledModule) {
     passiveUpdateHardware();
   }
   var engagedConfigurator = false;
-  var lastEngagedConfigurator = configurators.event;
+  var lastEngagedConfigurator = configurators.global;
   var stepsBmp = 0b0111100110010111;
 
   var numbers=[
@@ -108,6 +108,13 @@ module.exports = function (controlledModule) {
       }
     }
   };
+  this.outsideScroll = function(event) {
+    controlledModule.settings.delayMicro.value += event.delta;
+    var ret = "NoteLength:"+controlledModule.settings.delayMicro.value;
+    stepsBmp = numbers[controlledModule.settings.delayMicro.value] || 0b111;
+    passiveUpdateHardware();
+    return (ret);
+  }
   this.encoderPressed = function (event) { };
   this.encoderReleased = function (event) { };
   this.engage = function (event) {
@@ -129,7 +136,7 @@ module.exports = function (controlledModule) {
   var animf=0;
   var updateLeds = function (hardware) {
     // stepsBmp = makeAnimationBitmap({x:2,y:2},animf);
-    
+
     hardware.draw([0, stepsBmp, stepsBmp]);
     animf++;
     if(animf>8) animf=0;

@@ -16,10 +16,11 @@ var modulesToLoad = {
   'PianoRoll': {},
   'NoteSustainer': {},
   'PresetKit': {},
-  'Alteration': {},
+  // 'Alteration': {},
   'Harmonizer': {},
   'Arpeggiator': {},
   'Narp': {},
+  'Noise': {},
   'Chord': {},
   'Operator': {},
   'GameOfLife': {},
@@ -30,6 +31,7 @@ var modulesToLoad = {
   'MultiTape': {},
   'ClockGenerator': {},
   'Bus': {},
+  'CalculeitorMidi': {},
 };
 
 for (var a in modulesToLoad) {
@@ -58,4 +60,3 @@ environment.modules.instantiate('Bus',{name:"global"});
 // environment.handle('created');
 
 module.exports = environment;
-

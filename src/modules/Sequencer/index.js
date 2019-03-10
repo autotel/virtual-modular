@@ -3,7 +3,7 @@ var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
-var InterfaceX28 = require('./InterfaceX28');
+// var InterfaceX28 = require('./InterfaceX28');
 var headers = EventMessage.headers;
 
 
@@ -43,7 +43,7 @@ var Sequencer = function (properties, environment) {
   }
   this.recordSettings = {
     mode: 3,
-    namesList: ['overdub', 'grow', 'fold', 'grow & trim'/*,stop*/],
+    namesList: ['overdub', 'grow', 'fold', 'adjust'/*,stop*/],
     growStep: 16,
     recording: false,
     switchOnEnd: 0,
@@ -89,17 +89,20 @@ var Sequencer = function (properties, environment) {
   this.trimSequence = function (grid = 1) {
     var bounds = self.sequenceBounds();
     //quantize trim to grid
-    bounds.start -= bounds.start % grid;
-    bounds.end -= bounds.end % grid;
+    console.log("sequence bounds",bounds);
+
+    bounds.start = Math.round(bounds.start / grid) * grid;
+    bounds.end = Math.round(bounds.end / grid) * grid;
 
     //trim first and last chunks
-    bounds.start += grid;
-    bounds.end -= bounds.start;
-    bounds.end -= grid;
 
-    self.loopLength.value = bounds.end;
+    // bounds.start += grid;
+    // bounds.end -= grid;
 
-    console.log("trim from step", bounds.start);
+
+    self.loopLength.value = bounds.end -bounds.start;
+
+    console.log("trim from step", bounds.start,"to",bounds.end);
     if (bounds.start > 0) {
       self.compensatedOffsetSequence(-bounds.start);
     }
@@ -120,7 +123,7 @@ var Sequencer = function (properties, environment) {
             self.loopLength.value *= 2;
             break;
           } case 3: {
-            // console.log("Fold");
+            // console.log("adjust");
             self.loopLength.value += recordSettings.growStep;
             break;
           }/*case :{
@@ -189,6 +192,7 @@ var Sequencer = function (properties, environment) {
       } case headers.recordStatus: {
         recordSettings.recording = evt.value[1];
         if (!recordSettings.recording) {
+
           if (recordSettings.mode == 3) {
             //trimSequence uses the loopLength, so it must be floored
             if (self.loopLength.value > recordSettings.growStep) {
@@ -204,6 +208,7 @@ var Sequencer = function (properties, environment) {
               self.loopLength.value = recordSettings.growStep;
             }
           }
+
           if (recordSettings.switchOnEnd !== false) {
             recordSettings.mode = recordSettings.switchOnEnd;
           }
@@ -242,12 +247,13 @@ var Sequencer = function (properties, environment) {
         }
         // console.log("2 stop");
         break;
-      } 
+      }
         this.handle('receive', evt);
     }
   }
   this.interfaces.X16 = InterfaceX16;
-  this.interfaces.X28 = InterfaceX28;
+  // this.interfaces.X28 = InterfaceX28;
+  this.interfaces.Http = require("./InterfaceHttp.js");
 
 }
 Sequencer.color = [0, 0, 255];

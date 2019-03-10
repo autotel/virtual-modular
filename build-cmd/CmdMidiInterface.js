@@ -33,15 +33,15 @@ var MidiInterface = function () {
     this.onIn = false;
     this.in = false;
     this.openMidiIn = function (midiref) {
-        self.onIn = function (a, b) { console.log("no callback"); };
-        var inCaller = function (a, b) {
+        self.onIn = false;//function (a, b) { console.log("no callback"); };
+        var inCaller = function (evt) {
             // console.log("HELLOOO",self.onIn);
-            if (self.in) {
-                console.log("in");
-                self.onIn(a, b);
+            if (self.in && self.onIn) {
+                // console.log("in");
+                self.onIn(evt);
             }
         };
-        midi = midiengine.openMidiIn(midiref, inCaller);
+        midi = midiengine.openMidiIn(midiref).connect(inCaller);
         self.name = midiref;
         self.in = true;
         return self.name;

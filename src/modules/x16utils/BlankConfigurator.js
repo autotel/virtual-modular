@@ -13,7 +13,7 @@ var BlankConfigurator=function(parentInteractor,properties){
   this.vars={};
   var varNames=[];
 
-  this.name="set";
+  this.name="";
   var thisInteractor=this;
 
 
@@ -63,7 +63,7 @@ var BlankConfigurator=function(parentInteractor,properties){
     varNames=Object.keys(thisInteractor.vars);
   }
   if(properties.name) this.name=properties.name;
-  var selectedVarNumber=0;
+  var selectedVarNumber={};
 
   var engagedHardwares=new Set();
 
@@ -77,8 +77,9 @@ var BlankConfigurator=function(parentInteractor,properties){
   //     updateLeds(hardware);
   //   }
   // }
-  function getSelectedVar(){
-    return thisInteractor.vars[varNames[selectedVarNumber]]
+  function getSelectedVar(hardware){
+    if(!selectedVarNumber[hardware.instanceNumber]) selectedVarNumber[hardware.instanceNumber]=0;
+    return thisInteractor.vars[varNames[selectedVarNumber[hardware.instanceNumber]]]
   }
   function passiveUpdateHardware(){
     for(var hardware of engagedHardwares){
@@ -87,7 +88,7 @@ var BlankConfigurator=function(parentInteractor,properties){
     }
   }
   var updateLeds=function(hardware){
-    var selectBmp=1<<selectedVarNumber;
+    var selectBmp=1<<selectedVarNumber[hardware.instanceNumber];
     var eventLengthBmp=~(0xFFFF<<varNames.length);
     hardware.draw([
       selectBmp|eventLengthBmp,
@@ -97,20 +98,20 @@ var BlankConfigurator=function(parentInteractor,properties){
   }
   function updateScreen(hardware){
     // console.log(thisInteractor.vars);
-    var selectedVar=getSelectedVar();
-    hardware.sendScreenA(thisInteractor.name+" "+varNames[selectedVarNumber]);
+    var selectedVar=getSelectedVar(hardware);
+    hardware.sendScreenA(varNames[selectedVarNumber[hardware.instanceNumber]]);
     hardware.sendScreenB(selectedVar.nameFunction(selectedVar));
   }
-  this.select=function(n,update = true){
-    selectedVarNumber=n;
-    if(update)
-    passiveUpdateHardware();
-  }
+  // this.select=function(n,update = true){
+  //   selectedVarNumber[hardware.instanceNumber]=n;
+  //   if(update)
+  //   passiveUpdateHardware();
+  // }
   this.matrixButtonPressed=function(event){
     var hardware=event.hardware;
     if(event.data[0]<varNames.length){
-      selectedVarNumber=event.data[0];
-      var selectedVar=getSelectedVar();
+      selectedVarNumber[hardware.instanceNumber]=event.data[0];
+      var selectedVar=getSelectedVar(hardware);
       selectedVar.selectFunction(selectedVar);
       updateLeds(hardware);
       updateScreen(hardware);
@@ -119,22 +120,22 @@ var BlankConfigurator=function(parentInteractor,properties){
   this.encoderScrolled=function(event){
     var hardware=event.hardware;
     // console.log("a");
-    if(varNames.length>selectedVarNumber){
+    if(varNames.length>selectedVarNumber[hardware.instanceNumber]){
       // console.log("b");
-      var thisVar=getSelectedVar();
+      var thisVar=getSelectedVar(hardware);
       // console.log(thisVar);
       thisVar.changeFunction(thisVar,event.delta,event);
       updateScreen(hardware);
     }
   };
-  this.setCurrentVarValue=function(to){
-    if(varNames.length>selectedVarNumber){
-      var thisVar=getSelectedVar();
-      var delta=thisVar.value-to;
-      thisVar.changeFunction(thisVar,delta);
-      passiveUpdateHardware();
-    }
-  }
+  // this.setCurrentVarValue=function(to){
+  //   if(varNames.length>selectedVarNumber[hardware.instanceNumber]){
+  //     var thisVar=getSelectedVar(hardware);
+  //     var delta=thisVar.value-to;
+  //     thisVar.changeFunction(thisVar,delta);
+  //     passiveUpdateHardware();
+  //   }
+  // }
   this.encoderPressed=function(event){
     var hardware=event.hardware;
   };
@@ -147,13 +148,14 @@ var BlankConfigurator=function(parentInteractor,properties){
     if(properties.engageFunction){
       properties.engageFunction(thisInteractor);
     }
-    var svar=getSelectedVar()
+    var svar=getSelectedVar(hardware)
     svar.selectFunction(svar);
     updateLeds(hardware);
     updateScreen(hardware);
   };
   this.disengage=function(event){
-    var svar=getSelectedVar();
+    var hardware=event.hardware;
+    var svar=getSelectedVar(hardware);
     if(svar)
     svar.disengageFunction(svar);
     if(properties.disengageFunction){

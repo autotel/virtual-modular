@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
+var InterfaceHttp = require('./InterfaceHttp');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
@@ -27,14 +28,16 @@ var RouteSequencer = function (properties) {
     //   value:0,
     //   valueNames:['no','yes'],
     // },
+    sendClock:false
   }
+
   let clock = this.clock = {
     substep: 0,
     step: 0,
     substeps: 1
   }
   let sequenceBitmap = this.sequenceBitmap = {
-    value: properties.bitmap || 0
+    value: properties.bitmap || 0,
   }
 
   this.baseName = "RouteSequencer";
@@ -43,6 +46,7 @@ var RouteSequencer = function (properties) {
   var self = this;
 
   this.interfaces.X16 = InterfaceX16;
+  this.interfaces.Http = InterfaceHttp;
 
   var memory = new Set();
   var recMessages = {
@@ -114,6 +118,9 @@ var RouteSequencer = function (properties) {
           clock.substep = 0;
           stepFunction();
         }
+      }
+      if (settings.sendClock){
+        self.output(evt.eventMessage);
       }
     } else if (evt.eventMessage.value[0] == headers.triggerOff) {
       var tracked = noteOnTracker[evt.eventMessage.value[1]];

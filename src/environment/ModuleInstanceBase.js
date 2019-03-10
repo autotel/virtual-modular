@@ -34,7 +34,7 @@ module.exports=function(properties,environment){
         if(what.isModuleInstance){
           console.log(self.name+"--->"+what.name);
           outputs.add(what);
-          self.handle('+ connection',{origin:self,destination:what});
+          self.handle('+connection',{origin:self,destination:what});
         }else{
           // console.error(what);
           self.handle('+!connection',{origin:self, destination:what});
@@ -48,7 +48,7 @@ module.exports=function(properties,environment){
   this.removeOutput=function(what){
     var rpt=outputs.delete(what);
     console.log(self.name+"-"+(rpt?"X":" ")+"->"+what.name);
-    self.handle('- connection',{origin:self,destination:what});
+    self.handle('-connection',{origin:self,destination:what});
 
   }
   this.addInput=function(what){
@@ -71,7 +71,7 @@ module.exports=function(properties,environment){
         outputs.forEach(function(tModule){
           // console.log(eventMessage.value);
           tModule.messageReceived({eventMessage:eventMessage.clone(),origin:self});
-          self.handle('> message',{origin:self,destination:tModule,val:eventMessage});
+          self.handle('>message',{origin:self,destination:tModule,val:eventMessage});
           // console.log("handle>",tModule.name);
         })
       });
@@ -107,7 +107,7 @@ module.exports=function(properties,environment){
   this.addRecordOutput=function(what){
     if(what){
       if(what.isModuleInstance){
-        self.handle('+ recopt',{origin:self,data:what});
+        self.handle('+recopt',{origin:self,data:what});
         console.log(self.name+" rec> "+what.name);
         recordOutputs.add(what);
         self.addInput(what);
@@ -130,7 +130,7 @@ module.exports=function(properties,environment){
       what.recordingReceived({eventMessage:recordEndedEm,origin:self});
     });
     console.log(self.name+" r"+(rpt?"X":" ")+"c> "+what.name);
-    self.handle('- recopt',{origin:self,data:what});
+    self.handle('-recopt',{origin:self,data:what});
   }
   this.addRecordInput=function(what){
     try{
@@ -170,11 +170,11 @@ module.exports=function(properties,environment){
         evt.origin.removeRecordOutput(self);
       }
     }
-    self.handle('- module',{origin:self});
+    self.handle('-module',{origin:self});
     if(self.onRemove){
       return self.onRemove();
     }
     return true;
   }
-  self.handle('+ module',{origin:self});
+  self.handle('+module',{origin:self});
 }

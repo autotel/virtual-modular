@@ -64,6 +64,7 @@ module.exports = function(controlledModule,environment) {
     controlledModule.stepDivision.value=thisVar.value;
     controlledModule.recordStepDivision();
   };
+
   configurators.time.vars["note duration"].changeFunction = function(thisVar, delta) {
     delta /= 12;
     thisVar.value += delta;
@@ -71,6 +72,14 @@ module.exports = function(controlledModule,environment) {
   configurators.time.vars["note duration"].nameFunction = function(thisVar) {
     return (Math.floor(thisVar.value * 100) / 100) + " steps";
   };
+
+  
+  this.outsideScroll = function (event) {
+    configurators.time.vars["step ratio"].changeFunction(
+      configurators.time.vars["step ratio"],
+      event.delta);
+    return ("steps:"+configurators.time.vars["step ratio"].value);
+  }
 
   var playMode = configurators.time.vars["mode"];
 

@@ -41,6 +41,7 @@ module.exports = function(controlledModule, environment) {
     }
   });
   var usingVelocity=configurators.global.vars["use velocity"];
+  var pauseUi=false;
   configurators.global.vars["auto map"].selectFunction = function(thisVar) {
     thisVar.value=thisVar.list.indexOf(controlledModule.autoMap);
   };
@@ -92,9 +93,12 @@ module.exports = function(controlledModule, environment) {
   }
   controlledModule.on('extrigger', function(event) {
     highlightedBitmap |= 1 << event.preset;
+    controlledModule.handle('bitmap-triggered',{bitmap:highlightedBitmap});
     setTimeout(function() {
       var num = event.preset;
       highlightedBitmap &= ~(1 << num);
+      controlledModule.handle('bitmap-triggered',{bitmap:highlightedBitmap});
+
     }, 500);
   });
 
@@ -105,14 +109,18 @@ module.exports = function(controlledModule, environment) {
   controlledModule.on('kitchanged', function() {
     updateAvailablePresetsBitmap();
   });
-
+  var lastTriggeredVelocity
   this.matrixButtonVelocity = function(event) {
     //the if prevents retrigger the first time
+    lastTriggeredVelocity=Math.floor(event.data[1]/2 - 1) ;
     if(usingVelocity.value && !engagedConfigurator){
       // console.log(event);
-      controlledModule.uiTriggerOn(event.data[0],event.data[1]/2);
+      controlledModule.uiTriggerOn(event.data[0],Math.floor(event.data[1]/2 - 1) );
+      pauseUi=false;
+      updateHardware(event.hardware);
     }
   };
+  var pressedMatrixButtons=new Set();
 
   this.matrixButtonPressed = function(event) {
     var hardware = event.hardware;
@@ -142,9 +150,14 @@ module.exports = function(controlledModule, environment) {
       } else {
         selectedPresetNumbers = [event.button];
       }
-      if(!usingVelocity.value){
+
+      if(usingVelocity.value){
+        pauseUi=true;
+      }else{
         controlledModule.uiTriggerOn(event.button);
       }
+
+      pressedMatrixButtons.add(event.button);
       if(controlledModule.autoMap!==false){
         if (controlledModule.kit[0])
           configurators.event.setFromEventMessage(controlledModule.kit[0], hardware);
@@ -160,10 +173,14 @@ module.exports = function(controlledModule, environment) {
   };
 
   this.matrixButtonReleased = function(event) {
+
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonReleased(event);
     } else {
-      controlledModule.uiTriggerOff(event.button);
+      if(!muteMode){
+        controlledModule.uiTriggerOff(event.button);
+        pressedMatrixButtons.delete(event.button);
+      }
     }
   };
 
@@ -183,7 +200,7 @@ module.exports = function(controlledModule, environment) {
 
       } else if (event.button == 0 || event.button == 3) { //0 is used in x28 and 3 in x16
         muteMode = !muteMode;
-        event.hardware.sendScreenA("mute");
+        event.hardware.sendScreenA("mute or hold");
       } else if (event.button >= 8) {
         lastEngagedConfigurator = engagedConfigurator = configurators.record;
       }
@@ -205,6 +222,8 @@ module.exports = function(controlledModule, environment) {
     }
   }
   this.encoderScrolled = function(event) {
+
+
     if (engagedConfigurator) {
       engagedConfigurator.encoderScrolled(event);
     } else {
@@ -228,6 +247,12 @@ module.exports = function(controlledModule, environment) {
         };
       }
     }
+
+    pressedMatrixButtons.forEach(function (itm) {
+      console.log("active change, button", itm);
+      controlledModule.uiTriggerOn(itm);
+    });
+
     updateHardware(event.hardware);
   };
   let outsideScrollHeader = 0;
@@ -283,25 +308,47 @@ module.exports = function(controlledModule, environment) {
   }
   configurators.record.autoEngageWindow();
   var updateHardware = function(hardware) {
+    if(pauseUi) return;
     hardware.sendScreenA(controlledModule.name);
+    if(usingVelocity.value){
+      // var step=0XFF/16;
+      // var str="";
+      // for(var a=0; a<16; a++){
+      //   if(a*step<lastTriggeredVelocity){
+      //     str+="|";
+      //   }else{
+      //     str+=" ";
+      //   }
+      // }
+      hardware.sendScreenB(lastTriggeredVelocity+"_____");
+    }
     updateLeds(hardware);
   }
 
   function passiveUpdateLeds() {
+    if(pauseUi) return;
+
     if (!engagedConfigurator)
       for (let hardware of engagedHardwares) {
         updateLeds(hardware);
       }
   }
   var updateLeds = function(hardware) {
+    if(pauseUi) return;
+
     var selectedPresetBitmap = 0;
+    var pressedPresetBitmap=0;
+    pressedMatrixButtons.forEach(function(a){
+      pressedPresetBitmap|=1<<a;
+    });
     eachSelectedPresetNumber(function(selectedPresetNumber) {
       selectedPresetBitmap |= 1 << selectedPresetNumber;
     });
+
     hardware.draw([
-      highlightedBitmap | selectedPresetBitmap,
-      (highlightedBitmap | selectedPresetBitmap | availablePresetsBitmap) ^ muteBmp,
-      selectedPresetBitmap | availablePresetsBitmap
-    ]);
+      (highlightedBitmap | selectedPresetBitmap) & ~muteBmp,
+      (highlightedBitmap | selectedPresetBitmap | availablePresetsBitmap | pressedPresetBitmap) & ~muteBmp,
+      selectedPresetBitmap | availablePresetsBitmap | pressedPresetBitmap | muteBmp
+    ],false);
   }
 }

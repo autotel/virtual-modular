@@ -129,7 +129,6 @@ module.exports = function (controlledModule, environment) {
     if (thisVar.value + delta >= 1)
       thisVar.value += delta;
     controlledModule.handleStepsChange();
-
   }
 
   configurators.time.vars["fold"].nameFunction = configurators.time.vars["fold!"].nameFunction = function (thisVar) {
@@ -182,6 +181,15 @@ module.exports = function (controlledModule, environment) {
     }
     controlledModule.loopLength.value = thisVar.value;
     controlledModule.handleStepsChange();
+  }
+
+  this.outsideScroll = function(event) {
+    var change=configurators.time.vars["fold"];
+    // console.log(event);
+    change.selectFunction(change);
+    change.changeFunction(change,event.delta);
+    var ret="fold:"+change.nameFunction(change);
+    return (ret);
   }
 
   configurators.time.vars["loop look"].nameFunction = function (thisVar) {
@@ -425,7 +433,7 @@ module.exports = function (controlledModule, environment) {
     configuratorsPressed[event.data[0]] = true;
     if (configuratorsPressed[0] && configuratorsPressed[1] || configuratorsPressed[3] && configuratorsPressed[1]) {
       if (lastEngagedConfigurator)
-        lastEngagedConfigurator.disengage(hardware);
+        lastEngagedConfigurator.disengage(event);
       lastEngagedConfigurator = engagedConfigurator = false;
       skipMode = true;
       hardware.sendScreenA("skip to step");
@@ -441,7 +449,7 @@ module.exports = function (controlledModule, environment) {
       engagedConfigurator.engage(event);
     } else if (event.data[0] == 0 || event.data[0] == 3) {
       if (lastEngagedConfigurator)
-        lastEngagedConfigurator.disengage(hardware);
+        lastEngagedConfigurator.disengage(event);
       lastEngagedConfigurator = engagedConfigurator = false;
       shiftPressed = true;
       hardware.sendScreenA("select through");
@@ -477,7 +485,7 @@ module.exports = function (controlledModule, environment) {
 
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonReleased(event);
-      engagedConfigurator.disengage(hardware);
+      engagedConfigurator.disengage(event);
       engagedConfigurator = false;
     }
 

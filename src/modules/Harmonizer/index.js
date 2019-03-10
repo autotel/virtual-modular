@@ -5,7 +5,6 @@ var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
-var InterfaceX16 = require('./InterfaceX16');
 var InterfaceX28 = require('./InterfaceX28');
 /**
 @constructor ModuleSingleton
@@ -37,11 +36,12 @@ var Harmonizer = function (properties, environment) {
   this.currentScale = 0;
   var noteOnTracker = new NoteOnTracker(this);
   this.mapMode = true;
+  var transpose = this.transpose = {input:0,output:36};
   // this.baseNote={value:0};
 
   this.defaultNote = new Note();
   // this.defaultNote.testvar="hi";
-  this.defaultNote.note(36);
+  this.defaultNote.note(0);
 
   var scaleMap = {};
   //keep track of triggered notes
@@ -143,8 +143,9 @@ var Harmonizer = function (properties, environment) {
     });
   }
 
-  var inputTransformNumber = function (inputNumber) {
+  var inputTransformNumber = this.inputTransformNumber = function (inputNumber) {
     var ret;
+    inputNumber+=transpose.input;
     if (self.scaleArray[self.currentScale]) {
       var scaleLength = self.scaleArray[self.currentScale].length;
       if (self.mapMode == true) {
@@ -167,6 +168,7 @@ var Harmonizer = function (properties, environment) {
         }
         ret = nearestGrade + (12 * octave);
       }
+      ret+=transpose.output;
       return ret;// + self.defaultNote.note();
     } else {
       return false;
@@ -247,8 +249,7 @@ var Harmonizer = function (properties, environment) {
 
     return ret;
   }
-  
-  this.interfaces.X16 = InterfaceX16;
+
   this.interfaces.X28 = InterfaceX28;
 
   defaultState();

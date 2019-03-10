@@ -2,9 +2,10 @@
 /**/console.log("-----------start-------------");
 
 var environment = require('./virtualModularEnvironment').environment;
-console.log("W",environment);
+console.log("W", environment);
 
-var X28Hardware=require('../hardwares-serial/DriverX28v0.js');
+var X28Hardware = require('../hardwares-serial/DriverX28v0.js');
+var X28Hardware = require('../hardwares-serial/DriverX8v0.js');
 var Http = require('../hardwares-http');
 
 var MidiIO = require('../modules-ext/jazz-MidiIO');
@@ -18,7 +19,7 @@ environment.handle('created');
 
 setTimeout(function () {
     try {
-        environment.modules.applyProperties(require('../patches/default-patch.js'));
+        environment.modules.applyProperties(require('../patches/electribe-like-patch.js'));
     } catch (e) {
         console.error("error while loading default patch: ", e);
     }

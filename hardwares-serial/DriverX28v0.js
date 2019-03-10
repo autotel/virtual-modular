@@ -1,5 +1,5 @@
 'use strict';
-var SerialHardware=require('./SerialHardware.js');
+var SerialHardware = require('./SerialHardware.js');
 
 /**/console.log("x28v0 serial on ", process.platform);
 
@@ -20,13 +20,13 @@ for (var line of lines) {
         try {
           if (!inObject[what[level]]) inObject[what[level]] = {};
           recurse(what, inObject[what[level]], topCallback, level + 1);
-        } catch (e) {}
+        } catch (e) { }
       }
       if (!what[level + 1]) {
         topCallback.call(inObject, what[level]);
       }
     }
-    recurse(subWords, comConsts, function(topName) {
+    recurse(subWords, comConsts, function (topName) {
       this[topName] = parseInt(words[2]);
     });
   }
@@ -95,47 +95,48 @@ DEPRECATED DOC
 
 
 var instances = 0;
-var DriverX28v0 = function(properties, environment) {
-  properties.rLengths=rLengths;
-  properties.tLengths=tLengths;
-  properties.recognitionString="28";
-  SerialHardware.call(this,properties,environment);
+var DriverX28v0 = function (properties, environment) {
+  properties.rLengths = rLengths;
+  properties.tLengths = tLengths;
+  properties.recognitionString = "28";
+  SerialHardware.call(this, properties, environment);
   var myInstanceNumber = instances;
-  this.instanceNumber=myInstanceNumber;
+  this.instanceNumber = myInstanceNumber;
   instances++;
-  var self=this;
+  var self = this;
   //TODO: myInteractionPattern should be part of HardwareDriver, since all HardwareDriver must have a myInteractionPattern here
   var myInteractionPattern = environment.interactionMan.newSuperInteractor("x28basic", this);
   myInteractionPattern.handle('serialopened');
   this.lastScreenValues = [];
-  var sendScreenA = function(str) {
+  var sendScreenA = function (str) {
     self.lastScreenValues[0] = str;
     self.sendString(transmits.screenA.head, str.substring(0, 16));
   }
 
-  var sendScreenB = function(str) {
+  var sendScreenB = function (str) {
     self.lastScreenValues[1] = str;
     self.sendString(transmits.screenB.head, str.substring(0, 16));
   }
   this.sendScreenA = sendScreenA;
   this.sendScreenB = sendScreenB;
-  var setLedsToColor = this.paintColorFromLedN = function(bitmaps, color = [255, 0, 0], start = 0, add = true) {
-    var oparray=[];
+
+  var setLedsToColor = this.paintColorFromLedN = function (bitmaps, color = [255, 0, 0], start = 0, add = true) {
+    var oparray = [];
     //TODO: count amount of pixels to paint, to avoid wasting com.time
-    var reform=[];
-    if(bitmaps.length){
-      reform=bitmaps;
-    }else{
-      let sh=0;
-      while(0xff&(bitmaps>>(sh*8)) > 0){
+    var reform = [];
+    if (bitmaps.length) {
+      reform = bitmaps;
+    } else {
+      let sh = 0;
+      while (0xff & (bitmaps >> (sh * 8)) > 0) {
         // console.log("SH"+sh);
-        reform.push((bitmaps>>(sh*8))&0xff);
+        reform.push((bitmaps >> (sh * 8)) & 0xff);
         sh++;
       }
     }
-    oparray=oparray.concat(color);
-    oparray=oparray.concat([start]);
-    oparray=oparray.concat(reform);
+    oparray = oparray.concat(color);
+    oparray = oparray.concat([start]);
+    oparray = oparray.concat(reform);
 
     // if(oparray.length>=7)
     // console.log(oparray.length);
@@ -147,15 +148,138 @@ var DriverX28v0 = function(properties, environment) {
       self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
     }
   }
-  var drawColor = this.drawColor = function(bitmap, color = [255, 0, 0],add = true) {
+  var setLedsToColor = this.paintColorFromLedN = function (bitmaps, color = [255, 0, 0], start = 0, add = true) {
+    var oparray = [];
+    //TODO: count amount of pixels to paint, to avoid wasting com.time
+    var reform = [];
+    if (bitmaps.length) {
+      reform = bitmaps;
+    } else {
+      let sh = 0;
+      while (0xff & (bitmaps >> (sh * 8)) > 0) {
+        // console.log("SH"+sh);
+        reform.push((bitmaps >> (sh * 8)) & 0xff);
+        sh++;
+      }
+    }
+    oparray = oparray.concat(color);
+    oparray = oparray.concat([start]);
+    oparray = oparray.concat(reform);
 
-    setLedsToColor(bitmap,color,8,add);
+    // if(oparray.length>=7)
+    // console.log(oparray.length);
+
+    // console.log("OPRR",Buffer.from(oparray));
+    if (add) {
+      self.sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
+    } else {
+      self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
+    }
   }
-  var drawLowerSelectorButtonsColor = this.drawLowerSelectorButtonsColor = function(bitmap, color = [255, 0, 0],add = true) {
-    setLedsToColor(bitmap,color,24,add);
+
+
+
+  var setLedsToColor = this.paintColorFromLedN = function (bitmaps, color = [255, 0, 0], start = 0, add = true) {
+    var oparray = [];
+    //TODO: count amount of pixels to paint, to avoid wasting com.time
+    var reform = [];
+    if (bitmaps.length) {
+      reform = bitmaps;
+    } else {
+      let sh = 0;
+      while (0xff & (bitmaps >> (sh * 8)) > 0) {
+        // console.log("SH"+sh);
+        reform.push((bitmaps >> (sh * 8)) & 0xff);
+        sh++;
+      }
+    }
+    oparray = oparray.concat(color);
+    oparray = oparray.concat([start]);
+    oparray = oparray.concat(reform);
+
+    // if(oparray.length>=7)
+    // console.log(oparray.length);
+
+    // console.log("OPRR",Buffer.from(oparray));
+    if (add) {
+      self.sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
+    } else {
+      self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
+    }
   }
-  var clear=this.clear=function(){
-    self.draw([0,0,0]);
+  //midi in and out
+  this.sendMidi = function (signal) {
+    if (!Array.isArray(signal)) {
+      console.warn("outputMidi has to be array");
+      return;
+    }
+
+    while (signal.length > transmits.sendMidi.len) { signal.shift() }
+
+    self.sendx8(transmits.sendMidi.head, signal);
+  }
+  //preset colour section
+  var presetColoursList = {
+  };
+  this.definePresetColour = function (name, colour, slot) {
+    if (slot)
+      presetColoursList[name] = slot;
+    //prevent longer messages than specified by header
+    while (colour.length > transmits["defineColour" + presetColoursList[name]].len) { colour.shift() }
+    self.sendx8(transmits["defineColour" + presetColoursList[name]].head, colour);
+  }
+  this.paintPresetColour = function (name, bitmap) {
+    // console.log(presetColoursList);
+    if (!presetColoursList[name]) {
+      console.warn("preset " + name + " doesn't exist");
+      return;
+    }
+    while (Array.isArray(bitmap)) bitmap = bitmap[0];
+
+    // var bitmaps = [(bitmap & 0xF0) >> 8, bitmap & 0xF];
+    var bitmaps = [bitmap];
+    self.sendx8_16(transmits["setMatrixMonoMapColour" + presetColoursList[name]].head, bitmaps);
+  }
+
+  //custom colours section
+
+  var setLedsToColor = this.paintColorFromLedN = function (bitmaps, color = [255, 0, 0], start = 0, add = true) {
+    var oparray = [];
+    //TODO: count amount of pixels to paint, to avoid wasting com.time
+    var reform = [];
+    if (bitmaps.length) {
+      reform = bitmaps;
+    } else {
+      let sh = 0;
+      while (0xff & (bitmaps >> (sh * 8)) > 0) {
+        // console.log("SH"+sh);
+        reform.push((bitmaps >> (sh * 8)) & 0xff);
+        sh++;
+      }
+    }
+    oparray = oparray.concat(color);
+    oparray = oparray.concat([start]);
+    oparray = oparray.concat(reform);
+
+    // if(oparray.length>=7)
+    // console.log(oparray.length);
+
+    // console.log("OPRR",Buffer.from(oparray));
+    if (add) {
+      self.sendArray(transmits.addColorMonoMapsToColorFrom.head, oparray);
+    } else {
+      self.sendArray(transmits.setColorMonoMapsToColorFrom.head, oparray);
+    }
+  }
+  var drawColor = this.drawColor = function (bitmap, color = [255, 0, 0], add = true) {
+
+    setLedsToColor(bitmap, color, 8, add);
+  }
+  var drawLowerSelectorButtonsColor = this.drawLowerSelectorButtonsColor = function (bitmap, color = [255, 0, 0], add = true) {
+    setLedsToColor(bitmap, color, 24, add);
+  }
+  var clear = this.clear = function () {
+    self.draw([0, 0, 0]);
   }
   // this.drawLayers = function(layers){
   //   var resultLayer={bitmap:0,color:[0,0,0]}
@@ -169,7 +293,7 @@ var DriverX28v0 = function(properties, environment) {
   //   }
   //   drawColor(resultLayer.bitmap,resultLayer.color,true);
   // }
-  var updateLeds = function(bitmaps, paintSelectButtons = false, intensity = 0xff) {
+  var updateLeds = function (bitmaps, paintSelectButtons = false, intensity = 0xff) {
     bitmaps[3] &= 0xf0;
     bitmaps[7] &= 0xf0;
     bitmaps[11] &= 0xf0;
@@ -188,19 +312,19 @@ var DriverX28v0 = function(properties, environment) {
       lastSentBitmap.bitmap = bitmaps;
     }
   }
-  var updateSelectorLeds = function(bitmaps) {
+  var updateSelectorLeds = function (bitmaps) {
     if (!Array.isArray(bitmaps)) {
       throw "when updating the LED's, I need an array of three ints";
     }
     self.sendx8_16(transmits.setSelectorMonoMap.head, bitmaps);
   }
-  self.testByte = function(byte) {
+  self.testByte = function (byte) {
     self.sendx8(transmits.comTester.head, [byte]);
   }
   self.draw = updateLeds;
   self.drawSelectors = updateSelectorLeds;
   // TODO: : make a function that takes shorter to communicate
-  self.updateLayer = function(n, to) {
+  self.updateLayer = function (n, to) {
     if (n < 3) {
       lastSentBitmap[n] = to & 0xffff;
       updateLeds(bitmaps);
@@ -213,51 +337,51 @@ var DriverX28v0 = function(properties, environment) {
   var matrixButtonsBitmap = 0;
 
   /*object that evaluates buttons whose time pressed overlap, forming a button chain*/
-  var chainedButtons=new(function(){
-    var compChain=[];
-    var chain=this.chain=[];
-    this.eval=function(evt){
-      if(evt.type){
-        if(evt.type.indexOf("Press")!==-1){
-          if(pressed(evt))
-            if(chain.length>1)
-              evt.tied=chain;
+  var chainedButtons = new (function () {
+    var compChain = [];
+    var chain = this.chain = [];
+    this.eval = function (evt) {
+      if (evt.type) {
+        if (evt.type.indexOf("Press") !== -1) {
+          if (pressed(evt))
+            if (chain.length > 1)
+              evt.tied = chain;
         }
-        if(evt.type.indexOf("Release")!==-1){
-          if(released(evt))
-            if(chain.length>1){
-              evt.tied=chain;
-            }else{
-              evt.tied=false;
+        if (evt.type.indexOf("Release") !== -1) {
+          if (released(evt))
+            if (chain.length > 1) {
+              evt.tied = chain;
+            } else {
+              evt.tied = false;
             }
         }
         // console.log(evt);
       }
     }
-    function pressed(event){
-      let cpev=comp(event);
+    function pressed(event) {
+      let cpev = comp(event);
       // console.log(String(cpev,2));
-      if(cpev) chainadd(cpev,event);
-      return(cpev);
+      if (cpev) chainadd(cpev, event);
+      return (cpev);
     }
-    function released(event,identifier){
-      let cpev=comp(event);
+    function released(event, identifier) {
+      let cpev = comp(event);
       // console.log(String(cpev,2));
-      if(cpev) chainrmv(cpev);
-      return(cpev);
+      if (cpev) chainrmv(cpev);
+      return (cpev);
     }
     //compress data into a comparable string
-    function comp(evt){
-      var ret=false;
-      if(evt.type.indexOf("selectorButton")!==-1){
-        var ret=[(0x1<<8)|(evt.data[0])];
+    function comp(evt) {
+      var ret = false;
+      if (evt.type.indexOf("selectorButton") !== -1) {
+        var ret = [(0x1 << 8) | (evt.data[0])];
       }
-      if(evt.type.indexOf("matrixButton")!==-1){
-        var ret=[(0x2<<8)|(evt.data[0])];
+      if (evt.type.indexOf("matrixButton") !== -1) {
+        var ret = [(0x2 << 8) | (evt.data[0])];
       }
-      if(evt.type.indexOf("bottomButton")!==-1){
+      if (evt.type.indexOf("bottomButton") !== -1) {
         // var ret=[(0x3<<8)|(evt.data[0])];
-        var ret=0;
+        var ret = 0;
       }
       // if(evt.type.match(/encoder(Pressed|Released)/).length){
       //   var ret=[(0x4<<8)|(evt.data[0])];
@@ -265,20 +389,20 @@ var DriverX28v0 = function(properties, environment) {
       return ret;
     }
 
-    function chainadd(cp,evt){
+    function chainadd(cp, evt) {
       compChain.push(cp);
       chain.push(evt);
       // console.log("CHAIN",compChain.length);
       // console.log("    +",chain.length);
     }
-    function chainrmv(cp,evt){
-      var iof=(compChain.includes(cp));
+    function chainrmv(cp, evt) {
+      var iof = (compChain.includes(cp));
       // console.log("IOF",iof,cp);
-      if(iof>=0){
-        compChain.splice(iof,1);
-        chain.splice(iof,1);
-      }else{
-        console.error("released a button that was never pressed?",evt.type);
+      if (iof >= 0) {
+        compChain.splice(iof, 1);
+        chain.splice(iof, 1);
+      } else {
+        console.error("released a button that was never pressed?", evt.type);
       }
       // console.log("CHAIN",compChain.length);
       // console.log("    +",chain.length);
@@ -287,7 +411,7 @@ var DriverX28v0 = function(properties, environment) {
   })();
 
   /* when an event is received from the hardware device*/
-  this.onDataReceived = function(chd) {
+  this.onDataReceived = function (chd) {
 
     // console.log("------------packet",chd);
     // console.log(data);
@@ -341,18 +465,43 @@ var DriverX28v0 = function(properties, environment) {
       myInteractionPattern.handle(event.type, event);
     }
   }
-  this.connectAndStart=function(){
-    setTimeout(function() {
+  this.connectAndStart = function () {
+    setTimeout(function () {
       // console.log(comConsts.transmits.engageControllerMode.head);
       self.sendx8(comConsts.transmits.engageControllerMode.head, [comConsts.transmits.engageControllerMode.head]);
       sendScreenA("initialized n." + myInstanceNumber);
       sendScreenB("autotel x28v0");
+
+
+      self.definePresetColour("selected", [255, 255, 255], "A");
+      self.definePresetColour("dimred", [103, 0, 0], "B");
+      self.definePresetColour("dimgreen", [0, 100, 97], "C");
+      self.definePresetColour("dimblue", [0, 50, 100], "D");
+      self.definePresetColour("active", [103, 104, 0], "E");
+      self.definePresetColour("dim", [203, 204, 90], "F");
+
+      /* testing colour combination */
+      // setTimeout(function(){
+      //   var b=0;
+      //   var a = [ "hilight",
+      //             "dimred",
+      //             "dimgreen",
+      //             "dimblue",
+      //             "active",
+      //             "selected",
+      //           ];
+      //   for(var b=0; b<16; b++){
+      //     self.paintPresetColour(a[b%a.length], 1<<b);
+      //   }
+      // },200);
+
+
       myInteractionPattern.engage();
     }, 200);
   }
 
   return this;
 };
-DriverX28v0.initialization=SerialHardware.initialization;
-SerialHardware.availableSerialDrivers['28']=DriverX28v0;
+DriverX28v0.initialization = SerialHardware.initialization;
+SerialHardware.availableSerialDrivers['28'] = DriverX28v0;
 module.exports = DriverX28v0;
