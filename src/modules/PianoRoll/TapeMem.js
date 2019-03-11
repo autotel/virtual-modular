@@ -66,7 +66,6 @@ var TapeMem = function (props = {}) {
             var frevl = framesInRange[frevli];
             eventsInRange = eventsInRange.concat(frevl);
         }
-
         eventsInRange.map(function (evt) {
             if (evt.value[0] == headers.triggerOn) {
                 notesOn.add(evt);
@@ -76,15 +75,9 @@ var TapeMem = function (props = {}) {
                 }
             }
         });
-        // console.log("FRAME");
         notesOn.forEach(function (note) {
             if (!note.life) note.life = note.duration;
             note.life -= frameIncrement;
-            // var trst="";
-            // for(var a=0; a<note.life; a+=4){
-            //     trst+="-";
-            // }
-            // console.log("NON",trst);
 
             if (note.life <= 0) {
                 var noff = note.clone();
@@ -95,6 +88,7 @@ var TapeMem = function (props = {}) {
         });
 
         lastFrame = upcomingFrame;
+
         self.eventTriggerFunction(eventsInRange);
         // console.log("upcomingFrame",stepToFrame(stepIncrement),upcomingFrame);
     }

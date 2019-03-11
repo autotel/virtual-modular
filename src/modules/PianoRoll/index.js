@@ -111,9 +111,10 @@ var PianoRoll = function(properties,environment) {
     var duPrevent={};
     for(var evtn in triggeredEventsList){
       var evt=triggeredEventsList[evtn];
-      if (duPrevent[evt.value[1], evt.value[2], evt.value[3]]){
+      if (duPrevent[evt.value.slice(0,3).join("-")]){
+        // console.log(duPrevent);
       }else{
-        duPrevent[evt.value[1], evt.value[2], evt.value[3]] = true;
+        duPrevent[evt.value.slice(0,3).join("-")] = true;
         // console.log(evt);
         self.output(evt);
         noteOnTracker.add(evt);
