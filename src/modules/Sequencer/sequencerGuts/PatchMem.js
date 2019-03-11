@@ -17,6 +17,8 @@ module.exports=function(sequencerModule){ return new(function(){
   var microStepDivide={value:12};
   this.microStepDivide=microStepDivide;
 
+  this.useMicroDelay=true;
+
   //the visible step that can be divided if the user wants a slower sequence
   var substep={value:0};
   var stepDivide={value:1}
@@ -223,46 +225,36 @@ module.exports=function(sequencerModule){ return new(function(){
       microStepDivide.value*=stepDivide.value;
     }
     microStep.value=ramp(number-self.microStepDisplace.value,microStepDivide.value);
-    // console.log(microStep.value);
-      if(microStep.value%microStepDivide.value==0){
-        if(self.playing.value){
-          // if(clockIncremental){
-          // self.step();
-          // console.log("incremental"+microStep.value);
-          // console.log(substep);
-          substep.value++;
-          currentStep.value+=loopDisplace.value;
-          loopDisplace.value=0;
-          if(substep.value>=stepDivide.value){
-            // console.log(stepDivide);
-            step(currentStep.value);
-            currentStep.value++;
-            // console.log("mememe");
-            substep.value=substep.value%stepDivide.value;
-            if(currentStep.value>=loopLength.value) currentStep.value%=loopLength.value;
-            if(currentStep.value<0) currentStep.value%=Math.abs(loopLength.value);
-          }
-        // }
-        }else{
-          sequencerModule.noteLenManager.step();
+    if(microStep.value%microStepDivide.value==0){
+      if(self.playing.value){
+        substep.value++;
+        currentStep.value+=loopDisplace.value;
+        loopDisplace.value=0;
+        if(substep.value>=stepDivide.value){
+          // console.log(stepDivide);
+          step(currentStep.value);
+          currentStep.value++;
+          // console.log("mememe");
+          substep.value=substep.value%stepDivide.value;
+          if(currentStep.value>=loopLength.value) currentStep.value%=loopLength.value;
+          if(currentStep.value<0) currentStep.value%=Math.abs(loopLength.value);
         }
+      }else{
+        sequencerModule.noteLenManager.step();
+      }
     }
   }
 
   function step(evt){
     sequencerModule.noteLenManager.step();
     if(!sequencerModule.mute)
-    // if(substep.value==0){
       if(getBoolean(currentStep.value)){
-        // console.log("memem");
-        // console.log(patData[currentStep.value].length);
         for(var stepData of patData[currentStep.value]){
           sequencerModule.output(stepData.on);
           sequencerModule.noteLenManager.noteStarted(stepData);
         }
       }
       sequencerModule.onPatchStep();
-    // }
   }
   this.store=store;
   this.storeNoDup=storeNoDup;

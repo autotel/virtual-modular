@@ -11,8 +11,6 @@ prototype of event messages in a format that is handy for storage
 var EventPattern=function(properties){
   var thisPE=this;
 
-
-
   this.compareTo=function(other,propertyList){
     return thisPE.on.compareTo(other.on,propertyList);//& this.off.compareTo(other.off);
   }

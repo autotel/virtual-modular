@@ -28,6 +28,7 @@ var PianoRoll = function(properties,environment) {
   var memory=this.memory;
 
 
+
   this.clock={
     rate:1,
     playHead:0,
@@ -66,6 +67,7 @@ var PianoRoll = function(properties,environment) {
       rec.duration++;
     }
   });
+
 
   this.recordingReceived=function(evt){
     var message=evt.eventMessage;

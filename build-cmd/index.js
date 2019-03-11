@@ -2,6 +2,7 @@
 /**/console.log("-----------start-------------");
 
 var environment = require('./virtualModularEnvironment').environment;
+environment.fs=require('fs');
 console.log("W", environment);
 
 var X28Hardware = require('../hardwares-serial/DriverX28v0.js');

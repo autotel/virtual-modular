@@ -14,6 +14,9 @@ module.exports=function(controlledModule){
   }
   this.recordNoteStart=function(differenciator,eventOn){
     if(eventOn){
+
+      eventOn.microDelayFrames=192*controlledModule.microStep.value/controlledModule.microStepDivide;
+
       var newStepEvent=new EventPattern().fromEventMessage(eventOn);
       lastRecordedNote=newStepEvent;
       recorderDifferenciatorList[differenciator]=currentStep.value;

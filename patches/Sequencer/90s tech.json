@@ -1,0 +1,448 @@
+{
+	"0": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"1": [
+		{
+			"on": {
+				"value": [
+					1,
+					11,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					11,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"2": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"3": [
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"4": [
+		{
+			"on": {
+				"value": [
+					1,
+					11,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					11,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"5": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"6": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"7": [
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					9,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					9,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"8": [
+		{
+			"on": {
+				"value": [
+					1,
+					11,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					11,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"9": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"10": [
+		{
+			"on": {
+				"value": [
+					1,
+					9,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					9,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"11": [
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"12": [
+		{
+			"on": {
+				"value": [
+					1,
+					9,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					9,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"13": [
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					11,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					11,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"14": [
+		{
+			"on": {
+				"value": [
+					1,
+					10,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					10,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"15": [
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					-1
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	]
+}

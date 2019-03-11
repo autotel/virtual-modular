@@ -11,5 +11,6 @@ module.exports = {
         libraryTarget: 'this',
         library: 'environment',
     },
+    target:'node',
     node: { fs: 'empty' } //I don't know how, it fixes a problem
 };

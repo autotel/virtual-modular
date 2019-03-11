@@ -2,7 +2,11 @@
 var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
 var EventMessage = require('../../datatypes/EventMessage.js');
+var EventPattern=require('./EventPattern.js');
 var InterfaceX16 = require('./InterfaceX16');
+
+// const fs = require('fs');
+// console.log(fs);
 // var InterfaceX28 = require('./InterfaceX28');
 var headers = EventMessage.headers;
 
@@ -20,6 +24,7 @@ var testGetName = function () {
 var baseName = "sequencer";
 
 var Sequencer = function (properties, environment) {
+  var fs=environment.fs;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
 
@@ -218,7 +223,69 @@ var Sequencer = function (properties, environment) {
       }
     }
   }
+  this.listSequenceFiles=function(){
+    const folder = './patches/Sequencer/';
+    // console.log(fs);
+    return new Promise((sux,rej)=>{
+      var flist=[];
+      fs.readdir(folder, (err, files) => {
+        if(err){
+          console.log(err);
+          rej(err);
+          return err;
+        }
+        files.forEach(file => {
+          console.log(file);
+          flist.push(file);
+        });
+        sux(flist);
+      });
+    });
+  }
+  this.loadSequenceFile=function(fname){
+    var content;
+    console.log("load sequence");
+    return new Promise((sux,rej)=>{
+      fs.readFile("./patches/Sequencer/"+fname, function read(err, data) {
+          if (err) {
+              console.log( err);
+              rej(err);
+              return;
+          }
+          var data=JSON.parse(data);
+          for(var stepn in data){
+            console.log("load step",stepn);
+            for(var evPatN in data[stepn]){
+              console.log("load evt",data[stepn][evPatN]);
 
+              patchMem.storeNoDup(stepn,new EventPattern(data[stepn][evPatN]));
+            }
+          }
+          sux(self.patData);
+        });
+    });
+  }
+  this.saveSequenceFile=function(fname){
+    return new Promise((sux,rej)=>{
+      var writePatData=JSON.parse(JSON.stringify(self.patData));
+      for(var stepn in writePatData){
+        for(var evPatN in writePatData[stepn]){
+          writePatData[stepn][evPatN].on.isEventMessage=false;
+          delete writePatData[stepn][evPatN].on.isEventMessage;
+          writePatData[stepn][evPatN].off.isEventMessage=false;
+          delete writePatData[stepn][evPatN].off.isEventMessage;
+        }
+      }
+      fs.writeFile("./patches/Sequencer/"+fname, JSON.stringify(writePatData,null,'\t'), function(err) {
+          if(err) {
+            rej(err);
+            return console.log(err);
+          }
+          sux();
+          console.log("The file was s");
+        });
+    });
+  }
   // x71: data response
   this.messageReceived = function (event) {
     var evt = event.eventMessage;
@@ -234,7 +301,7 @@ var Sequencer = function (properties, environment) {
       }
       case headers.triggerOn: {
         // console.log("sq:headers.triggerOn");
-        thisInstance.stepAbsolute(evt.value[2]);
+        thisInstance.stepAbsolute(evt.value[1]);
         if (self.listenTransport.value) {
           thisInstance.play();
         }

@@ -99,8 +99,49 @@ module.exports = function (controlledModule, environment) {
       "stoppable": controlledModule.listenTransport,
       "rec mode": { value: controlledModule.recordSettings.mode },
       "on rec end": { value: controlledModule.recordSettings.switchOnEnd },
+      "load sequence": { value:false },
+      "save sequence": { value:0 },
     }
   });
+
+
+  configurators.time.vars["save sequence"].changeFunction = function (thisVar, delta) {
+    if(!thisVar.list)return;
+    thisVar.value += delta;
+    if(thisVar.value>thisVar.list.length) thisVar.value=0;
+    if(thisVar.value<0) thisVar.value=thisVar.list.length;
+  }
+  configurators.time.vars["save sequence"].nameFunction = function (thisVar) {
+    if(!thisVar.list) return "...";
+    return thisVar.list[thisVar.value]+"";
+  }
+  configurators.time.vars["save sequence"].selectFunction = function (thisVar) {
+    controlledModule.listSequenceFiles().then(function(list){
+      thisVar.list=list;
+    });
+  }
+  configurators.time.vars["save sequence"].disengageFunction = function (thisVar) {
+    controlledModule.saveSequenceFile(thisVar.list[thisVar.value]);
+  }
+
+  configurators.time.vars["load sequence"].changeFunction = function (thisVar, delta) {
+    if(!thisVar.list)return;
+    thisVar.value += delta;
+    if(thisVar.value>thisVar.list.length) thisVar.value=0;
+    if(thisVar.value<0) thisVar.value=thisVar.list.length;
+  }
+  configurators.time.vars["load sequence"].nameFunction = function (thisVar) {
+    if(!thisVar.list) return "...";
+    return thisVar.list[thisVar.value]+"";
+  }
+  configurators.time.vars["load sequence"].selectFunction = function (thisVar) {
+    controlledModule.listSequenceFiles().then(function(list){
+      thisVar.list=list;
+    });
+  }
+  configurators.time.vars["load sequence"].disengageFunction = function (thisVar) {
+    controlledModule.loadSequenceFile(thisVar.list[thisVar.value]);
+  }
 
   configurators.time.vars["step length"].changeFunction = function (thisVar, delta) {
     thisVar.value += delta;
