@@ -7,7 +7,9 @@ module.exports=function(properties,environment){
   onHandlers.call(this);
   var self=this;
   var outputs=this.outputs=new Set();
+  var inputs=this.inputs=new Set();
   var recordOutputs=this.recordOutputs=new Set();
+  var recordInputs=this.recordInputs=new Set();
   this.baseName="base";
   this.name="base";
   this.isModuleInstance=true;
@@ -34,6 +36,7 @@ module.exports=function(properties,environment){
         if(what.isModuleInstance){
           console.log(self.name+"--->"+what.name);
           outputs.add(what);
+          what.inputs.add(self);
           self.handle('+connection',{origin:self,destination:what});
         }else{
           // console.error(what);
@@ -47,6 +50,8 @@ module.exports=function(properties,environment){
   }
   this.removeOutput=function(what){
     var rpt=outputs.delete(what);
+    what.inputs.delete(self);
+
     console.log(self.name+"-"+(rpt?"X":" ")+"->"+what.name);
     self.handle('-connection',{origin:self,destination:what});
 
@@ -63,6 +68,9 @@ module.exports=function(properties,environment){
   this.enqueue=setImmediate;
   this.getOutputs=function(){
     return Array.from(outputs);
+  }
+  this.getInputs=function(){
+    return Array.from(input);
   }
   this.output=function(eventMessage,overrideMute){
     if((!self.mute)||overrideMute){
@@ -110,6 +118,7 @@ module.exports=function(properties,environment){
         self.handle('+recopt',{origin:self,data:what});
         console.log(self.name+" rec> "+what.name);
         recordOutputs.add(what);
+        what.recordInputs.add(self);
         self.addInput(what);
         self.enqueue(function(){
           what.recordingReceived({eventMessage:recordStartedEm,origin:self});
@@ -126,6 +135,8 @@ module.exports=function(properties,environment){
   }
   this.removeRecordOutput=function(what){
     var rpt=recordOutputs.delete(what);
+    what.recordInputs.delete(self);
+
     self.enqueue(function(){
       what.recordingReceived({eventMessage:recordEndedEm,origin:self});
     });

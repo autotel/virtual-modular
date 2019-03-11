@@ -13,8 +13,20 @@ module.exports = function (controlledModule) {
     vars: {
       "step length": { value: controlledModule.clock.substeps },
       "send ck. (!)": {value: controlledModule.settings.sendClock },
+      "route mode": controlledModule.routeMode,
     },
   });
+  configurators.global.vars['route mode'].changeFunction=function(thisVar, delta) {
+    thisVar.value += delta;
+    if (thisVar.value > thisVar.valueNames.length) {
+      thisVar.value = 0;
+    } else if (thisVar.value < 0) {
+      thisVar.value=thisVar.valueNames.length;
+    }
+  }
+  configurators.global.vars['route mode'].nameFunction=function(thisVar, delta) {
+    return thisVar.valueNames[thisVar.value];
+  }
   configurators.global.vars['step length'].changeFunction=function(thisVar, delta) {
     thisVar.value += delta;
     if (thisVar.value < -4) {

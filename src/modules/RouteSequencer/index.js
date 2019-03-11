@@ -30,6 +30,10 @@ var RouteSequencer = function (properties) {
     // },
     sendClock:false
   }
+  this.routeMode={
+    value: 0,
+    valueNames:['outputs','inputs'],
+  }
 
   let clock = this.clock = {
     substep: 0,
@@ -69,8 +73,10 @@ var RouteSequencer = function (properties) {
   var updateOutputs = function () {
     outputs = self.getOutputs();
   }
-  //this module has a special case where output function is redefined
-  this.output = function (eventMessage, overrideMute, properties={}) {
+
+  var normalOutputFunction=this.output;
+
+  var specialOutputFunction = function (eventMessage, overrideMute, properties={}) {
     updateOutputs();
     if ((!self.mute) || overrideMute) {
       self.enqueue(function () {
@@ -82,14 +88,23 @@ var RouteSequencer = function (properties) {
         } else {
           outputs.forEach(function (tModule) {
             if (sequenceBitmap.value & (1 << (clock.step + chan * 4))) {
-              tModule.messageReceived({ eventMessage: eventMessage.clone(), origin: self });
-              self.handle('>message', { origin: self, destination: tModule, val: eventMessage, eventMessage: eventMessage });
+              var evMesClone=eventMessage.clone();
+              tModule.messageReceived({ eventMessage: evMesClone, origin: self });
+              self.handle('>message', { origin: self, destination: tModule, val: evMesClone, eventMessage: evMesClone });
             }
             chan++;
             chan %= 4;
           })
         }
       });
+    }
+  }
+
+  this.output=function(eventMessage,overrideMute,properties={}){
+    if(self.routeMode.value==0){
+      specialOutputFunction(eventMessage,overrideMute,properties);
+    }else{
+      normalOutputFunction(eventMessage,overrideMute);
     }
   }
 
@@ -104,6 +119,7 @@ var RouteSequencer = function (properties) {
     clock.step %= 4;
     self.handle('step');
   }
+
   this.messageReceived = function (evt) {
     if (evt.eventMessage.value[0] == headers.clockTick) {
       var clockBase = evt.eventMessage.value[1];
