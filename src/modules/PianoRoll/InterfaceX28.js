@@ -37,7 +37,7 @@ module.exports = function(controlledModule,environment) {
   configurators.time = new BlankConfigurator(this, {
     name: "",
     vars: {
-      "loop start": { 
+      "loop start": {
         value: memPlayHead.start,
         changeFunction(thisvar,delta){
           thisvar.value = memPlayHead.start;
@@ -75,12 +75,19 @@ module.exports = function(controlledModule,environment) {
         }
       },
       "quantize": {
-        value: controlledModule.memory.quantize,
+        value: controlledModule.quantize.portions,
         changeFunction(thisVar,delta){
           thisVar.value+=delta;
+          if(thisVar.value)
+            while(
+              controlledModule.clock.microSteps/thisVar.value
+              !== Math.floor(controlledModule.clock.microSteps/thisVar.value)
+            ){
+              thisVar.value++;
+            }
           if(thisVar.value<0) thisVar.value=controlledModule.clock.microSteps-1;
           thisVar.value%=controlledModule.clock.microSteps;
-          controlledModule.memory.quantize=thisVar.value;
+          controlledModule.quantize.portions=thisVar.value;
         }
       }
     }
@@ -105,7 +112,7 @@ module.exports = function(controlledModule,environment) {
         updateLeds(hardware);
       }
   });
-  
+
   this.matrixButtonPressed = function(event) {
     if (engagedConfigurator) {
       engagedConfigurator.matrixButtonPressed(event);
@@ -204,19 +211,19 @@ module.exports = function(controlledModule,environment) {
   var listOfEventsInView={};
   var updateSequence=function(){
     memPlayHead=controlledModule.memory.getPlayhead();
-    
+
     // var playhead=sequenceView.getPlayhead();
 
     var firstStep=memPlayHead.start;
     var lastStep=memPlayHead.end;
-    
+
     listOfEventsInView = controlledModule.memory.getStepRange(firstStep, lastStep+firstStep);
-    
+
     var offsetView=firstStep;
     var quantizeView=1;
 
     var relist = {};
-    
+
     for (var stindex in listOfEventsInView) {
       var viewIndex = Math.floor(stindex * quantizeView) / quantizeView;
       // viewIndex-=offsetView;

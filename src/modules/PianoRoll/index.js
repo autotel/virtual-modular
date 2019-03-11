@@ -11,7 +11,7 @@ var testGetName = function() {
 }
 var PianoRoll = function(properties,environment) {
   var self = this;
-  
+
   var noteOnTracker = new Set();
   var noteLengthTracker=new(function(){
     this.tracker=[];
@@ -20,7 +20,7 @@ var PianoRoll = function(properties,environment) {
       this.tracker[what.value[1], what.value[2]]=what;
     }
     this.get=function(num1,num2){
-      
+
     }
   })();
   this.memory=new TapeMem();
@@ -34,7 +34,11 @@ var PianoRoll = function(properties,environment) {
     microStep:0,
     microSteps:12
   }
-  
+  var quantize=this.quantize={
+    portions:0,
+    offset:0,
+  };
+
   var clock=this.clock;
 
   this.baseName = "PianoRoll";
@@ -55,6 +59,8 @@ var PianoRoll = function(properties,environment) {
 
   var rec={}
   memory.on('step',function(a){
+    self.clock.playHead=Math.floor(a.playHead);
+    self.clock.microStep=(a.playHead * a.microSteps);
     if(rec.status){
       // console.log("REC",a);
       rec.duration++;
@@ -78,25 +84,27 @@ var PianoRoll = function(properties,environment) {
   }
 
   this.messageReceived = function(evt) {
-    if (evt.eventMessage.value[0] == headers.clockTick) {
-      clock.microSteps=evt.eventMessage.value[1];
-      var evtMicroStep=evt.eventMessage.value[2];
-      if (evtMicroStep==0){
-        clock.microStep=0;
-        memory.quantizePlayheadPosition();
-      }else{
-        clock.microStep++;
-      }
+    var eventMessage=evt.eventMessage;
+    if (eventMessage.value[0] == headers.clockTick) {
+      clock.microSteps=eventMessage.value[1];
+      var microStep=eventMessage.value[2];
       self.handle('microstep',clock);
-      self.memory.tapeFrame(1/clock.microSteps);
-      // if(rec.status){
-      //   rec.duration++;
-      // }
-    } else if (evt.eventMessage.value[0] == headers.triggerOn) {
-    } else if (evt.eventMessage.value[0] == headers.triggerOff) {
-    } else if (evt.eventMessage.value[0] == headers.changeRate) {
-    } else if (evt.eventMessage.value[0] == headers.triggerOff + 1) {
-    } 
+      if(quantize.portions){
+        if((microStep + quantize.offset) % (clock.microSteps/quantize.portions) == 0)
+          self.memory.tapeFrame(1/quantize.portions);
+      }else{
+        //TODO: get delta of microstep and that is the added microstep to memoryframe
+        //just in case a clock skips a micro.
+        self.memory.tapeFrame(1/clock.microSteps);
+      }
+
+    } else if (eventMessage.value[0] == headers.triggerOn) {
+      console.log("jump",eventMessage.value[1],eventMessage.value[2]/clock.microSteps);
+      self.memory.jumpToStep(eventMessage.value[1]+eventMessage.value[2]/clock.microSteps);
+    } else if (eventMessage.value[0] == headers.triggerOff) {
+    } else if (eventMessage.value[0] == headers.changeRate) {
+    } else if (eventMessage.value[0] == headers.triggerOff + 1) {
+    }
   }
 
   self.memory.eventTriggerFunction=function(triggeredEventsList){
@@ -112,7 +120,7 @@ var PianoRoll = function(properties,environment) {
       }
     }
   }
-  
+
 }
 
 PianoRoll.color = [50, 50, 120];

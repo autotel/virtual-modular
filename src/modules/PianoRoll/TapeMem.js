@@ -14,7 +14,6 @@ var TapeMem = function (props = {}) {
     var loopStart = 0;
     var loopEnd = 0;
     var notesOn = new Set();
-    this.quantize = 0;
 
     // var loopLastFrame=0;
     function stepToFrame(step) {
@@ -26,24 +25,22 @@ var TapeMem = function (props = {}) {
 
 
     this.jog = function (stepJog) {
-
-        var frameIncrement = stepToFrame(stepJog);
-        upcomingFrame = upcomingFrame + frameIncrement;
-        // console.log("JOG",stepJog,prevFrame,upcomingFrame,frameToStep(upcomingFrame-prevFrame));
+      var frameIncrement = stepToFrame(stepJog);
+      upcomingFrame = upcomingFrame + frameIncrement;
+      // console.log("JOG",stepJog,prevFrame,upcomingFrame,frameToStep(upcomingFrame-prevFrame));
+    }
+    this.jumpToStep=function(step){
+      var frameStep=stepToFrame(step);
+      upcomingFrame=frameStep;
     }
 
     this.quantizePlayheadPosition = function (roundfn = function (val) { return Math.round(val) }) {
-        if (typeof roundfn !== "function") {
-            console.warn("quantizePlayhead Function needs a valid Math function for rounding");
-            return;
-        }
         var prev = upcomingFrame;
         upcomingFrame = frameToStep( roundfn(stepToFrame(upcomingFrame)) );
         // console.log("QPP", prev - upcomingFrame);
     }
 
-    //problem: changing quantization destructs the playhead coordination
-    var quantizeWait = 0;
+
     //stepIncrement should come as a float, it will be quantized back to array index using framesPerStep
     //it represents steps to advance, and portions of it.
     // var teststep=0;
@@ -53,23 +50,13 @@ var TapeMem = function (props = {}) {
 
         // console.log(stepIncrement%frameIncrement);
         upcomingFrame = upcomingFrame + frameIncrement;
-        // console.log("FR",upcomingFrame,lastFrame);
-        //quantize means that it waits until a whole step of distance is accumulated in order to make the step.
-        if (self.quantize) {
-            quantizeWait += frameIncrement;
-            if (quantizeWait < stepToFrame(1 / self.quantize)) {
-                return;
-            }
-            quantizeWait = 0;
-        }
+
 
         //TODO: this is important: if the current frame reaches the loop end, it needs to add to the current step whichever amount of steps were left over from the end of the loops
         if (upcomingFrame >= loopEnd) upcomingFrame = loopStart;
 
         if (upcomingFrame % framesPerStep == 0 || lastFrame > upcomingFrame) {
             self.handle("step", self.getPlayhead());
-            //prevent quantizeWait to "drift away"
-            quantizeWait = 0;
         }
         //scan all memory from last frame to current frame and trigger all those events.
         //...
