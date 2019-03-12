@@ -73,13 +73,20 @@ var RouteSequencer = function (properties) {
   var updateOutputs = function () {
     outputs = self.getOutputs();
   }
+  var inputs = self.getInputs();
+  var updateInputs=function(){
+    inputs=self.getInputs();
+  }
 
   var normalOutputFunction=this.output;
 
-  var specialOutputFunction = function (eventMessage, overrideMute, properties={}) {
-    updateOutputs();
+  var specialOutputFunction = function (_eventMessage, overrideMute, properties={}) {
+
     if ((!self.mute) || overrideMute) {
-      self.enqueue(function () {
+        var eventMessage=_eventMessage;
+
+
+      self.enqueue(function(){
         var chan = 0;
         if (properties.destination) {
           if (self.outputs.has(properties.destination)) {
@@ -90,7 +97,7 @@ var RouteSequencer = function (properties) {
             if (sequenceBitmap.value & (1 << (clock.step + chan * 4))) {
               var evMesClone=eventMessage.clone();
               tModule.messageReceived({ eventMessage: evMesClone, origin: self });
-              self.handle('>message', { origin: self, destination: tModule, val: evMesClone, eventMessage: evMesClone });
+              self.handle('>message', { origin: self, destination: tModule, val: evMesClone});
             }
             chan++;
             chan %= 4;
@@ -107,10 +114,11 @@ var RouteSequencer = function (properties) {
       normalOutputFunction(eventMessage,overrideMute);
     }
   }
-
+  this.on("+connection",updateOutputs);
+  this.on("-connection",updateOutputs);
   this.on(">message", function (evt) {
-    if (evt.eventMessage.value[0] == headers.triggerOn) {
-      noteOnTracker[evt.eventMessage.value[1]] = evt;
+    if (evt.val.value[0] == headers.triggerOn) {
+      noteOnTracker[evt.val.value[1]] = evt;
     }
   });
 
@@ -143,8 +151,18 @@ var RouteSequencer = function (properties) {
       if (tracked)
           self.output(evt.eventMessage, false, tracked);
     } else {
+      if(self.routeMode.value==1){
+        updateInputs();
+        //-1 so that bus input is not counted
+        var inputn=inputs.indexOf(evt.origin)-1;
+        if (sequenceBitmap.value & (1 << (clock.step + inputn * 4))) {
+          // console.log("input n",inputn);
+          self.output(evt.eventMessage);
+        }
 
-      self.output(evt.eventMessage);
+      }else{
+        self.output(evt.eventMessage);
+      }
     }
   }
 

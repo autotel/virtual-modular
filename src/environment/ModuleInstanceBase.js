@@ -70,7 +70,7 @@ module.exports=function(properties,environment){
     return Array.from(outputs);
   }
   this.getInputs=function(){
-    return Array.from(input);
+    return Array.from(inputs);
   }
   this.output=function(eventMessage,overrideMute){
     if((!self.mute)||overrideMute){
