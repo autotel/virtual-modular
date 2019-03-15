@@ -228,10 +228,11 @@ EventMessage.toMidi=function(eventMessage){
   // console.log("sendimid", midiOut);
   midiOut = midiOut.map(function (a, b) {
     var a = parseInt(a);
-    a %= b > 0 ? 127 : 0xff;
+    a %= (b > 0 ? 128 : 256);
     if (isNaN(a)) a = 0;
     return a;
   });
+  // console.log(" convert",midiOut);
   return midiOut;
     // console.log(midiOut);
 }
