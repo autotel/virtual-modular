@@ -1,5 +1,5 @@
 var Base=require('./interactorBase.js');
-var IoView=function(hardware,environment){
+var IoView=function(hardware,environment,moduleCreator){
   this.engaged=false;
   var self=this;
   Base.call(this);
@@ -92,6 +92,8 @@ var IoView=function(hardware,environment){
     var btnInt=getModuleAtButton(event.button);
     if(btnInt){
       selectedModule=btnInt;
+    }else{
+
     }
     self.updateHardware();
   };

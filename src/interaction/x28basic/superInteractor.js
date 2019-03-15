@@ -180,7 +180,7 @@ var SuperInteractorsSingleton = function (environment) {
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
     var myModuleCreator = new ModuleCreator(myHardware, environment);
-    var myIoView=new IoView(myHardware, environment);
+    var myIoView=new IoView(myHardware, environment,myModuleCreator);
 
     let enviroVars = {}
     for (var a in environment.vars) {
