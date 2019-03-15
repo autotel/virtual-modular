@@ -5,3 +5,5 @@ http/client/js/main.js
 firmware
 .vscode/
 build-electron/res
+/patches/*
+!/patches/default*
