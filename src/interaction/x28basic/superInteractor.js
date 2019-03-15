@@ -3,7 +3,7 @@ var RARROW = String.fromCharCode(199);
 var XMARK = String.fromCharCode(183);
 var panton = require('./panton');
 var BlankConfigurator = require('../../modules/x16utils/BlankConfigurator.js');
-
+var IoView=require("./IoView.js");
 /**
 Definition of hardware specific translations of hardware events into internal events
 things such as "when the user press a button" become "view the sequencer user interface"
@@ -35,6 +35,7 @@ var SuperInteractorsSingleton = function (environment) {
   // fail();
   //contains the module that is accessible through each button
   var moduleLocations = [];
+
   //function to transform a number to module
   function tryGetModuleInLoc(location) {
     if (location < 0) { console.warn(`tryGetModuleInLoc(${location})`); return false };
@@ -179,7 +180,7 @@ var SuperInteractorsSingleton = function (environment) {
     var firstPressedMatrixButton = false;
     onHandlers.call(this);
     var myModuleCreator = new ModuleCreator(myHardware, environment);
-
+    var myIoView=new IoView(myHardware, environment);
 
     let enviroVars = {}
     for (var a in environment.vars) {
@@ -342,8 +343,6 @@ var SuperInteractorsSingleton = function (environment) {
       }
     });
     this.on('selectorButtonPressed', function (event) {
-      //if the button is the patchMenu button}
-      //  console.log(event.button);
       if (event.button == 3) {
 
         if (engagedInterface) {
@@ -366,10 +365,11 @@ var SuperInteractorsSingleton = function (environment) {
           selectorButtonOwners[event.data[0]] = engagedInterface;
         } else {
           if (event.button == 0) {
-            inputsMode = true;
-            updateHardware();
-            // engagedInterface=enviroVarConfig;
-            // engagedInterface.engage(event);
+            // inputsMode = true;
+            // updateHardware();
+            myIoView.engage(event);
+            myIoView.selectModule(selectedModule);
+            engagedInterface=myIoView;
           } else if (event.button == 2) {
             deleteList = new Set();
             deleteMode = true;
@@ -458,6 +458,10 @@ var SuperInteractorsSingleton = function (environment) {
         }
       } else if (myModuleCreator.engaged) {
         myModuleCreator.selectorButtonReleased(event);
+      }else if(event.button==0 && myIoView.engaged){
+        myIoView.disengage(event);
+        engagedInterface=false;
+        updateHardware();
       }
     });
     this.on('encoderPressed', function (event) {
