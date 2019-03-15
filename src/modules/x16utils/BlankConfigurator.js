@@ -20,6 +20,17 @@ var BlankConfigurator=function(parentInteractor,properties){
   this.addVars=function(nvars){
     var defaultIntChangeFunction=function(thisVar,delta){
       thisVar.value+=delta;
+
+      if(thisVar.max!==undefined){
+        if(thisVar.min==undefined) thisVar.min=0;
+        if(thisVar.value>thisVar.max) thisVar.value=thisVar.min;
+      }
+      if(thisVar.min!==undefined){
+        if(thisVar.max==undefined) thisVar.max=1;
+        if(thisVar.value<thisVar.min) thisVar.value=thisVar.max;
+      }
+
+
     }
     var defaultBoolChangeFunction=function(thisVar,delta){
       if(thisVar.value==true){
@@ -33,6 +44,7 @@ var BlankConfigurator=function(parentInteractor,properties){
     var defaultDisengageFunction=function(thisVar){
     }
     var defaultNameFunction=function(thisVar){
+      if(thisVar.valueNames) return thisVar.valueNames[thisVar.value]+"";
       return "to "+thisVar.value;
     }
     for(var a in nvars){
