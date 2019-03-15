@@ -14,12 +14,13 @@ var IoView=function(hardware,environment,moduleCreator){
 
   var numToButton=[];
   var numToModule=[];
-  var selectedModule=false;
+  this.selectedModule=false;
   var centeredModule=false;
   for(var a=0; a<6; a++){
     var ntb=buttonToNum.indexOf(a);
     numToButton=ntb;
   }
+  environment.on("+module",self.updateLeds);
   function centerAroundModule(module){
     centeredModule=module;
     var i=Array.from(module.inputs);
@@ -32,7 +33,7 @@ var IoView=function(hardware,environment,moduleCreator){
     var num=undefined;
     num=buttonToNum[button];
     if(num!==undefined) return numToModule[num];
-    return centeredModule;//default to selectedModule
+    return centeredModule;//default to self.selectedModule
   }
   function getButtonOfModule(module) {
     var num=numToModule.indexOf(module);
@@ -42,8 +43,8 @@ var IoView=function(hardware,environment,moduleCreator){
     return 0;//default to button 0
   }
   this.selectModule=function(module){
-    selectedModule=module;
-    centerAroundModule(selectedModule);
+    self.selectedModule=module;
+    centerAroundModule(self.selectedModule);
   }
   this.engage=function(event){
     self.updateHardware();
@@ -76,7 +77,7 @@ var IoView=function(hardware,environment,moduleCreator){
           color = panton.homogenize(color, lowLight);
         }
 
-        if (selectedModule == bmodule) {
+        if (self.selectedModule == bmodule) {
           color = panton.homogenize(color, Math.min((lowLight << 2), 0xff));
         }
 
@@ -85,13 +86,13 @@ var IoView=function(hardware,environment,moduleCreator){
     }
   }
   this.updateScreen=function(){
-    hardware.sendScreenB(selectedModule.name+"");
+    hardware.sendScreenB(self.selectedModule.name+"");
   }
 
   this.matrixButtonPressed=function(event){
     var btnInt=getModuleAtButton(event.button);
     if(btnInt){
-      selectedModule=btnInt;
+      self.selectedModule=btnInt;
     }else{
 
     }

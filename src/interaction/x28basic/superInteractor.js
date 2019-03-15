@@ -461,6 +461,10 @@ var SuperInteractorsSingleton = function (environment) {
       }else if(event.button==0 && myIoView.engaged){
         myIoView.disengage(event);
         engagedInterface=false;
+        selectedModule=myIoView.selectedModule;
+        selectedModuleLoc = tryGetLocOfModule(selectedModule);
+        selectedInterface = tryGetModuleInterface(selectedModule);
+
         updateHardware();
       }
     });
