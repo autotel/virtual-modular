@@ -12,6 +12,7 @@ module.exports = function (controlledModule) {
     name: "",
     vars: {
       "offset": controlledModule.offset,
+      "modify": controlledModule.remapIndex,
     }
   });
 
