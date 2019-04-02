@@ -27,7 +27,7 @@
     "jzz": "^0.5.9",
     "onhandlers": "^1.1.1",
     "prompt": "^1.0.0",
-    "serialport": "^6.2.2",
+    "serialport": "^7.1.4",
     "socket.io": "^2.1.1",
     "svg.js": "^2.6.6",
     "tone": "^13.4.9"
