@@ -1,0 +1,4 @@
+[submodule "hardwares/Calculeitor"]
+	path = hardwares/Calculeitor
+	url = https://github.com/autotel/x28-firmware
+	branch = master
