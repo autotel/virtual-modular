@@ -6,16 +6,15 @@ var headers = EventMessage.headers;
 module.exports=function(properties,environment){
   onHandlers.call(this);
   var self=this;
+
   var outputs=this.outputs=new Set();
   var inputs=this.inputs=new Set();
   var recordOutputs=this.recordOutputs=new Set();
   var recordInputs=this.recordInputs=new Set();
+  
   this.baseName="base";
   this.name="base";
-  this.isModuleInstance=true;
   this.mute=false;
-  this.interfaces={};
-  this._instancedInterfaces={};
   //patching capabilities
   this.toggleOutput=function(what){
     var ret=outputs.has(what);
