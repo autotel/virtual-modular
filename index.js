@@ -1,3 +1,4 @@
+var Polimod=require('./Polimod');
 const environment=new Polimod();
 //appending hardwares
 // either: environment.addHardware(require("./hardwares/Calculeitor")); or:

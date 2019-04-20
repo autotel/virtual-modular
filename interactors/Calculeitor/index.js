@@ -1,8 +1,9 @@
 /*Calculeitor interactor entry point */
 module.exports=function(environment){
-    environment.hardwares.whenAvailable("calculeitors",function(calculeitors){
+    environment.interfaces.whenAvailable("calculeitors",function(calculeitors){
         console.log("calculeitors became available");
         calculeitors.on('+hardware',function(event){
+            const controller=event.controller;
             if(event.type=="x28v2"){
                 console.log("new calculeitor connected");
                 controller.lookForCharacters();
