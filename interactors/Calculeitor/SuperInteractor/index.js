@@ -34,7 +34,7 @@ const SuperInteractor=function(environment,hardware){
   function detachModule(subject){
     for(var position in modulePositions){
       if(modulePositions[position].includes(subject)) {
-        delete modulePositions[position][modulePositions[position].indexOf(subject)];
+        return modulePositions[position].splice(modulePositions[position].indexOf(subject),1);
       };
     }
     return false;
@@ -44,8 +44,9 @@ const SuperInteractor=function(environment,hardware){
     if(currentPosition!==false){
       detachModule(subject);
     }
-    if(!modulePositions[position])modulePositions[position]=[];
+    if(!modulePositions[position]) modulePositions[position]=[];
     modulePositions[position].push(subject);
+    return subject;
   }
   
   hardware.definePresetColor("basic",[0xA2,0x9E,0xBA]);
