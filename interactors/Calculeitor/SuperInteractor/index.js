@@ -39,7 +39,11 @@ const SuperInteractor=function(environment,hardware){
     }
     return false;
   }
-  function addModuleToPosition(subject,position){
+  function relocateModule(subject,position){
+    let currentPosition=tryGetPositionOf(subject);
+    if(currentPosition!==false){
+      detachModule(subject);
+    }
     if(!modulePositions[position])modulePositions[position]=[];
     modulePositions[position].push(subject);
   }
@@ -128,13 +132,15 @@ const SuperInteractor=function(environment,hardware){
       console.log(buttonModule);
       if(selectedModule&&buttonModule){
         selectedModule.toggleOutput(buttonModule);
+      }else if(selectedModule){
+        relocateModule(selectedModule,event.button);
       }
     }else{
       selectedModule=buttonModule;
       if(selectedModule){
       }else{
         console.log("engage module creator");
-        addModuleToPosition(new DummyModule({},environment),event.button);
+        relocateModule(new DummyModule({},environment),event.button);
       }
     }
     updateMatrixButtons();
