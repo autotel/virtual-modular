@@ -1,6 +1,7 @@
 'use strict';
 var onHandlers=require('onhandlers');
-
+var EventMessage=require('./datatypes/EventMessage');
+var TimeIndex=require('./datatypes/TimeIndex');
 const Polimod=function(){
   const thisPolimod=this;
   onHandlers.call(this);
@@ -40,12 +41,16 @@ const Polimod=function(){
       }
     }
   }
-
+  //For different types of user interfaces (e.g. calculeitor, command line, web client, launchpad...)
   this.interfaces=new EnvResource("interfaces");
-  this.interactors=new EnvResource("interactors");
+  //For the constructors of different modules (e.g. Harmonizer, Sequencer, Narp...)
   this.modulePrototypes=new EnvResource("modulePrototypes");
+  //For the instances of those modules.
   this.modules=new EnvResource("modules");
+  // TODO: For testing, to know if somehting will crash before a performance.
   this.tests=new EnvResource("tests");
+  this.datatypes=new EnvResource("datatyoes");
+  this.datatypes.use({EventMessage,TimeIndex});
 }
 
 module.exports = Polimod;

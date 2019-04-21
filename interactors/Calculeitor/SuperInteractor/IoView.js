@@ -1,4 +1,4 @@
-var Base=require('./interactorBase.js');
+var Base=require('../Base.js');
 var IoView=function(hardware,environment,moduleCreator){
   this.engaged=false;
   var self=this;

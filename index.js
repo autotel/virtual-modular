@@ -6,6 +6,7 @@ var calculeitor = new(require("./hardwares/Calculeitor"))(environment);
 //thusly it becomes possible:
 //var webVisualization=new(require("hardwares/WebVis"));//which can be another submodule
 new(require("./interactors/Calculeitor"))(environment);
+new(require("./Dem-modules"))(environment);
 
 /*
 hardware: has own functions

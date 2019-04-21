@@ -1,5 +1,5 @@
 'use strict';
-var MyInteractorBase=require('../../interaction/x16basic/interactorBase.js');
+var MyInteractorBase=require('../Base.js');
 /**
 user interface pattern that allows to tweak parameters
 @param {interactor} parentInteractor the module interactor that posesses this

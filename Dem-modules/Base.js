@@ -1,12 +1,12 @@
 'use strict';
 var onHandlers=require('onhandlers');
-var EventMessage=require('../datatypes/EventMessage');
-var headers = EventMessage.headers;
 
 module.exports=function(properties,environment){
   onHandlers.call(this);
   var self=this;
-
+  const EventMessage=environment.datatypes.EventMessage;
+  const headers = EventMessage.headers;
+  this.isModuleInstance=true;
   var outputs=this.outputs=new Set();
   var inputs=this.inputs=new Set();
   var recordOutputs=this.recordOutputs=new Set();

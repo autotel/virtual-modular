@@ -22,6 +22,7 @@ const list={
     // "ModModify":require("./ModModify"),
     // "ClockGenerator":require("./ClockGenerator"),
     // "CalculeitorMidi":require("./CalculeitorMidi"),
+    "TestDummy":require("./TestDummy"),
 }
 module.exports=function(environment){
     environment.modulePrototypes.use(list);
