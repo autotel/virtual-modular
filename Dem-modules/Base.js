@@ -4,7 +4,7 @@ var onHandlers=require('onhandlers');
 module.exports=function(properties,environment){
   onHandlers.call(this);
   var self=this;
-  const EventMessage=environment.datatypes.EventMessage;
+  const EventMessage=environment.datatypes.requires(["EventMessage"])[0];
   const headers = EventMessage.headers;
   this.isModuleInstance=true;
   var outputs=this.outputs=new Set();

@@ -1,6 +1,6 @@
 'use strict';
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var Observable=require('onhandlers');
 var InterfaceX16 = require('./InterfaceX16');
 // var InterfaceHttp = require('./HttpGui');

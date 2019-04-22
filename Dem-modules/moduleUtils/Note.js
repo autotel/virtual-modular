@@ -1,4 +1,4 @@
-var EventMessage = require('../../datatypes/EventMessage');
+var EventMessage = require('../../Polimod/datatypes/EventMessage');
 var headers = EventMessage.headers;
 var Note = function (props) {
     var self=this;

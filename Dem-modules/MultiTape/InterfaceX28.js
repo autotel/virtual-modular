@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var SequenceView = require('./x28-SequenceView.js');
 var ArragementView = require('./x28-ArrangementView.js');

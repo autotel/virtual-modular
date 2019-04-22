@@ -1,5 +1,5 @@
 // "use strict";
-// var EventMessage = require('../../datatypes/EventMessage.js');
+// var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 // var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 // var base = require('../../interaction/x16basic/interactorBase.js');
 

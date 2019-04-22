@@ -3,7 +3,7 @@ Discrete event message modules
 
 */
 const list={
-    // "Sequencer":require("./Sequencer"),
+    "Sequencer":require("./Sequencer"),
     // "PianoRoll":require("./PianoRoll"),
     // "NoteSustainer":require("./NoteSustainer"),
     // "PresetKit":require("./PresetKit"),

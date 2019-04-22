@@ -1,9 +1,8 @@
 'use strict';
 var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
-var EventMessage = require('../../datatypes/EventMessage.js');
-var EventPattern=require('./EventPattern.js');
-var InterfaceX16 = require('./InterfaceX16');
+var EventPattern=require('./EventPattern');
+var EventMessage=require('../../Polimod/datatypes/EventMessage');
 
 // const fs = require('fs');
 // console.log(fs);
@@ -13,9 +12,9 @@ var headers = EventMessage.headers;
 
 const sequencerFunctions = require("./sequencerGuts");
 /**
-Sequencer
-TODO: module naming functions should be a static property, and thus defaults to "name+number"
-*/
+ Sequencer
+ TODO: module naming functions should be a static property, and thus defaults to "name+number"
+ */
 var testcount = 0;
 var testGetName = function () {
   this.name = baseName + " " + testcount;
@@ -24,6 +23,8 @@ var testGetName = function () {
 var baseName = "sequencer";
 
 var Sequencer = function (properties, environment) {
+  // environment.utils.requireProperties().in(environment);
+
   var fs=environment.fs;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;

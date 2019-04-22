@@ -1,6 +1,6 @@
 'use strict';
 
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
 var InterfaceX16 = require('./InterfaceX16');

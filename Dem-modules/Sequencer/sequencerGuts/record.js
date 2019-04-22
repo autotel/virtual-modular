@@ -1,5 +1,5 @@
 var NoteLengthner=require('./NoteLengthner.js');
-var EventMessage=require('../../../datatypes/EventMessage.js');
+var EventMessage=require("../../../Polimod/datatypes/EventMessage");
 var EventPattern=require('../EventPattern.js');
 
 module.exports=function(controlledModule){

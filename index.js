@@ -6,7 +6,7 @@ var calculeitor = new(require("./interfaces/Calculeitor"))(environment);
 //thusly it becomes possible:
 //var webVisualization=new(require("hardwares/WebVis"));//which can be another submodule
 new(require("./Dem-modules"))(environment);
-
+// setTimeout(environment.tests.run,300);
 /*
 hardware: has own functions
 interactors: may be integrated in the hardware, or appended. The thing is each interactor is oriented specifically to a hardware,

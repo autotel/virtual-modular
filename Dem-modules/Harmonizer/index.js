@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var Note = require('../moduleUtils/Note');
 var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;

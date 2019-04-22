@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage=require('../../datatypes/EventMessage.js');
+var EventMessage=require('../../Polimod/datatypes/EventMessage.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = function(ownerModule) {
   var trackedNotes = {};

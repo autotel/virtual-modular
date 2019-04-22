@@ -1,6 +1,6 @@
 'use strict';
 var hrtime = require('browser-process-hrtime');
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var InterfaceX16 = require('./InterfaceX16');
 // var clockSpec=require('../standards/clock.js');
 var headers=EventMessage.headers;

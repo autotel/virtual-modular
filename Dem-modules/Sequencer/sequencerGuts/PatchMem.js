@@ -1,6 +1,7 @@
 
 'use strict';
-var EventMessage=require('../../../datatypes/EventMessage.js');
+var EventMessage=require('../../../Polimod/datatypes/EventMessage.js');
+
 var EventPattern=require('../EventPattern.js');
 
 module.exports=function(sequencerModule){ return new(function(){

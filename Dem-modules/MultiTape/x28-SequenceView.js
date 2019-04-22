@@ -1,6 +1,6 @@
 "use strict";
-var EventMessage=require('../../datatypes/EventMessage.js');
-var TimeIndex=require('../../datatypes/TimeIndex');
+var EventMessage=require('../../Polimod/datatypes/EventMessage.js');
+var TimeIndex=require('../../Polimod/datatypes/TimeIndex');
 
 var EventConfigurator=require('../x16utils/EventConfigurator.js');
 var TapeCanvas=require('./TapeCanvas.js');

@@ -1,5 +1,5 @@
 'use strict';
-var EventMessage=require('../../datatypes/EventMessage');
+var EventMessage=require('../../Polimod/datatypes/EventMessage');
 var headers = EventMessage.headers;
 /**
 @param ownerModule: the module that will use this Recorder

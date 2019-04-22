@@ -2,7 +2,7 @@
 var RARROW = String.fromCharCode(199);
 var LARROW = String.fromCharCode(200);
 
-var EventMessage = require('../../datatypes/EventMessage.js');
+var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 module.exports = function (controlledModule) {
   // environment.interactionMan.interfaces.x16basic.interactorBase.call(this, controlledModule);
