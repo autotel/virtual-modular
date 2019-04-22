@@ -45,8 +45,8 @@ module.exports = function(controlledModule,environment) {
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 1) {
-      }else if (event.data[0] == 2) {
+      if (event.button == 1) {
+      }else if (event.button == 2) {
         // engagedConfigurator = configurators.time;
         // configurators.time.engage(event);
       }else if (event.button >= 8) {
@@ -57,7 +57,7 @@ module.exports = function(controlledModule,environment) {
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
-    if (event.data[0] == 1) {
+    if (event.button == 1) {
       if (engagedConfigurator) {
         engagedConfigurator.disengage(event);
         engagedConfigurator=false;
@@ -89,13 +89,13 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateScreen = function(hardware) {
-    hardware.sendScreenA(controlledModule.name);
-    // hardware.sendScreenB("n:"+currentStep);
+    hardware.screenA(controlledModule.name);
+    // hardware.screenB("n:"+currentStep);
   }
   var updateLeds = function(hardware) {
     if (!engagedConfigurator){
       var updateFn=function(hardware){
-        hardware.draw([bitmap,0,bitmap]);
+        hardware.setMatrixMonoMap([bitmap,0,bitmap]);
       }
       if(hardware){
         updateFn(hardware);

@@ -1,0 +1,9 @@
+
+## ModuleInteractors
+hardware.
+$1.draw --> $1.setMatrixMonoMap
+$1.sendScreen$2 --> $1.screen$2
+$1.paintColorFromLedN --> $1.setButtonColors
+setButtonColors --> paintBitmap
+
+(evt|event).data[0] --> event.button (depending)

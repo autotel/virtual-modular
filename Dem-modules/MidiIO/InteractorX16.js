@@ -119,7 +119,7 @@ module.exports = function(controlledModule,environment) {
       selectedDeviceNumber+=event.delta;
       if(selectedDeviceNumber<0) selectedDeviceNumber=possibleDevices.length;
       if(selectedDeviceNumber>=possibleDevices.length)selectedDeviceNumber=0;
-      event.hardware.sendScreenB(possibleDevices[selectedDeviceNumber].name);
+      event.hardware.screenB(possibleDevices[selectedDeviceNumber].name);
     }
   };
   this.encoderPressed = function(event) {};
@@ -137,33 +137,33 @@ module.exports = function(controlledModule,environment) {
     updateLeds(hardware);
   }
   var updateScreen = function(hardware) {
-    hardware.sendScreenA("Midi IO");
+    hardware.screenA("Midi IO");
     if (chokeMode) {
-      hardware.sendScreenA("Choke");
+      hardware.screenA("Choke");
     } else if (inputMode) {
-      hardware.sendScreenA("Inputs");
-      // hardware.sendScreenB(JSON.stringify(event.eventMessage.value));
+      hardware.screenA("Inputs");
+      // hardware.screenB(JSON.stringify(event.eventMessage.value));
       // try{
       if (selectedInputNumber !== false) {
         var outputCache = indexedMidiInputCache[selectedInputNumber];
         var state = outputCache.enabled;
         var name = getHeaderName[outputCache.outputMessage.value[0]] || "h." + outputCache.outputMessage.value[0];
-        hardware.sendScreenB(name + " " + (state ? "on" : "off"));
+        hardware.screenB(name + " " + (state ? "on" : "off"));
       }
       // }catch(e){
       // console.log("no",selectedInputNumber,indexedMidiInputCache);
       // }
     } if(selectDeviceMode){
-      hardware.sendScreenA("S.device<release");
-      hardware.sendScreenB(controlledModule.deviceName);
+      hardware.screenA("S.device<release");
+      hardware.screenB(controlledModule.deviceName);
       controlledModule.setMidi(possibleDevices[selectedDeviceNumber]);
     }else {
-      hardware.sendScreenA("Outputs");
+      hardware.screenA("Outputs");
       if (controlledModule.outputs.size <= selectedOutputNumber) selectedOutputNumber = false;
       if (selectedOutputNumber !== false) {
-        hardware.sendScreenB(Array.from(controlledModule.outputs)[selectedOutputNumber].name);
+        hardware.screenB(Array.from(controlledModule.outputs)[selectedOutputNumber].name);
       } else {
-        hardware.sendScreenB("");
+        hardware.screenB("");
       }
     }
   }
@@ -184,11 +184,11 @@ module.exports = function(controlledModule,environment) {
         nn++;
       });
       var avalInputsBmp = ~(0xFFFF << indexedMidiInputCache.length);
-      hardware.draw([avalInputsBmp, enabledBitmap, enabledBitmap]);
+      hardware.setMatrixMonoMap([avalInputsBmp, enabledBitmap, enabledBitmap]);
     } else {
       var avalOutputsBmp = ~(0xFFFF << controlledModule.outputs.size);
       var selectedBitmap = (selectedOutputNumber !== false ? (1 << selectedOutputNumber) : 0);
-      hardware.draw([selectedBitmap, avalOutputsBmp, avalOutputsBmp]);
+      hardware.setMatrixMonoMap([selectedBitmap, avalOutputsBmp, avalOutputsBmp]);
 
     }
   }

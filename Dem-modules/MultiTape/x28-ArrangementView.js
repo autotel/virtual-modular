@@ -242,8 +242,8 @@ module.exports = function(environment, parentInteractor) {
   var updateScreen = function(hardware) {
     if (!engagedConfigurator) {
 
-      hardware.sendScreenA((controlledModule.name.substring(0, 5)) + ">" + (muteMode ? "mute" : "arrange"));
-      hardware.sendScreenB("tape " + selectedTapeNumber + " " + (selectedTape ? (selectedTape.muted.value ? "muted" : "active") : ""));
+      hardware.screenA((controlledModule.name.substring(0, 5)) + ">" + (muteMode ? "mute" : "arrange"));
+      hardware.screenB("tape " + selectedTapeNumber + " " + (selectedTape ? (selectedTape.muted.value ? "muted" : "active") : ""));
     }
   }
   var updateLeds = function(hardware) {
@@ -256,7 +256,7 @@ module.exports = function(environment, parentInteractor) {
         if (this.excited > 0) excitedTapesBitmap |= 1 << n;
       });
       var tapesBitmap = ~(0xffff << tapesAmount);
-      hardware.draw([
+      hardware.setMatrixMonoMap([
           excitedTapesBitmap  |selectedTapeBitmap  | mutedTapesBitmap,
           excitedTapesBitmap  |selectedTapeBitmap  |(tapesBitmap   &~mutedTapesBitmap),
         ( selectedTapeBitmap  ^excitedTapesBitmap  | tapesBitmap)  &~mutedTapesBitmap]);

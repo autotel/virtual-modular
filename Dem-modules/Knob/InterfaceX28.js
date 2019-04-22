@@ -99,7 +99,7 @@ module.exports = function (controlledModule, environment) {
   this.engage = function (event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
-    event.hardware.draw([0, 0, 0]);
+    event.hardware.setMatrixMonoMap([0, 0, 0]);
 
     engagedConfigurator = configurators.ops;
     configurators.ops.engage(event);
@@ -114,8 +114,8 @@ module.exports = function (controlledModule, environment) {
     updateScreen(hardware);
   }
   var updateScreen = function (hardware) {
-    hardware.sendScreenA(controlledModule.name);
-    // hardware.sendScreenB("n:"+currentStep);
+    hardware.screenA(controlledModule.name);
+    // hardware.screenB("n:"+currentStep);
   }
   var updateLeds = function (hardware) {
 

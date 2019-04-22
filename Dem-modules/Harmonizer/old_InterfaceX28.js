@@ -155,17 +155,17 @@ module.exports = function (controlledModule, environment) {
     var hardware = event.hardware;
     var hin = event.hardware.instanceNumber;
 
-    var button = event.data[0];
+    var button = event.button;
     var eventFingerMap = event.data[2];
     // console.log(eventFingerMap);
     if (engagedConfigurator === false) {
       if (performMode) {
-        var triggerKey = event.data[0] + hardwareLocals[hin].keyboardRoot;
+        var triggerKey = event.button + hardwareLocals[hin].keyboardRoot;
         controlledModule.uiTriggerOn(triggerKey, new EventMessage({
           value: [-1, triggerKey, hardwareLocals[hin].keyboardChan]
         }));
       } else {
-        var grade = event.data[0] % 12;
+        var grade = event.button % 12;
         updateScaleMap(scaleIntervalsMap ^ (1 << grade));
         updateHardware(hardware);
       }
@@ -177,7 +177,7 @@ module.exports = function (controlledModule, environment) {
     var hardware = event.hardware;
     var hin = hardware.instanceNumber;
     if (engagedConfigurator === false) {
-      controlledModule.uiTriggerOff(event.data[0] + hardwareLocals[hin].keyboardRoot, hardwareLocals[hin].keyboardChan);
+      controlledModule.uiTriggerOff(event.button + hardwareLocals[hin].keyboardRoot, hardwareLocals[hin].keyboardChan);
       updateLeds(hardware);
 
     } else {
@@ -190,27 +190,27 @@ module.exports = function (controlledModule, environment) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
       var hardware = event.hardware;
-      if (event.data[0] == 1) {
+      if (event.button == 1) {
         engagedConfigurator = configurators.event;
         lastEngagedConfigurator = configurators.event;
         configurators.event.engage(event);
-      } else if (event.data[0] == 2) {
+      } else if (event.button== 2) {
         if (performMode) {
           engagedConfigurator = configurators.record;
           lastEngagedConfigurator = configurators.record;
           configurators.record.engage(event);
         } else {
           copyingScale = currentScale;
-          event.hardware.sendScreenA('copy scale to...');
-          event.hardware.sendScreenB('(release)');
+          event.hardware.screenA('copy scale to...');
+          event.hardware.screenB('(release)');
         }
-      } else if (event.data[0] == 0) {
+      } else if (event.button == 0) {
         performMode = !performMode;
         updateHardware(hardware);
       } else if (event.button >= 8) {
         configurators.record.engage(event);
       } else if (event.button >= 4) {
-        scaleSelectionMap ^= 1 << (event.data[0] - 4);
+        scaleSelectionMap ^= 1 << (event.button - 4);
         selectScaleMap(scaleSelectionMap);
         // updateHardware(hardware);
       }
@@ -221,10 +221,10 @@ module.exports = function (controlledModule, environment) {
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonReleased(event);
     }
-    if (event.data[0] == 1) {
+    if (event.button == 1) {
       engagedConfigurator = false;
       configurators.event.disengage(event);
-    } else if (event.data[0] == 2) {
+    } else if (event.button == 2) {
       if (copyingScale !== false) {
         updateScaleMap(controlledModule.getScaleMap(copyingScale));
         updateHardware(hardware);
@@ -233,13 +233,13 @@ module.exports = function (controlledModule, environment) {
         engagedConfigurator = false;
         configurators.record.disengage(event);
       }
-    } else if (event.data[0] == 3) {
+    } else if (event.button == 3) {
 
     } else if (event.button >= 8) {
       configurators.record.disengage(event);
       engagedConfigurator = false;
     } else if (event.button >= 4) {
-      // scaleSelectionMap &= ~(1<<(event.data[0]-4));
+      // scaleSelectionMap &= ~(1<<(event.button-4));
       // selectScaleMap(scaleSelectionMap);
       // updateHardware(hardware);
     }
@@ -285,7 +285,7 @@ module.exports = function (controlledModule, environment) {
         hardwareLocals[hin].compressedScaleMaps = controlledModule.getCompMaps(currentScale, hardwareLocals[hin].keyboardRoot);
       }
 
-      hardware.draw([
+      hardware.setMatrixMonoMap([
         hardwareLocals[hin].compressedScaleMaps.roots, 
         hardwareLocals[hin].compressedScaleMaps.roots, 
         hardwareLocals[hin].compressedScaleMaps.semitones[1]
@@ -300,7 +300,7 @@ module.exports = function (controlledModule, environment) {
 
       SNN |= SNN << 12;
 
-      hardware.draw([SNN | noteHiglightMap, noteHiglightMap, 0x5AB5 | noteHiglightMap | SNN]);
+      hardware.setMatrixMonoMap([SNN | noteHiglightMap, noteHiglightMap, 0x5AB5 | noteHiglightMap | SNN]);
     }
   }
   var updateScreen = function (hardware, upleds = true, upscreen = true) {
@@ -323,6 +323,6 @@ module.exports = function (controlledModule, environment) {
       screenAString += "chord " + currentScale + ": empty";
     }
     if (upscreen)
-      hardware.sendScreenA(screenAString);
+      hardware.screenA(screenAString);
   }
 }

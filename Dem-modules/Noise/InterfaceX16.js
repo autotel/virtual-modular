@@ -124,9 +124,9 @@ module.exports = function(controlledModule,environment) {
     var hardware = event.hardware;
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
-    } else if (event.data[0] == 1) {
+    } else if (event.button == 1) {
       lastEngagedConfigurator = engagedConfigurator = configurators.event;
-    }else if (event.data[0] == 2) {
+    }else if (event.button == 2) {
       lastEngagedConfigurator = engagedConfigurator = configurators.time;
     }else if (event.button >= 8) {
       lastEngagedConfigurator = engagedConfigurator = configurators.record;
@@ -168,11 +168,11 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateScreen = function(hardware) {
-    hardware.sendScreenA(controlledModule.name);
-    // hardware.sendScreenB("n:"+currentStep);
+    hardware.screenA(controlledModule.name);
+    // hardware.screenB("n:"+currentStep);
   }
   var updateLeds = function(hardware) {
     let bmp = controlledModule.getBitmaps16();
-    hardware.draw([bmp.header | bmp.steps, bmp.header, bmp.header | bmp.steps]);
+    hardware.setMatrixMonoMap([bmp.header | bmp.steps, bmp.header, bmp.header | bmp.steps]);
   }
 }

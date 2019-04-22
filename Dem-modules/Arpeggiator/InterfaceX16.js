@@ -68,18 +68,18 @@ module.exports = function (controlledModule) {
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 2) {
+      if (event.button == 2) {
         engagedConfigurator = configurators.global;
         configurators.global.engage(event);
-      } else if (event.data[0] > 3) {
-        view.step = (event.data[0] - 4) * 16;
+      } else if (event.button > 3) {
+        view.step = (event.button - 4) * 16;
         updateLeds(event.hardware);
       }
     }
   };
   this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
-    if (event.data[0] == 2) {
+    if (event.button == 2) {
       if (engagedConfigurator == configurators.global) {
         lastEngagedConfigurator = engagedConfigurator;
         engagedConfigurator.disengage(event);
@@ -106,7 +106,7 @@ module.exports = function (controlledModule) {
     engagedHardwares.delete(event.hardware);
   }
   var updateHardware = function (hardware) {
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     updateLeds(hardware);
   }
   var updateLeds = function (hardware) {
@@ -118,7 +118,7 @@ module.exports = function (controlledModule) {
     if (sequence.playhead.value >= view.step && sequence.playhead.value < view.step + 16) {
       playheadBmp = (0x1 << Math.abs(sequence.playhead.value - view.step)) & 0xFFFF
     }
-    hardware.draw([stepsBmp | playheadBmp, playheadBmp, stepsBmp | playheadBmp]);
+    hardware.setMatrixMonoMap([stepsBmp | playheadBmp, playheadBmp, stepsBmp | playheadBmp]);
   }
   var passiveUpdateLeds = function () {
     // console.log("PUL");

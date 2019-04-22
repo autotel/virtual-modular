@@ -40,7 +40,7 @@ module.exports = function (controlledModule) {
   };
 
   var updateHardware = function (hardware) {
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     updateLeds(hardware);
   }
 

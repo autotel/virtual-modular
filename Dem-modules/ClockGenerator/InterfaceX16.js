@@ -34,7 +34,7 @@ module.exports = function (controlledModule) {
     if (event.button == 0) mode = "bpm";
     if (event.button == 1) mode = "drift";
     // if (event.button == 2) mode = "swing";
-    event.hardware.sendScreenB(mode);
+    event.hardware.screenB(mode);
     var ex = 0x1 << 3;
     event.hardware.drawSelectors([1 << event.button | ex, 1 << event.button | ex, 1 << event.button]);
   };
@@ -43,7 +43,7 @@ module.exports = function (controlledModule) {
     //   mode = bpm;
     //   drifting = 0;
     //   controlledModule.metro.drift(drifting);
-    //   event.hardware.sendScreenA("");
+    //   event.hardware.screenA("");
     // }
   };
   var bpm = 120;
@@ -65,14 +65,14 @@ module.exports = function (controlledModule) {
       } else {
         string = "Drift";
       }
-      event.hardware.sendScreenA(string);
+      event.hardware.screenA(string);
     } else if (mode == "bpm") {
       bpm += event.delta;
       controlledModule.metro.bpm(bpm * 4);
-      event.hardware.sendScreenA("BPM: " + bpm + "");
+      event.hardware.screenA("BPM: " + bpm + "");
     } /*else if (mode == "swing") {
       controlledModule.swing += event.delta;
-      event.hardware.sendScreenA("Swing: " + controlledModule.swing + "");
+      event.hardware.screenA("Swing: " + controlledModule.swing + "");
     }*/
   };
   this.encoderPressed = function (event) { };
@@ -80,17 +80,17 @@ module.exports = function (controlledModule) {
   this.engage = function (event) {
     engagedHardwares.add(event.hardware);
     updateHardware(event.hardware);
-    event.hardware.sendScreenB("bpm  drift");
+    event.hardware.screenB("bpm  drift");
   };
   this.disengage = function (event) {
     engagedHardwares.delete(event.hardware);
   }
   var updateHardware = function (hardware) {
-    hardware.sendScreenA("Clock Generator");
+    hardware.screenA("Clock Generator");
     updateLeds(hardware);
   }
   var updateLeds = function (hardware) {
-    hardware.draw([
+    hardware.setMatrixMonoMap([
       playHeadBmp,
       playHeadBmp | microStepsBmp,
       playHeadBmp | microStepsBmp

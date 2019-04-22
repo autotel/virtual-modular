@@ -151,12 +151,12 @@ module.exports = function(controlledModule,environment) {
     var hardware = event.hardware;
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
-    } else if (event.data[0] == 0) {
+    } else if (event.button == 0) {
       shiftMode=true;
       redrawSequenceOnNextUpdate=true;
-    } else if (event.data[0] == 1) {
+    } else if (event.button == 1) {
       engagedConfigurator = configurators.event;
-    } else if (event.data[0] == 2) {
+    } else if (event.button == 2) {
       engagedConfigurator = configurators.time;
     }else if (event.button >= 8) {
       engagedConfigurator = configurators.record;
@@ -168,7 +168,7 @@ module.exports = function(controlledModule,environment) {
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
-    if (event.data[0] == 0) {
+    if (event.button == 0) {
       shiftMode = false;
       redrawSequenceOnNextUpdate = true;
     } else if (engagedConfigurator){
@@ -203,8 +203,8 @@ module.exports = function(controlledModule,environment) {
     updateScreen(hardware);
   }
   var updateScreen = function(hardware) {
-    hardware.sendScreenA(controlledModule.name);
-    // hardware.sendScreenB("n:"+currentStep);
+    hardware.screenA(controlledModule.name);
+    // hardware.screenB("n:"+currentStep);
   }
   var sequenceBitmap = 0;
   var focusSequenceBitmap=0;
@@ -272,7 +272,7 @@ module.exports = function(controlledModule,environment) {
     if(stepOnScreen >= 0 && stepOnScreen < 16){
       playheadBitmap = 1 << stepOnScreen;
     }
-    hardware.draw([0, focusSequenceBitmap, focusSequenceBitmap| sequenceBitmap]);
+    hardware.setMatrixMonoMap([0, focusSequenceBitmap, focusSequenceBitmap| sequenceBitmap]);
     //TODO: fix blinking on the hardware
     // hardware.clear();
     // hardware.drawColor(sequenceBitmap, [0, 0, 127],true);

@@ -56,7 +56,7 @@ module.exports = function (controlledModule) {
     if (thlocs.engagedConfigurator) {
       thlocs.engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 2) {
+      if (event.button == 2) {
         thlocs.engagedConfigurator = configurators.global;
         configurators.global.engage(event);
       }else if(event.button==0){
@@ -70,7 +70,7 @@ module.exports = function (controlledModule) {
 
     var hardware = event.hardware;
     thlocs.lastEngagedConfigurator=false;
-    if (event.data[0] == 2) {
+    if (event.button == 2) {
       if (thlocs.engagedConfigurator == configurators.global) {
         thlocs.lastEngagedConfigurator = thlocs.engagedConfigurator;
         thlocs.engagedConfigurator.disengage(event);
@@ -144,9 +144,9 @@ module.exports = function (controlledModule) {
     var hin=hardware.instanceNumber;
     var thlocs=hardwareLocals[hin];
     if(!thlocs.engaged)return;
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     var curmod=controlledModule.modifiers[thlocs.selectedButton];
-    hardware.sendScreenB(">"
+    hardware.screenB(">"
       +thlocs.selectedButton
       +":"+controlledModule.operators[curmod[0]].name
       +""+curmod[1]);

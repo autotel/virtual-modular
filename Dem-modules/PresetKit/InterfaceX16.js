@@ -115,7 +115,7 @@ module.exports = function(controlledModule, environment) {
     lastTriggeredVelocity=Math.floor(event.data[1]/2 - 1) ;
     if(usingVelocity.value && !engagedConfigurator){
       // console.log(event);
-      controlledModule.uiTriggerOn(event.data[0],Math.floor(event.data[1]/2 - 1) );
+      controlledModule.uiTriggerOn(event.button,Math.floor(event.data[1]/2 - 1) );
       pauseUi=false;
       updateHardware(event.hardware);
     }
@@ -200,7 +200,7 @@ module.exports = function(controlledModule, environment) {
 
       } else if (event.button == 0 || event.button == 3) { //0 is used in x28 and 3 in x16
         muteMode = !muteMode;
-        event.hardware.sendScreenA("mute or hold");
+        event.hardware.screenA("mute or hold");
       } else if (event.button >= 8) {
         lastEngagedConfigurator = engagedConfigurator = configurators.record;
       }
@@ -309,7 +309,7 @@ module.exports = function(controlledModule, environment) {
   configurators.record.autoEngageWindow();
   var updateHardware = function(hardware) {
     if(pauseUi) return;
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     if(usingVelocity.value){
       // var step=0XFF/16;
       // var str="";
@@ -320,7 +320,7 @@ module.exports = function(controlledModule, environment) {
       //     str+=" ";
       //   }
       // }
-      hardware.sendScreenB(lastTriggeredVelocity+"_____");
+      hardware.screenB(lastTriggeredVelocity+"_____");
     }
     updateLeds(hardware);
   }
@@ -345,7 +345,7 @@ module.exports = function(controlledModule, environment) {
       selectedPresetBitmap |= 1 << selectedPresetNumber;
     });
 
-    hardware.draw([
+    hardware.setMatrixMonoMap([
       (highlightedBitmap | selectedPresetBitmap) & ~muteBmp,
       (highlightedBitmap | selectedPresetBitmap | availablePresetsBitmap | pressedPresetBitmap) & ~muteBmp,
       selectedPresetBitmap | availablePresetsBitmap | pressedPresetBitmap | muteBmp

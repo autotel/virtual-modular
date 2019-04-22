@@ -145,11 +145,11 @@ module.exports=function(environment,parentInteractor){
     updateLeds(hardware);
   }
   var updateScreen=function(hardware){
-    hardware.sendScreenA(controlledModule.name.substring(0,5)+">sequence");
+    hardware.screenA(controlledModule.name.substring(0,5)+">sequence");
   }
   var updateLeds=function(hardware){
     if(momentaryBitmap){
-      // hardware.draw([momentaryBitmap,0,0]);
+      // hardware.setMatrixMonoMap([momentaryBitmap,0,0]);
       hardware.drawColor(momentaryBitmap,myColor,false);
     }else{
       var eventsBmp=tapeCanvas.eventsBitmap;
@@ -162,7 +162,7 @@ module.exports=function(environment,parentInteractor){
       hardware.drawColor(eventsBmp,myColor,false);
       hardware.drawColor(headerBmp,[255,255,255]);
 
-      // hardware.draw([selectedTapeBitmap,selectedTapeBitmap|tapesBitmap,selectedTapeBitmap|tapesBitmap]);
+      // hardware.setMatrixMonoMap([selectedTapeBitmap,selectedTapeBitmap|tapesBitmap,selectedTapeBitmap|tapesBitmap]);
     }
   }
 }

@@ -72,11 +72,11 @@ module.exports = function(controlledModule) {
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 1) {
+      if (event.button == 1) {
         engagedConfigurator = configurators.event;
         configurators.event.engage(event);
       }
-      if (event.data[0] == 2) {
+      if (event.button == 2) {
         engagedConfigurator = configurators.global;
         configurators.global.engage(event);
       }
@@ -84,7 +84,7 @@ module.exports = function(controlledModule) {
   };
   this.selectorButtonReleased = function(event) {
     var hardware = event.hardware;
-    if (event.data[0] == 1) {
+    if (event.button == 1) {
       if (engagedConfigurator == configurators.event) {
         lastEngagedConfigurator = engagedConfigurator;
         engagedConfigurator = false;
@@ -92,7 +92,7 @@ module.exports = function(controlledModule) {
           hardware: hardware
         });
       }
-    }if (event.data[0] == 2) {
+    }if (event.button == 2) {
       if (engagedConfigurator == configurators.global) {
         lastEngagedConfigurator = engagedConfigurator;
         engagedConfigurator.disengage(event);
@@ -119,11 +119,11 @@ module.exports = function(controlledModule) {
     engagedHardwares.delete(event.hardware);
   }
   var updateHardware = function(hardware) {
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     updateLeds(hardware);
   }
   var updateLeds = function(hardware) {
     stepsBmp = controlledModule.getBitmap16();
-    hardware.draw([0, stepsBmp, stepsBmp]);
+    hardware.setMatrixMonoMap([0, stepsBmp, stepsBmp]);
   }
 }

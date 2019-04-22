@@ -70,7 +70,7 @@ module.exports = function (controlledModule,environment) {
   };
   this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
-    if (event.data[0] == 2) {
+    if (event.button == 2) {
       if (engagedConfigurator == configurators.global) {
         lastEngagedConfigurator = engagedConfigurator;
         engagedConfigurator.disengage(event);
@@ -108,10 +108,10 @@ module.exports = function (controlledModule,environment) {
   var RARROW = String.fromCharCode(126);
   var updateScreen = function (hardware) {
     if (editMode) {
-      hardware.sendScreenA("edit alteration");
-      hardware.sendScreenB((selectedAlteration % 12) + RARROW + controlledModule.alterations[selectedAlteration % 12]);
+      hardware.screenA("edit alteration");
+      hardware.screenB((selectedAlteration % 12) + RARROW + controlledModule.alterations[selectedAlteration % 12]);
     } else {
-      hardware.sendScreenA(controlledModule.name);
+      hardware.screenA(controlledModule.name);
     }
   }
   var updateHardware = function (hardware) {

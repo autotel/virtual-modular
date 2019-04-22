@@ -93,7 +93,7 @@ module.exports = function (controlledModule) {
     if (engagedConfigurator) {
       engagedConfigurator.selectorButtonPressed(event);
     } else {
-      if (event.data[0] == 2) {
+      if (event.button == 2) {
         engagedConfigurator = configurators.global;
         configurators.global.engage(event);
       }
@@ -101,7 +101,7 @@ module.exports = function (controlledModule) {
   };
   this.selectorButtonReleased = function (event) {
     var hardware = event.hardware;
-    if (event.data[0] == 2) {
+    if (event.button == 2) {
       if (engagedConfigurator == configurators.global) {
         lastEngagedConfigurator = engagedConfigurator;
         engagedConfigurator.disengage(event);
@@ -128,7 +128,7 @@ module.exports = function (controlledModule) {
     engagedHardwares.delete(event.hardware);
   }
   var updateHardware = function (hardware) {
-    hardware.sendScreenA(controlledModule.name);
+    hardware.screenA(controlledModule.name);
     updateLeds(hardware);
   }
   var passiveUpdateHardware = function () {
@@ -140,7 +140,7 @@ module.exports = function (controlledModule) {
   var updateLeds = function (hardware) {
     // stepsBmp = makeAnimationBitmap({x:2,y:2},animf);
 
-    hardware.draw([0, stepsBmp, stepsBmp]);
+    hardware.setMatrixMonoMap([0, stepsBmp, stepsBmp]);
     animf++;
     if (animf > 8) animf = 0;
   }

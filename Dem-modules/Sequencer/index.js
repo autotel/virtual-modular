@@ -3,31 +3,21 @@ var Recorder = require('./sequencerGuts/record.js');
 // var clockSpec=require('../standards/clock.js');
 var EventPattern=require('./EventPattern');
 var EventMessage=require('../../Polimod/datatypes/EventMessage');
+const Base=require("../Base");
 
 // const fs = require('fs');
 // console.log(fs);
 // var InterfaceX28 = require('./InterfaceX28');
 var headers = EventMessage.headers;
 
-
+let instances=0;
 const sequencerFunctions = require("./sequencerGuts");
-/**
- Sequencer
- TODO: module naming functions should be a static property, and thus defaults to "name+number"
- */
-var testcount = 0;
-var testGetName = function () {
-  this.name = baseName + " " + testcount;
-  testcount++;
-}
-var baseName = "sequencer";
 
 var Sequencer = function (properties, environment) {
-  // environment.utils.requireProperties().in(environment);
-
   var fs=environment.fs;
-  testGetName.call(this);
   if (properties.name) this.name = properties.name;
+  Base.call(this,properties,environment);
+  this.name="Sequencer"+instances;
 
   var currentStep = {
     value: 0
@@ -319,10 +309,6 @@ var Sequencer = function (properties, environment) {
         this.handle('receive', evt);
     }
   }
-  this.interfaces.X16 = InterfaceX16;
-  // this.interfaces.X28 = InterfaceX28;
-  this.interfaces.Http = require("./InterfaceHttp.js");
-
 }
 Sequencer.color = [0, 0, 255];
 module.exports = Sequencer
