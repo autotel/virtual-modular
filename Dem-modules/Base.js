@@ -11,7 +11,7 @@ module.exports=function(properties,environment){
   var inputs=this.inputs=new Set();
   var recordOutputs=this.recordOutputs=new Set();
   var recordInputs=this.recordInputs=new Set();
-  
+  this.interactors={};
   this.baseName="base";
   this.name="base";
   this.mute=false;

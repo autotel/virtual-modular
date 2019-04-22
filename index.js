@@ -2,10 +2,9 @@ var Polimod=require('./Polimod');
 const environment=new Polimod();
 //appending hardwares
 // either: environment.addHardware(require("./hardwares/Calculeitor")); or:
-var calculeitor = new(require("./hardwares/Calculeitor"))(environment);
+var calculeitor = new(require("./interfaces/Calculeitor"))(environment);
 //thusly it becomes possible:
 //var webVisualization=new(require("hardwares/WebVis"));//which can be another submodule
-new(require("./interactors/Calculeitor"))(environment);
 new(require("./Dem-modules"))(environment);
 
 /*

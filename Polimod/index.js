@@ -41,7 +41,8 @@ const Polimod=function(){
       }
     }
   }
-  //For different types of user interfaces (e.g. calculeitor, command line, web client, launchpad...)
+  //For different types of user physical interfaces (e.g. calculeitor, command line, web client, launchpad...)
+  //each of these interfaces may contain the different interactors in their own ways.
   this.interfaces=new EnvResource("interfaces");
   //For the constructors of different modules (e.g. Harmonizer, Sequencer, Narp...)
   this.modulePrototypes=new EnvResource("modulePrototypes");
