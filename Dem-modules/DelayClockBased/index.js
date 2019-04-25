@@ -29,10 +29,10 @@ var DelayClockBased = function (properties,environment) {
     },
     sendClock: {
       value: false,
-    }
+    },
   }
   let clock = this.clock = {
-    microsteps: 12,
+    microSteps: 12,
     subSteps: 1,
     subStep: 0,
     step: 0
