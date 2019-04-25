@@ -15,7 +15,7 @@ var testGetName = function () {
  */
 
 
-var FixNoteLen = function (properties) {
+var FixNoteLen = function (properties,environment) {
   Base.call(this,properties,environment);
   var thisInstance = this;
   var myBitmap = 0;

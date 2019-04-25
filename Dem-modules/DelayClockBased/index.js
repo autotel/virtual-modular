@@ -15,7 +15,7 @@ var testGetName = function () {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var DelayClockBased = function (properties) {
+var DelayClockBased = function (properties,environment) {
   Base.call(this,properties,environment);
 
   var thisInstance = this;

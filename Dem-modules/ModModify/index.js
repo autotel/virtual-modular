@@ -18,7 +18,7 @@ var testGetName = function () {
  */
 
 
-var ModModify = function (properties) {
+var ModModify = function (properties,environment) {
   var thisInstance = this;
   Base.call(this,properties,environment);
   this.preventBus=true;

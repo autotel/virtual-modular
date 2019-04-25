@@ -1,8 +1,8 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 const Base= require("../Base");
-
-var CalculeitorMidi = function (properties) {
+let instances=0;
+var CalculeitorMidi = function (properties,environment) {
   this.preventBus = true;
   this.baseName = "CalculeitorMidi";
   this.color = CalculeitorMidi.color;

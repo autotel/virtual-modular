@@ -15,7 +15,7 @@ var testGetName = function () {
  */
 
 
-var RouteSequencer = function (properties) {
+var RouteSequencer = function (properties,environment) {
   Base.call(this,properties,environment);
 
   var noteOnTracker = [];

@@ -23,7 +23,7 @@ var testGetName = function () {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var Operator = function (properties) {
+var Operator = function (properties,environment) {
 
   //maybe the operator should allow layering of many operation layers, also adding timing operations
   Base.call(this,properties,environment);

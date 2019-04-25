@@ -15,7 +15,7 @@ var name = function() {
   this.name = this.baseName + " " + instanced;
   instanced++;
 }
-var ClockGenerator = function(properties={bpm:60}) {
+var ClockGenerator = function(properties={bpm:60},environment) {
   var thisInstance = this;
   var myInterval = false;
   this.preventBus = true;

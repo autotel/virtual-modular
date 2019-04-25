@@ -16,7 +16,7 @@ var testGetName = function () {
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var GameOfLife = function (properties) {
+var GameOfLife = function (properties,environment) {
   Base.call(this,properties,environment);
   var noteOnTracker = new NoteOnTracker(this);
   var thisInstance = this;
