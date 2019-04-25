@@ -2,6 +2,7 @@
 const onHandlers=require('onhandlers');
 const EventMessage=require('./datatypes/EventMessage');
 const TimeIndex=require('./datatypes/TimeIndex');
+const LazyQueue=require('./LazyQueue');
 const requireProperties=require('./requireProperties');
 const Polimod=function(){
   const thisPolimod=this;
@@ -48,7 +49,7 @@ const Polimod=function(){
       }
     }
     this.requires=function(requirementsList){
-      return requireProperties(requirementsList).name(name+" require").in(self.list);
+      return requireProperties(requirementsList).name(name+"").in(self.list);
     }
     this.each=function(cb){
       for(var a in self.list) cb(self.list[a],a,self.list);
@@ -71,11 +72,11 @@ const Polimod=function(){
     }
   }
   
-  this.datatypes=new EnvResource("datatyoes");
+  this.datatypes=new EnvResource("datatypes");
   this.datatypes.use({EventMessage,TimeIndex});
   
-  this.utils=new EnvResource("datatyoes");
-  this.utils.use({requireProperties});
+  this.utils=new EnvResource("utils");
+  this.utils.use({requireProperties,LazyQueue});
 
 
   
