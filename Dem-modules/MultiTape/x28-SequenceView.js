@@ -10,7 +10,7 @@ module.exports=function(environment,parentInteractor){
   var configurators={};
   var engagedConfigurator=false;
   var lastEngagedConfigurator=false;
-  configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
+  configurators.event=new EventConfigurator(environment,controlledModule,this,{baseEvent:controlledModule.baseEventMessage});
   var tapeCanvas=new TapeCanvas(controlledModule);
   var stepsBmp=0;
   var engagedHardwares=this.engagedHardwares=new Set();

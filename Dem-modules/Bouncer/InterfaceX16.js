@@ -4,7 +4,7 @@ var EventConfigurator = require('../x16utils/EventConfigurator.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
 var RecordMenu = require('../x28utils/RecordMenu.js');
 
-module.exports = function(controlledModule,environment) {
+module.exports = function(environment,controlledModule) {
   base.call(this);
   var configurators = {};
 
@@ -13,10 +13,7 @@ module.exports = function(controlledModule,environment) {
   var engagedHardwares = new Set();
   var lazyQueue=new (environment.utils.requires("LazyQueue"))();
 
-  configurators.record = new RecordMenu(this, {
-    environment: environment,
-    controlledModule: controlledModule
-  });
+  configurators.record = new RecordMenu(environment,controlledModule,this)
 
   var bitmap=0;
   controlledModule.on('received', function(evMes) {

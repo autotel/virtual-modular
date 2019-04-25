@@ -5,7 +5,7 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 // var RecordMenu = require('../x28utils/RecordMenu.js');
 
-module.exports = function (controlledModule, environment) {
+module.exports = function(environment,controlledModule) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};
@@ -60,7 +60,7 @@ module.exports = function (controlledModule, environment) {
     new OpSetter(3),
   ];
 
-  configurators.ops = new BlankConfigurator(this, {
+  configurators.ops = new BlankConfigurator(environment,controlledModule,this, {
     name: "operate",
     vars: {
       "head 0": opSetters[0].operator(),
@@ -74,10 +74,7 @@ module.exports = function (controlledModule, environment) {
     }
   });
 
-  // configurators.record = new RecordMenu(this, {
-  //   environment: environment,
-  //   controlledModule: controlledModule
-  // });
+  // configurators.record = new RecordMenu(environment,controlledModule,this)
 
   var lastEngagedConfigurator = false;
   var engagedConfigurator = false;

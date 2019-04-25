@@ -9,13 +9,13 @@ definition of a monoSequencer interactor for the x16basic controller hardware
 */
 
 //instance section
-module.exports = function(controlledModule) {
+module.exports = function(environment,controlledModule){
   base.call(this);
   var configurators = {};
-  configurators.event = new EventConfigurator(this, {
+  configurators.event = new EventConfigurator(environment,controlledModule,this, {
     baseEvent: controlledModule.baseEventMessage
   });
-  configurators.global = new BlankConfigurator(this, {
+  configurators.global = new BlankConfigurator(environment,controlledModule,this,, {
     name: "",
     vars: {
       "step div": {

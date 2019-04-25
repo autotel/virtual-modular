@@ -5,10 +5,10 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var panton = require("../../interaction/x28basic/panton");
 
 //instance section
-module.exports = function (controlledModule) {
+module.exports = function (environment,controlledModule) {
   base.call(this);
   var configurators = {};
-  configurators.global = new BlankConfigurator(this, {
+  configurators.global = new BlankConfigurator(environment,controlledModule,this,, {
     name: "",
     vars: {
       "modify": controlledModule.remapIndex,

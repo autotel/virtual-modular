@@ -5,7 +5,7 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var panton = require("../../interaction/x28basic/panton");
 
 //instance section
-module.exports = function (controlledModule) {
+module.exports = function (environment,controlledModule) {
 
   /*
   what if this module disengaged the controllermode and did set the calculeitor in a pad performance mode, 

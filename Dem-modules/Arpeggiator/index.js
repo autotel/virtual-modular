@@ -5,11 +5,6 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var Monosequence = require('./Monosequence');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
-var testcount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + testcount;
-  testcount++;
-}
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -18,6 +13,9 @@ require to moduleBase.call
 var Arpeggiator = function (properties) {
 
   var self = this;
+  Base.call(this,properties,environment);
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
   var myBitmap = 0;
   var settings = this.settings = {
     duration: { value: false },
@@ -58,9 +56,6 @@ var Arpeggiator = function (properties) {
       cb.call(rnot, index, rnot);
     }
   }
-  this.baseName = "Arpeggiator";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
   var self = this;
 
 

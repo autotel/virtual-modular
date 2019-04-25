@@ -62,7 +62,7 @@
 
 
 //   var configurators = {};
-//   configurators.global = new BlankConfigurator(this, {
+//   configurators.global = new BlankConfigurator(environment,controlledModule,this,, {
 //     name: "",
 //     vars: {
 //       "step length": {value:controlledModule.clock.substeps},

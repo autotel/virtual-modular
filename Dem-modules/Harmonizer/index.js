@@ -4,51 +4,41 @@ var Note = require('../moduleUtils/Note');
 var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-
-var InterfaceX28 = require('./InterfaceX28');
+var Base=require('../Base');
 /**
 @constructor ModuleSingleton
 singleton, only one per run of the program
 every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 */
-
-var instanced = 0;
-var baseName = "harmonizer";
-var name = function () {
-  this.name = baseName + " " + instanced;
-  instanced++;
-}
+let instances=0;
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var Harmonizer = function (properties, environment) {
-  if (properties.name) {
-    this.name = properties.name;
-  } else {
-    name.call(this);
-  };
+  Base.call(this,properties,environment);
+  this.name=properties.name?properties.name:this.constructor.name+instances++;
   this.preventBus = true;
 
-  var self = this;
+  let self = this;
   this.recordingUi = true;
   this.currentScale = 0;
-  var noteOnTracker = new NoteOnTracker(this);
+  let noteOnTracker = new NoteOnTracker(this);
   this.mapMode = true;
-  var transpose = this.transpose = {input:0,output:36};
+  let transpose = this.transpose = {input:0,output:36};
   // this.baseNote={value:0};
-
+  this.scaleNames=scaleNames;
   this.defaultNote = new Note();
   // this.defaultNote.testvar="hi";
   this.defaultNote.note(0);
 
-  var scaleMap = {};
+  let scaleMap = {};
   //keep track of triggered notes
   this.scaleArray = {};
 
   function defaultState() {
-    var c = 0;
+    let c = 0;
     for (let scale in scaleNames.nameToScale) {
       self.newScaleMap(c, scaleNames.nameToScale[scale]);
       if (c++ > 15) break;
@@ -215,7 +205,7 @@ var Harmonizer = function (properties, environment) {
   }
 
   this.getCompMaps = function (identifier, shift = 0) {
-    var ret = {
+    let ret = {
       roots: 1,
       semitones: [0, 0, 0, 0]
     }
@@ -250,7 +240,6 @@ var Harmonizer = function (properties, environment) {
     return ret;
   }
 
-  this.interfaces.X28 = InterfaceX28;
 
   defaultState();
 
@@ -262,5 +251,5 @@ var Harmonizer = function (properties, environment) {
   // }
 }
 
-Harmonizer.color = [255, 255, 127];
+Harmonizer.color = [200, 255, 70];
 module.exports = Harmonizer;

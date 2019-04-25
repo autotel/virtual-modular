@@ -14,7 +14,7 @@ every module needs to run at the beginning of the runtime to register it's inter
 var headers = EventMessage.headers;
 
 
-var instancesCount = 0;
+var instances = 0;
 var getName = function() {
   this.name = this.baseName + " " + instancesCount;
   instancesCount++;
@@ -30,11 +30,12 @@ var Bouncer = function(properties,environment) {
 
   var self = this;
 
-
-  this.baseName = "Bouncer";
+  Base.call(this,properties,environment);
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
-  getName.call(this);
+
 
   if (properties.name) this.name = properties.name;
 

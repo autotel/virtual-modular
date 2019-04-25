@@ -2,23 +2,15 @@
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-var InterfaceX16 = require('./InterfaceX16');
-
-
-var instanced = 0;
-var name = function() {
-    this.name = this.baseName + " " + instanced;
-    instanced++;
-}
+var Base=require('../Base')
+let instances=0;
 var PresetKit = function(properties, environment) {
-    this.baseName = "preset kit";
-
-    var self = this;
-    //get my unique name
-    name.call(this);
     this.preventBus=true;
     this.autoMap = false;
-
+    var self=this;
+    Base.call(this,properties,environment);
+    this.name=this.constructor.name+instances++;
+    if(properties.name)this.name=properties.name;
     if (properties.autoMap == true) this.autoMap = 1;
     if (properties.autoMap == 'timbre') this.autoMap = 2;
     if (properties.autoMap == 'note') this.autoMap = 1;
@@ -27,9 +19,6 @@ var PresetKit = function(properties, environment) {
 
     if (properties.name) this.name = properties.name;
 
-
-    this.interfaces.X16 = InterfaceX16;
-    this.interfaces.Http = require("./InterfaceHttp.js");
 
     var kit = this.kit = {};
 
@@ -187,7 +176,7 @@ var PresetKit = function(properties, environment) {
     }
 
 }
-PresetKit.color = [90, 70, 30];
+PresetKit.color = [129, 93, 4];
 module.exports = PresetKit
 
 /*

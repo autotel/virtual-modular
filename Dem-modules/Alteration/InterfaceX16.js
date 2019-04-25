@@ -6,10 +6,10 @@ var RecordMenu = require('../x28utils/RecordMenu.js');
 
 
 //instance section
-module.exports = function (controlledModule,environment) {
+module.exports = function (environment,controlledModule) {
   base.call(this);
   var configurators = {};
-  configurators.global = new BlankConfigurator(this, {
+  configurators.global = new BlankConfigurator(environment,controlledModule,this, {
     name: "",
     vars: {
       "duration (micro)": controlledModule.settings.delayMicro,
@@ -25,10 +25,7 @@ module.exports = function (controlledModule,environment) {
   var editMode = false;
   var selectedAlteration = 0;
 
-  configurators.record = new RecordMenu(this, {
-    environment: environment,
-    controlledModule: controlledModule
-  });
+  configurators.record = new RecordMenu(environment,controlledModule,this);
 
   var baseNote = 36;
   var engagedHardwares = new Set();

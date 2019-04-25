@@ -5,7 +5,7 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 var BlankConfigurator = require('../x16utils/BlankConfigurator.js');
 // var RecordMenu = require('../x28utils/RecordMenu.js');
 
-module.exports = function (controlledModule, environment) {
+module.exports = function (environment,controlledModule) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};

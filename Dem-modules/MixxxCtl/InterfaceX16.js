@@ -9,18 +9,15 @@ var RecordMenu = require('../x28utils/RecordMenu.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports = function(controlledModule,environment) {
+module.exports = function(environment,controlledModule) {
   base.call(this);
   var currentStep = 0;
   var configurators = {};
-  configurators.event = new EventConfigurator(this, {
+  configurators.event = new EventConfigurator(environment,controlledModule,this, {
     baseEvent: controlledModule.baseEventMessage
   });
-  configurators.record = new RecordMenu(this, {
-    environment: environment,
-    controlledModule: controlledModule
-  });
-  configurators.time = new BlankConfigurator(this, {
+  configurators.record = new RecordMenu(environment,controlledModule,this)
+  configurators.time = new BlankConfigurator(environment,controlledModule,this,, {
     name: "",
     vars: {
       "step ratio": {

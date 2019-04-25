@@ -12,7 +12,7 @@ var LARROW=String.fromCharCode(200);
 
 var RecordMenu = require('../x28utils/RecordMenu.js');
 
-module.exports = function(controlledModule,environment) {
+module.exports = function(environment,controlledModule) {
   base.call(this);
   var self=this;
   var configurators = {};
@@ -27,14 +27,14 @@ module.exports = function(controlledModule,environment) {
       return [0,1,2]
     }
   }
-  configurators.event = new EventConfigurator(this, {
+  configurators.event = new EventConfigurator(environment,controlledModule,this, {
     // baseEvent: new EventMessage({ value: [headers.triggerOn,0,-1,-1]})
     preset:1
   });
 
 
   var memPlayHead = controlledModule.memory.getPlayhead();
-  configurators.time = new BlankConfigurator(this, {
+  configurators.time = new BlankConfigurator(environment,controlledModule,this,, {
     name: "",
     vars: {
       "loop start": {

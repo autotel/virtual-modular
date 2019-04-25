@@ -21,8 +21,8 @@ module.exports = function(environment, parentInteractor) {
 
 
   var configurators = {};
-  // configurators.event=new EventConfigurator(this,{baseEvent:controlledModule.baseEventMessage});
-  configurators.tapeTime = new BlankConfigurator(this, {
+  // configurators.event=new EventConfigurator(environment,controlledModule,this,{baseEvent:controlledModule.baseEventMessage});
+  configurators.tapeTime = new BlankConfigurator(environment,controlledModule,this,, {
     name: "tape",
     vars: {
       "length": {

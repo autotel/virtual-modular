@@ -1,14 +1,12 @@
 'use strict';
-var instanced = 0;
-var name = function() {
-  this.name = this.baseName + " " + instanced;
-  instanced++;
-}
-
+let instances=0;
+let Base=require("../Base");
 var Bus = function(properties,environment) {
-  this.baseName = "bus";
   var self = this;
-  name.call(this);
+  Base.call(this,properties,environment);
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
+
   this.interactor = {
     type: "interactor",
     compatibilityTags: []

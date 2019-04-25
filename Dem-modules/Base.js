@@ -2,6 +2,7 @@
 var onHandlers=require('onhandlers');
 
 module.exports=function(properties,environment){
+  if(!environment) throw new Error("environment is required when extending module base");
   onHandlers.call(this);
   var self=this;
   const EventMessage=environment.datatypes.requires(["EventMessage"])[0];

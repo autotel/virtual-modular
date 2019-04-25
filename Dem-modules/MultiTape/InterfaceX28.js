@@ -9,7 +9,7 @@ var base = require('../../interaction/x28basic/interactorBase.js');
 /**
 definition of a monoSequencer interactor for the x16basic controller hardware
 */
-module.exports = function(controlledModule, environment) {
+module.exports = function(environment,controlledModule) {
   base.call(this, controlledModule);
   this.controlledModule = controlledModule;
 

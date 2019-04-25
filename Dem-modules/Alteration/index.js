@@ -18,6 +18,9 @@ var testGetName = function () {
 
 
 var Alteration = function (properties) {
+  Base.call(this,properties,environment);
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
   var self = this;
   var myBitmap = 0;
   var settings = this.settings = {
@@ -38,11 +41,6 @@ var Alteration = function (properties) {
   this.alterations=[ 0,-1, 0,-1, 0, 0,-1, 0,-1, 0,-1, 0];
   var noteOnTracker = new NoteOnTracker(this);
 
-  
-  this.baseName = "Alteration";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
-  var self = this;
 
   this.interfaces.X16 = InterfaceX16;
 

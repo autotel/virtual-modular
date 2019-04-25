@@ -5,11 +5,6 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
-var testcount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + testcount;
-  testcount++;
-}
 /**
  @constructor
  the instance of the of the module, ment to be instantiated multiple times.
@@ -18,14 +13,15 @@ var testGetName = function () {
 
 
 var Chord = function (properties) {
-  var thisInstance = this;
+  var self = this;
   this.preventBus=true;
   this.baseName = "Chord";
-  this.color=Chord.color;
-  testGetName.call(this);
   if (properties.name) this.name = properties.name;
-  var self = this;
   this.interfaces.X16 = InterfaceX28;
+
+  Base.call(this,properties,environment);
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
 
   var noteOnTracker={}
 
@@ -76,7 +72,7 @@ var Chord = function (properties) {
   }
   // this.onRemove = function () {
   //   noteOnTracker.empty(function (noff) {
-  //     thisInstance.output(noff, true);
+  //     self.output(noff, true);
   //   });
   //   return true;
   // }

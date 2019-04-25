@@ -4,7 +4,7 @@ var LARROW = String.fromCharCode(200);
 
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var base = require('../../interaction/x16basic/interactorBase.js');
-module.exports = function (controlledModule) {
+module.exports = function (environment,controlledModule) {
   // environment.interactionMan.interfaces.x16basic.interactorBase.call(this, controlledModule);
   var engagedHardwares = new Set();
   var playHeadBmp;

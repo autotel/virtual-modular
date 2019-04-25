@@ -8,13 +8,13 @@ definition of a monoSequencer interactor for the x16basic controller hardware
 */
 
 //instance section
-module.exports = function (controlledModule) {
+module.exports = function (environment,controlledModule) {
 
   base.call(this);
   var sequence = controlledModule.monosequence;
   var view = { step: 0 }
   var configurators = {};
-  configurators.global = new BlankConfigurator(this, {
+  configurators.global = new BlankConfigurator(environment,controlledModule,this, {
     name: "",
     vars: {
       "clear": controlledModule.settings.reset,

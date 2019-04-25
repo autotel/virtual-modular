@@ -6,8 +6,7 @@ Module that enables interconnectivity with midi inputs and midi outputs, presuma
 var MidiInterface = undefined;
 
 
-var EventMessage = require('../../src/datatypes/EventMessage');
-var InteractorX16 = require('./InteractorX16');
+var EventMessage = require('../../Polimod/datatypes/EventMessage');
 
 var headers = EventMessage.headers;
 
@@ -30,11 +29,8 @@ var defaultMessage = new EventMessage({
   value: [0, 36, 0, 90]
 });
 var instanced = 0;
-var getName = function () {
-  this.name = this.baseName + " " + instanced;
-  instanced++;
-}
 
+var Base=require('../Base');
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -42,10 +38,11 @@ require to moduleBase.call. it is created via ModulesManager.addModule
 */
 
 var MidiIO = function (properties, environment) {
+  Base.call(this,properties,environment);
   this.preventBus = true;
   this.deviceName = "none";
-  this.baseName = (properties.name ? properties.name : "Midi");
-  getName.call(this);
+  this.name = (properties.name ? properties.name : "Midi"+instanced);
+  instanced++;
   var hangingNotes = {};
   var self = this;
   if (properties.name) this.name = properties.name;
@@ -91,7 +88,6 @@ var MidiIO = function (properties, environment) {
     }
   }
 
-  this.interfaces.X16 = InteractorX16;
   var inputClockCount = 0;
   var midiReceived = function (midiMessage) {
     // console.log("MIDIIN",midiMessage);

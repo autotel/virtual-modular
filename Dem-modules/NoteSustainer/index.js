@@ -1,8 +1,7 @@
 "use strict";
 
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
-
+var Base=require('../Base');
 var headers = EventMessage.headers;
 var CHANGEPOLYPHONYHEADER = headers.changeRate;
 var KILLNOTESHEADER = headers.choke;
@@ -13,12 +12,10 @@ var testcount = 0;
 the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
-var NoteSustainer = function(properties) {
+var NoteSustainer = function(properties,environment) {
 
-  var thisInstance = this;
-  var myBitmap = 0;
   var polyphony = this.polyphony={value:1};
-
+  Base.call(this,properties,environment);
   let runningNotes = [];
 
   this.getRunningNotes=function(){
@@ -32,7 +29,6 @@ var NoteSustainer = function(properties) {
   if (properties.name) this.name = properties.name;
   var self = this;
 
-  this.interfaces.X16 =  InterfaceX16;
 
   var recMessages={
     kill:new EventMessage({value:[KILLNOTESHEADER,0,0]}),

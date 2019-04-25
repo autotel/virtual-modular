@@ -5,10 +5,10 @@ var base = require('../../interaction/x16basic/interactorBase.js');
 
 
 //instance section
-module.exports = function (controlledModule) {
+module.exports = function (environment,controlledModule) {
   base.call(this);
   var configurators = {};
-  configurators.global = new BlankConfigurator(this, {
+  configurators.global = new BlankConfigurator(environment,controlledModule,this,, {
     name: "",
     vars: {
       "duration (micro)": controlledModule.settings.delayMicro,

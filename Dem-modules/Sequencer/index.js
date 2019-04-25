@@ -15,9 +15,9 @@ const sequencerFunctions = require("./sequencerGuts");
 
 var Sequencer = function (properties, environment) {
   var fs=environment.fs;
-  if (properties.name) this.name = properties.name;
   Base.call(this,properties,environment);
-  this.name="Sequencer"+instances;
+  this.name=this.constructor.name+instances++;
+  if (properties.name) this.name = properties.name;
 
   var currentStep = {
     value: 0
