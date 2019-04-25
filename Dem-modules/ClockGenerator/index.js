@@ -1,8 +1,8 @@
 'use strict';
 var hrtime = require('browser-process-hrtime');
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
-// var clockSpec=require('../standards/clock.js');
+const Base= require("../Base");
+
 var headers=EventMessage.headers;
 var instanced = 0;
 
@@ -19,6 +19,7 @@ var ClockGenerator = function(properties={bpm:60}) {
   var thisInstance = this;
   var myInterval = false;
   this.preventBus = true;
+  Base.call(this,properties,environment);
 
   var myEventMessage = new EventMessage({
     value: [headers.clockTick, 12 /*ck per step*/ , 0 /* step number*/ ]
@@ -32,7 +33,7 @@ var ClockGenerator = function(properties={bpm:60}) {
   this.baseName = "clockGenerator";
   name.call(this);
   if (properties.name) this.name = properties.name;
-  this.interfaces.X16 =  InterfaceX16;
+  
 
   function tickFunction() {
       step.value++;

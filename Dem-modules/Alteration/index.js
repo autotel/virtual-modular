@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+const Base= require("../Base");
+
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -42,7 +43,7 @@ var Alteration = function (properties) {
   var noteOnTracker = new NoteOnTracker(this);
 
 
-  this.interfaces.X16 = InterfaceX16;
+  
 
   var recMessages = {
     rate: new EventMessage({ value: [headers.changeRate, 12, -1] }),
@@ -108,7 +109,7 @@ var Alteration = function (properties) {
     }
   }
   var numberTransformFunction=function(input){
-    var base=Math.floor(input/12)*12;
+    const Base= Math.floor(input/12)*12;
     var wrIn = input%12;
     var grade = self.alterations[wrIn] + wrIn;
     console.log(input,base,grade);

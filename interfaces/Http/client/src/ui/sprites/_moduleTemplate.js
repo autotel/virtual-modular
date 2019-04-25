@@ -1,4 +1,4 @@
-var Base=require('./ModuleBase.js');
+const Base= require('./ModuleBase.js');
 var colours=require("../colours");
 module.exports=function(ui,properties){
   var node=this.node=properties.node;

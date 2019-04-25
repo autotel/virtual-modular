@@ -2,7 +2,7 @@
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-var Base=require('../Base')
+const Base= require('../Base')
 let instances=0;
 var PresetKit = function(properties, environment) {
     this.preventBus=true;

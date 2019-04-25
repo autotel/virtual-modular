@@ -13,6 +13,7 @@ every module needs to run at the beginning of the runtime to register it's inter
 */
 var headers = EventMessage.headers;
 
+const Base= require("../Base");
 
 var instances = 0;
 var getName = function() {
@@ -41,7 +42,7 @@ var Bouncer = function(properties,environment) {
 
   var noteOnTracker = new NoteOnTracker(this);
 
-  this.interfaces.X16 =  InterfaceX16;
+  
   this.bounce = function (eventMessage) {
     self.outputs.forEach(function (tModule) {
       var recordEventMessage = eventMessage.clone();

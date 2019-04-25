@@ -1,6 +1,6 @@
 var colours = require("../colours");
 
-var Base=require('./Base.js');
+const Base= require('./Base.js');
 module.exports=function(ui,properties){
   Base.call(this,ui,properties);
   // console.log(ui);

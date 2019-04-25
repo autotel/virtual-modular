@@ -1,4 +1,4 @@
-var Base=require("../Base.js");
+const Base= require("../Base.js");
 let instances=0;
 const TestDummy=function(properties,environment){
     Base.call(this,properties,environment);

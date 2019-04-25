@@ -3,7 +3,8 @@
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
-var InterfaceX16 = require('./InterfaceX16');
+
+const Base= require("../Base");
 
 /**
 @constructor ModuleSingleton
@@ -25,6 +26,7 @@ require to moduleBase.call
 var Operator = function (properties) {
 
   //maybe the operator should allow layering of many operation layers, also adding timing operations
+  Base.call(this,properties,environment);
 
   var self = this;
   this.preventBus = true;
@@ -40,7 +42,7 @@ var Operator = function (properties) {
 
   var noteOnTracker = new NoteOnTracker(this);
 
-  this.interfaces.X16 = InterfaceX16;
+  
   this.ops = {
     "none": function (signal) {
       return signal;

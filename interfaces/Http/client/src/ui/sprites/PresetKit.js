@@ -1,6 +1,6 @@
 var colours = require("../colours");
 
-var Base = require('./ModuleBase.js');
+const Base=  require('./ModuleBase.js');
 const TWO_PI = Math.PI * 2;
 // var testC=0;
 module.exports = function (ui, properties) {

@@ -2,7 +2,8 @@
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 
 var Tape = require('./Tape.js');
-var InterfaceX28 = require('./InterfaceX28');
+const Base= require("../Base");
+
 // var Recorder = require('./Recorder.js');
 var NoteOnTracker = require('./NoteOnTracker.js');
 var headers=EventMessage.headers;
@@ -24,8 +25,9 @@ require to moduleBase.call
 */
 var MultiTape = function (properties, environment) {
 
+  Base.call(this,properties,environment);
   this.baseName = "multitape";
-  this.interfaces.X28 = InterfaceX28;
+  
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var noteOffSuperImpose = new EventMessage({

@@ -3,14 +3,8 @@
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 
-var InterfaceX28 = require('./InterfaceX28');
+const Base= require("../Base");
 
-/**
-@constructor ModuleSingleton
-singleton, only one per run of the program
-every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
-
-*/
 var headers = EventMessage.headers;
 var instancesCount = 0;
 var testGetName = function () {
@@ -25,6 +19,7 @@ require to moduleBase.call
 var Knob = function (properties) {
 
   //maybe the Knob should allow layering of many operation layers, also adding timing operations
+  Base.call(this,properties,environment);
 
   var self = this;
   this.preventBus = true;
@@ -34,7 +29,7 @@ var Knob = function (properties) {
 
   if (properties.name) this.name = properties.name;
 
-  this.interfaces.X28 = InterfaceX28;
+  
   
   this.triggerOperationChange = function () {
     // operationEventMessage.update();

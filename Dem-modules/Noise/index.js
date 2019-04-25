@@ -1,8 +1,9 @@
 'use strict';
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
+const Base= require("../Base");
 
-var InterfaceX16 = require('./InterfaceX16');
+
 // var InterfaceHttp = require('./HttpGui');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -26,6 +27,7 @@ require to moduleBase.call
 var Noise = function (properties, environment) {
   var self = this;
   var myBitmap = this.bitmap = 0;
+  Base.call(this,properties,environment);
   var patMem = new Set();
   var currentStep = 0;
   var stepDivision = this.stepDivision = {
@@ -71,8 +73,8 @@ var Noise = function (properties, environment) {
     self.recordOutput(recMessages.rate);
   }
 
-  this.interfaces.X16 = InterfaceX16;
-  // this.interfaces.Http = InterfaceHttp;
+  
+  // 
 
   var setStep = this.setStep = function (square, uiTriggered = false) {
     patMem.add(square);

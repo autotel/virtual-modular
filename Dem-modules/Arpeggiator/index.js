@@ -1,16 +1,11 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+const Base= require("../Base");
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var Monosequence = require('./Monosequence');
-// var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
-/**
-@constructor
-the instance of the of the module, ment to be instantiated multiple times.
-require to moduleBase.call
-*/
-var Arpeggiator = function (properties) {
+let instances=0;
+var Arpeggiator = function (properties,environment) {
 
   var self = this;
   Base.call(this,properties,environment);
@@ -59,7 +54,7 @@ var Arpeggiator = function (properties) {
   var self = this;
 
 
-  this.interfaces.X16 = InterfaceX16;
+  
 
   var memory = [];
   var recMessages = {

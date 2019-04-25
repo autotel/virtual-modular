@@ -2,7 +2,8 @@
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var Observable=require('onhandlers');
-var InterfaceX16 = require('./InterfaceX16');
+const Base= require("../Base");
+
 // var InterfaceHttp = require('./HttpGui');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -70,6 +71,7 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var MixxxCtl = function (properties, environment) {
+  Base.call(this,properties,environment);
   var self = this;
   var myBitmap = this.bitmap = 0;
   var a=actuatorTypes;

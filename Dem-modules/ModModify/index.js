@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX28 = require('./InterfaceX28');
+const Base= require("../Base");
+
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -19,13 +20,14 @@ var testGetName = function () {
 
 var ModModify = function (properties) {
   var thisInstance = this;
+  Base.call(this,properties,environment);
   this.preventBus=true;
   this.baseName = "ModModify";
   this.color=ModModify.color;
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
   var self = this;
-  this.interfaces.X16 = InterfaceX28;
+  
 
   var noteOnTracker={}
 

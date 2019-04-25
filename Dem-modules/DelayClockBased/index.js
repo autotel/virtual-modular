@@ -1,15 +1,9 @@
-/**
- * 
- * 
- * ideas:
- * add a "feedback" option. this involves the addition of an operator that modifies the feedback signal
-*/
-
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
+const Base= require("../Base");
 
 var testcount = 0;
 var testGetName = function () {
@@ -22,6 +16,7 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var DelayClockBased = function (properties) {
+  Base.call(this,properties,environment);
 
   var thisInstance = this;
   var myBitmap = 0;
@@ -49,8 +44,8 @@ var DelayClockBased = function (properties) {
   var self = this;
 
 
-  this.interfaces.X16 = InterfaceX16;
-  this.interfaces.Http = require("./InterfaceHttp");
+  
+  
   var memory = this.memory = new Set();
   var recMessages = {
     rate: new EventMessage({ value: [headers.changeRate, 12, -1] })

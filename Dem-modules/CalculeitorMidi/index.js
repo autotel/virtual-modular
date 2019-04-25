@@ -1,16 +1,6 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX28 = require('./InterfaceX28');
-var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-// var clockSpec=require('../standards/clock.js');
-var headers = EventMessage.headers;
-
-/**
- @constructor
- the instance of the of the module, ment to be instantiated multiple times.
- require to moduleBase.call
- */
-
+const Base= require("../Base");
 
 var CalculeitorMidi = function (properties) {
   this.preventBus = true;
@@ -28,7 +18,7 @@ var CalculeitorMidi = function (properties) {
 
   var outputHardwares = this.outputHardwares = new Set();
 
-  this.interfaces.X16 = InterfaceX28;
+  
 
   var noteOnTracker = {}
 

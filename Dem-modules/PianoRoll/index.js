@@ -1,8 +1,9 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX28 = require('./InterfaceX28');
+
 var TapeMem=require('./TapeMem.js');
 var headers = EventMessage.headers;
+const Base= require("../Base");
 
 var instancesCount = 0;
 var testGetName = function() {
@@ -11,6 +12,7 @@ var testGetName = function() {
 }
 var PianoRoll = function(properties,environment) {
   var self = this;
+  Base.call(this,properties,environment);
 
   var noteOnTracker = new Set();
   var noteLengthTracker=new(function(){
@@ -46,9 +48,6 @@ var PianoRoll = function(properties,environment) {
   testGetName.call(this);
   if (properties.name) this.name = properties.name;
 
-  //defined as x16 because it probably is compatible
-  this.interfaces.X16 = InterfaceX28;
-  // this.interfaces.Http = InterfaceHttp;
 
   function ramp(t, range) {
     if (t > 0) {

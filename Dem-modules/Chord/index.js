@@ -1,23 +1,16 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX28 = require('./InterfaceX28');
-var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-// var clockSpec=require('../standards/clock.js');
-var headers = EventMessage.headers;
+const Base= require("../Base");
 
-/**
- @constructor
- the instance of the of the module, ment to be instantiated multiple times.
- require to moduleBase.call
- */
+let headers = EventMessage.headers;
+let instances=0;
 
-
-var Chord = function (properties) {
+var Chord = function (properties,environment) {
   var self = this;
   this.preventBus=true;
   this.baseName = "Chord";
   if (properties.name) this.name = properties.name;
-  this.interfaces.X16 = InterfaceX28;
+  
 
   Base.call(this,properties,environment);
   this.name=this.constructor.name+instances++;

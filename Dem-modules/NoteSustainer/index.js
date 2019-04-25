@@ -1,7 +1,7 @@
 "use strict";
 
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var Base=require('../Base');
+const Base= require('../Base');
 var headers = EventMessage.headers;
 var CHANGEPOLYPHONYHEADER = headers.changeRate;
 var KILLNOTESHEADER = headers.choke;

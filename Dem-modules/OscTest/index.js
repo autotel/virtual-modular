@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+const Base= require("../Base");
+
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
@@ -17,6 +18,7 @@ var testGetName = function () {
 
 
 var RouteSequencer = function (properties) {
+  Base.call(this,properties,environment);
   var thisInstance = this;
   var myBitmap = 0;
 
@@ -42,7 +44,7 @@ var RouteSequencer = function (properties) {
   if (properties.name) this.name = properties.name;
   var self = this;
 
-  this.interfaces.X16 = InterfaceX16;
+  
 
   var memory = new Set();
   var recMessages = {

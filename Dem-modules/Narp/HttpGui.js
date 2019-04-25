@@ -1,4 +1,4 @@
-// var Base=require('../../interaction/http-server/InteractorBase.js');
+// const Base= require('../../interaction/http-server/InteractorBase.js');
 module.exports=function(controlledModule, environment, gui){
   // Base.call(this,controlledModule,environment,gui);
   this.features={

@@ -4,12 +4,7 @@ var Note = require('../moduleUtils/Note');
 var scaleNames = require('./scaleNames.js');
 var headers = EventMessage.headers;
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
-var Base=require('../Base');
-/**
-@constructor ModuleSingleton
-singleton, only one per run of the program
-every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
-*/
+const Base= require('../Base');
 let instances=0;
 /**
 @constructor

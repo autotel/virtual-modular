@@ -9,28 +9,12 @@ var MidiInterface = undefined;
 var EventMessage = require('../../Polimod/datatypes/EventMessage');
 
 var headers = EventMessage.headers;
-
-// var fs = require('fs');
-// var path = require('path');
-// var midiOptions = require('./midi-options.js');
-//detect if running on electron
-// var userAgent = navigator.userAgent.toLowerCase();
-// if (userAgent.indexOf(' electron/') > -1) {
-//   jazz = require('jazz-midi-electron');
-// } else {
-//   jazz = require('jazz-midi');
-// }
-/**
-@constructor ModuleSingleton
-singleton, only one per run of the program
-every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
-*/
 var defaultMessage = new EventMessage({
   value: [0, 36, 0, 90]
 });
 var instanced = 0;
 
-var Base=require('../Base');
+const Base= require('../Base');
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.

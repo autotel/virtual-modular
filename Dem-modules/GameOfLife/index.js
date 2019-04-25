@@ -1,6 +1,7 @@
 'use strict';
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
-var InterfaceX16 = require('./InterfaceX16');
+const Base= require("../Base");
+
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
@@ -16,6 +17,7 @@ the instance of the of the module, ment to be instantiated multiple times.
 require to moduleBase.call
 */
 var GameOfLife = function (properties) {
+  Base.call(this,properties,environment);
   var noteOnTracker = new NoteOnTracker(this);
   var thisInstance = this;
   var myBitmap = 0;
@@ -34,7 +36,7 @@ var GameOfLife = function (properties) {
     value: [headers.triggerOn, -1, -1, -1]
   });
 
-  this.interfaces.X16 = InterfaceX16;
+  
 
   var cells = [
     [0, 0, 0, 0],
