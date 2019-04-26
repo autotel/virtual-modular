@@ -1,17 +1,22 @@
 
-{
-console.log("START");
-function flatten(arr) {
-  return arr.reduce(function (flat, toFlatten) {
-    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-  }, []);
-}
+{	
+	console.log(this);
+	var declarationFunction=this.declarationFunction;
+	var connectFunction=this.connectFunction;
+	function flatten(arr) {
+		return arr.reduce(function (flat, toFlatten) {
+			return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+		}, []);
+	}
 }
 Line
 	= statements:(
     	statement:(Declaration/Expression/Term) _ Break*{
         	return statement
         } )*{
+        if(declarationFunction){
+        	declarationFunction(statements);
+        }
       	return statements;      
       }
 //Declaration section, which nearly is another parser.
@@ -49,7 +54,10 @@ Expression
 	= term:Term _ to:Connection* _ {
     	let prevTerm=term;
     	to.forEach((term)=>{
-        	console.log(prevTerm,".connectTo(",term,")");
+        	if(connectFunction){
+            	connectFunction(prevTerm,term)
+            }
+        	//console.log(prevTerm,".connectTo(",term,")");
             prevTerm=term;
         });
     	return term
