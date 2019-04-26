@@ -23,7 +23,13 @@ Declaration
     }
 LooseObject
 	= "{" _ contents:(content:Declaration*{ return content }) _ "}"{
-    	return contents
+    	let ret={}
+        for(let declarationN in contents){
+        	for(let keyName in contents[declarationN]){
+            	ret[keyName]=contents[declarationN][keyName];
+            }
+        }
+    	return ret
     }
 LooseArray
 	= "[" _ contents:(content:Thing ","*{ return content })* _ "]"{
@@ -31,11 +37,12 @@ LooseArray
     }
 
 TextEntity
-	= _ [0-9A-Za-z.]+ { return text(); }
+	= "\"" [^"]* "\"" { return text(); }
+    / _ [0-9A-Za-z.]+ { return text(); }
 Thing
 	= LooseObject
     / LooseArray
-    / Term
+    / TextEntity
 
 //Patching section
 Expression
