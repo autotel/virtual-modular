@@ -15,3 +15,4 @@ environment.hardwares.calculeitor.addInteractors({Sequencer,Narp,etc...});
 
 
 */
+console.log(environment);
