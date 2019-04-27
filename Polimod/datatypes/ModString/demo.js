@@ -1,23 +1,17 @@
 const ModString=require("./");
-console.log(ModString.parse(`
-  sequencer:{
-    type:Sequencer,
-    sequence:[[12,31,12],[123,123,123,]], 
-    randomtext:"some text string with spaces allowed", 
+try{
+  console.log(ModString.parse(`
+  "main clock":{
+    type: ClockGenerator
+    name: 'main clock'
+    bpm: 120
   }
-  presetkit:{ 
-    type:Presetkit,
-    finius:"nigelous" 
-  }
-  
-  sequencer->presetkit->( 
-    a,
-    (
-      (b->c),
-      d,e, 
-      f->g->h->(i,a)
-    ),
-    j
-  )->k
-  (l->m)->n
-`))
+  "main clock"->(global,"OUT A")
+  ("OUT A": {
+    type: "MidiIO",
+    midi: "chanmap A",
+  })->"main clock"
+  `))
+}catch(e){
+  console.error(e);
+}

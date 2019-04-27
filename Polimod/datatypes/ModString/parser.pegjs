@@ -9,9 +9,9 @@
 		}, []);
 	}
 }
-Line
+Body "statement"
 	= statements:(
-    	statement:(Declaration/Expression/Term) _ Break*{
+    	statement:(Declaration/Expression/Term/Comment) _ Break*{
 			if(declarationFunction){
 				declarationFunction(statement);
 			}
@@ -19,14 +19,18 @@ Line
         } )*{
       			return statements;      
       		}
+	
+Comment "comment"
+	= _ "\\*".*"*\\" _
+	/ _ "\/\/"[^\r\n]* [\n\r]
 //Declaration section, which nearly is another parser.
-Declaration
-	= _ key:(Expression/GExpression/Term) _ ":" _ value:Thing _ ","* _{
+Declaration "declaration"
+	= _ key:(Expression/GExpression/Term) _ ":" _ value:ValueDefinition _ ","* _{
     	let ret={}
         ret[key]=value;
         return ret
     }
-LooseObject
+LooseObject "object value"
 	= "{" _ contents:(content:Declaration*{ return content }) _ "}"{
     	let ret={}
         for(let declarationN in contents){
@@ -36,22 +40,23 @@ LooseObject
         }
     	return ret
     }
-LooseArray
-	= "[" _ contents:(content:Thing ","*{ return content })* _ "]"{
+LooseArray "array value"
+	= "[" contents:( _ content:ValueDefinition  _ ","? _ { return content })* _ "]"{
     	return contents
     }
 
-TextEntity
+TextEntity "text entity"
 	= "\"" [^"]* "\"" { return text(); }
-    / _ [0-9A-Za-z.]+ { return text(); }
-Thing
-	= LooseObject
-    / LooseArray
+	/ "\'" [^']* "\'" { return text(); }
+    / [0-9A-Za-z._-]+ { return text(); }
+ValueDefinition "value"
+    = LooseArray
+	/ LooseObject
     / TextEntity
 
 //Patching section
 Expression
-	= term:Term _ to:Connection* _ {
+	= term:Term _ to:Connection_r* _ {
     	let prevTerm=term;
     	to.forEach((term)=>{
         	if(connectFunction){
@@ -62,8 +67,8 @@ Expression
         });
     	return term
     }
-Connection
-	= _ op:Operator _ term:(Term/Connection)_ {
+Connection_r
+	= _ op:Operator _ term:(Term/Connection_r)_ {
     	return term
     }
 GExpression
@@ -76,15 +81,17 @@ Group
       }
 Operator
 	=	_ con:("-"*">") _ { return con.join("") }
-    
 
-Term
+Term "Reference between parentheses"
 	= term:Reference{return term}
+	/ "(" _ term:Declaration _ ")"{return Object.keys(term)[0]}
     / "(" _ term:Reference _ ")"{return term}
     / "(" _ term:Expression _ ")"{return term}
     / "(" _ term:GExpression _ ")"{return term}
 Reference "object reference"
-  	= _ [0-9A-Za-z.]+ { return text(); }
-Break = [;,]+
+  	= _ [0-9A-Za-z._]+ { return text(); }
+	/ "\"" [^"]* "\"" { return text(); }
+	/ "\'" [^']* "\'" { return text(); }
+Break "break"= [;,]+
 _ "whitespace"
-  	= [ \t\n]*
+  	= [ \t\n\r]*

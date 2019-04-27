@@ -2,8 +2,9 @@
 const onHandlers=require('onhandlers');
 const EventMessage=require('./datatypes/EventMessage');
 const TimeIndex=require('./datatypes/TimeIndex');
-const LazyQueue=require('./LazyQueue');
-const requireProperties=require('./requireProperties');
+const LazyQueue=require('./utils/LazyQueue');
+const abbreviate=require('./utils/abbreviate');
+const requireProperties=require('./utils/requireProperties');
 const ModString=require('./datatypes/ModString');
 const Polimod=function(){
   const thisPolimod=this;
@@ -77,7 +78,7 @@ const Polimod=function(){
   this.datatypes.use({EventMessage,TimeIndex,ModString});
   
   this.utils=new EnvResource("utils");
-  this.utils.use({requireProperties,LazyQueue});
+  this.utils.use({requireProperties,LazyQueue,abbreviate});
 
 
   

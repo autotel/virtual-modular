@@ -17,20 +17,20 @@ ModString=function(string){
         let connections=[];
         parser.declarationFunction=(a)=>{
             // console.log(a);
-            declarations.push(a);
+            declarations.push(["define",a]);
         };
         parser.connectFunction=(a,b)=>{
             // console.log(a,b);      
             if(Array.isArray(a) && Array.isArray(b)){
                 a.forEach(a=>{
-                    b.forEach((b)=>connections.push([a,b]))
+                    b.forEach((b)=>connections.push(["connect",a,b]))
                 })
             }else if(Array.isArray(a)){
-                a.forEach(a=>connections.push([a,b]))
+                a.forEach(a=>connections.push(["connect",a,b]))
             }else if(Array.isArray(b)){
-                b.forEach(b=>connections.push([a,b]))
+                b.forEach(b=>connections.push(["connect",a,b]))
             }else{
-                connections.push([a,b]);
+                connections.push(["connect",a,b]);
             }
         };  
         parser.parse(string);
