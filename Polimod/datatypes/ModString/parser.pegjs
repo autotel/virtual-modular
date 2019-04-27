@@ -11,10 +11,8 @@
 }
 Body "statement"
 	= statements:(
-    	statement:(Declaration/Expression/Term/Comment) _ Break*{
-			if(declarationFunction){
-				declarationFunction(statement);
-			}
+    	statement:(Declaration_root/Expression/Term/Comment) _ Break*{
+			
         	return statement
         } )*{
       			return statements;      
@@ -24,6 +22,18 @@ Comment "comment"
 	= _ "\\*".*"*\\" _
 	/ _ "\/\/"[^\r\n]* [\n\r]
 //Declaration section, which nearly is another parser.
+//same as declaration, but if it's the first level, it needs to call the declaration callbacl
+Declaration_root "declaration"
+	= _ key:(Expression/GExpression/Term) _ ":" _ value:ValueDefinition _ ","* _{
+    	let ret={}
+        ret[key]=value;
+
+		if(declarationFunction){
+			declarationFunction(ret);
+		}
+
+        return ret
+    }
 Declaration "declaration"
 	= _ key:(Expression/GExpression/Term) _ ":" _ value:ValueDefinition _ ","* _{
     	let ret={}
@@ -46,8 +56,8 @@ LooseArray "array value"
     }
 
 TextEntity "text entity"
-	= "\"" [^"]* "\"" { return text(); }
-	/ "\'" [^']* "\'" { return text(); }
+	= "\"" text:[^"]* "\"" { return text.join(""); }
+	/ "\'" text:[^']* "\'" { return text.join(""); }
     / [0-9A-Za-z._-]+ { return text(); }
 ValueDefinition "value"
     = LooseArray
@@ -84,14 +94,14 @@ Operator
 
 Term "Reference between parentheses"
 	= term:Reference{return term}
-	/ "(" _ term:Declaration _ ")"{return Object.keys(term)[0]}
+	/ "(" _ term:Declaration_root _ ")"{return Object.keys(term)[0]}
     / "(" _ term:Reference _ ")"{return term}
     / "(" _ term:Expression _ ")"{return term}
     / "(" _ term:GExpression _ ")"{return term}
 Reference "object reference"
   	= _ [0-9A-Za-z._]+ { return text(); }
-	/ "\"" [^"]* "\"" { return text(); }
-	/ "\'" [^']* "\'" { return text(); }
+	/ "\"" text:[^"]* "\"" { return text.join(""); }
+	/ "\'" text:[^']* "\'" { return text.join(""); }
 Break "break"= [;,]+
 _ "whitespace"
   	= [ \t\n\r]*
