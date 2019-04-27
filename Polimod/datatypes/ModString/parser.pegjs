@@ -1,6 +1,6 @@
 
 {	
-	console.log(this);
+	// console.log(this);
 	var declarationFunction=this.declarationFunction;
 	var connectFunction=this.connectFunction;
 	function flatten(arr) {
@@ -12,16 +12,16 @@
 Line
 	= statements:(
     	statement:(Declaration/Expression/Term) _ Break*{
+			if(declarationFunction){
+				declarationFunction(statement);
+			}
         	return statement
         } )*{
-        if(declarationFunction){
-        	declarationFunction(statements);
-        }
-      	return statements;      
-      }
+      			return statements;      
+      		}
 //Declaration section, which nearly is another parser.
 Declaration
-	= key:(Expression/GExpression/Term)_ ":" _ value:Thing _ ","* _{
+	= _ key:(Expression/GExpression/Term) _ ":" _ value:Thing _ ","* _{
     	let ret={}
         ret[key]=value;
         return ret

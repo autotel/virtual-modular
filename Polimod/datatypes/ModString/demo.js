@@ -1,6 +1,6 @@
 const ModString=require("./");
-let modString=new ModString(`
-sequencer:{
+console.log(ModString.parse(`
+  sequencer:{
     type:Sequencer,
     sequence:[[12,31,12],[123,123,123,]], 
     randomtext:"some text string with spaces allowed", 
@@ -20,5 +20,4 @@ sequencer:{
     j
   )->k
   (l->m)->n
-`);
-modString.parse();
+`))
