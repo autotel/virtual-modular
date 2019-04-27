@@ -62,7 +62,7 @@ const Polimod=function(){
   //each of these interfaces may contain the different interactors in their own ways.
   this.interfaces=new EnvResource("interfaces");
   //For the constructors of different modules (e.g. Harmonizer, Sequencer, Narp...)
-  this.modulePrototypes=new EnvResource("modulePrototypes");
+  this.moduleConstructors=new EnvResource("moduleConstructors");
   //For the instances of those modules.
   this.modules=new EnvResource("modules");
   // TODO: For testing, to know if somehting will crash before a performance.

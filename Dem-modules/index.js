@@ -34,5 +34,5 @@ const list={
 }
 
 module.exports=function(environment){
-    environment.modulePrototypes.use(list);
+    environment.moduleConstructors.use(list);
 }
