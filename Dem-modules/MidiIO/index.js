@@ -29,7 +29,7 @@ var MidiIO = function (properties, environment) {
   instanced++;
   var hangingNotes = {};
   var self = this;
-  if (properties.name) this.name = properties.name;
+  
   var midi = false;
 
   var inList = false;

@@ -7,8 +7,8 @@ var CalculeitorMidi = function (properties,environment) {
   this.baseName = "CalculeitorMidi";
   this.color = CalculeitorMidi.color;
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
+  
+  
   var self = this;
 
   var defaultMessage = new EventMessage({

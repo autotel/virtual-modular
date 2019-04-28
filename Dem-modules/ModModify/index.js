@@ -24,8 +24,8 @@ var ModModify = function (properties,environment) {
   this.preventBus=true;
   this.baseName = "ModModify";
   this.color=ModModify.color;
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
   var self = this;
   
 

@@ -12,7 +12,7 @@ const Polimod=function(){
 
   function EnvResource(name){
     let self=this;
-    this.use=function(add){
+    this.add=function(add){
       for(var a in add){
         if(self.list[a]){
           throw "Error: trying to overwrite resource "+a+" from Polimod."+name;
@@ -20,11 +20,11 @@ const Polimod=function(){
           thisPolimod.handle("+"+name,{name:a,val:add[a]});
           self.list[a]=add[a];
         }
-        console.log("add test list",add[a].test);
         if(add[a].test){
+          console.log("add test list",add[a].test);
           let use={}
           use[a]=add[a].test;
-          thisPolimod.tests.use(use);
+          thisPolimod.tests.add(use);
         }
       }
       availCheck();
@@ -75,10 +75,10 @@ const Polimod=function(){
   }
   
   this.datatypes=new EnvResource("datatypes");
-  this.datatypes.use({EventMessage,TimeIndex,ModString});
+  this.datatypes.add({EventMessage,TimeIndex,ModString});
   
   this.utils=new EnvResource("utils");
-  this.utils.use({requireProperties,LazyQueue,abbreviate});
+  this.utils.add({requireProperties,LazyQueue,abbreviate});
 
 
   

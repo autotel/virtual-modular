@@ -4,7 +4,6 @@ var onHandlers=require('onhandlers');
 module.exports=function(properties,environment){
   if(!environment) throw new Error("environment is required when extending module base");
   onHandlers.call(this);
-  var self=this;
   const EventMessage=environment.datatypes.requires(["EventMessage"])[0];
   const headers = EventMessage.headers;
   this.isModuleInstance=true;
@@ -14,51 +13,50 @@ module.exports=function(properties,environment){
   var recordInputs=this.recordInputs=new Set();
   this.interactors={};
   this.baseName="base";
-  this.name="base";
   this.mute=false;
   //patching capabilities
   this.toggleOutput=function(what){
     var ret=outputs.has(what);
     if(ret){
-      self.removeOutput(what);
+      this.removeOutput(what);
     }else{
-      self.addOutput(what);
+      this.addOutput(what);
     }
     return outputs.has(what);
   }
 
   this.addOutput=function(what){
     if(what){
-      if(what===self){
-        self.handle('+!connection',{origin:self, destination:what});
+      if(what===this){
+        this.handle('+!connection',{origin:this, destination:what});
         console.error("can't patch a module to itself!");
       }else{
         if(what.isModuleInstance){
-          console.log(self.name+"--->"+what.name);
+          console.log(this.name+"--->"+what.name);
           outputs.add(what);
-          what.inputs.add(self);
-          self.handle('+connection',{origin:self,destination:what});
+          what.inputs.add(this);
+          this.handle('+connection',{origin:this,destination:what});
         }else{
           // console.error(what);
-          self.handle('+!connection',{origin:self, destination:what});
-          throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
+          this.handle('+!connection',{origin:this, destination:what});
+          throw ["Forbidden output: you tried to connect "+this.name+" to a "+what,what];
         }
       }
     }else{
-      throw "Forbidden output: Attempted to connect "+self.name+" to "+what;
+      throw "Forbidden output: Attempted to connect "+this.name+" to "+what;
     }
   }
   this.removeOutput=function(what){
     var rpt=outputs.delete(what);
-    what.inputs.delete(self);
+    what.inputs.delete(this);
 
-    console.log(self.name+"-"+(rpt?"X":" ")+"->"+what.name);
-    self.handle('-connection',{origin:self,destination:what});
+    console.log(this.name+"-"+(rpt?"X":" ")+"->"+what.name);
+    this.handle('-connection',{origin:this,destination:what});
 
   }
   this.addInput=function(what){
     try{
-      what.addOutput(self);
+      what.addOutput(this);
     }catch(e){
       console.error("could not add input");
       console.log(e);
@@ -73,13 +71,13 @@ module.exports=function(properties,environment){
     return Array.from(inputs);
   }
   this.output=function(eventMessage,overrideMute){
-    if((!self.mute)||overrideMute){
+    if((!this.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
-      self.enqueue(function(){
+      this.enqueue(function(){
         outputs.forEach(function(tModule){
           // console.log(eventMessage.value);
-          tModule.messageReceived({eventMessage:eventMessage.clone(),origin:self});
-          self.handle('>message',{origin:self,destination:tModule,val:eventMessage});
+          tModule.messageReceived({eventMessage:eventMessage.clone(),origin:this});
+          this.handle('>message',{origin:this,destination:tModule,val:eventMessage});
           // console.log("handle>",tModule.name);
         })
       });
@@ -89,7 +87,7 @@ module.exports=function(properties,environment){
   }
   this.recordingReceived=function(evt){}
   this.removeInput=function(what){
-    what.removeOutput(self)
+    what.removeOutput(this)
   }
 
   /**
@@ -102,9 +100,9 @@ module.exports=function(properties,environment){
   this.toggleRecordOutput=function(what){
     var ret=recordOutputs.has(what);
     if(ret){
-      self.removeRecordOutput(what);
+      this.removeRecordOutput(what);
     }else{
-      self.addRecordOutput(what);
+      this.addRecordOutput(what);
     }
     return recordOutputs.has(what);
   }
@@ -115,37 +113,37 @@ module.exports=function(properties,environment){
   this.addRecordOutput=function(what){
     if(what){
       if(what.isModuleInstance){
-        self.handle('+recopt',{origin:self,data:what});
-        console.log(self.name+" rec> "+what.name);
+        this.handle('+recopt',{origin:this,data:what});
+        console.log(this.name+" rec> "+what.name);
         recordOutputs.add(what);
-        what.recordInputs.add(self);
-        self.addInput(what);
-        self.enqueue(function(){
-          what.recordingReceived({eventMessage:recordStartedEm,origin:self});
+        what.recordInputs.add(this);
+        this.addInput(what);
+        this.enqueue(function(){
+          what.recordingReceived({eventMessage:recordStartedEm,origin:this});
         });
 
       }else{
         // console.error(what);
-        throw ["Forbidden output: you tried to connect "+self.name+" to a "+what,what];
-        self.handle('fail + recopt',{origin:self,data:what});
+        this.handle('fail + recopt',{origin:this,data:what});
+        throw ["Forbidden output: you tried to connect "+this.name+" to a "+what,what];
       }
     }else{
-      throw "Forbidden output: Attempted to connect "+self.name+" to "+what;
+      throw "Forbidden output: Attempted to connect "+this.name+" to "+what;
     }
   }
   this.removeRecordOutput=function(what){
     var rpt=recordOutputs.delete(what);
-    what.recordInputs.delete(self);
+    what.recordInputs.delete(this);
 
-    self.enqueue(function(){
-      what.recordingReceived({eventMessage:recordEndedEm,origin:self});
+    this.enqueue(function(){
+      what.recordingReceived({eventMessage:recordEndedEm,origin:this});
     });
-    console.log(self.name+" r"+(rpt?"X":" ")+"c> "+what.name);
-    self.handle('-recopt',{origin:self,data:what});
+    console.log(this.name+" r"+(rpt?"X":" ")+"c> "+what.name);
+    this.handle('-recopt',{origin:this,data:what});
   }
   this.addRecordInput=function(what){
     try{
-      what.addRecordOutput(self);
+      what.addRecordOutput(this);
     }catch(e){
       console.error("could not add input");
       console.log(e);
@@ -160,7 +158,7 @@ module.exports=function(properties,environment){
       var recordEventMessage=eventMessage.clone();
       recordEventMessage.value.unshift(headers.record);
       // console.log(recordEventMessage.value);
-      tModule.recordingReceived({eventMessage:recordEventMessage,origin:self});
+      tModule.recordingReceived({eventMessage:recordEventMessage,origin:this});
     });
   }
   // this.recordmessageReceived=function(evt){
@@ -168,24 +166,36 @@ module.exports=function(properties,environment){
   // }
   this.remove=function(){
     for(let output of outputs){
-      self.removeOutput(output);
+      this.removeOutput(output);
     }
     for(let recoutput of recordOutputs){
-      self.removeRecordOutput(recoutput);
+      this.removeRecordOutput(recoutput);
     }
-    self.messageReceived=function(evt){
+    this.messageReceived=function(evt){
       console.log("deleted module",evt);
       if(evt.origin){
-        self.removeInput(evt.origin);
-        evt.origin.removeOutput(self);
-        evt.origin.removeRecordOutput(self);
+        this.removeInput(evt.origin);
+        evt.origin.removeOutput(this);
+        evt.origin.removeRecordOutput(this);
       }
     }
-    self.handle('-module',{origin:self});
-    if(self.onRemove){
-      return self.onRemove();
+    this.handle('-module',{origin:this});
+    if(this.onRemove){
+      return this.onRemove();
     }
     return true;
   }
-  self.handle('+module',{origin:self});
+  this.handle('+module',{origin:this});
+  let addition={}
+  
+  console.log("MDIS",this.constructor.name);
+  ;
+  if(!this.constructor.instances)this.constructor.instances=0;
+  if(!this.name)this.name=this.constructor.name+this.constructor.instances;
+  this.constructor.instances++;
+  addition[this.name]=this;
+  environment.modules.add(addition);
+  
+  console.log("MDIS",this.name,environment.modules.list);
+  return this;
 }

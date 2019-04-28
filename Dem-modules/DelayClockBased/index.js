@@ -5,11 +5,7 @@ var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 var headers = EventMessage.headers;
 const Base= require("../Base");
 
-var testcount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + testcount;
-  testcount++;
-}
+
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -39,8 +35,8 @@ var DelayClockBased = function (properties,environment) {
   }
 
   this.baseName = "DelayClockBased";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
   var self = this;
 
 

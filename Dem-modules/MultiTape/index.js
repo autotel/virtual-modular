@@ -28,8 +28,8 @@ var MultiTape = function (properties, environment) {
   Base.call(this,properties,environment);
   this.baseName = "multitape";
   
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
   var noteOffSuperImpose = new EventMessage({
     value: [headers.triggerOff]
   });

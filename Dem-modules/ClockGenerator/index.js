@@ -4,17 +4,14 @@ var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 const Base= require("../Base");
 
 var headers=EventMessage.headers;
-var instanced = 0;
+
 
 if(typeof process.hrtime!=="function"){
   console.log("shim process.hrtime");
   process.hrtime=hrtime;
 }
 
-var name = function() {
-  this.name = this.baseName + " " + instanced;
-  instanced++;
-}
+
 var ClockGenerator = function(properties={bpm:60},environment) {
   var thisInstance = this;
   var myInterval = false;
@@ -32,7 +29,7 @@ var ClockGenerator = function(properties={bpm:60},environment) {
 
   this.baseName = "clockGenerator";
   name.call(this);
-  if (properties.name) this.name = properties.name;
+  
   
 
   function tickFunction() {

@@ -15,11 +15,7 @@ var headers = EventMessage.headers;
 
 const Base= require("../Base");
 
-var instances = 0;
-var getName = function() {
-  this.name = this.baseName + " " + instancesCount;
-  instancesCount++;
-}
+
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -32,13 +28,11 @@ var Bouncer = function(properties,environment) {
   var self = this;
 
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
+  
+  
 
   var baseEventMessage=this.baseEventMessage=new EventMessage({value:[0,0,0,0]});
 
-
-  if (properties.name) this.name = properties.name;
 
   var noteOnTracker = new NoteOnTracker(this);
 

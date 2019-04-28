@@ -9,15 +9,15 @@ var PresetKit = function(properties, environment) {
     this.autoMap = false;
     var self=this;
     Base.call(this,properties,environment);
-    this.name=this.constructor.name+instances++;
-    if(properties.name)this.name=properties.name;
+    
+    
     if (properties.autoMap == true) this.autoMap = 1;
     if (properties.autoMap == 'timbre') this.autoMap = 2;
     if (properties.autoMap == 'note') this.autoMap = 1;
 
     this.recordingUi = true;
-
-    if (properties.name) this.name = properties.name;
+    console.log("PK",properties);
+    
 
 
     var kit = this.kit = {};

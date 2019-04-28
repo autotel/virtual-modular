@@ -42,8 +42,8 @@ var RouteSequencer = function (properties,environment) {
   }
 
   this.baseName = "RouteSequencer";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
   var self = this;
 
   

@@ -6,11 +6,6 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
-var testcount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + testcount;
-  testcount++;
-}
 /**
  @constructor
  the instance of the of the module, ment to be instantiated multiple times.
@@ -20,8 +15,6 @@ var testGetName = function () {
 
 var Alteration = function (properties) {
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
   var self = this;
   var myBitmap = 0;
   var settings = this.settings = {

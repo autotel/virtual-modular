@@ -4,8 +4,8 @@ let Base=require("../Base");
 var Bus = function(properties,environment) {
   var self = this;
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
+  
+  
 
   this.interactor = {
     type: "interactor",
@@ -17,7 +17,7 @@ var Bus = function(properties,environment) {
   }
   this.preventBus = true;
   this.preventRecord=true;
-  if (properties.name) this.name = properties.name
+  
   environment.on('+module', function(evt) {
     var module = evt.module;
     if (!module.preventBus) {

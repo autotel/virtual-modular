@@ -36,9 +36,9 @@ var Operator = function (properties,environment) {
 
   let opMap = this.opMap = [0, 0, 0, 0];
 
-  testGetName.call(this);
+  
 
-  if (properties.name) this.name = properties.name;
+  
 
   var noteOnTracker = new NoteOnTracker(this);
 

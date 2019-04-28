@@ -6,11 +6,6 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 // var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
 
-var testcount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + testcount;
-  testcount++;
-}
 /**
 @constructor
 the instance of the of the module, ment to be instantiated multiple times.
@@ -29,8 +24,8 @@ var GameOfLife = function (properties,environment) {
     subStep: 0
   }
   this.baseName = "game of life";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
   var self = this;
   var baseEventMessage = this.baseEventMessage = new EventMessage({
     value: [headers.triggerOn, -1, -1, -1]

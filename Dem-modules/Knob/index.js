@@ -25,9 +25,9 @@ var Knob = function (properties) {
   this.preventBus = true;
   this.baseName = "Knob";
 
-  testGetName.call(this);
+  
 
-  if (properties.name) this.name = properties.name;
+  
 
   
   

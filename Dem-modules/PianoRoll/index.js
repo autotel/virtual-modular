@@ -44,9 +44,8 @@ var PianoRoll = function(properties,environment) {
 
   var clock=this.clock;
 
-  this.baseName = "PianoRoll";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
 
 
   function ramp(t, range) {

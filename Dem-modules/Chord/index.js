@@ -9,12 +9,12 @@ var Chord = function (properties,environment) {
   var self = this;
   this.preventBus=true;
   this.baseName = "Chord";
-  if (properties.name) this.name = properties.name;
+  
   
 
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
+  
+  
 
   var noteOnTracker={}
 

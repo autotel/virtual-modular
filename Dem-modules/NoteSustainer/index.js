@@ -26,7 +26,7 @@ var NoteSustainer = function(properties,environment) {
   this.name = this.baseName + " " + testcount;
   testcount++;
 
-  if (properties.name) this.name = properties.name;
+  
   var self = this;
 
 

@@ -9,8 +9,6 @@ var Arpeggiator = function (properties,environment) {
 
   var self = this;
   Base.call(this,properties,environment);
-  this.name=this.constructor.name+instances++;
-  if (properties.name) this.name = properties.name;
   var myBitmap = 0;
   var settings = this.settings = {
     duration: { value: false },

@@ -52,8 +52,8 @@ var Noise = function (properties, environment) {
   var substep = 0;
 
   this.baseName = "Noise";
-  testGetName.call(this);
-  if (properties.name) this.name = properties.name;
+  
+  
 
   var baseEventMessage = this.baseEventMessage = new EventMessage({
     value: [headers.triggerOn, 0, -1, -1]

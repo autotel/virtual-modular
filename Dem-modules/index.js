@@ -1,14 +1,8 @@
 /*
 Discrete event message modules
-
-var EventMessage = require('../../../../Polimod/datatypes/EventMessage.js');
-var EventConfigurator = require('../Menus/EventConfigurator.js');
-var BlankConfigurator = require('../Menus/BlankConfigurator.js');
-var RecordMenu = require('../Menus/RecordMenu.js');
-var scaleNames = require('./scaleNames.js');
-const Base=  require('../Base.js');
-
 */
+const Base=require('./Base.js');
+
 const list={
     "Sequencer":require("./Sequencer"),
     "Bus":require("./Bus"),
@@ -33,6 +27,23 @@ const list={
     "TestDummy":require("./TestDummy"),
 }
 
+// const baseApplicator=function(Constructor){
+//     let Delegate=function(properties,environment){
+//         let actual=new Constructor();
+//         Base.call(actual);
+//         return actual;
+//     }
+//     //get static properties from the constructor.
+//     for(var a in Constructor){
+//         Delegate[a]=Constructor[a];
+//     }
+//     Delegate.name=Constructor.constructor.name;
+//     console.log("D",Delegate.name);
+//     return Delegate;
+// }
 module.exports=function(environment){
-    environment.moduleConstructors.use(list);
+    // for(let mn in list){
+    //     list[mn]=baseApplicator(list[mn]);
+    // }
+    environment.moduleConstructors.add(list);
 }
