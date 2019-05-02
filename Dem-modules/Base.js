@@ -189,13 +189,12 @@ module.exports=function(properties,environment){
   let addition={}
   
   console.log("MDIS",this.constructor.name);
-  ;
   if(!this.constructor.instances)this.constructor.instances=0;
+  if(properties.name)this.name=properties.name;
   if(!this.name)this.name=this.constructor.name+this.constructor.instances;
   this.constructor.instances++;
   addition[this.name]=this;
   environment.modules.add(addition);
-  
-  console.log("MDIS",this.name,environment.modules.list);
+  console.log("MDIS",this.name);
   return this;
 }

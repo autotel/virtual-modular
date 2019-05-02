@@ -28,7 +28,6 @@ var ClockGenerator = function(properties={bpm:60},environment) {
   }
 
   this.baseName = "clockGenerator";
-  name.call(this);
   
   
 
