@@ -1,4 +1,4 @@
-var Base = require('./Base');
+const Base=  require('./Base');
 var btnArray=require('./utils/btnArray');
 module.exports = function (controlledModule, environment, superInteractor) {
     let ext = Base.call(this, controlledModule, environment, superInteractor);

@@ -1,0 +1,373 @@
+{
+	"0": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"1": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 2
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"2": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 2
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					9,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					9,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 2
+		}
+	],
+	"3": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 2
+		}
+	],
+	"4": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					76
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"6": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					96
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"8": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					102
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"9": [
+		{
+			"on": {
+				"value": [
+					1,
+					13,
+					0,
+					96
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					13,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					8,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					8,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"10": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					23
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		},
+		{
+			"on": {
+				"value": [
+					1,
+					9,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					9,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 2
+		}
+	],
+	"11": [],
+	"12": [],
+	"13": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					117
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 1
+		}
+	],
+	"14": [],
+	"15": [],
+	"-2": [
+		{
+			"on": {
+				"value": [
+					1,
+					14,
+					0,
+					123
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"off": {
+				"value": [
+					2,
+					14,
+					0,
+					0
+				],
+				"valueNames": [],
+				"microDelayFrames": null
+			},
+			"stepLength": 0
+		}
+	]
+}

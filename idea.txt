@@ -1,2 +1,0 @@
-superinteractors dynamic is too contorted.
- the interaction framework needs to be something independent that makes changes in the environment

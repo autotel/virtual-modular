@@ -1,4 +1,4 @@
-module.exports=[
+[
   {
     type:"MidiIO",
     properties:{
@@ -69,5 +69,5 @@ module.exports=[
     properties: {
     },
     outputs: ['preset kit 2']
-  }, 
+  }
 ]
