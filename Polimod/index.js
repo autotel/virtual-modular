@@ -12,12 +12,15 @@ const Polimod=function(){
 
   function EnvResource(name){
     let self=this;
+    let singularName=name.replace(/s$/,"")
     this.add=function(add){
       for(var a in add){
         if(self.list[a]){
-          throw "Error: trying to overwrite resource "+a+" from Polimod."+name;
+          throw "Error: trying to overwrite resource "+a+" from Polimod. "+name;
         }else{
-          thisPolimod.handle("+"+name,{name:a,val:add[a]});
+          let evntArg={name:a,val:add[a]};
+          evntArg[singularName]=add[a];
+          thisPolimod.handle("+"+singularName,evntArg);
           self.list[a]=add[a];
         }
         if(add[a].test){

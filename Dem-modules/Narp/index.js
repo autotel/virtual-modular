@@ -3,27 +3,8 @@ var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 const Base= require("../Base");
 
-
-// var InterfaceHttp = require('./HttpGui');
-// var clockSpec=require('../standards/clock.js');
 var headers = EventMessage.headers;
-/**
-@constructor ModuleSingleton
-singleton, only one per run of the program
-every module needs to run at the beginning of the runtime to register it's interactor in the interactionManager
 
-*/
-
-var instancesCount = 0;
-var testGetName = function () {
-  this.name = this.baseName + " " + instancesCount;
-  instancesCount++;
-}
-/**
-@constructor
-the instance of the of the module, ment to be instantiated multiple times.
-require to moduleBase.call
-*/
 var Narp = function (properties, environment) {
   var self = this;
   Base.call(this,properties,environment);

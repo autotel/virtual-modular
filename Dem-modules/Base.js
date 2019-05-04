@@ -71,13 +71,14 @@ module.exports=function(properties,environment){
     return Array.from(inputs);
   }
   this.output=function(eventMessage,overrideMute){
+    let self=this;
     if((!this.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
       this.enqueue(function(){
         outputs.forEach(function(tModule){
           // console.log(eventMessage.value);
-          tModule.messageReceived({eventMessage:eventMessage.clone(),origin:this});
-          this.handle('>message',{origin:this,destination:tModule,val:eventMessage});
+          tModule.messageReceived({eventMessage:eventMessage.clone(),origin:self});
+          self.handle('>message',{origin:self,destination:tModule,val:eventMessage});
           // console.log("handle>",tModule.name);
         })
       });
@@ -185,6 +186,17 @@ module.exports=function(properties,environment){
     }
     return true;
   }
+  
+  if(properties.autoconnect){
+    environment.on('+module', function(evt) {
+      var module = evt.module;
+      console.log("looking if \""+properties.autoconnect+"\"",module[properties.autoconnect]);
+      if (module[properties.autoconnect]) {
+        self.addOutput(module);
+      }
+    });
+  }
+
   this.handle('+module',{origin:this});
   let addition={}
   

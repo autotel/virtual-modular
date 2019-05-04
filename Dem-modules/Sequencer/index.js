@@ -17,7 +17,7 @@ var Sequencer = function (properties, environment) {
   var fs=environment.fs;
   Base.call(this,properties,environment);
   
-  
+  this.usesClock=true;
 
   var currentStep = {
     value: 0
