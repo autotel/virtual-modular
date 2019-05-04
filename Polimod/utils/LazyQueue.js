@@ -27,13 +27,13 @@ module.exports=function(properties) {
   function deq(){
     self.dequeuing=true;
     let count=0;
-    while(stack.length && count<self.messagePriority){
-      (stack.shift())();
+    while(queue.length && count<self.messagePriority){
+      (queue.shift())();
       count++
     }
-    if(stack.length){
+    if(queue.length){
       setImmediate(deq);
-      console.warn("! EVENTS FIFO: "+stack.length+"");
+      console.warn("! EVENTS FIFO: "+queue.length+"");
 
     }else{
       self.dequeuing=false;

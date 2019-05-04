@@ -10,7 +10,7 @@ var Chord = function (properties,environment) {
   this.preventBus=true;
   this.baseName = "Chord";
   
-  
+  this.color=Chord.color;
 
   Base.call(this,properties,environment);
   

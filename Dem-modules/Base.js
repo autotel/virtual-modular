@@ -70,11 +70,11 @@ module.exports=function(properties,environment){
   this.getInputs=function(){
     return Array.from(inputs);
   }
+  let self=this;
   this.output=function(eventMessage,overrideMute){
-    let self=this;
-    if((!this.mute)||overrideMute){
+    if((!self.mute)||overrideMute){
       //outputs don't get executed right away, this avoids a crash in case there is a patching loop
-      this.enqueue(function(){
+      self.enqueue(function(){
         outputs.forEach(function(tModule){
           // console.log(eventMessage.value);
           tModule.messageReceived({eventMessage:eventMessage.clone(),origin:self});
