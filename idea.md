@@ -1,0 +1,1 @@
+Actually, instead the super complex protocol I have in place now, I could have animation frames. At each frame, each led color is sent to the controller; although that might set the device too busy
