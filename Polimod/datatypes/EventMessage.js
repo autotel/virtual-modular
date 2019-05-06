@@ -225,6 +225,11 @@ EventMessage.toMidi=function(eventMessage){
     midiOut[1] = eventMessage.value[1];
     midiOut[2] = 0;
   }
+  if (eventMessage.value[0] == headers.clockTick) {
+    midiOut[0] = 0xF8;
+    midiOut[1] = 0;
+    midiOut[2] = 0;
+  }
   // console.log("sendimid", midiOut);
   midiOut = midiOut.map(function (a, b) {
     var a = parseInt(a);
