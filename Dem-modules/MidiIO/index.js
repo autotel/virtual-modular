@@ -39,18 +39,19 @@ var MidiInterface=function(name){
         sendMidi(midiOut,midi);
     }
     this.choke = function () {
-        let choked = false;
+        let choked = 0;
         for (var a in hangingNotes) {
-          choked = true;
+          choked ++;
           let h = hangingNotes[a];
           sendMidi([(h[0] & 0x0f) | 0x80, h[1], h[2]],midi);
         }
         if (!choked) {
-          for (let a = 0; a < 16; a++) {
-            for (let b = 0; b < 127; b++) {
-              sendMidi([0x80 | a, b, 0],midi);
+            for (let a = 0; a < 16; a++) {
+                for (let b = 0; b < 127; b++) {
+                    sendMidi([0x80 | a, b, 0],midi);
+                    choked++;
+                }
             }
-          }
         }
         return choked;
     }
@@ -59,19 +60,41 @@ var MidiInterface=function(name){
     
     this.name=name;
 
+    let inputClockCount=0;
+    let inputClockMod=6;
     this.onMidiReceived=function(midiEvent,timestamp){
+        midiEvent.inputClockCount=inputClockCount;
+        midiEvent.inputClockMod=inputClockMod;
+        inputClockCount++
+        inputClockCount%=inputClockMod;
         var convertedEvent=EventMessage.fromMidi(midiEvent); 
         associatedModules.forEach(associatedModule=>{
-            associatedModule.recordOutput(convertedEvent);
-            associatedModule.output(convertedEvent)
+            
+            let cancel=false;
+            for(var filter of associatedModule.inputFilters){
+                for(var index in filter){
+                    if(filter[index]!==false){
+                        if(filter[index]==convertedEvent.value[index]) cancel=true;
+                    }
+                }
+            }
+            if(!cancel){
+                // console.log("passed midi in",midiEvent)
+                // console.log("midiRCV",convertedEvent);
+                associatedModule.recordOutput(convertedEvent);
+                associatedModule.output(convertedEvent)
+            }else{
+                // console.log("cancelled midi in",midiEvent)
+            }
         });
     }
     this.start=function(callingModule){
         associatedModules.add(callingModule);
         if(!midi) midi = new jazz.MIDI();
         if(self.canReceive){
-            if(!midi.MidiInOpen(name, function(t, msg){
-                self.onMidiReceived(msg,t);
+            if(!
+                midi.MidiInOpen(name, function(t, msg){
+                    self.onMidiReceived(msg,t);
             })){
                 console.warn(name+" input could not be opened");
                 self.canReceive=false;
@@ -141,6 +164,10 @@ var MidiIO = function (properties, environment) {
     this.updateInterfaces=function(){
         MidiInterface.rescanMidi();
     }
+    this.choke=function(){
+        if(!self.currentMidiInterface) return false;
+        return self.currentMidiInterface.choke();
+    }
     this.getInterfaceNames=function(){
         MidiInterface.rescanMidi();
         return Object.keys(MidiInterface.s_byName);
@@ -158,8 +185,8 @@ var MidiIO = function (properties, environment) {
             subject.start(self);
             self.currentMidiInterface=subject;
         }
-
     }
+    this.inputFilters=[];
     this.messageReceived = function (evt) {
         if (self.mute) return;
         evt.eventMessage.underImpose(defaultMessage);
@@ -174,6 +201,7 @@ var MidiIO = function (properties, environment) {
         console.log("MidiIO try use midi interface:",properties.midi);
         self.engageInterfaceNamed(properties.midi);
     }
+    this.color=MidiIO.color;
 }
 
 MidiIO.color = [127, 127, 127];
