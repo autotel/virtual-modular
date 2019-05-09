@@ -57,7 +57,7 @@ var EventMessage=function(inputValue){
   this.clone=function(){
     return new EventMessage(this);
   }
-  this.compareValuesTo=function(otherEvent,valuesList){
+  this.compareValuesTo=function(otherEvent,valuesList=false){
     if(otherEvent===self)return true;
     for(var index of valuesList){
       if(otherEvent.value[index]!==self.value[index]) return false;
@@ -160,7 +160,10 @@ EventMessage.test=function(){
 }
 EventMessage.fromMidi=function(midiMessage){
   var headers = EventMessage.headers;
-
+  let inputClockCount=0;
+  let inputClockMod=6;
+  if(midiMessage.inputClockCount) inputClockCount=midiMessage.inputClockCount;
+  if(midiMessage.inputClockMod) inputClockMod=midiMessage.inputClockMod;
   var fnHeader = midiMessage[0] & 0xf0;
   var channel = midiMessage[0] & 0xf;
   var num = midiMessage[1];
@@ -182,25 +185,20 @@ EventMessage.fromMidi=function(midiMessage){
       break;
     case 0xF0:
       {
-        if (outputMessage.value[1] == 0x8) {
+        if (outputMessage.value[2] == 8) {
           outputMessage.value[0] = headers.clockTick;
-          outputMessage.value[1] = 6;
-          outputMessage.value[2] = inputClockCount % 6;
-          inputClockCount += 1;
-          break;
+          outputMessage.value[1] = inputClockMod;
+          outputMessage.value[2] = inputClockCount % inputClockMod;
         } else if (outputMessage.value[1] == 0xa) {
           outputMessage.value[0] = headers.playhead;
           outputMessage.value[1] = 0;
           outputMessage.value[2] = 0;
-          inputClockCount = 0;
-          break;
         } else if (outputMessage.value[1] == 0xb) {
           outputMessage.value[0] = headers.triggerOn;
-          break;
         } else if (outputMessage.value[1] == 0xc) {
           outputMessage.value[0] = headers.triggerOff;
-          break;
         }
+        break;
       }
     default:
     // console.log("message header not transformed:",outputMessage.value);
@@ -223,6 +221,11 @@ EventMessage.toMidi=function(eventMessage){
   if (eventMessage.value[0] == headers.triggerOff) {
     midiOut[0] = 0x80 | (0x0F & eventMessage.value[2]);
     midiOut[1] = eventMessage.value[1];
+    midiOut[2] = 0;
+  }
+  if (eventMessage.value[0] == headers.clockTick) {
+    midiOut[0] = 0xF8;
+    midiOut[1] = 0;
     midiOut[2] = 0;
   }
   // console.log("sendimid", midiOut);
