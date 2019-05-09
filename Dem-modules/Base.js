@@ -206,6 +206,7 @@ module.exports=function(properties,environment){
   if(!this.name)this.name=this.constructor.name+this.constructor.instances;
   this.constructor.instances++;
   addition[this.name]=this;
+  if(this.constructor.color)this.color=this.constructor.color;
   environment.modules.add(addition);
   console.log("MDIS",this.name);
   return this;
