@@ -12,7 +12,9 @@
     "src": "node ./src",
     "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
     "electron": "electron ./build-electron",
-    "electron-rebuild": "electron-rebuild"
+    "electron-rebuild": "electron-rebuild",
+    "parser-rebuild": "pegjs -o ./Polimod/datatypes/ModString/parser.js  ./Polimod/datatypes/ModString/parser.pegjs",
+    "parser-watch": "pegjs --trace -o ./Polimod/datatypes/ModString/parser.js  ./Polimod/datatypes/ModString/parser.pegjs"
   },
   "author": "autotel",
   "license": "ISC",
