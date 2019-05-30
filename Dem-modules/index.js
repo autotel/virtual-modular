@@ -21,10 +21,12 @@ const list={
     "RouteSequencer":require("./RouteSequencer"),
     "FixNoteLen":require("./FixNoteLen"),
     "DelayClockBased":require("./DelayClockBased"),
-    "ModModify":require("./ModModify"),
+    // "ModModify":require("./ModModify"),
     "ClockGenerator":require("./ClockGenerator"),
-    "CalculeitorMidi":require("./CalculeitorMidi"),
-    "TestDummy":require("./TestDummy"),
+    // "CalculeitorMidi":require("./CalculeitorMidi"),
+    // "TestDummy":require("./TestDummy"),
+    // "Composite":require("./Composite"),
+    "RecCable":require("./RecCable"),
 }
 
 // const baseApplicator=function(Constructor){

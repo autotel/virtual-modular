@@ -139,7 +139,7 @@ var PresetKit = function(properties, environment) {
     this.recordEvent = function(evM) {
         self.handle('kitchanged');
         kit[recordHead] = new EventMessage(evM);
-        // console.log("rec",kit[recordHead]);
+        console.log("rec",evM);
         recordHead++;
         recordHead %= 16;
     }
@@ -156,7 +156,7 @@ var PresetKit = function(properties, environment) {
 
         if (evM.value[0] == headers.record) {
             evM.value.shift();
-            // console.log("rec",evm);
+            console.log("rec",evM);
             this.recordEvent(evM);
         }
     }
