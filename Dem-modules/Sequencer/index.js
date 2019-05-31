@@ -26,6 +26,7 @@ var Sequencer = function (properties, environment) {
   var recorder = new Recorder(this);
   var self = this;
   this.patData = {};
+
   var currentModulus = 16;
   this.loopLength = {
     value: 16,

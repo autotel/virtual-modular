@@ -12,14 +12,12 @@
 }
 Body "statement"
 	= statements:(
-    	statement:(Comment/Declaration_root/Expression/Term) _ Break*{
+    	_ statement:(Declaration_root/Expression/Term) _ Break *{
         	return statement
         } 
-	)*{ return statements }
+	) * _ { return statements }
 	
-Comment "comment"
-	= _ "\\*".*"*\\" _
-	/ _ "\/\/"[^\r\n]* [\n\r]*
+
 //Declaration section, which nearly is another parser.
 //same as declaration, but if it's the first level, it needs to call the declaration callbacl
 Declaration_root "declaration"
@@ -120,5 +118,12 @@ Reference "object reference"
 Break "break" 
 	= [;,]+
 	/ "\n"+
-_ "whitespace"
+	
+_ "skippable"
+	= Comment+ / Space
+
+Comment "comment"
+	= "\\*".*"*\\"
+	/ "\n"*"//"[^\n]*"\n"*
+Space "whitespace"
   	= [ \t\n\r]*

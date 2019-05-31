@@ -112,7 +112,6 @@ module.exports=function(sequencerModule){ return new(function(){
       }
     return false;
   };
-
   var clearStepRange=function(from,to){
     console.log("CLR",from,to);
     for(var step=to; step>from; step--){

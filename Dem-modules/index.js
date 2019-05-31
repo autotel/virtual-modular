@@ -27,6 +27,7 @@ const list={
     // "TestDummy":require("./TestDummy"),
     // "Composite":require("./Composite"),
     "RecCable":require("./RecCable"),
+    "Print":require("./Print"),
 }
 
 // const baseApplicator=function(Constructor){
