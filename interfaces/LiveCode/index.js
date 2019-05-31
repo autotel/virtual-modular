@@ -32,7 +32,7 @@ const specialValues={
             for(let step in subject.patData){
                 subject.patData[step]=[];
             }
-            console.log("would make special application of ",val);
+            // console.log("would make special application of ",val);
             let declValues={};
             for(var item in val){
                 let typeParts=item.match(/([a-z]*)(\d*)/);
@@ -40,11 +40,11 @@ const specialValues={
                 let type=typeParts[1];
                 let id=typeParts[2];
                 if(type=="pat"){
-                    console.log("type",type);
+                    // console.log("type",type);
                     //ssequence the graphic pattern using declValues[id]
                     let currentEventMessage=declValues[id];
                     if(currentEventMessage){
-                        console.log("defined!");
+                        // console.log("defined!");
                         let stepN=0;
                         let stepBeingAdded;
                         function reLinkStep(){
@@ -79,10 +79,10 @@ const specialValues={
                             }
                             stepN++;//TODO: make sequence length to longest definition in the sequencer
                         }
-                        console.log(subject.patData)
+                        // console.log(subject.patData)
                     }
                 }else if(type=="evm"){
-                    console.log("type",type);
+                    // console.log("type",type);
                     //defining one step with an event message
                     //transform strings into ints, or/and
                     //use EventMessage.headers to translate header names into numbners
@@ -90,7 +90,7 @@ const specialValues={
                     //store EvMessage into declValues[id]
                     let vals=[... value];//copy, not ref
                     if(EventMessage.headers[value[0]]!==undefined){
-                        console.log("is header name");
+                        // console.log("is header name");
                         //TODO: synonyms.
                         vals[0]=EventMessage.headers[value[0]];
                     }
@@ -142,7 +142,7 @@ var LiveCode=function(environment){
         }catch(e){
             console.error("syntax error:");
             console.log("  expected",e.expected);
-            console.log("  but",e.found,"found");
+            console.log("  but \"",e.found,"\" found");
             console.log(e.location);
             return;
         }
@@ -196,7 +196,7 @@ var LiveCode=function(environment){
                                 //continue;
                             }else{
                                 newItemProperties.name=itemName;
-                                createdModules[itemName]=new Constructor(newItemProperties,environment);
+                                createdModules[itemName]=new Constructor({name:itemName},environment);
                             }
                             for(var propName in newItemProperties){
                                 applyProperty(createdModules[itemName],propName,newItemProperties[propName]);
@@ -218,7 +218,7 @@ var LiveCode=function(environment){
                         
                     }else{
                         print("! cannot connect nonexistent module, skipping",{
-                        "name of one":actionItm[1].name,"name of two":actionItm[2].name,"list":Object.keys(createdModules)
+                            "name of one":actionItm[1].name,"name of two":actionItm[2].name,"list":Object.keys(createdModules)
                         })
                         continue
                     }
