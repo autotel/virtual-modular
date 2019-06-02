@@ -2,6 +2,25 @@ const u=require("../utils");
 const display=(...lets)=>{
     console.log("Launchpad >>",...lets);
 }
+
+let sName={
+    up:0,
+    down:1,
+    left:2,
+    right:3,
+    session:4,
+    user1:5,
+    user2:6,
+    mixer:7,
+    volume:8,
+    pan:9,
+    sendA:10,
+    sendB:11,
+    stop:12,
+    mute:13,
+    solo:14,
+    recordArm:15
+}
 let SuperInteractor=function(environment,hardware){
     const self=this;
     const hasParent=this.hasParent?true:false;
@@ -124,33 +143,31 @@ let SuperInteractor=function(environment,hardware){
         }
     }
       
-    hardware.on( 'key', key => {
-        //complex
-        // only one button belongs always to the superinteractor: selector 3.
-        // try{
-        //     if(key.buttonType=="selector" && key.x==7){
-        //         self.selectorKeyPressed(key);
-        //     }else{
-        //         let evId=key.x+","+key.y;
-        //         //buttonPressOwners have the objective of being able release a button even after having engaged into a different interactor.
-        //         if(key.pressed){
-        //             if(!buttonPressOwners[evId])buttonPressOwners[evId]={};
-        //             buttonPressOwners[evId]=engagedInteractor;
-        //         }else if(!key.pressed && buttonPressOwners[evId]){
-        //             let dir=key.pressed?"Pressed":"Released";
-        //             buttonPressOwners[evId][key.buttonType+"Key"+dir](key);
-        //             delete buttonPressOwners[evId];
-        //         }else{
-        //             let dir=key.pressed?"Pressed":"Released";
-        //             if(engagedInteractor[key.buttonType+"Key"+dir]) engagedInteractor[key.buttonType+"Key"+dir](key);
-        //         }
-        //     }
-        // }catch(e){
-        //     console.error("engaged interactor "+engagedInteractor.name+"["+key.buttonType+"] function failed",e);
-        // }
-        //simple
-        let dir=key.pressed?"Pressed":"Released";
-        engagedInteractor[key.buttonType+"Key"+dir](key);
+    hardware.on( 'key', event => {
+        let dir=event.pressed?"Pressed":"Released";
+        try{
+            if(event.buttonType=="selector" && event.x==sName.mixer){
+                self["selectorKey"+dir](event);
+            }else{
+                let evId=event.x+","+event.y;
+                //buttonPressOwners have the objective of being able release a button even after having engaged into a different interactor.
+                if(event.pressed){
+                    if(!buttonPressOwners[evId])buttonPressOwners[evId]={};
+                    buttonPressOwners[evId]=engagedInteractor;
+                }
+                if(!event.pressed && buttonPressOwners[evId]){
+                    let dir=event.pressed?"Pressed":"Released";
+                    buttonPressOwners[evId][event.buttonType+"Key"+dir](event);
+                    delete buttonPressOwners[evId];
+                }else{
+                    let dir=event.pressed?"Pressed":"Released";
+                    if(engagedInteractor[event.buttonType+"Key"+dir]) engagedInteractor[event.buttonType+"Key"+dir](event);
+                }
+            }
+
+        }catch(e){
+            console.error("engaged interactor "+engagedInteractor.name+"["+event.buttonType+"] function failed",e);
+        }
     } );
     this.engage=function(){
         environment.modules.each((subject)=>{
@@ -163,7 +180,7 @@ let SuperInteractor=function(environment,hardware){
         
         engagedInteractor=self;
         console.log("launchpad engaged");
-        // hardware.on( 'key', console.log);
+        // hardware.on( 'event', console.log);
     }
     environment.on('+module',(evt)=>{
         // console.log("super: + module",evt); 
@@ -183,9 +200,9 @@ let SuperInteractor=function(environment,hardware){
     environment.on('~module',()=>{
         if(engagedInteractor==self) setImmediate(()=>updateMatrixButtons());//setImmediate is a patch 
     });
-    this.matrixKeyPressed=function(key){
-        let buttonModule=tryGetModuleAtButton(key.pos);
-        let buttonPosition=buttonToPosition(key.pos);
+    this.matrixKeyPressed=function(event){
+        let buttonModule=tryGetModuleAtButton(event.pos);
+        let buttonPosition=buttonToPosition(event.pos);
         engageSelectedOnRelease=true;
         if(buttonModule){
             display("buttonModule:",buttonModule.name);
@@ -209,7 +226,7 @@ let SuperInteractor=function(environment,hardware){
                 display(buttonModule.mute?"Mute":"Unmute");
             }
             updateMatrixButtons();
-        }else if(key.chained){
+        }else if(event.chained){
             //TODO: chained buttons
             if(selectedModule&&buttonModule){
                 let connected=selectedModule.toggleOutput(buttonModule);
@@ -238,67 +255,49 @@ let SuperInteractor=function(environment,hardware){
             }
         }
     }
-    this.matrixKeyReleased=function(key){
+    this.matrixKeyReleased=function(event){
         
     }
-    let sName={
-        up:0,
-        down:1,
-        left:2,
-        right:3,
-        session:4,
-        user1:5,
-        user2:6,
-        mixer:7,
-        volume:8,
-        pan:9,
-        sendA:10,
-        sendB:11,
-        stop:12,
-        mute:13,
-        solo:14,
-        recordArm:15
-    }
-    this.selectorKeyPressed=function(key){
-        
-
-        console.log("selector",key);
-        return;
-        selectorButtonsPressed[key.pos]=true;
-        if(key.pos==sName.sendA){
-            hardware.screenA("Watching inputs");
+    let selectorButtonsPressed=[];
+    this.selectorKeyPressed=function(event){
+        console.log("selector",event);
+        selectorButtonsPressed[event.pos]=true;
+        if(event.pos==sName.sendA){
+            display("Watching inputs");
             inputsMode=true;
-        }else if(key.pos==sName.mute){
+        }else if(event.pos==sName.mute){
             muteMode=true;
-            hardware.screenA("Mute");
-        }else if(key.pos==sName.stop){
-            hardware.screenA("Delete");
-            hardware.screenB("Press to select");
+            display("Mute");
+        }else if(event.pos==sName.stop){
+            display("Delete");
+            display("Press to select");
             deleteMode=new Set();
-        }else if(key.pos==sName.mixer){
-                hardware.screenA("Open module");
+        }else if(event.pos==sName.mixer){
             if(engagedInteractor!==self){
                 engagedInteractor.disengage(event);
                 self.engage();
                 engageSelectedOnRelease=false;
             }else{
+                display("Open module: ",selectedModule.name);
                 if(selectedModule){
-                    ioView.selectModule(selectedModule)
-                    ioView.engage(event);
-                    engagedInteractor=ioView;
+                    engagedInteractor=tryGetInteractorOf(selectedModule);
+                    engagedInteractor.engage(event);
+                //     ioView.selectModule(selectedModule)
+                //     ioView.engage(event);
+                //     engagedInteractor=ioView;
                 }
             }
-        }else if(key.pos==sName.left){
+        }else if(event.pos==sName.left){
             currentScroll.x--;
-        }else if(key.pos==sName.right){
+        }else if(event.pos==sName.right){
             currentScroll.x++;
-        }else if(key.pos==sName.up){
+        }else if(event.pos==sName.up){
             currentScroll.y++;
-        }else if(key.pos==sName.down){
+        }else if(event.pos==sName.down){
             currentScroll.y--;
-        }else if(key.pos==sName.user1){
+        }else if(event.pos==sName.user1){
             encoderSim({delta:-1});
-        } if(key.pos==sName.user2){
+        } if(event.pos==sName.user2){
             encoderSim({delta:1});
         }
         if(engagedInteractor==self){
@@ -312,7 +311,7 @@ let SuperInteractor=function(environment,hardware){
             if(selectedInterface.outsideScroll){
                 let str = selectedInterface.outsideScroll(event);
                 if (str) {
-                hardware.screenB(str);
+                display(str);
                 }
             }
         } else {
@@ -320,34 +319,35 @@ let SuperInteractor=function(environment,hardware){
             if(currentScroll<0)currentScroll=15;
             if(currentScroll>15)currentScroll=0;
             updateSelectorButtons();
-            hardware.screenA("Page:"+currentScroll/4)
+            display("Page:"+currentScroll/4)
             updateMatrixButtons();
         }
     }
-    this.selectorButtonReleased=function(key){
-        selectorButtonsPressed[key.pos]=false;
-        if(key.pos==sName.sendA && inputsMode){
+    this.selectorKeyReleased=function(event){
+        selectorButtonsPressed[event.pos]=false;
+        if(event.pos==sName.sendA && inputsMode){
           inputsMode=false;
-        }else if(key.pos==sName.stop && deleteMode){
+        }else if(event.pos==sName.stop && deleteMode){
           deleteMode.forEach(delModule=>{
             detachModule(delModule);
             environment.modules.remove([delModule]);
           });
           
           deleteMode=false;
-        }else if(key.pos==sName.mute){
+        }else if(event.pos==sName.mute){
           muteMode=false;
-        }else if(key.pos==sName.mixer){
-          if(engagedInteractor==self||engagedInteractor==ioView){
-            if(engagedInteractor==ioView){
-              selectedModule=ioView.selectedModule;
-            }
+        }else if(event.pos==sName.mixer){
+          if(engagedInteractor==self){//||engagedInteractor==ioView
+            // if(engagedInteractor==ioView){
+            //   selectedModule=ioView.selectedModule;
+            // }
             // console.log({engageSelectedOnRelease});
             if(selectedModule && engageSelectedOnRelease){
               engagedInteractor.disengage();
               engagedInteractor=tryGetInteractorOf(selectedModule);
               if(engagedInteractor){
                 hardware.selectorsPaintBitmap(0xF,selectedModule.color?selectedModule.color:[0,0,0]);
+                //this is duplicate
                 engagedInteractor.engage(event);
               }else{
                 console.log("selected module "+selectedModule.name+" has no interactor for Launchpads")
@@ -362,7 +362,7 @@ let SuperInteractor=function(environment,hardware){
           updateMatrixButtons();
         }
     }
-    this.selectorKeyReleased=function(key){
+    this.selectorKeyReleased=function(event){
         
     }
     
@@ -379,6 +379,7 @@ SuperInteractor.Sub=function(environment,hardware){
 /*launchpad interactor entry point */
 const interactors={
     SuperInteractor,
+    Sequencer:require("./Sequencer"),
 }
 
 module.exports={

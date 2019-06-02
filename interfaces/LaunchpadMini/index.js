@@ -25,6 +25,7 @@ module.exports=function(environment){
                 k.chained=true;
                 console.log("chained");
             }
+            k.hardware=hardware;
             u.appendPos(k);
             // if(k[0]==8 || k[1]==8){
             //     k.buttonType="selector"
