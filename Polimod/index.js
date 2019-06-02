@@ -60,7 +60,7 @@ const Polimod=function(){
           while(expectingList[expectedResourceName].length){
             (expectingList[expectedResourceName].shift())(self.list[expectedResourceName]);
           }
-          callback(self.list[expectedResourceName]);
+          //callback(self.list[expectedResourceName]);
         }
         delete expectingList[expectedResourceName];
       }
