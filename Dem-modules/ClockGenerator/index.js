@@ -46,6 +46,12 @@ var ClockGenerator = function(properties={bpm:60},environment) {
 
   if(properties.interval) metro.interval(properties.interval);
   if(properties.bpm) metro.bpm(properties.bpm * 4);
+  this.bpm=function(val){
+    metro.bpm(val*4);
+  }
+  this.interval=function(val){
+    metro.interval(val*4);
+  }
 
 }
 
@@ -137,6 +143,7 @@ function MetronomePrototype(props={}) {
     return interval;
   }
   this.bpm=function(val){
+    console.log("change bpm to",val);
     if(val){
       //60,000 / BPM = interval
       //bp/k=1/interval

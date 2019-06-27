@@ -2,6 +2,7 @@
 {	
 	// console.log(this);
 	var declarationFunction=this.declarationFunction;
+	var propertyFunction=this.propertyFunction;
 	var connectFunction=this.connectFunction;
 	function flatten(arr) {
 		return arr.reduce(function (flat, toFlatten) {
@@ -11,16 +12,12 @@
 }
 Body "statement"
 	= statements:(
-    	statement:(Declaration_root/Expression/Term/Comment) _ Break*{
-			
+    	_ statement:(Declaration_root/Expression/Term) _ Break *{
         	return statement
-        } )*{
-      			return statements;      
-      		}
+        } 
+	) * _ { return statements }
 	
-Comment "comment"
-	= _ "\\*".*"*\\" _
-	/ _ "\/\/"[^\r\n]* [\n\r]
+
 //Declaration section, which nearly is another parser.
 //same as declaration, but if it's the first level, it needs to call the declaration callbacl
 Declaration_root "declaration"
@@ -31,7 +28,13 @@ Declaration_root "declaration"
 		if(declarationFunction){
 			declarationFunction(ret);
 		}
-
+        return ret
+    }
+Declaration_dot "dot property" 
+	= _ key:(DotPropertyAccess) _ ":" _ value:ValueDefinition _ ","* _{
+		if(propertyFunction){
+			propertyFunction(key,value);
+		}
         return ret
     }
 Declaration "declaration"
@@ -49,16 +52,25 @@ LooseObject "object value"
             }
         }
     	return ret
+    }//implicit type decl, like ("kit2":PresetKit)
+	/ _ contents:TextEntity _{
+    	let ret=contents;//{type:contents}
+    	return ret
     }
 LooseArray "array value"
 	= "[" contents:( _ content:ValueDefinition  _ ","? _ { return content })* _ "]"{
     	return contents
     }
-
+DotPropertyAccess "object property access operation"
+	= _ chaina: TextEntity "." chainb:(TextEntity/DotPropertyAccess) _ {
+		console.log("dotPropertyAccess",chaina,chainb);
+		return chaina.concat(chainb);
+	}
 TextEntity "text entity"
 	= "\"" text:[^"]* "\"" { return text.join(""); }
 	/ "\'" text:[^']* "\'" { return text.join(""); }
-    / [0-9A-Za-z._-]+ { return text(); }
+    / [0-9A-Za-z_-]+ { return text(); }
+
 ValueDefinition "value"
     = LooseArray
 	/ LooseObject
@@ -102,6 +114,16 @@ Reference "object reference"
   	= _ [0-9A-Za-z._]+ { return text(); }
 	/ "\"" text:[^"]* "\"" { return text.join(""); }
 	/ "\'" text:[^']* "\'" { return text.join(""); }
-Break "break"= [;,]+
-_ "whitespace"
+
+Break "break" 
+	= [;,]+
+	/ "\n"+
+	
+_ "skippable"
+	= Comment+ / Space
+
+Comment "comment"
+	= "\\*".*"*\\"
+	/ "\n"*"//"[^\n]*"\n"*
+Space "whitespace"
   	= [ \t\n\r]*

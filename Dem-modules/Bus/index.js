@@ -4,20 +4,11 @@ let Base=require("../Base");
 var Bus = function(properties,environment) {
   var self = this;
   Base.call(this,properties,environment);
-  
-  
-
-  this.interactor = {
-    type: "interactor",
-    compatibilityTags: []
-  }
-
-  this.messageReceived = function(evt) {
+    this.messageReceived = function(evt) {
     this.output(evt.eventMessage);
   }
   this.preventBus = true;
   this.preventRecord=true;
-  
   environment.on('+module', function(evt) {
     var module = evt.module;
     if (!module.preventBus) {

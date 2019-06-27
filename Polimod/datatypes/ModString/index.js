@@ -15,10 +15,15 @@ ModString=function(string){
     this.parse=function(){
         let declarations=[];
         let connections=[];
+        let properties=[];
         parser.declarationFunction=(a)=>{
             // console.log(a);
             declarations.push(["define",a]);
         };
+        // parser.propertyFunction=(path,val)=>{
+        //     // console.log(a);
+        //     properties.push(["set",path,val]);
+        // };
         parser.connectFunction=(a,b)=>{
             // console.log(a,b);      
             if(Array.isArray(a) && Array.isArray(b)){
@@ -34,7 +39,7 @@ ModString=function(string){
             }
         };  
         parser.parse(string);
-        self.actionsList=declarations.concat(connections);
+        self.actionsList=declarations.concat(connections).concat(properties);
     };
 }
 ModString.parse=function(string){

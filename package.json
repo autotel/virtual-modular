@@ -12,7 +12,9 @@
     "src": "node ./src",
     "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
     "electron": "electron ./build-electron",
-    "electron-rebuild": "electron-rebuild"
+    "electron-rebuild": "electron-rebuild",
+    "parser-build": "pegjs -o ./Polimod/datatypes/ModString/parser.js  ./Polimod/datatypes/ModString/parser.pegjs",
+    "parser-dev": "pegjs --trace -o ./Polimod/datatypes/ModString/parser.js  ./Polimod/datatypes/ModString/parser.pegjs"
   },
   "author": "autotel",
   "license": "ISC",
@@ -25,6 +27,7 @@
     "jazz-midi": "^1.6.5",
     "jazz-midi-electron": "^1.0.4",
     "jzz": "^0.5.9",
+    "launchpad-mini": "^2.1.2",
     "onhandlers": "^1.1.1",
     "prompt": "^1.0.0",
     "serialport": "^7.1.4",

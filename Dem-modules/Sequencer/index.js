@@ -26,7 +26,7 @@ var Sequencer = function (properties, environment) {
   var recorder = new Recorder(this);
   var self = this;
   this.patData = {};
-  var currentModulus = 16;
+
   this.loopLength = {
     value: 16,
     lastWatchedValue: 16
@@ -277,7 +277,6 @@ var Sequencer = function (properties, environment) {
         });
     });
   }
-  // x71: data response
   this.messageReceived = function (event) {
     var evt = event.eventMessage;
     // if(evt.value[0]!=headers.clockTick) console.log(evt);

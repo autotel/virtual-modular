@@ -200,7 +200,7 @@ module.exports=function(properties,environment){
   this.handle('+module',{origin:this});
   let addition={}
   
-  console.log("MDIS",this.constructor.name);
+  // console.log("MDIS",this.constructor.name);
   if(!this.constructor.instances)this.constructor.instances=0;
   if(properties.name)this.name=properties.name;
   if(!this.name)this.name=this.constructor.name+this.constructor.instances;
@@ -208,6 +208,6 @@ module.exports=function(properties,environment){
   addition[this.name]=this;
   if(this.constructor.color)this.color=this.constructor.color;
   environment.modules.add(addition);
-  console.log("MDIS",this.name);
+  // console.log("MDIS",this.name);
   return this;
 }
