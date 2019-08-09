@@ -24,7 +24,7 @@ const list={
     // "ModModify":require("./ModModify"),
     "ClockGenerator":require("./ClockGenerator"),
     // "CalculeitorMidi":require("./CalculeitorMidi"),
-    // "TestDummy":require("./TestDummy"),
+    "TestDummy":require("./TestDummy"),
     // "Composite":require("./Composite"),
     "RecCable":require("./RecCable"),
     "Print":require("./Print"),
