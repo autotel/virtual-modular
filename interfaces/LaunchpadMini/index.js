@@ -1,5 +1,5 @@
 const Launchpad = require( 'launchpad-mini' );
-const interactors=require('./interactors');
+const interactors=require('./Interactors');
 const onHandlers=require('onhandlers');
 const u=require("./utils");
 
