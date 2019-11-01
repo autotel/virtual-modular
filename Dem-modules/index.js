@@ -11,6 +11,7 @@ const list={
     "PresetKit":require("./PresetKit"),
     "Harmonizer":require("./Harmonizer"),
     "MidiIO":require("./MidiIO"),
+    "OSoundControl":require("./OSoundControl"),
     "Arpeggiator":require("./Arpeggiator"),
     "Narp":require("./Narp"),
     "Noise":require("./Noise"),
