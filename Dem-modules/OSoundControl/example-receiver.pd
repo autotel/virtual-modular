@@ -1,0 +1,14 @@
+#N canvas 60 102 603 465 12;
+#X obj 107 91 udpreceive 9997;
+#X msg 107 50 port 9997;
+#X obj 114 227 unpackOSC;
+#X obj 115 358 print new;
+#X obj 229 380 print s_other;
+#X obj 119 277 routeOSC /s_new /s_othter/trel;
+#X obj 312 337 print no;
+#X connect 0 0 2 0;
+#X connect 1 0 0 0;
+#X connect 2 0 5 0;
+#X connect 5 0 3 0;
+#X connect 5 1 4 0;
+#X connect 5 2 6 0;
