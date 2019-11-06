@@ -1,4 +1,6 @@
-'use strict';
+/**
+ * @module ./Polimod
+*/
 const onHandlers=require('onhandlers');
 const EventMessage=require('./datatypes/EventMessage');
 const TimeIndex=require('./datatypes/TimeIndex');
@@ -8,6 +10,9 @@ const throttle=require('./utils/throttle');
 const requireProperties=require('./utils/requireProperties');
 const ModString=require('./datatypes/ModString');
 const EnvResource=require('./datatypes/EnvResource');
+/**
+ * Instance of a polimod environment
+*/
 class Polimod{
   // interfaces;modules;moduleConstructors;plugins;tests; datatypes;utils;
   constructor(){

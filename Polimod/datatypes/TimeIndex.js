@@ -36,3 +36,4 @@ TimeIndex.new=function(properties){
   var ret=new TimeIndex(properties);
   return timeIndex;
 }
+module.exports=TimeIndex;
