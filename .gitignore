@@ -6,4 +6,5 @@ firmware
 .vscode/
 build-electron/res
 /patches/*
+/doc/
 !/patches/default*

@@ -10,6 +10,7 @@
     "cmd": "node ./build-cmd",
     "start": "node ./build-cmd",
     "src": "node ./src",
+    "doc": "jsdoc ./**.js -d ./doc",
     "electron-dev": "webpack --watch --mode development ./src/index.js --output ./build-electron/virtualModularEnvironment.js",
     "electron": "electron ./build-electron",
     "electron-rebuild": "electron-rebuild",
@@ -37,5 +38,7 @@
     "svg.js": "^2.6.6",
     "tone": "^13.4.9"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jsdoc": "^3.6.3"
+  }
 }

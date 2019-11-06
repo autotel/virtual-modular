@@ -13,6 +13,7 @@ var Midi = new(require("./plugins/JazzMidi"))(environment);
 //var webVisualization=new(require("hardwares/WebVis"));//which can be another submodule
 new(require("./Dem-modules"))(environment);
 
+environment.tests.run();
 // setTimeout(environment.tests.run,300);
 /*
 hardware: has own functions
