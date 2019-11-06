@@ -7,6 +7,7 @@ var calculeitor = new(require("./interfaces/Calculeitor"))(environment);
 // var liveCode = new(require("./interfaces/LiveCode"))(environment);
 // liveCode.setFile('./patches/live-patch.mod');
 var Oscio = new(require("./plugins/Oscio"))(environment);
+var Midi = new(require("./plugins/JazzMidi"))(environment);
 
 //thusly it becomes possible:
 //var webVisualization=new(require("hardwares/WebVis"));//which can be another submodule
