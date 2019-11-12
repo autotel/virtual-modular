@@ -11,7 +11,7 @@ const list={
     "PresetKit":require("./PresetKit"),
     "Harmonizer":require("./Harmonizer"),
     "MidiIO":require("./MidiIO"),
-    "OSoundControl":require("./OSoundControl"),
+    "OscKnobs":require("./OscKnobs"),
     "Arpeggiator":require("./Arpeggiator"),
     "Narp":require("./Narp"),
     "Noise":require("./Noise"),
@@ -29,6 +29,7 @@ const list={
     // "Composite":require("./Composite"),
     "RecCable":require("./RecCable"),
     "Print":require("./Print"),
+    "Physics":require("./Physics"),
 }
 
 // const baseApplicator=function(Constructor){

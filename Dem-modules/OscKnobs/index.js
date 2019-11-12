@@ -7,7 +7,7 @@ let Polimod=require("../../Polimod");
     @param {object} properties
     @param {Polimod} environment
 */
-const OSoundControl=function(properties,environment){
+const OscKnobs=function(properties,environment){
     let singletonOutputOsc=environment.plugins.requires("Oscio");
     const OscVariable=environment.datatypes.requires("OscVariable");
 
@@ -25,4 +25,4 @@ const OSoundControl=function(properties,environment){
 
     console.log("osc print",singletonOutputOsc);
 }
-module.exports=OSoundControl;
+module.exports=OscKnobs;
