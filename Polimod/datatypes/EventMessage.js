@@ -47,11 +47,14 @@ var EventMessage=function(inputValue){
   */
   this.set=function(data){
     if(Array.isArray(data)){
-      this.value=new Array(...data);
-    }
-    for(var a in data){
-      if(typeof data[a]!=="function")
-        this[a]=JSON.parse(JSON.stringify(data[a]));
+      this.value=data.map((a)=>parseInt(a));
+    }else{
+      for(var a in data){
+        if(a=="value"){
+          this.value=data[a].map((a)=>parseInt(a));
+        }else if(typeof data[a]!=="function")
+          this[a]=JSON.parse(JSON.stringify(data[a]));
+        }
     }
   }
   /**
