@@ -87,7 +87,7 @@ class EnvResource{
       envResource takes care of calling this
     */
     function availCheck(){
-      console.log("availCheck");
+      // console.log("availCheck");
       for(var expectedResourceName in expectingList){
         if(self.list[expectedResourceName]){
           while(expectingList[expectedResourceName].length){
