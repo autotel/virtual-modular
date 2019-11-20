@@ -1,6 +1,7 @@
 const Base= require("../Base.js");
 let instances=0;
 const Print=function(properties,environment){
+    this.preventBus=true;
     Base.call(this,properties,environment);
     this.category="utility";
     this.recordingReceived = function(event) {
@@ -11,6 +12,7 @@ const Print=function(properties,environment){
         var evM = event.eventMessage;
         console.log(">>evm:",evM.value);
     }
+
 }
-Print.color=[32,32,32];
+Print.color=[127,127,127];
 module.exports=Print;

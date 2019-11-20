@@ -29,7 +29,7 @@ const list={
     // "Composite":require("./Composite"),
     "RecCable":require("./RecCable"),
     "Print":require("./Print"),
-    "Physics":require("./Physics"),
+    "PhysicDiscrete":require("./PhysicDiscrete"),
 }
 
 // const baseApplicator=function(Constructor){

@@ -46,6 +46,9 @@ var EventMessage=function(inputValue){
   the only standard property that can be set is the value, other properties such as the exaple "note" are not standard, avoid using non-standard parameters unless it excplusively within the same module that is using it
   */
   this.set=function(data){
+    if(Array.isArray(data)){
+      this.value=new Array(...data);
+    }
     for(var a in data){
       if(typeof data[a]!=="function")
         this[a]=JSON.parse(JSON.stringify(data[a]));

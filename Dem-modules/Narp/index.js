@@ -8,7 +8,7 @@ var headers = EventMessage.headers;
 var Narp = function (properties, environment) {
   var self = this;
   Base.call(this,properties,environment);
-  var myBitmap = this.bitmap = 0;
+  var myBitmap = this.bitmap = properties.bitmap||0;
   var currentStep = 0;
   var stepDivision = this.stepDivision = {
     value: 2
@@ -20,15 +20,20 @@ var Narp = function (properties, environment) {
 
   var noteOnTracker = new NoteOnTracker(this);
   var substep = 0;
-
-  this.baseName = "narp";
+  this.baseEventMessage=new EventMessage([-1,-1,-1,-1]);
   
-  
-
-  var baseEventMessage = this.baseEventMessage = new EventMessage({
-    value: [headers.triggerOn, -1, -1, -1]
-  });
-
+  if(properties.eventMessage){
+    let intvalues=[];
+    for(let n in properties.eventMessage){
+      intvalues[n]=parseInt(properties.eventMessage[n]);
+      if(isNaN(intvalues[n]))intvalues[n]=-1;
+    }
+    this.baseEventMessage.set(intvalues);
+  }
+  if(properties.substep) this.substep=properties.substep;
+  if(properties.stepDivision) this.stepDivision.value=properties.stepDivision;
+  if(properties.rate) this.stepDivision.value=properties.rate;
+  if(properties.noteDuration) this.noteDuration.value=properties.noteDuration;
 
   this.recordingUi = true;
 
@@ -107,8 +112,8 @@ var Narp = function (properties, environment) {
         var op = Math.log2(loneBit);
         // console.log(op);
 
-        let outputMessage = baseEventMessage.clone();
-        outputMessage.value[1] = baseEventMessage.value[1] + op;
+        let outputMessage = self.baseEventMessage.clone();
+        outputMessage.value[1] = self.baseEventMessage.value[1] + op;
 
         generatedOutput(outputMessage, op);
 
