@@ -1,3 +1,4 @@
+const Base=require("./Base.js");
 let tweakTypes={
     /**
      * @param {object} root 
@@ -49,7 +50,7 @@ let tweakTypes={
         */
         this.add=function(delta){
             delta=parseInt(delta);
-            if(!arrayOfPossibilities) return;
+            if(!arrayOfPossibilities) return
             self.tracked+=delta;
             if(self.tracked>max)self.tracked=min;
             if(self.tracked<min)self.tracked=max;
@@ -58,7 +59,7 @@ let tweakTypes={
         }
 
         this.set=function(val){
-            if(!arrayOfPossibilities) return;
+            if(!arrayOfPossibilities) return
             //if user wrote string value
             if(isNaN(val)) val=arrayOfPossibilities.indexOf(val);
             if(val==-1) return console.warn("value "+val+" is not valid in "+this.name);
@@ -105,8 +106,8 @@ let tweakTypes={
         }
 
         this.add=function(delta){
-            delta=parseFloat(delta)
             if(isNaN(delta)) return console.warn("numeric value "+delta+" cannot be evaluated");
+            delta=parseFloat(delta)
             if(useStep) delta*=step;
             self.val+=delta;
             //wraparound max and min if it applies
@@ -118,7 +119,7 @@ let tweakTypes={
 
         this.set=function(val){
             if(isNaN(val)) return console.warn("numeric value "+val+" cannot be evaluated");
-
+            val=parseFloat(val)
             self.val=val;
             //wraparound max and min if it applies
             if(useMax && self.val>max) self.val%=min;
@@ -228,15 +229,17 @@ const CurrentValueTracker=function(root,variable,key){
 const Generic=function(environment,controlledModule){
     let tweakables={};
     let self=this;
-    
+    Base.call(this,environment,controlledModule);
     updateAvailableProperties();
 
     this.applyProperties=function(properties){
+        console.log("applyProperties",properties);
         for(let propname in properties){
+            if(propname=="name") controlledModule.name=properties[propname];
             if(tweakables[propname]){
                 tweakables[propname].set(properties[propname]);
             }else{
-                console.warn(controlledModule.name+" has no property "+propname);
+                console.warn("  "+controlledModule.name+" has no tweakable property "+propname);
             }
         }
     }
