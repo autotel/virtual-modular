@@ -34,7 +34,7 @@ class PhysicDiscrete {
             rate:{
                 val:1,
                 min:0,
-                max:2,
+                step:1/64
             },
             diffusion:{
                 val:-4,
@@ -59,14 +59,26 @@ class PhysicDiscrete {
                 val:true,
             },
         };
-        //apply properties that might come from file opening/coding
-        for(let propertyname in properties){
-
-            if(this.properties[propertyname]){
-                this.properties[propertyname].val=properties[propertyname];
-                console.log("set property "+propertyname+" to "+properties[propertyname]);
-
-            }
+        if(properties.motion){
+            this.properties.motion.val=properties.motion;
+        }
+        if(properties.output){
+            this.properties.output.val=properties.output;
+        }
+        if(properties.rate){
+            this.properties.rate.val=parseFloat(properties.rate);
+        }
+        if(properties.diffusion){
+            this.properties.diffusion.val=parseInt(properties.diffusion);
+        }
+        if(properties.affectValue){
+            this.properties.affectValue.val=parseInt(properties.affectValue);
+        }
+        if(properties.maxRepetition){
+            this.properties.maxRepetitions.val=parseInt(properties.maxRepetition);
+        }
+        if(properties.excludeClock){
+            this.properties.excludeClock.val=properties.excludeClock=="true";
         }
         function property(name){
             return self.properties[name].val;
@@ -87,7 +99,7 @@ class PhysicDiscrete {
             if(motion=="water") nextInterval=100*rate*rate*Math.random();
 
             if(props[affectValue]<=0) return;
-            console.log("time:",nextInterval);
+            // console.log("time:",nextInterval);
             let NextFn=function(props,cumulativeValue){
                 let self=this;
                 this.propsCopy=props.slice()
