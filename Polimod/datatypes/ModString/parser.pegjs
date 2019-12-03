@@ -53,27 +53,41 @@ LooseObject "object value"
         }
     	return ret
     }//implicit type decl, like ("kit2":PresetKit)
-	/ _ contents:TextEntity _{
+	/ _ contents:Value _{
     	let ret=contents;//{type:contents}
     	return ret
     }
+    
 LooseArray "array value"
 	= "[" contents:( _ content:ValueDefinition  _ ","? _ { return content })* _ "]"{
     	return contents
     }
 DotPropertyAccess "object property access operation"
-	= _ chaina: TextEntity "." chainb:(TextEntity/DotPropertyAccess) _ {
+	= _ chaina: Value "." chainb:(Value/DotPropertyAccess) _ {
 		console.log("dotPropertyAccess",chaina,chainb);
 		return chaina.concat(chainb);
 	}
+
 TextEntity "text entity"
 	= "\"" text:[^"]* "\"" { return text.join(""); }
 	/ "\'" text:[^']* "\'" { return text.join(""); }
-    / [0-9A-Za-z_-]+ { return text(); }
+    / [A-Za-z_-]+ { return text(); }
 
+
+DigitEntity "digit entity"
+    = _"-"?[0-9]+"."[0-9]+ { return parseFloat(text()); }
+    / _"-"?[0-9]+ { return parseInt(text()); }
+    
+Value "value"
+	= DigitEntity
+    / TextEntity
+ 
+
+    
 ValueDefinition "value"
     = LooseArray
 	/ LooseObject
+    / DigitEntity
     / TextEntity
 
 //Patching section
