@@ -193,10 +193,10 @@ const CurrentValueTracker=function(root,variable,key){
     let keyThatAccessTheValue=key;
     let typeOfVar=typeof variable;
     this.add=function(){
-        console.log("untweakable");
+        console.log(variable,key,"untweakable");
     }
     this.set=function(){
-        console.log("untweakable");
+        console.log(variable,key,"untweakable");
     }
     //try find a tweakable value on that variable
     if(typeOfVar=="object"){
@@ -209,7 +209,6 @@ const CurrentValueTracker=function(root,variable,key){
             objectThatContainsTheVariable=variable;
             keyThatAccessTheValue="val";
             typeOfVar=typeof variable.val
-
             tweakable=true;
         }else if(tweakTypes[typeof variable.current]){
             objectThatContainsTheVariable=variable;
@@ -221,6 +220,7 @@ const CurrentValueTracker=function(root,variable,key){
     
     if(tweakTypes[typeOfVar]){
         tweakTypes[typeOfVar].call(this,objectThatContainsTheVariable,keyThatAccessTheValue);
+        objectThatContainsTheVariable[keyThatAccessTheValue].type=typeOfVar+".";
         tweakable=true;
     }
 
@@ -233,10 +233,12 @@ const Generic=function(environment,controlledModule){
     updateAvailableProperties();
 
     this.applyProperties=function(properties){
-        console.log("applyProperties",properties);
+        console.log(controlledModule.name+" applyProperties",properties);
         for(let propname in properties){
-            if(propname=="name") controlledModule.name=properties[propname];
-            if(tweakables[propname]){
+            if(propname=="name"){
+                controlledModule.name=properties[propname];
+            }else if(tweakables[propname]){
+                // console.log(propname,"tweak",properties[propname]);
                 tweakables[propname].set(properties[propname]);
             }else{
                 console.warn("  "+controlledModule.name+" has no tweakable property "+propname);

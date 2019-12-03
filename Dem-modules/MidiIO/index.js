@@ -41,6 +41,7 @@ var MidiIO = function (properties, environment) {
             self.currentMidiInterface.output(evt.eventMessage);
         }else{
             console.warn("myMidiInterface is ", self.currentMidiInterface);
+            console.warn("myMidiInterface is ", MidiInterface.s_byName, properties);
         }
     };
     this.availableInterfaces=MidiInterface.s_byName;
