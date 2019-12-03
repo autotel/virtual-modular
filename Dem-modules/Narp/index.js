@@ -2,7 +2,9 @@
 var NoteOnTracker = require('../moduleUtils/NoteOnTracker.js');
 var EventMessage = require('../../Polimod/datatypes/EventMessage.js');
 const Base= require("../Base");
-
+function valueOrDefault(value,defaultVal){
+  return (value===undefined)?defaultVal:value;
+}
 var headers = EventMessage.headers;
 
 var Narp = function (properties, environment) {
@@ -10,16 +12,24 @@ var Narp = function (properties, environment) {
   Base.call(this,properties,environment);
   var myBitmap = this.bitmap = properties.bitmap||0;
   var currentStep = 0;
-  var stepDivision = this.stepDivision = {
-    value: 2
-  }
 
-  var noteDuration = this.noteDuration = {
-    value: 1
+  if(!properties) properties={}
+  this.properties=properties;
+  
+  properties.stepDivision = {
+    value: valueOrDefault(properties.stepDivision,2)
   }
+  let stepDivision= properties.stepDivision;
+  properties.noteDuration = {
+    value: valueOrDefault(properties.noteDuration,1)
+  }
+  let noteDuration= properties.noteDuration;
+  properties.substep = {
+    value: valueOrDefault(properties.substep,0)
+  }
+  let substep= properties.substep;
 
   var noteOnTracker = new NoteOnTracker(this);
-  var substep = 0;
   this.baseEventMessage=new EventMessage([-1,-1,-1,-1]);
   
   if(properties.eventMessage){
@@ -30,10 +40,6 @@ var Narp = function (properties, environment) {
     }
     this.baseEventMessage.set(intvalues);
   }
-  if(properties.substep) this.substep=properties.substep;
-  if(properties.stepDivision) this.stepDivision.value=properties.stepDivision;
-  if(properties.rate) this.stepDivision.value=properties.rate;
-  if(properties.noteDuration) this.noteDuration.value=properties.noteDuration;
 
   this.recordingUi = true;
 
@@ -146,9 +152,9 @@ var Narp = function (properties, environment) {
       var clockBase = evt.eventMessage.value[1];
       var clockMicroStep = evt.eventMessage.value[2];
       if ((clockMicroStep / stepDivision.value) % clockBase == 0) {
-        substep++;
-        if (substep >= stepDivision.value) {
-          substep = 0;
+        substep.value++;
+        if (substep.value >= stepDivision.value) {
+          substep.value = 0;
           stepFunction();
         }
       }
