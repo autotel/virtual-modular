@@ -39,7 +39,7 @@ class OscMapped {
         instances++;
         this.category = "output";
         this.color = [125, 125, 125];
-        this.controllableVariables = {
+        this.properties = {
             "red": new OscVariable("/colors/red", [{ type: "f" }]),
             "green": new OscVariable("/colors/green", [{ type: "f" }]),
             "blue": new OscVariable("/colors/blue", [{ type: "f" }]),

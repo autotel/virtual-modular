@@ -18,6 +18,8 @@ var testGetName = function () {
 var RouteSequencer = function (properties,environment) {
   Base.call(this,properties,environment);
 
+  if(properties.preventBus) this.preventBus=true;
+
   var noteOnTracker = [];
 
   var settings = this.settings = {
@@ -25,12 +27,14 @@ var RouteSequencer = function (properties,environment) {
     //   value:0,
     //   valueNames:['no','yes'],
     // },
-    sendClock:false
+    sendClock:properties.sendClock||false
   }
   this.routeMode={
     value: 0,
     valueNames:['outputs','inputs'],
   }
+  if(properties.routeMode=="inputs") this.routeMode.value=1
+  if(properties.routeMode=="outputs") this.routeMode.value=0
 
   let clock = this.clock = {
     substep: 0,

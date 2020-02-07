@@ -41,9 +41,10 @@ module.exports=function(environment){
         this.choke = function () {
             let choked = 0;
             for (var a in hangingNotes) {
-            choked ++;
-            let h = hangingNotes[a];
-            sendMidi([(h[0] & 0x0f) | 0x80, h[1], h[2]],midi);
+                choked ++;
+                let h = hangingNotes[a];
+                delete hangingNotes[a];
+                sendMidi([(h[0] & 0x0f) | 0x80, h[1], h[2]],midi);
             }
             if (!choked) {
                 for (let a = 0; a < 16; a++) {

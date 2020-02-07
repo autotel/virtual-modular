@@ -6,8 +6,8 @@ var calculeitor = new(require("./interfaces/Calculeitor"))(environment);
 //var launchpad = new(require("./interfaces/LaunchpadMini"))(environment);
 // var liveCode = new(require("./interfaces/LiveCode"))(environment);
 // liveCode.setFile('./patches/live-patch.mod');
-var liveCode = new(require("./interfaces/LiveCode"))(environment);
-liveCode.setFile('./patches/live-patch.mod');
+//var liveCode = new(require("./interfaces/LiveCode"))(environment);
+//liveCode.setFile('./patches/electribe-like-patch.mod');
 
 var Oscio = new(require("./plugins/Oscio"))(environment);
 var Midi = new(require("./plugins/JazzMidi"))(environment);

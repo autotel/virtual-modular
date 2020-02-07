@@ -60,7 +60,7 @@ var FixNoteLen = function (properties,environment) {
         evt.wait--;
         if (evt.wait <= 0) {
           evt.value[0] = headers.triggerOff;
-          console.log("opt", evt.value);
+          //console.log("opt", evt.value);
           self.output(evt);
           memory.delete(evt);
         }

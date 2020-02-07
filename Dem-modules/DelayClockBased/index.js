@@ -24,7 +24,7 @@ var DelayClockBased = function (properties,environment) {
       value: 0,
     },
     sendClock: {
-      value: false,
+      value: properties.sendClock||false,
     },
   }
   let clock = this.clock = {

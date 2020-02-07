@@ -12,6 +12,7 @@ const list={
     "Harmonizer":require("./Harmonizer"),
     "MidiIO":require("./MidiIO"),
     "OscKnobs":require("./OscKnobs"),
+    "Knobs":require("./Knobs"),
     "Arpeggiator":require("./Arpeggiator"),
     "Narp":require("./Narp"),
     "Noise":require("./Noise"),

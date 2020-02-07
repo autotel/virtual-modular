@@ -41,7 +41,8 @@ module.exports=function(environment){
                 udpPort.send({
                     address:address,
                     args
-                }, "127.0.0.1", 9997);
+                    //127.0.0.1
+                }, "192.168.86.68", 9997);
             }
         });
 
@@ -89,6 +90,7 @@ module.exports=function(environment){
                 count++;
                 if(count>=this.args.length) break;
             }
+            console.log("send",this.address,this.args);
             globalSendFunction(this.address,this.args);
         }
         /**
@@ -99,6 +101,7 @@ module.exports=function(environment){
             let narg={
                 type:this.argTypes[0],
                 value:0,
+                sendUpdate:()=>{this.sendUpdate()},
             }
             if(argProperties){
                 if(argProperties.type!==undefined) narg.type=argProperties.type;
