@@ -17,17 +17,21 @@ var testGetName = function () {
 
 var Router = function (properties,environment) {
   Base.call(this,properties,environment);
+  const valueOrDefault=environment.utils.requires("valueOrDefault");
   this.preventBus=true;
   var noteOnTracker = [];
 
-  var settings = this.settings = {
+  const settings = this.settings = {
     routerNum:{
-      value:properties.routerNum||2
+      value:valueOrDefault(properties.routerNum,2)
     }
   }
   
-  let routeBitmap = this.routeBitmap = {
-    value: properties.bitmap || 0b1000010000100001,
+  const routeBitmap = this.routeBitmap = {
+    value:valueOrDefault(
+      properties.bitmap,
+      0b1000010000100001
+    )
   }
 
   /** @param {EventMessage} evt */

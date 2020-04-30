@@ -1,4 +1,3 @@
-'use strict';
 var onHandlers=require('onhandlers');
 
 module.exports=function(properties,environment){

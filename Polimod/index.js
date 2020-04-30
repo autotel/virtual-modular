@@ -10,6 +10,7 @@ const throttle=require('./utils/throttle');
 const requireProperties=require('./utils/requireProperties');
 const ModString=require('./datatypes/ModString');
 const EnvResource=require('./datatypes/EnvResource');
+const valueOrDefault=require('./utils/valueOrDefault');
 /**
  * Instance of a polimod environment
 */
@@ -38,16 +39,6 @@ class Polimod{
     */
     this.plugins=new EnvResource("plugins",this);
     /** 
-      @type{EnvResource} containing tests. This is useful to know if somehting will crash before a performance. Writing these tests, though, is in the to-do list.
-    */
-    this.tests=new EnvResource("tests",thisPolimod);
-    this.tests.run=function(){
-      for(var a in thisPolimod.tests.list){
-        console.log("running "+a+" test");
-        console.log("result",thisPolimod.tests[a]());
-      }
-    }
-    /** 
       @type{EnvResource} containing the globally shared data types such as EventMessage 
     */
     this.datatypes=new EnvResource("datatypes",this);
@@ -56,7 +47,13 @@ class Polimod{
       @type{EnvResource} containing globally shared utilities
     */
     this.utils=new EnvResource("utils",this);
-    this.utils.add({requireProperties,LazyQueue,abbreviate,throttle});
+    this.utils.add({
+      requireProperties,
+      LazyQueue,
+      abbreviate,
+      throttle,
+      valueOrDefault,
+    });
   }
 }
 
