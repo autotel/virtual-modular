@@ -16,19 +16,15 @@ var PresetKit = function(properties, environment) {
     if (properties.autoMap == 'note') this.autoMap = 1;
 
     this.recordingUi = true;
-    console.log("PK",properties);
-    
-
-
-    var kit = this.kit = {};
-
+    /** @type {EventMessage[]} */
+    var kit = this.kit = [];
 
     for (var n = 0; n < 16; n++) {
         this.kit[n] = new EventMessage({ value: [headers.triggerOn, -1, -1, -1] });
     }
 
     if (properties.kit) {
-        for (var n in properties.kit) {
+        for (let n=0; n<properties.kit.length; n++) {
             this.kit[n % 16] = new EventMessage({
                 value: properties.kit[n]
             });
@@ -91,7 +87,7 @@ var PresetKit = function(properties, environment) {
             if (!kit[0]) {
                 kit[0] = new EventMessage()
             };
-
+            
             var newEvent = kit[0].clone().underImpose(originalMessage);
 
             if (kit[presetNumber]) {
@@ -103,7 +99,9 @@ var PresetKit = function(properties, environment) {
             newEvent.value[self.autoMap] += presetNumber;
             var onkey = presetNumber;
             if (ui == true) onkey += "ui";
-            noteOnTracker.add(newEvent, onkey);
+            if(newEvent.value[0]==EventMessage.headers.triggerOn){
+                noteOnTracker.add(newEvent, onkey);
+            }
             self.output(newEvent);
 
         } else {
@@ -115,7 +113,10 @@ var PresetKit = function(properties, environment) {
 
                     var onkey = presetNumber;
                     if (ui == true) onkey += "ui";
-                    noteOnTracker.add(kit[presetNumber], onkey);
+                        
+                    if(newEvent.value[0]==EventMessage.headers.triggerOn){
+                        noteOnTracker.add(kit[presetNumber], onkey);
+                    }
                     // noteOnTracker.add(kit[presetNumber], presetNumber);
                     self.output(outputMessage);
                 }

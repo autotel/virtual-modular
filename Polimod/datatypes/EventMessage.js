@@ -58,7 +58,7 @@ var EventMessage=function(inputValue){
     }
   }
   /**
-  @returns a copy of itself
+  @returns {EventMessage} a copy of itself
   */
   this.clone=function(){
     return new EventMessage(this);
@@ -108,7 +108,10 @@ var EventMessage=function(inputValue){
     }
     return true;
   }
-  /**apply all the characteristics of other event message to this one, except the ones that are
+
+  /**
+  @returns {EventMessage} 
+   apply all the characteristics of other event message to this one, except the ones that are
   "transparent" in the other (value==-1)*/
   this.superImpose=function(otherEvent){
     for(var a in otherEvent.value){
@@ -118,7 +121,10 @@ var EventMessage=function(inputValue){
     }
     return thisEm;
   }
-  /**apply only the characteristics of other event message if the ones in  this are transparent*/
+  
+  /**
+  @returns {EventMessage} 
+  apply only the characteristics of other event message if the ones in  this are transparent*/
   this.underImpose=function(otherEvent){
     for (var a in otherEvent.value) {
       if (!(thisEm.value[a] >= 0)) {

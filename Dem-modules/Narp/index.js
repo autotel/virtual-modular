@@ -30,7 +30,7 @@ var Narp = function (properties, environment) {
   let substep= properties.substep;
 
   var noteOnTracker = new NoteOnTracker(this);
-  this.baseEventMessage=new EventMessage([-1,-1,-1,-1]);
+  this.baseEventMessage=new EventMessage([1,0,0,-1]);
   
   if(properties.eventMessage){
     let intvalues=[];
@@ -101,7 +101,10 @@ var Narp = function (properties, environment) {
   var generatedOutput = function (eventMessage, buttonNumber) {
     if (self.mute) return;
     eventMessage.life = Math.ceil(noteDuration.value);
-    noteOnTracker.add(eventMessage);
+    
+    if(eventMessage.value[0]==EventMessage.headers.triggerOn){
+      noteOnTracker.add(eventMessage);
+    }
     self.output(eventMessage);
   }
 
